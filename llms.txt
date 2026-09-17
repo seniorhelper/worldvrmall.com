@@ -1,0 +1,37 @@
+# World VR Mall
+
+> World VR Mall (https://worldvrmall.com) is a free 3D virtual shopping mall built in Denver, Colorado and open to the world. Independent stores and brands from every continent have walk-in 3D storefronts; every buy button links to the brand's own checkout. It works in any browser on phones, laptops, and VR headsets (WebXR) with no app to install. Around the mall is a park with three roller coasters, a Sky Wheel, a carousel, a lake with a cruise ship, two duck ponds, an old-world market for makers, a train, an airport, a playground, a roller rink, and a volleyball court. Opened 2026. Operated by Eye To Ad Media (https://eyetoad.com), 1001 Bannock St #660, Denver, CO 80204. Phone 1-800-481-8638.
+
+## Key facts
+- Free to visit; no accounts, no login, no ads, no chat with strangers. Kid-safe by design.
+- Purchases happen on each brand's own website; World VR Mall never handles payment or customer data.
+- Visitor selfie avatars and shopping lists are stored only in the visitor's browser.
+- Brands lease a storefront month to month; setup takes about ten minutes by phone; pricing depends on placement (Grand Lobby premium, wing storefront, food court kiosk, Old World Market booth). Call 1-800-481-8638.
+- Mall layout: Grand Lobby, Americas Wing, Europe Wing, Asia & Islands Wing, Global Food Court, Kids' Discovery Zone, Aquarium Garden, Sky Deck. A roller coaster (the Mall Blaster) runs through the mall interior.
+
+## Pages
+- [Outside world / home](https://worldvrmall.com/): teleport station, park, coasters, lake, market, train, airport, playground; FAQ.
+- [Inside the mall](https://worldvrmall.com/mall/): all wings, stores, food court, kids' zone, leasing office; full store directory.
+- [Lease a store](https://worldvrmall.com/lease/): what a storefront includes, placement tiers, setup steps, callback form.
+- [About](https://worldvrmall.com/about/): why it exists, who built it, how to visit, privacy, press boilerplate.
+
+## Stores (each has a walk-in 3D store and a product page)
+- [Eye To Ad Media](https://worldvrmall.com/stores/eye-to-ad-media/): SEO · AI Search · Websites · Denver, USA · Denver SEO, AI search optimization (AIO/GEO), and custom-coded websites since 2012. Eye To Ad Media gets businesses found in Google, Maps, and AI answers, and built World VR Mall.
+- [Showers4Less](https://worldvrmall.com/stores/showers4less/): Roll-In & ADA Showers · Denver, USA · ships nationwide · Roll-in showers, ADA shower kits, and low-threshold walk-in showers. Made in the USA. DIY-friendly systems or one-day installation, without high-pressure pricing.
+- [BuyWebURL](https://worldvrmall.com/stores/buyweburl/): Domains · Hosting · Site Builder · Denver, USA · Domain search, website builder plans from $5.99/mo, and cPanel hosting. Branded by Eye To Ad Media.
+- [Aging Safely Baths](https://worldvrmall.com/stores/aging-safely-baths/): Walk-In Tubs · Aging in Place · Denver, USA · installs nationwide · Walk-in bathtubs and hydrotherapy tubs for seniors and anyone aging in place. Consultation, sizing, and professional installation across the US.
+- [A Nu Do Salon](https://worldvrmall.com/stores/a-nu-do-salon/): Hair Salon · UV Tanning · Brighton, Colorado · Brighton, Colorado hair salon offering cuts, color, styling, UV tanning, Eufora products, gift cards, and virtual consultations.
+- [Gnomad Promotions](https://worldvrmall.com/stores/gnomad-promotions/): Branded Merchandise · USA · Branded merchandise and promotional products: custom shirts, hats, pens, sweatshirts, tents, and more. Marketing, branded merchandise, adventure.
+- [Bear Creek Auto Glass](https://worldvrmall.com/stores/bear-creek-auto-glass/): Windshield Replacement · Littleton, Colorado · Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes, often same or next day.
+- [Bighorn Painting](https://worldvrmall.com/stores/bighorn-painting/): House Painters · Arvada, Colorado · Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties across Jefferson County.
+- [MySalesHelp](https://worldvrmall.com/stores/my-sales-help/): Sales Training · Denver, USA · Sales training tools: an objection-handling engine, practice games, the sales wheel, and a full course from a former sales manager of multi-million-dollar plumbing and remodeling companies.
+- [Search Converts](https://worldvrmall.com/stores/search-converts/): Conversion Rate Optimization · Denver, USA · Full-service conversion rate optimization agency. Fixes what happens after the click, then scales it with paid search, programmatic, CTV, video, email, and AI marketing.
+- [Link Restaurants](https://worldvrmall.com/stores/link-restaurants/): Restaurant Marketing Hub · Denver, USA · The restaurant marketing network: restaurant SEO, restaurant advertising, and the walk-in 3D diner that sells it all.
+- [Best Hawaii Snorkeling](https://worldvrmall.com/stores/hawaii-snorkeling/): Tours & Travel Guide · Hawaii, USA · Hawaii snorkeling guide: the best beaches, reefs, and tours on Oahu, Maui, Kauai, and the Big Island.
+- [Best Belize Adventures](https://worldvrmall.com/stores/belize-adventures/): Tours · Diving · Fishing · Belize · Belize tours, diving, snorkeling, fishing charters, and island expeditions.
+- [Costa Rica Escapes](https://worldvrmall.com/stores/costa-rica-escapes/): Hotels · Beaches · Things To Do · Costa Rica · Costa Rica travel guide: places to visit, best hotels, best beaches, surf lessons, and short-term rentals.
+- [Puerto Plata Getaways](https://worldvrmall.com/stores/puerto-plata-getaways/): Dominican Republic Travel & Real Estate · Puerto Plata, Dominican Republic · Puerto Plata, Cabarete, and Sosúa travel guide, restaurants, and real estate on the Dominican Republic's north coast.
+
+## Contact
+- Phone: 1-800-481-8638
+- Leasing: https://worldvrmall.com/lease/
