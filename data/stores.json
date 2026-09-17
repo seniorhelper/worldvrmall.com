@@ -1,256 +1,2077 @@
 {
-  "wings": {
-    "lobby": { "name": "Grand Lobby", "blurb": "First stores you see. Premium placement." },
-    "americas": { "name": "Americas Wing", "blurb": "North, Central & South America" },
-    "europe": { "name": "Europe Wing", "blurb": "From Lisbon to Reykjavik" },
-    "asia": { "name": "Asia & Islands Wing", "blurb": "Tokyo, Bali, Hawaii, Belize, the Caribbean" },
-    "food": { "name": "Global Food Court", "blurb": "Eat your way around the world" },
-    "kids": { "name": "Kids' Discovery Zone", "blurb": "Play, learn, explore" },
-    "market": { "name": "Old World Market", "blurb": "Handmade & homemade goods (outside)" }
+ "wings": {
+  "lobby": {
+   "name": "Grand Lobby",
+   "blurb": "First stores you see. Premium placement."
   },
-  "stores": [
+  "americas": {
+   "name": "Americas Wing",
+   "blurb": "North, Central & South America"
+  },
+  "europe": {
+   "name": "Europe Wing",
+   "blurb": "From Lisbon to Reykjavik"
+  },
+  "asia": {
+   "name": "Asia, Africa & Islands Wing",
+   "blurb": "Tokyo, Seoul, Bali, Nairobi, Marrakech, Hawaii, Belize, the Caribbean"
+  },
+  "food": {
+   "name": "Global Food Court",
+   "blurb": "Eat your way around the world"
+  },
+  "kids": {
+   "name": "Kids' Discovery Zone",
+   "blurb": "Play, learn, explore"
+  },
+  "market": {
+   "name": "Old World Market",
+   "blurb": "Handmade & homemade goods (outside)"
+  }
+ },
+ "stores": [
+  {
+   "slug": "eye-to-ad-media",
+   "name": "Eye To Ad Media",
+   "tag": "SEO · AI Search · Websites",
+   "city": "Denver, USA",
+   "flag": "🇺🇸",
+   "wing": "lobby",
+   "premium": true,
+   "url": "https://eyetoad.com",
+   "cta": "Visit eyetoad.com",
+   "phone": "1-800-481-8638",
+   "logo": {
+    "icon": "🐸",
+    "text": "EYE TO AD",
+    "sub": "MEDIA",
+    "bg": "#0b1a3a",
+    "fg": "#7cff6b",
+    "accent": "#ffffff"
+   },
+   "colors": {
+    "wall": "#0f2a5c",
+    "floor": "#0b1a3a",
+    "trim": "#7cff6b"
+   },
+   "clerk": {
+    "name": "Sticky the Toad",
+    "shirt": "#7cff6b",
+    "lines": [
+     "Hi! I'm Sticky. Eye To Ad Media gets businesses found at the top of Google, Maps, and the AI answers: ChatGPT, Gemini, Claude, Perplexity, all of them.",
+     "Since 2012, Denver-based, BBB A+, 5-star reviews. Ask me anything or grab a service off the shelf.",
+     "Fun fact: this whole mall was built by the same team. So yeah, we can build your site."
+    ]
+   },
+   "about": "Denver SEO, AI search optimization (AIO/GEO), and custom-coded websites since 2012. Eye To Ad Media gets businesses found in Google, Maps, and AI answers, and built World VR Mall.",
+   "products": [
     {
-      "slug": "eye-to-ad-media", "name": "Eye To Ad Media", "tag": "SEO · AI Search · Websites", "city": "Denver, USA", "flag": "🇺🇸", "wing": "lobby", "premium": true,
-      "url": "https://eyetoad.com", "cta": "Visit eyetoad.com", "phone": "1-800-481-8638",
-      "logo": { "icon": "🐸", "text": "EYE TO AD", "sub": "MEDIA", "bg": "#0b1a3a", "fg": "#7cff6b", "accent": "#ffffff" },
-      "colors": { "wall": "#0f2a5c", "floor": "#0b1a3a", "trim": "#7cff6b" },
-      "clerk": { "name": "Sticky the Toad", "shirt": "#7cff6b", "lines": ["Hi! I'm Sticky. Eye To Ad Media gets businesses found at the top of Google, Maps, and the AI answers: ChatGPT, Gemini, Claude, Perplexity, all of them.", "Since 2012, Denver-based, BBB A+, 5-star reviews. Ask me anything or grab a service off the shelf.", "Fun fact: this whole mall was built by the same team. So yeah, we can build your site."] },
-      "about": "Denver SEO, AI search optimization (AIO/GEO), and custom-coded websites since 2012. Eye To Ad Media gets businesses found in Google, Maps, and AI answers, and built World VR Mall.",
-      "products": [
-        { "title": "Local SEO Program", "price": "From $99/mo", "url": "https://eyetoad.com", "desc": "Rank in Google Maps and local search for the services you sell." },
-        { "title": "AI Search Optimization (AIO / GEO)", "price": "Ask", "url": "https://eyetoad.com", "desc": "Get cited by ChatGPT, Gemini, Claude, Perplexity, and Copilot when people ask for what you do." },
-        { "title": "Custom-Coded Website Lease", "price": "$99/mo & up", "url": "https://eyetoad.com", "desc": "Hand-coded, fast, fully optimized site. Lease with a buyout option at 24–36 months." },
-        { "title": "Free Website & SEO Audit", "price": "Free", "url": "https://eyetoad.com", "desc": "Find out why you're not ranking and what to fix first." },
-        { "title": "A Store in World VR Mall", "price": "Call for pricing", "url": "/lease/", "desc": "Get your brand in the mall you're standing in. Ten-minute setup." }
-      ]
+     "title": "Local SEO Program",
+     "price": "From $99/mo",
+     "url": "https://eyetoad.com",
+     "desc": "Rank in Google Maps and local search for the services you sell."
     },
     {
-      "slug": "showers4less", "name": "Showers4Less", "tag": "Roll-In & ADA Showers", "city": "Denver, USA · ships nationwide", "flag": "🇺🇸", "wing": "lobby", "premium": true,
-      "url": "https://showers4less.com", "cta": "Shop showers4less.com", "phone": "1-888-779-2284",
-      "logo": { "icon": "🚿", "text": "SHOWERS", "sub": "4LESS", "bg": "#eff0f5", "fg": "#0e1b4d", "accent": "#4770db" },
-      "colors": { "wall": "#eff0f5", "floor": "#dfe4f2", "trim": "#4770db" },
-      "clerk": { "name": "Dana", "shirt": "#4770db", "lines": ["Welcome to Showers4Less! Barrier-free, roll-in, and ADA showers, made in the USA, shipped to your door.", "DIY kits or one-day professional installation in most of the country. No high-pressure pricing, ever.", "Tap any shower on the shelf to see it and buy it on our site. Questions? Call 1-888-779-2284."] },
-      "about": "Roll-in showers, ADA shower kits, and low-threshold walk-in showers. Made in the USA. DIY-friendly systems or one-day installation, without high-pressure pricing.",
-      "products": [
-        { "title": "36\" x 36\" Barrier Free Shower Pan", "price": "$1,450", "url": "https://showers4less.com/products/36-x-36-barrier-free-shower-pan-roll-in-shower-pan", "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_949bfa4a-ab9e-43c2-81d8-74a0d3c95eec.png?v=1761168191&width=533", "desc": "Roll-in shower pan with a threshold low enough for a wheelchair." },
-        { "title": "36\" x 36\" Barrier Free Shower Package", "price": "$3,989", "url": "https://showers4less.com/products/36-x-36-multi-piece-shower-system", "img": "https://showers4less.com/cdn/shop/products/36x36showerimage.png?v=1666904505&width=533", "desc": "Pan plus walls: a complete multi-piece shower system." },
-        { "title": "40\" x 38\" ADA Compliant Handicap Shower", "price": "$4,491", "url": "https://showers4less.com/products/40-x-38-ada-compliant-handicap-shower-barrier-free-shower", "img": "https://showers4less.com/cdn/shop/products/4038ADAcompliantshowerimage.jpg?v=1668019660&width=533", "desc": "ADA-designed with grab-bar support and seat options." },
-        { "title": "42\" x 36\" Roll In Shower Full Package", "price": "$4,995", "url": "https://showers4less.com/products/42-x-36-roll-in-shower-full-package-multi-piece-shower-center-drain-integrated-soap-dishes", "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_869bcc38-e7ec-4d57-b7c6-012abead2d31.png?v=1764471266&width=533", "desc": "Center drain, integrated soap dishes, white." },
-        { "title": "60\" x 30\" Brushed Nickel Shower Package", "price": "$4,800", "url": "https://showers4less.com/products/brushed-nickel-shower-package-30-x-60-barrier-free-shower", "img": "https://showers4less.com/cdn/shop/files/walkinshowerimage.jpg?v=1741656224&width=533", "desc": "Waterproof, grout-free wall tiles with the look of natural stone." },
-        { "title": "60\" x 48\" Designer Roll In Shower — Grecian Earth", "price": "$6,695", "url": "https://showers4less.com/products/60-x-48-roll-in-shower-package-grecian-earth-wall-system", "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3bfdb621-9c4d-40c6-bac6-d8b45c3f164c.jpg?v=1766815957&width=533", "desc": "Complete 60 x 48 package, everything you need in one system." },
-        { "title": "60\" x 48\" Roll In Shower Pan — Center Drain", "price": "From $1,490", "url": "https://showers4less.com/products/60-x-48-roll-in-shower-pan-center-drain", "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_669246a5-eb57-43e0-938c-505594e9dcc5.png?v=1764224071&width=533", "desc": "Extra-wide mobility space." },
-        { "title": "60\" x 60\" Barrier Free Shower Package", "price": "$6,581", "url": "https://showers4less.com/products/60-x-60-roll-in-shower-kit-barrier-free-showers-handicap-showers", "img": "https://showers4less.com/cdn/shop/products/6060rollinshowerkitimage.png?v=1666975471&width=533", "desc": "One of the largest barrier-free showers we carry." },
-        { "title": "Sketch Your Bathroom & Get a Quote", "price": "Free", "url": "https://showers4less.com/#s4l-sketch-root", "desc": "Draw your layout on the site and get a custom quote in one business day." }
-      ]
+     "title": "AI Search Optimization (AIO / GEO)",
+     "price": "Ask",
+     "url": "https://eyetoad.com",
+     "desc": "Get cited by ChatGPT, Gemini, Claude, Perplexity, and Copilot when people ask for what you do."
     },
     {
-      "slug": "buyweburl", "name": "BuyWebURL", "tag": "Domains · Hosting · Site Builder", "city": "Denver, USA", "flag": "🇺🇸", "wing": "lobby", "premium": true,
-      "url": "https://buyweburl.com", "cta": "Search domains", "phone": "1-800-481-8638",
-      "logo": { "icon": "🌐", "text": "BUYWEBURL", "sub": ".COM", "bg": "#0b1a3a", "fg": "#38f0ff", "accent": "#ffffff" },
-      "colors": { "wall": "#102552", "floor": "#0b1a3a", "trim": "#38f0ff" },
-      "clerk": { "name": "Uri", "shirt": "#38f0ff", "lines": ["Need a domain? Hosting? A site tonight? BuyWebURL by Eye To Ad Media has all three.", "Website builder plans start at $5.99 a month. cPanel hosting for the pros. Search any name right here.", "Pro tip: your business name dot com is probably taken. Your business name plus your city usually isn't."] },
-      "about": "Domain search, website builder plans from $5.99/mo, and cPanel hosting. Branded by Eye To Ad Media.",
-      "products": [
-        { "title": "Domain Name Search", "price": "From $0.99/yr", "url": "https://buyweburl.com", "desc": "Find and register your perfect domain." },
-        { "title": "Website Builder", "price": "From $5.99/mo", "url": "https://buyweburl.com", "desc": "Drag-and-drop site with hosting included." },
-        { "title": "cPanel Web Hosting", "price": "Monthly plans", "url": "https://buyweburl.com", "desc": "Fast, reliable hosting with the industry-standard control panel." },
-        { "title": "Professional Email", "price": "Monthly plans", "url": "https://buyweburl.com", "desc": "you@yourbusiness.com. Look legit." },
-        { "title": "SSL Certificate", "price": "Yearly", "url": "https://buyweburl.com", "desc": "The padlock. Google requires it." }
-      ]
+     "title": "Custom-Coded Website Lease",
+     "price": "$99/mo & up",
+     "url": "https://eyetoad.com",
+     "desc": "Hand-coded, fast, fully optimized site. Lease with a buyout option at 24–36 months."
     },
     {
-      "slug": "aging-safely-baths", "name": "Aging Safely Baths", "tag": "Walk-In Tubs · Aging in Place", "city": "Denver, USA · installs nationwide", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://www.agingsafelybaths.com/contact-us/", "cta": "Talk to a specialist", "phone": "1-888-779-2284",
-      "logo": { "icon": "🛁", "text": "AGING SAFELY", "sub": "BATHS", "bg": "#0e1b4d", "fg": "#ffffff", "accent": "#4fc3ff" },
-      "colors": { "wall": "#123a6b", "floor": "#0e1b4d", "trim": "#4fc3ff" },
-      "clerk": { "name": "Grace", "shirt": "#4fc3ff", "lines": ["Hello, welcome to Aging Safely Baths. Walk-in tubs with hydrotherapy, made for staying in the home you love.", "Every tub is sized and installed for your bathroom. Nothing is off the shelf, so let's talk.", "Tap any tub to learn more, then hit Talk to a specialist. No pressure, just help."] },
-      "about": "Walk-in bathtubs and hydrotherapy tubs for seniors and anyone aging in place. Consultation, sizing, and professional installation across the US.",
-      "products": [
-        { "title": "Walk-In Bathtub (Standard)", "price": "Quote", "url": "https://www.agingsafelybaths.com/contact-us/", "desc": "Low step-in door, built-in seat, safety grab bars." },
-        { "title": "Hydrotherapy Walk-In Tub", "price": "Quote", "url": "https://www.agingsafelybaths.com/contact-us/", "desc": "Air and water jets for circulation, joints, and relaxation." },
-        { "title": "Walk-In Tub with Shower", "price": "Quote", "url": "https://www.agingsafelybaths.com/contact-us/", "desc": "Soak or shower, same footprint." },
-        { "title": "Bariatric Walk-In Tub", "price": "Quote", "url": "https://www.agingsafelybaths.com/contact-us/", "desc": "Extra width and a wider door." },
-        { "title": "Free In-Home Consultation", "price": "Free", "url": "https://www.agingsafelybaths.com/contact-us/", "desc": "We measure, you decide." }
-      ]
+     "title": "Free Website & SEO Audit",
+     "price": "Free",
+     "url": "https://eyetoad.com",
+     "desc": "Find out why you're not ranking and what to fix first."
     },
     {
-      "slug": "a-nu-do-salon", "name": "A Nu Do Salon", "tag": "Hair Salon · UV Tanning", "city": "Brighton, Colorado", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://anudosalon.com", "cta": "Book an appointment",
-      "logo": { "icon": "⭐", "text": "A·Nu·Do", "sub": "SALON", "bg": "#ffffff", "fg": "#d81b60", "accent": "#111111" },
-      "colors": { "wall": "#1a1a1a", "floor": "#2b2b2b", "trim": "#d81b60" },
-      "clerk": { "name": "Jess", "shirt": "#d81b60", "lines": ["Hey gorgeous! Welcome to A Nu Do Salon, Brighton, Colorado. Your hair. Your style. Your way.", "Cuts, color, styling, and UV tanning. We also carry Eufora products, and yes, we do virtual consultations.", "Don't wait. Book. Your future self will thank you."] },
-      "about": "Brighton, Colorado hair salon offering cuts, color, styling, UV tanning, Eufora products, gift cards, and virtual consultations.",
-      "products": [
-        { "title": "Haircut & Style", "price": "Book", "url": "https://anudosalon.com", "desc": "Precision cuts for every hair type." },
-        { "title": "Hair Color Services", "price": "Book", "url": "https://anudosalon.com", "desc": "Balayage, highlights, full color, gloss." },
-        { "title": "UV Tanning", "price": "Book", "url": "https://anudosalon.com", "desc": "Sun-kissed, year-round." },
-        { "title": "Shop Eufora", "price": "Shop", "url": "https://anudosalon.com", "desc": "Professional hair care you can take home." },
-        { "title": "Gift Cards", "price": "Any amount", "url": "https://anudosalon.com", "desc": "The gift that always fits." }
-      ]
-    },
-    {
-      "slug": "gnomad-promotions", "name": "Gnomad Promotions", "tag": "Branded Merchandise", "city": "USA", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://gnomadpromotions.com", "cta": "Shop now",
-      "logo": { "icon": "🧢", "text": "GNOMAD", "sub": "PROMOTIONS", "bg": "#0f766e", "fg": "#ffffff", "accent": "#b91c1c" },
-      "colors": { "wall": "#0f766e", "floor": "#0b4f4a", "trim": "#ffffff" },
-      "clerk": { "name": "Gnorm", "shirt": "#0f766e", "lines": ["If you know, you gnome. Welcome to Gnomad Promotions: your brand, on everything.", "Shirts, hats, pens, tents, tech, sweatshirts. Your logo, printed right, delivered on time.", "Your brand adventure awaits. Grab something off the shelf."] },
-      "about": "Branded merchandise and promotional products: custom shirts, hats, pens, sweatshirts, tents, and more. Marketing, branded merchandise, adventure.",
-      "products": [
-        { "title": "Branded T-Shirts", "price": "Shop", "url": "https://gnomadpromotions.com", "desc": "Your logo on soft, quality tees." },
-        { "title": "Branded Hats & Caps", "price": "Shop", "url": "https://gnomadpromotions.com", "desc": "Embroidered, not printed." },
-        { "title": "Custom Pens with Logo", "price": "Shop", "url": "https://gnomadpromotions.com", "desc": "The most-borrowed marketing tool on Earth." },
-        { "title": "Branded Sweatshirts", "price": "Shop", "url": "https://gnomadpromotions.com", "desc": "Team hoodies people actually wear." },
-        { "title": "Custom Tents & Banners", "price": "Shop", "url": "https://gnomadpromotions.com", "desc": "Own the trade show." },
-        { "title": "Digital Catalogue", "price": "Free", "url": "https://gnomadpromotions.com", "desc": "Browse thousands of items." }
-      ]
-    },
-    {
-      "slug": "bear-creek-auto-glass", "name": "Bear Creek Auto Glass", "tag": "Windshield Replacement", "city": "Littleton, Colorado", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://bearcreekautoglass.com", "cta": "Get a free quote", "phone": "(303) 875-7679",
-      "logo": { "icon": "🌄", "text": "BEAR CREEK", "sub": "AUTO GLASS", "bg": "#0b2a6b", "fg": "#ffd23f", "accent": "#ff8a00" },
-      "colors": { "wall": "#0b2a6b", "floor": "#071a45", "trim": "#ff8a00" },
-      "clerk": { "name": "Scott", "shirt": "#ff8a00", "lines": ["Hey there, Bear Creek Auto Glass, family owned in Littleton, Colorado. 4.6 stars, 191 Google reviews.", "Rock chip off Wadsworth? Crack creeping across your view on C-470? We come to you anywhere in the Denver metro, no extra charge.", "We call your insurance so you don't have to. Free quotes, often same or next day."] },
-      "about": "Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes, often same or next day.",
-      "products": [
-        { "title": "Windshield Replacement", "price": "Free quote", "url": "https://bearcreekautoglass.com", "desc": "Quality glass, installed at your home or work." },
-        { "title": "Rock Chip Repair", "price": "Free quote", "url": "https://bearcreekautoglass.com", "desc": "Fix it before it spreads." },
-        { "title": "Free Mobile Service", "price": "Included", "url": "https://bearcreekautoglass.com", "desc": "Anywhere in the Denver metro, no fee." },
-        { "title": "Insurance Claims Handled", "price": "Included", "url": "https://bearcreekautoglass.com", "desc": "We call them so you don't have to." },
-        { "title": "Call (303) 875-7679", "price": "Free quote", "url": "tel:13038757679", "desc": "Scott calls you back with a real number." }
-      ]
-    },
-    {
-      "slug": "bighorn-painting", "name": "Bighorn Painting", "tag": "House Painters", "city": "Arvada, Colorado", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://bighornpainting.com", "cta": "Get an in-home estimate", "phone": "720-912-4676",
-      "logo": { "icon": "🐏", "text": "BIGHORN", "sub": "PAINTING · BUILT TO ENDURE", "bg": "#f6e7c9", "fg": "#8b3a1d", "accent": "#c9541f" },
-      "colors": { "wall": "#f6e7c9", "floor": "#e8d3ad", "trim": "#c9541f" },
-      "clerk": { "name": "Ram", "shirt": "#c9541f", "lines": ["Welcome to Bighorn Painting, Arvada's choice for house painters. 4.9 stars.", "Interior, exterior, cabinets, commercial. Premium paints, quality workmanship, guaranteed satisfaction across Jefferson County.", "Want an in-home estimate? Tap the shelf. Or call 720-912-4676."] },
-      "about": "Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties across Jefferson County.",
-      "products": [
-        { "title": "Exterior House Painting", "price": "Free estimate", "url": "https://bighornpainting.com", "desc": "Built to endure Colorado sun and snow." },
-        { "title": "Interior Painting", "price": "Free estimate", "url": "https://bighornpainting.com", "desc": "Clean lines, no drips, done on time." },
-        { "title": "Cabinet Refinishing", "price": "Free estimate", "url": "https://bighornpainting.com", "desc": "A new kitchen without the demo." },
-        { "title": "Commercial Painting", "price": "Free estimate", "url": "https://bighornpainting.com", "desc": "Offices, retail, HOAs." },
-        { "title": "In-Home Estimate", "price": "Free", "url": "https://bighornpainting.com", "desc": "We come to you. 720-912-4676." }
-      ]
-    },
-    {
-      "slug": "my-sales-help", "name": "MySalesHelp", "tag": "Sales Training", "city": "Denver, USA", "flag": "🇺🇸", "wing": "americas",
-      "url": "https://mysaleshelp.com", "cta": "Start training",
-      "logo": { "icon": "🎯", "text": "MY SALES", "sub": "HELP", "bg": "#1b1b2f", "fg": "#ffd23f", "accent": "#ff4f79" },
-      "colors": { "wall": "#1b1b2f", "floor": "#12121f", "trim": "#ffd23f" },
-      "clerk": { "name": "Coach Z", "shirt": "#ffd23f", "lines": ["You already know how to talk to people. MySalesHelp teaches you how to close. Big difference.", "Objection engine, the wheel, sales games, and a full course, built by someone who ran multi-million-dollar sales teams.", "Quick question: what's the last objection that beat you? Go practice it. On the house."] },
-      "about": "Sales training tools: an objection-handling engine, practice games, the sales wheel, and a full course from a former sales manager of multi-million-dollar plumbing and remodeling companies.",
-      "products": [
-        { "title": "Objection Engine", "price": "Try it", "url": "https://mysaleshelp.com", "desc": "Practice handling real objections until they don't scare you." },
-        { "title": "Sales Course", "price": "See site", "url": "https://mysaleshelp.com", "desc": "From first hello to signed contract." },
-        { "title": "The Sales Wheel", "price": "Try it", "url": "https://mysaleshelp.com", "desc": "Spin, pitch, improve." },
-        { "title": "Sales Games", "price": "Free", "url": "https://mysaleshelp.com", "desc": "Because reps learn faster when they're having fun." }
-      ]
-    },
-    {
-      "slug": "search-converts", "name": "Search Converts", "tag": "Conversion Rate Optimization", "city": "Denver, USA", "flag": "🇺🇸", "wing": "americas", "premium": true,
-      "url": "https://searchconverts.com", "cta": "Free 30-minute strategy session", "phone": "+1 720-712-8615",
-      "logo": { "icon": "📈", "text": "SEARCH", "sub": "CONVERTS", "bg": "#0b1a3a", "fg": "#ff8a00", "accent": "#ffffff" },
-      "colors": { "wall": "#12224a", "floor": "#0b1a3a", "trim": "#ff8a00" },
-      "clerk": { "name": "Vera", "shirt": "#ff8a00", "lines": ["You already have the traffic. Now convert it. That's Search Converts in one sentence.", "Full-service conversion rate optimization: we fix what happens after the click, then scale it with paid search, programmatic, CTV, video, email, and AI marketing.", "Most companies don't have a traffic problem. They have a conversion problem. Free 30-minute strategy session, no obligation."] },
-      "about": "Full-service conversion rate optimization agency. Fixes what happens after the click, then scales it with paid search, programmatic, CTV, video, email, and AI marketing.",
-      "products": [
-        { "title": "Free 30-Minute Strategy Session", "price": "Free", "url": "https://searchconverts.com", "desc": "Find out what your current traffic should be earning." },
-        { "title": "Conversion Rate Optimization", "price": "Ask", "url": "https://searchconverts.com", "desc": "Turn more of the visitors you already have into customers." },
-        { "title": "Paid Search & Programmatic", "price": "Ask", "url": "https://searchconverts.com", "desc": "Scale what converts." },
-        { "title": "CTV & Video Marketing", "price": "Ask", "url": "https://searchconverts.com", "desc": "Your ad on the big screen." },
-        { "title": "AI Marketing", "price": "Ask", "url": "https://searchconverts.com", "desc": "Automations, bots, and AI-driven campaigns." }
-      ]
-    },
-    {
-      "slug": "link-restaurants", "name": "Link Restaurants", "tag": "Restaurant Marketing Hub", "city": "Denver, USA", "flag": "🇺🇸", "wing": "food",
-      "url": "https://linkrestaurants.com", "cta": "Visit linkrestaurants.com",
-      "logo": { "icon": "🍽️", "text": "LINK", "sub": "RESTAURANTS", "bg": "#7a1f1f", "fg": "#ffffff", "accent": "#ffd23f" },
-      "colors": { "wall": "#7a1f1f", "floor": "#4a1010", "trim": "#ffd23f" },
-      "clerk": { "name": "Peggy", "shirt": "#ffd23f", "lines": ["Restaurant owner? You're in the right food court. Everything here is about filling your tables.", "Link Restaurants, Restaurants SEO, and Restaurants Advertising: getting you found and getting you booked.", "Walk into the 50's diner next door. It'll explain the whole thing over a milkshake."] },
-      "about": "The restaurant marketing network: restaurant SEO, restaurant advertising, and the walk-in 3D diner that sells it all.",
-      "products": [
-        { "title": "Restaurant SEO", "price": "Ask", "url": "https://restaurantsseo.com", "desc": "Top of search in competitive markets." },
-        { "title": "Restaurant Advertising", "price": "Ask", "url": "https://restaurantsadvertising.com", "desc": "Ads that fill tables, not just feeds." },
-        { "title": "Advertising For Restaurant — the 3D diner", "price": "Free visit", "url": "https://advertisingforrestaurant.com", "desc": "Walk into a 50's diner and get the pitch from Peggy and Hank." },
-        { "title": "Link Restaurants Network", "price": "Ask", "url": "https://linkrestaurants.com", "desc": "Get listed across the network." }
-      ]
-    },
-    {
-      "slug": "hawaii-snorkeling", "name": "Best Hawaii Snorkeling", "tag": "Tours & Travel Guide", "city": "Hawaii, USA", "flag": "🌺", "wing": "asia",
-      "url": "https://besthawaiisnorkeling.com", "cta": "Plan your trip",
-      "logo": { "icon": "🐠", "text": "HAWAII", "sub": "SNORKELING", "bg": "#0891b2", "fg": "#ffffff", "accent": "#fde047" },
-      "colors": { "wall": "#0e7490", "floor": "#155e75", "trim": "#fde047" },
-      "clerk": { "name": "Kai", "shirt": "#fde047", "lines": ["Aloha! Best beaches, best reefs, best turtles. This is where you plan the Hawaii trip.", "Oahu, Maui, Kauai, Big Island: we know where the fish are.", "Fun fact: the humuhumunukunukuāpuaʻa is Hawaii's state fish. Say it three times fast."] },
-      "about": "Hawaii snorkeling guide: the best beaches, reefs, and tours on Oahu, Maui, Kauai, and the Big Island.",
-      "products": [
-        { "title": "Best Snorkeling Spots in Hawaii", "price": "Free guide", "url": "https://besthawaiisnorkeling.com", "desc": "Island by island." },
-        { "title": "Maui Snorkel Tours", "price": "See site", "url": "https://besthawaiisnorkeling.com", "desc": "Molokini and beyond." },
-        { "title": "Oahu Snorkel Tours", "price": "See site", "url": "https://besthawaiisnorkeling.com", "desc": "Turtles at Hanauma Bay." }
-      ]
-    },
-    {
-      "slug": "belize-adventures", "name": "Best Belize Adventures", "tag": "Tours · Diving · Fishing", "city": "Belize", "flag": "🇧🇿", "wing": "asia",
-      "url": "https://bestbelizeadventures.com", "cta": "Explore Belize",
-      "logo": { "icon": "🤿", "text": "BELIZE", "sub": "ADVENTURES", "bg": "#065f46", "fg": "#ffffff", "accent": "#fbbf24" },
-      "colors": { "wall": "#065f46", "floor": "#064e3b", "trim": "#fbbf24" },
-      "clerk": { "name": "Marisol", "shirt": "#fbbf24", "lines": ["Welcome! Belize: the Blue Hole, the reef, the jungle, and the friendliest people in Central America.", "Diving, snorkeling, fishing charters, island expeditions. We've got the connections.", "Fun fact: Belize has the second-largest barrier reef on Earth."] },
-      "about": "Belize tours, diving, snorkeling, fishing charters, and island expeditions.",
-      "products": [
-        { "title": "Belize Tour Packages", "price": "See site", "url": "https://belizetourspackages.com", "desc": "Reef and jungle in one trip." },
-        { "title": "Belize Fishing Charters", "price": "See site", "url": "https://belizefishingcharter.com", "desc": "Bonefish, permit, tarpon." },
-        { "title": "Best Places to Dive in Belize", "price": "Free guide", "url": "https://bestplacestodiveinbelize.com", "desc": "Blue Hole and beyond." }
-      ]
-    },
-    {
-      "slug": "costa-rica-escapes", "name": "Costa Rica Escapes", "tag": "Hotels · Beaches · Things To Do", "city": "Costa Rica", "flag": "🇨🇷", "wing": "asia",
-      "url": "https://placestovisitincostarica.com", "cta": "Plan Costa Rica",
-      "logo": { "icon": "🦜", "text": "COSTA RICA", "sub": "ESCAPES", "bg": "#166534", "fg": "#ffffff", "accent": "#f59e0b" },
-      "colors": { "wall": "#166534", "floor": "#14532d", "trim": "#f59e0b" },
-      "clerk": { "name": "Tico", "shirt": "#f59e0b", "lines": ["¡Pura vida! Costa Rica: volcanoes, sloths, surf, and the best coffee you'll ever drink.", "Hotels, beaches, surf lessons, and places to visit, all in one guide.", "Fun fact: Costa Rica has no army. It spends the money on schools and parks instead."] },
-      "about": "Costa Rica travel guide: places to visit, best hotels, best beaches, surf lessons, and short-term rentals.",
-      "products": [
-        { "title": "Best Hotels in Costa Rica", "price": "See site", "url": "https://besthotelscostarica.com", "desc": "Jungle lodges to beach resorts." },
-        { "title": "Best Beaches in Costa Rica", "price": "Free guide", "url": "https://bestbeachesincostarica.com", "desc": "Pacific and Caribbean." },
-        { "title": "Surfing Lessons Costa Rica", "price": "See site", "url": "https://surfinglessonscostarica.com", "desc": "Stand up on day one." }
-      ]
-    },
-    {
-      "slug": "puerto-plata-getaways", "name": "Puerto Plata Getaways", "tag": "Dominican Republic Travel & Real Estate", "city": "Puerto Plata, Dominican Republic", "flag": "🇩🇴", "wing": "asia",
-      "url": "https://thingstodoinpuertoplata.com", "cta": "Discover Puerto Plata",
-      "logo": { "icon": "🏝️", "text": "PUERTO PLATA", "sub": "GETAWAYS", "bg": "#1d4ed8", "fg": "#ffffff", "accent": "#f97316" },
-      "colors": { "wall": "#1e40af", "floor": "#1e3a8a", "trim": "#f97316" },
-      "clerk": { "name": "Rosa", "shirt": "#f97316", "lines": ["Bienvenidos! Puerto Plata, Cabarete, Sosúa: the north coast of the Dominican Republic.", "Beaches, kite surfing, restaurants, and homes and condos if you decide to stay. People do.", "Fun fact: Cabarete is one of the kite-surfing capitals of the world."] },
-      "about": "Puerto Plata, Cabarete, and Sosúa travel guide, restaurants, and real estate on the Dominican Republic's north coast.",
-      "products": [
-        { "title": "Things To Do in Puerto Plata", "price": "Free guide", "url": "https://thingstodoinpuertoplata.com", "desc": "Cable car, beaches, rum." },
-        { "title": "Puerto Plata Restaurants", "price": "Free guide", "url": "https://puertoplatarestaurants.com", "desc": "Where the locals eat." },
-        { "title": "Cabarete Real Estate", "price": "See listings", "url": "https://cabareterealty.com", "desc": "Condos and homes by the beach." }
-      ]
+     "title": "A Store in World VR Mall",
+     "price": "Call for pricing",
+     "url": "/lease/",
+     "desc": "Get your brand in the mall you're standing in. Ten-minute setup."
     }
-  ],
-  "placeholders": [
-    { "slug": "tokyo-threads", "name": "Tokyo Threads", "tag": "Streetwear", "city": "Tokyo, Japan", "flag": "🇯🇵", "wing": "asia", "colors": { "wall": "#1f1f2e", "floor": "#15151f", "trim": "#ff4f79" }, "logo": { "icon": "👘", "text": "TOKYO", "sub": "THREADS", "bg": "#1f1f2e", "fg": "#ff4f79", "accent": "#fff" } },
-    { "slug": "seoul-skincare", "name": "Seoul Skincare", "tag": "K-Beauty", "city": "Seoul, South Korea", "flag": "🇰🇷", "wing": "asia", "colors": { "wall": "#fdf2f8", "floor": "#fce7f3", "trim": "#db2777" }, "logo": { "icon": "🌸", "text": "SEOUL", "sub": "SKINCARE", "bg": "#fdf2f8", "fg": "#db2777", "accent": "#111" } },
-    { "slug": "bali-rattan", "name": "Bali Rattan", "tag": "Home & Furniture", "city": "Bali, Indonesia", "flag": "🇮🇩", "wing": "asia", "colors": { "wall": "#fef3c7", "floor": "#fde68a", "trim": "#92400e" }, "logo": { "icon": "🌴", "text": "BALI", "sub": "RATTAN", "bg": "#fef3c7", "fg": "#92400e", "accent": "#111" } },
-    { "slug": "mumbai-spice", "name": "Mumbai Spice Co.", "tag": "Spices & Tea", "city": "Mumbai, India", "flag": "🇮🇳", "wing": "asia", "colors": { "wall": "#7c2d12", "floor": "#431407", "trim": "#fbbf24" }, "logo": { "icon": "🌶️", "text": "MUMBAI", "sub": "SPICE CO.", "bg": "#7c2d12", "fg": "#fbbf24", "accent": "#fff" } },
-    { "slug": "manila-weaves", "name": "Manila Weaves", "tag": "Handwoven Bags", "city": "Manila, Philippines", "flag": "🇵🇭", "wing": "asia", "colors": { "wall": "#134e4a", "floor": "#0f3d3a", "trim": "#fde047" }, "logo": { "icon": "🧺", "text": "MANILA", "sub": "WEAVES", "bg": "#134e4a", "fg": "#fde047", "accent": "#fff" } },
-    { "slug": "milano-leather", "name": "Milano Leather", "tag": "Bags & Shoes", "city": "Milan, Italy", "flag": "🇮🇹", "wing": "europe", "colors": { "wall": "#3f2a1d", "floor": "#2a1b12", "trim": "#d4a373" }, "logo": { "icon": "👜", "text": "MILANO", "sub": "LEATHER", "bg": "#3f2a1d", "fg": "#d4a373", "accent": "#fff" } },
-    { "slug": "paris-parfum", "name": "Paris Parfum", "tag": "Fragrance", "city": "Paris, France", "flag": "🇫🇷", "wing": "europe", "colors": { "wall": "#111827", "floor": "#0b1220", "trim": "#e9d5ff" }, "logo": { "icon": "🌹", "text": "PARIS", "sub": "PARFUM", "bg": "#111827", "fg": "#e9d5ff", "accent": "#fff" } },
-    { "slug": "berlin-audio", "name": "Berlin Audio", "tag": "Headphones & Speakers", "city": "Berlin, Germany", "flag": "🇩🇪", "wing": "europe", "colors": { "wall": "#0a0a0a", "floor": "#171717", "trim": "#38f0ff" }, "logo": { "icon": "🎧", "text": "BERLIN", "sub": "AUDIO", "bg": "#0a0a0a", "fg": "#38f0ff", "accent": "#fff" } },
-    { "slug": "reykjavik-wool", "name": "Reykjavík Wool", "tag": "Sweaters & Knits", "city": "Reykjavík, Iceland", "flag": "🇮🇸", "wing": "europe", "colors": { "wall": "#e5e7eb", "floor": "#d1d5db", "trim": "#1e3a8a" }, "logo": { "icon": "🧶", "text": "REYKJAVÍK", "sub": "WOOL", "bg": "#e5e7eb", "fg": "#1e3a8a", "accent": "#111" } },
-    { "slug": "london-tea", "name": "London Tea House", "tag": "Tea & Biscuits", "city": "London, UK", "flag": "🇬🇧", "wing": "europe", "colors": { "wall": "#7f1d1d", "floor": "#450a0a", "trim": "#fbbf24" }, "logo": { "icon": "🫖", "text": "LONDON", "sub": "TEA HOUSE", "bg": "#7f1d1d", "fg": "#fbbf24", "accent": "#fff" } },
-    { "slug": "barcelona-ceramics", "name": "Barcelona Ceramics", "tag": "Handmade Ceramics", "city": "Barcelona, Spain", "flag": "🇪🇸", "wing": "europe", "colors": { "wall": "#fff7ed", "floor": "#ffedd5", "trim": "#c2410c" }, "logo": { "icon": "🏺", "text": "BARCELONA", "sub": "CERAMICS", "bg": "#fff7ed", "fg": "#c2410c", "accent": "#111" } },
-    { "slug": "copenhagen-design", "name": "Copenhagen Design", "tag": "Furniture & Lighting", "city": "Copenhagen, Denmark", "flag": "🇩🇰", "wing": "europe", "colors": { "wall": "#f5f5f4", "floor": "#e7e5e4", "trim": "#111" }, "logo": { "icon": "🪑", "text": "COPENHAGEN", "sub": "DESIGN", "bg": "#f5f5f4", "fg": "#111111", "accent": "#c2410c" } },
-    { "slug": "lisbon-tiles", "name": "Lisbon Tiles", "tag": "Azulejo Art", "city": "Lisbon, Portugal", "flag": "🇵🇹", "wing": "europe", "colors": { "wall": "#1e40af", "floor": "#1e3a8a", "trim": "#ffffff" }, "logo": { "icon": "🟦", "text": "LISBON", "sub": "TILES", "bg": "#1e40af", "fg": "#ffffff", "accent": "#fbbf24" } },
-    { "slug": "athens-olive", "name": "Athens Olive", "tag": "Olive Oil & Honey", "city": "Athens, Greece", "flag": "🇬🇷", "wing": "europe", "colors": { "wall": "#365314", "floor": "#1a2e05", "trim": "#fde047" }, "logo": { "icon": "🫒", "text": "ATHENS", "sub": "OLIVE", "bg": "#365314", "fg": "#fde047", "accent": "#fff" } },
-    { "slug": "sao-paulo-surf", "name": "São Paulo Surf", "tag": "Boards & Beachwear", "city": "São Paulo, Brazil", "flag": "🇧🇷", "wing": "americas", "colors": { "wall": "#065f46", "floor": "#064e3b", "trim": "#fde047" }, "logo": { "icon": "🏄", "text": "SÃO PAULO", "sub": "SURF", "bg": "#065f46", "fg": "#fde047", "accent": "#fff" } },
-    { "slug": "mexico-city-artesania", "name": "Mexico City Artesanía", "tag": "Folk Art & Textiles", "city": "Mexico City, Mexico", "flag": "🇲🇽", "wing": "americas", "colors": { "wall": "#9f1239", "floor": "#881337", "trim": "#fde047" }, "logo": { "icon": "🎨", "text": "CDMX", "sub": "ARTESANÍA", "bg": "#9f1239", "fg": "#fde047", "accent": "#fff" } },
-    { "slug": "toronto-outfitters", "name": "Toronto Outfitters", "tag": "Outdoor Gear", "city": "Toronto, Canada", "flag": "🇨🇦", "wing": "americas", "colors": { "wall": "#7f1d1d", "floor": "#450a0a", "trim": "#ffffff" }, "logo": { "icon": "🍁", "text": "TORONTO", "sub": "OUTFITTERS", "bg": "#7f1d1d", "fg": "#ffffff", "accent": "#fbbf24" } },
-    { "slug": "bangkok-street-eats", "name": "Bangkok Street Eats", "tag": "Thai Food", "city": "Bangkok, Thailand", "flag": "🇹🇭", "wing": "food", "colors": { "wall": "#7c2d12", "floor": "#431407", "trim": "#fbbf24" }, "logo": { "icon": "🍜", "text": "BANGKOK", "sub": "STREET EATS", "bg": "#7c2d12", "fg": "#fbbf24", "accent": "#fff" } },
-    { "slug": "naples-pizza", "name": "Napoli Pizza", "tag": "Wood-Fired Pizza", "city": "Naples, Italy", "flag": "🇮🇹", "wing": "food", "colors": { "wall": "#14532d", "floor": "#052e16", "trim": "#ef4444" }, "logo": { "icon": "🍕", "text": "NAPOLI", "sub": "PIZZA", "bg": "#14532d", "fg": "#ffffff", "accent": "#ef4444" } },
-    { "slug": "cape-town-coffee", "name": "Cape Town Coffee", "tag": "Coffee Roasters", "city": "Cape Town, South Africa", "flag": "🇿🇦", "wing": "food", "colors": { "wall": "#3f2a1d", "floor": "#2a1b12", "trim": "#fbbf24" }, "logo": { "icon": "☕", "text": "CAPE TOWN", "sub": "COFFEE", "bg": "#3f2a1d", "fg": "#fbbf24", "accent": "#fff" } },
-    { "slug": "denver-taco-truck", "name": "Best Taco Truck Denver", "tag": "Tacos", "city": "Denver, USA", "flag": "🌮", "wing": "food", "colors": { "wall": "#b45309", "floor": "#78350f", "trim": "#fde047" }, "logo": { "icon": "🌮", "text": "TACO", "sub": "TRUCK DENVER", "bg": "#b45309", "fg": "#fde047", "accent": "#fff" } }
-  ]
+   ],
+   "leadIntro": "Want to start marketing? Tell us your business and website. Sticky forwards it to a human at Eye To Ad Media who calls you back with a free audit. No obligation.",
+   "greeting": "Welcome to Eye To Ad Media! Quick question: when someone Googles what you do, or asks ChatGPT, do they find you, or your competitor?",
+   "pitchLine": "GET FOUND. GET CHOSEN.",
+   "posters": [
+    [
+     "#1 GOAL: GET YOU FOUND",
+     "Google · Maps · AI answers"
+    ],
+    [
+     "SINCE 2012 · DENVER",
+     "BBB A+ · 5-star reviews"
+    ]
+   ]
+  },
+  {
+   "slug": "showers4less",
+   "name": "Showers4Less",
+   "tag": "Roll-In & ADA Showers",
+   "city": "Denver, USA · ships nationwide",
+   "flag": "🇺🇸",
+   "wing": "lobby",
+   "premium": true,
+   "url": "https://showers4less.com",
+   "cta": "Shop showers4less.com",
+   "phone": "1-888-779-2284",
+   "logo": {
+    "icon": "🚿",
+    "text": "SHOWERS",
+    "sub": "4LESS",
+    "bg": "#eff0f5",
+    "fg": "#0e1b4d",
+    "accent": "#4770db"
+   },
+   "colors": {
+    "wall": "#eff0f5",
+    "floor": "#dfe4f2",
+    "trim": "#4770db"
+   },
+   "clerk": {
+    "name": "Dana",
+    "shirt": "#4770db",
+    "lines": [
+     "Welcome to Showers4Less! Barrier-free, roll-in, and ADA showers, made in the USA, shipped to your door.",
+     "DIY kits or one-day professional installation in most of the country. No high-pressure pricing, ever.",
+     "Tap any shower on the shelf to see it and buy it on our site. Questions? Call 1-888-779-2284."
+    ]
+   },
+   "about": "Roll-in showers, ADA shower kits, and low-threshold walk-in showers. Made in the USA. DIY-friendly systems or one-day installation, without high-pressure pricing.",
+   "products": [
+    {
+     "title": "36\" x 36\" Barrier Free Shower Pan",
+     "price": "$1,450",
+     "url": "https://showers4less.com/products/36-x-36-barrier-free-shower-pan-roll-in-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_949bfa4a-ab9e-43c2-81d8-74a0d3c95eec.png?v=1761168191&width=533",
+     "desc": "Roll-in shower pan with a threshold low enough for a wheelchair.",
+     "icon": "🚿"
+    },
+    {
+     "title": "36\" x 36\" Barrier Free Shower Package",
+     "price": "$3,989",
+     "url": "https://showers4less.com/products/36-x-36-multi-piece-shower-system",
+     "img": "https://showers4less.com/cdn/shop/products/36x36showerimage.png?v=1666904505&width=533",
+     "desc": "Pan plus walls: a complete multi-piece shower system.",
+     "icon": "🚿"
+    },
+    {
+     "title": "40\" x 38\" ADA Compliant Handicap Shower",
+     "price": "$4,491",
+     "url": "https://showers4less.com/products/40-x-38-ada-compliant-handicap-shower-barrier-free-shower",
+     "img": "https://showers4less.com/cdn/shop/products/4038ADAcompliantshowerimage.jpg?v=1668019660&width=533",
+     "desc": "ADA-designed with grab-bar support and seat options.",
+     "icon": "🚿"
+    },
+    {
+     "title": "42\" x 36\" Roll In Shower Full Package",
+     "price": "$4,995",
+     "url": "https://showers4less.com/products/42-x-36-roll-in-shower-full-package-multi-piece-shower-center-drain-integrated-soap-dishes",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_869bcc38-e7ec-4d57-b7c6-012abead2d31.png?v=1764471266&width=533",
+     "desc": "Center drain, integrated soap dishes, white.",
+     "icon": "🚿"
+    },
+    {
+     "title": "60\" x 30\" Brushed Nickel Shower Package",
+     "price": "$4,800",
+     "url": "https://showers4less.com/products/brushed-nickel-shower-package-30-x-60-barrier-free-shower",
+     "img": "https://showers4less.com/cdn/shop/files/walkinshowerimage.jpg?v=1741656224&width=533",
+     "desc": "Waterproof, grout-free wall tiles with the look of natural stone.",
+     "icon": "🚿"
+    },
+    {
+     "title": "60\" x 48\" Designer Roll In Shower — Grecian Earth",
+     "price": "$6,695",
+     "url": "https://showers4less.com/products/60-x-48-roll-in-shower-package-grecian-earth-wall-system",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3bfdb621-9c4d-40c6-bac6-d8b45c3f164c.jpg?v=1766815957&width=533",
+     "desc": "Complete 60 x 48 package, everything you need in one system.",
+     "icon": "🚿"
+    },
+    {
+     "title": "60\" x 48\" Roll In Shower Pan — Center Drain",
+     "price": "From $1,490",
+     "url": "https://showers4less.com/products/60-x-48-roll-in-shower-pan-center-drain",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_669246a5-eb57-43e0-938c-505594e9dcc5.png?v=1764224071&width=533",
+     "desc": "Extra-wide mobility space.",
+     "icon": "🚿"
+    },
+    {
+     "title": "60\" x 60\" Barrier Free Shower Package",
+     "price": "$6,581",
+     "url": "https://showers4less.com/products/60-x-60-roll-in-shower-kit-barrier-free-showers-handicap-showers",
+     "img": "https://showers4less.com/cdn/shop/products/6060rollinshowerkitimage.png?v=1666975471&width=533",
+     "desc": "One of the largest barrier-free showers we carry.",
+     "icon": "🚿"
+    },
+    {
+     "title": "Sketch Your Bathroom & Get a Quote",
+     "price": "Free",
+     "url": "https://showers4less.com/#s4l-sketch-root",
+     "desc": "Draw your layout on the site and get a custom quote in one business day.",
+     "icon": "🚿"
+    }
+   ],
+   "leadIntro": "Tell us your rough measurements and the kind of shower you want. We reply within one business day with options and pricing.",
+   "greeting": "Welcome! Looking for a safer, easier shower? Barrier-free, roll-in, ADA. Ships to your door, made in the USA.",
+   "pitchLine": "TOP QUALITY SHOWERS WITHOUT THE HIGH PRICES"
+  },
+  {
+   "slug": "buyweburl",
+   "name": "BuyWebURL",
+   "tag": "Domains · Hosting · Site Builder",
+   "city": "Denver, USA",
+   "flag": "🇺🇸",
+   "wing": "lobby",
+   "premium": true,
+   "url": "https://buyweburl.com",
+   "cta": "Search domains",
+   "phone": "1-800-481-8638",
+   "logo": {
+    "icon": "🌐",
+    "text": "BUYWEBURL",
+    "sub": ".COM",
+    "bg": "#0b1a3a",
+    "fg": "#38f0ff",
+    "accent": "#ffffff"
+   },
+   "colors": {
+    "wall": "#102552",
+    "floor": "#0b1a3a",
+    "trim": "#38f0ff"
+   },
+   "clerk": {
+    "name": "Uri",
+    "shirt": "#38f0ff",
+    "lines": [
+     "Need a domain? Hosting? A site tonight? BuyWebURL by Eye To Ad Media has all three.",
+     "Website builder plans start at $5.99 a month. cPanel hosting for the pros. Search any name right here.",
+     "Pro tip: your business name dot com is probably taken. Your business name plus your city usually isn't."
+    ]
+   },
+   "about": "Domain search, website builder plans from $5.99/mo, and cPanel hosting. Branded by Eye To Ad Media.",
+   "products": [
+    {
+     "title": "Domain Name Search",
+     "price": "From $0.99/yr",
+     "url": "https://buyweburl.com",
+     "desc": "Find and register your perfect domain."
+    },
+    {
+     "title": "Website Builder",
+     "price": "From $5.99/mo",
+     "url": "https://buyweburl.com",
+     "desc": "Drag-and-drop site with hosting included."
+    },
+    {
+     "title": "cPanel Web Hosting",
+     "price": "Monthly plans",
+     "url": "https://buyweburl.com",
+     "desc": "Fast, reliable hosting with the industry-standard control panel."
+    },
+    {
+     "title": "Professional Email",
+     "price": "Monthly plans",
+     "url": "https://buyweburl.com",
+     "desc": "you@yourbusiness.com. Look legit."
+    },
+    {
+     "title": "SSL Certificate",
+     "price": "Yearly",
+     "url": "https://buyweburl.com",
+     "desc": "The padlock. Google requires it."
+    }
+   ],
+   "leadIntro": "Tell us the name you want. We'll check availability and set you up."
+  },
+  {
+   "slug": "aging-safely-baths",
+   "name": "Aging Safely Baths",
+   "tag": "Walk-In Tubs · Aging in Place",
+   "city": "Denver, USA · installs nationwide",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://www.agingsafelybaths.com/contact-us/",
+   "cta": "Talk to a specialist",
+   "phone": "1-888-779-2284",
+   "logo": {
+    "icon": "🛁",
+    "text": "AGING SAFELY",
+    "sub": "BATHS",
+    "bg": "#0e1b4d",
+    "fg": "#ffffff",
+    "accent": "#4fc3ff"
+   },
+   "colors": {
+    "wall": "#123a6b",
+    "floor": "#0e1b4d",
+    "trim": "#4fc3ff"
+   },
+   "clerk": {
+    "name": "Grace",
+    "shirt": "#4fc3ff",
+    "lines": [
+     "Hello, welcome to Aging Safely Baths. Walk-in tubs with hydrotherapy, made for staying in the home you love.",
+     "Every tub is sized and installed for your bathroom. Nothing is off the shelf, so let's talk.",
+     "Tap any tub to learn more, then hit Talk to a specialist. No pressure, just help."
+    ]
+   },
+   "about": "Walk-in bathtubs and hydrotherapy tubs for seniors and anyone aging in place. Consultation, sizing, and professional installation across the US.",
+   "products": [
+    {
+     "title": "Walk-In Bathtub (Standard)",
+     "price": "Quote",
+     "url": "https://www.agingsafelybaths.com/contact-us/",
+     "desc": "Low step-in door, built-in seat, safety grab bars.",
+     "icon": "🛁"
+    },
+    {
+     "title": "Hydrotherapy Walk-In Tub",
+     "price": "Quote",
+     "url": "https://www.agingsafelybaths.com/contact-us/",
+     "desc": "Air and water jets for circulation, joints, and relaxation.",
+     "icon": "🛁"
+    },
+    {
+     "title": "Walk-In Tub with Shower",
+     "price": "Quote",
+     "url": "https://www.agingsafelybaths.com/contact-us/",
+     "desc": "Soak or shower, same footprint.",
+     "icon": "🛁"
+    },
+    {
+     "title": "Bariatric Walk-In Tub",
+     "price": "Quote",
+     "url": "https://www.agingsafelybaths.com/contact-us/",
+     "desc": "Extra width and a wider door.",
+     "icon": "🛁"
+    },
+    {
+     "title": "Free In-Home Consultation",
+     "price": "Free",
+     "url": "https://www.agingsafelybaths.com/contact-us/",
+     "desc": "We measure, you decide.",
+     "icon": "🛁"
+    }
+   ],
+   "leadIntro": "Tell us about the bathroom and who it's for. A specialist calls to help you size the right tub."
+  },
+  {
+   "slug": "a-nu-do-salon",
+   "name": "A Nu Do Salon",
+   "tag": "Hair Salon · UV Tanning",
+   "city": "Brighton, Colorado",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://anudosalon.com",
+   "cta": "Book an appointment",
+   "logo": {
+    "icon": "⭐",
+    "text": "A·Nu·Do",
+    "sub": "SALON",
+    "bg": "#ffffff",
+    "fg": "#d81b60",
+    "accent": "#111111"
+   },
+   "colors": {
+    "wall": "#1a1a1a",
+    "floor": "#2b2b2b",
+    "trim": "#d81b60"
+   },
+   "clerk": {
+    "name": "Jess",
+    "shirt": "#d81b60",
+    "lines": [
+     "Hey gorgeous! Welcome to A Nu Do Salon, Brighton, Colorado. Your hair. Your style. Your way.",
+     "Cuts, color, styling, and UV tanning. We also carry Eufora products, and yes, we do virtual consultations.",
+     "Don't wait. Book. Your future self will thank you."
+    ]
+   },
+   "about": "Brighton, Colorado hair salon offering cuts, color, styling, UV tanning, Eufora products, gift cards, and virtual consultations.",
+   "products": [
+    {
+     "title": "Haircut & Style",
+     "price": "Book",
+     "url": "https://anudosalon.com",
+     "desc": "Precision cuts for every hair type."
+    },
+    {
+     "title": "Hair Color Services",
+     "price": "Book",
+     "url": "https://anudosalon.com",
+     "desc": "Balayage, highlights, full color, gloss."
+    },
+    {
+     "title": "UV Tanning",
+     "price": "Book",
+     "url": "https://anudosalon.com",
+     "desc": "Sun-kissed, year-round."
+    },
+    {
+     "title": "Shop Eufora",
+     "price": "Shop",
+     "url": "https://anudosalon.com",
+     "desc": "Professional hair care you can take home."
+    },
+    {
+     "title": "Gift Cards",
+     "price": "Any amount",
+     "url": "https://anudosalon.com",
+     "desc": "The gift that always fits."
+    }
+   ],
+   "leadIntro": "Tell us what you're thinking for your hair and we'll get you booked."
+  },
+  {
+   "slug": "gnomad-promotions",
+   "name": "Gnomad Promotions",
+   "tag": "Branded Merchandise",
+   "city": "USA",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://gnomadpromotions.com",
+   "cta": "Shop now",
+   "logo": {
+    "icon": "🧢",
+    "text": "GNOMAD",
+    "sub": "PROMOTIONS",
+    "bg": "#0f766e",
+    "fg": "#ffffff",
+    "accent": "#b91c1c"
+   },
+   "colors": {
+    "wall": "#0f766e",
+    "floor": "#0b4f4a",
+    "trim": "#ffffff"
+   },
+   "clerk": {
+    "name": "Gnorm",
+    "shirt": "#0f766e",
+    "lines": [
+     "If you know, you gnome. Welcome to Gnomad Promotions: your brand, on everything.",
+     "Shirts, hats, pens, tents, tech, sweatshirts. Your logo, printed right, delivered on time.",
+     "Your brand adventure awaits. Grab something off the shelf."
+    ]
+   },
+   "about": "Branded merchandise and promotional products: custom shirts, hats, pens, sweatshirts, tents, and more. Marketing, branded merchandise, adventure.",
+   "products": [
+    {
+     "title": "Branded T-Shirts",
+     "price": "Shop",
+     "url": "https://gnomadpromotions.com",
+     "desc": "Your logo on soft, quality tees."
+    },
+    {
+     "title": "Branded Hats & Caps",
+     "price": "Shop",
+     "url": "https://gnomadpromotions.com",
+     "desc": "Embroidered, not printed."
+    },
+    {
+     "title": "Custom Pens with Logo",
+     "price": "Shop",
+     "url": "https://gnomadpromotions.com",
+     "desc": "The most-borrowed marketing tool on Earth."
+    },
+    {
+     "title": "Branded Sweatshirts",
+     "price": "Shop",
+     "url": "https://gnomadpromotions.com",
+     "desc": "Team hoodies people actually wear."
+    },
+    {
+     "title": "Custom Tents & Banners",
+     "price": "Shop",
+     "url": "https://gnomadpromotions.com",
+     "desc": "Own the trade show."
+    },
+    {
+     "title": "Digital Catalogue",
+     "price": "Free",
+     "url": "https://gnomadpromotions.com",
+     "desc": "Browse thousands of items."
+    }
+   ],
+   "leadIntro": "What do you want your logo on, and how many? We'll send options and pricing."
+  },
+  {
+   "slug": "bear-creek-auto-glass",
+   "name": "Bear Creek Auto Glass",
+   "tag": "Windshield Replacement",
+   "city": "Littleton, Colorado",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://bearcreekautoglass.com",
+   "cta": "Get a free quote",
+   "phone": "(303) 875-7679",
+   "logo": {
+    "icon": "🌄",
+    "text": "BEAR CREEK",
+    "sub": "AUTO GLASS",
+    "bg": "#0b2a6b",
+    "fg": "#ffd23f",
+    "accent": "#ff8a00"
+   },
+   "colors": {
+    "wall": "#0b2a6b",
+    "floor": "#071a45",
+    "trim": "#ff8a00"
+   },
+   "clerk": {
+    "name": "Scott",
+    "shirt": "#ff8a00",
+    "lines": [
+     "Hey there, Bear Creek Auto Glass, family owned in Littleton, Colorado. 4.6 stars, 191 Google reviews.",
+     "Rock chip off Wadsworth? Crack creeping across your view on C-470? We come to you anywhere in the Denver metro, no extra charge.",
+     "We call your insurance so you don't have to. Free quotes, often same or next day."
+    ]
+   },
+   "about": "Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes, often same or next day.",
+   "products": [
+    {
+     "title": "Windshield Replacement",
+     "price": "Free quote",
+     "url": "https://bearcreekautoglass.com",
+     "desc": "Quality glass, installed at your home or work."
+    },
+    {
+     "title": "Rock Chip Repair",
+     "price": "Free quote",
+     "url": "https://bearcreekautoglass.com",
+     "desc": "Fix it before it spreads."
+    },
+    {
+     "title": "Free Mobile Service",
+     "price": "Included",
+     "url": "https://bearcreekautoglass.com",
+     "desc": "Anywhere in the Denver metro, no fee."
+    },
+    {
+     "title": "Insurance Claims Handled",
+     "price": "Included",
+     "url": "https://bearcreekautoglass.com",
+     "desc": "We call them so you don't have to."
+    },
+    {
+     "title": "Call (303) 875-7679",
+     "price": "Free quote",
+     "url": "tel:13038757679",
+     "desc": "Scott calls you back with a real number."
+    }
+   ],
+   "leadIntro": "Year, make, model, and what's wrong with the glass. Scott calls back with a real quote."
+  },
+  {
+   "slug": "bighorn-painting",
+   "name": "Bighorn Painting",
+   "tag": "House Painters",
+   "city": "Arvada, Colorado",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://bighornpainting.com",
+   "cta": "Get an in-home estimate",
+   "phone": "720-912-4676",
+   "logo": {
+    "icon": "🐏",
+    "text": "BIGHORN",
+    "sub": "PAINTING · BUILT TO ENDURE",
+    "bg": "#f6e7c9",
+    "fg": "#8b3a1d",
+    "accent": "#c9541f"
+   },
+   "colors": {
+    "wall": "#f6e7c9",
+    "floor": "#e8d3ad",
+    "trim": "#c9541f"
+   },
+   "clerk": {
+    "name": "Ram",
+    "shirt": "#c9541f",
+    "lines": [
+     "Welcome to Bighorn Painting, Arvada's choice for house painters. 4.9 stars.",
+     "Interior, exterior, cabinets, commercial. Premium paints, quality workmanship, guaranteed satisfaction across Jefferson County.",
+     "Want an in-home estimate? Tap the shelf. Or call 720-912-4676."
+    ]
+   },
+   "about": "Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties across Jefferson County.",
+   "products": [
+    {
+     "title": "Exterior House Painting",
+     "price": "Free estimate",
+     "url": "https://bighornpainting.com",
+     "desc": "Built to endure Colorado sun and snow."
+    },
+    {
+     "title": "Interior Painting",
+     "price": "Free estimate",
+     "url": "https://bighornpainting.com",
+     "desc": "Clean lines, no drips, done on time."
+    },
+    {
+     "title": "Cabinet Refinishing",
+     "price": "Free estimate",
+     "url": "https://bighornpainting.com",
+     "desc": "A new kitchen without the demo."
+    },
+    {
+     "title": "Commercial Painting",
+     "price": "Free estimate",
+     "url": "https://bighornpainting.com",
+     "desc": "Offices, retail, HOAs."
+    },
+    {
+     "title": "In-Home Estimate",
+     "price": "Free",
+     "url": "https://bighornpainting.com",
+     "desc": "We come to you. 720-912-4676."
+    }
+   ],
+   "leadIntro": "Interior, exterior, or cabinets? Tell us the address area and we'll set up an in-home estimate."
+  },
+  {
+   "slug": "my-sales-help",
+   "name": "MySalesHelp",
+   "tag": "Sales Training",
+   "city": "Denver, USA",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "url": "https://mysaleshelp.com",
+   "cta": "Start training",
+   "logo": {
+    "icon": "🎯",
+    "text": "MY SALES",
+    "sub": "HELP",
+    "bg": "#1b1b2f",
+    "fg": "#ffd23f",
+    "accent": "#ff4f79"
+   },
+   "colors": {
+    "wall": "#1b1b2f",
+    "floor": "#12121f",
+    "trim": "#ffd23f"
+   },
+   "clerk": {
+    "name": "Coach Z",
+    "shirt": "#ffd23f",
+    "lines": [
+     "You already know how to talk to people. MySalesHelp teaches you how to close. Big difference.",
+     "Objection engine, the wheel, sales games, and a full course, built by someone who ran multi-million-dollar sales teams.",
+     "Quick question: what's the last objection that beat you? Go practice it. On the house."
+    ]
+   },
+   "about": "Sales training tools: an objection-handling engine, practice games, the sales wheel, and a full course from a former sales manager of multi-million-dollar plumbing and remodeling companies.",
+   "products": [
+    {
+     "title": "Objection Engine",
+     "price": "Try it",
+     "url": "https://mysaleshelp.com",
+     "desc": "Practice handling real objections until they don't scare you."
+    },
+    {
+     "title": "Sales Course",
+     "price": "See site",
+     "url": "https://mysaleshelp.com",
+     "desc": "From first hello to signed contract."
+    },
+    {
+     "title": "The Sales Wheel",
+     "price": "Try it",
+     "url": "https://mysaleshelp.com",
+     "desc": "Spin, pitch, improve."
+    },
+    {
+     "title": "Sales Games",
+     "price": "Free",
+     "url": "https://mysaleshelp.com",
+     "desc": "Because reps learn faster when they're having fun."
+    }
+   ],
+   "leadIntro": "Tell us about your team and what you sell. We'll point you to the right training."
+  },
+  {
+   "slug": "search-converts",
+   "name": "Search Converts",
+   "tag": "Conversion Rate Optimization",
+   "city": "Denver, USA",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "premium": true,
+   "url": "https://searchconverts.com",
+   "cta": "Free 30-minute strategy session",
+   "phone": "+1 720-712-8615",
+   "logo": {
+    "icon": "📈",
+    "text": "SEARCH",
+    "sub": "CONVERTS",
+    "bg": "#0b1a3a",
+    "fg": "#ff8a00",
+    "accent": "#ffffff"
+   },
+   "colors": {
+    "wall": "#12224a",
+    "floor": "#0b1a3a",
+    "trim": "#ff8a00"
+   },
+   "clerk": {
+    "name": "Vera",
+    "shirt": "#ff8a00",
+    "lines": [
+     "You already have the traffic. Now convert it. That's Search Converts in one sentence.",
+     "Full-service conversion rate optimization: we fix what happens after the click, then scale it with paid search, programmatic, CTV, video, email, and AI marketing.",
+     "Most companies don't have a traffic problem. They have a conversion problem. Free 30-minute strategy session, no obligation."
+    ]
+   },
+   "about": "Full-service conversion rate optimization agency. Fixes what happens after the click, then scales it with paid search, programmatic, CTV, video, email, and AI marketing.",
+   "products": [
+    {
+     "title": "Free 30-Minute Strategy Session",
+     "price": "Free",
+     "url": "https://searchconverts.com",
+     "desc": "Find out what your current traffic should be earning."
+    },
+    {
+     "title": "Conversion Rate Optimization",
+     "price": "Ask",
+     "url": "https://searchconverts.com",
+     "desc": "Turn more of the visitors you already have into customers."
+    },
+    {
+     "title": "Paid Search & Programmatic",
+     "price": "Ask",
+     "url": "https://searchconverts.com",
+     "desc": "Scale what converts."
+    },
+    {
+     "title": "CTV & Video Marketing",
+     "price": "Ask",
+     "url": "https://searchconverts.com",
+     "desc": "Your ad on the big screen."
+    },
+    {
+     "title": "AI Marketing",
+     "price": "Ask",
+     "url": "https://searchconverts.com",
+     "desc": "Automations, bots, and AI-driven campaigns."
+    }
+   ],
+   "leadIntro": "Tell us your site and roughly how many visitors it gets. You'll get a free 30-minute strategy session, no obligation.",
+   "greeting": "You already have the traffic. Want to see what it should be earning?",
+   "pitchLine": "NOW CONVERT IT."
+  },
+  {
+   "slug": "link-restaurants",
+   "name": "Link Restaurants",
+   "tag": "Restaurant Marketing Hub",
+   "city": "Denver, USA",
+   "flag": "🇺🇸",
+   "wing": "food",
+   "url": "https://linkrestaurants.com",
+   "cta": "Visit linkrestaurants.com",
+   "logo": {
+    "icon": "🍽️",
+    "text": "LINK",
+    "sub": "RESTAURANTS",
+    "bg": "#7a1f1f",
+    "fg": "#ffffff",
+    "accent": "#ffd23f"
+   },
+   "colors": {
+    "wall": "#7a1f1f",
+    "floor": "#4a1010",
+    "trim": "#ffd23f"
+   },
+   "clerk": {
+    "name": "Peggy",
+    "shirt": "#ffd23f",
+    "lines": [
+     "Restaurant owner? You're in the right food court. Everything here is about filling your tables.",
+     "Link Restaurants, Restaurants SEO, and Restaurants Advertising: getting you found and getting you booked.",
+     "Walk into the 50's diner next door. It'll explain the whole thing over a milkshake."
+    ]
+   },
+   "about": "The restaurant marketing network: restaurant SEO, restaurant advertising, and the walk-in 3D diner that sells it all.",
+   "products": [
+    {
+     "title": "Restaurant SEO",
+     "price": "Ask",
+     "url": "https://restaurantsseo.com",
+     "desc": "Top of search in competitive markets."
+    },
+    {
+     "title": "Restaurant Advertising",
+     "price": "Ask",
+     "url": "https://restaurantsadvertising.com",
+     "desc": "Ads that fill tables, not just feeds."
+    },
+    {
+     "title": "Advertising For Restaurant — the 3D diner",
+     "price": "Free visit",
+     "url": "https://advertisingforrestaurant.com",
+     "desc": "Walk into a 50's diner and get the pitch from Peggy and Hank."
+    },
+    {
+     "title": "Link Restaurants Network",
+     "price": "Ask",
+     "url": "https://linkrestaurants.com",
+     "desc": "Get listed across the network."
+    }
+   ],
+   "lead": true,
+   "leadIntro": "Restaurant owner? Tell us your restaurant and city. We'll show you how to fill more tables."
+  },
+  {
+   "slug": "hawaii-snorkeling",
+   "name": "Best Hawaii Snorkeling",
+   "tag": "Tours & Travel Guide",
+   "city": "Hawaii, USA",
+   "flag": "🌺",
+   "wing": "asia",
+   "url": "https://besthawaiisnorkeling.com",
+   "cta": "Plan your trip",
+   "logo": {
+    "icon": "🐠",
+    "text": "HAWAII",
+    "sub": "SNORKELING",
+    "bg": "#0891b2",
+    "fg": "#ffffff",
+    "accent": "#fde047"
+   },
+   "colors": {
+    "wall": "#0e7490",
+    "floor": "#155e75",
+    "trim": "#fde047"
+   },
+   "clerk": {
+    "name": "Kai",
+    "shirt": "#fde047",
+    "lines": [
+     "Aloha! Best beaches, best reefs, best turtles. This is where you plan the Hawaii trip.",
+     "Oahu, Maui, Kauai, Big Island: we know where the fish are.",
+     "Fun fact: the humuhumunukunukuāpuaʻa is Hawaii's state fish. Say it three times fast."
+    ]
+   },
+   "about": "Hawaii snorkeling guide: the best beaches, reefs, and tours on Oahu, Maui, Kauai, and the Big Island.",
+   "products": [
+    {
+     "title": "Best Snorkeling Spots in Hawaii",
+     "price": "Free guide",
+     "url": "https://besthawaiisnorkeling.com",
+     "desc": "Island by island."
+    },
+    {
+     "title": "Maui Snorkel Tours",
+     "price": "See site",
+     "url": "https://besthawaiisnorkeling.com",
+     "desc": "Molokini and beyond."
+    },
+    {
+     "title": "Oahu Snorkel Tours",
+     "price": "See site",
+     "url": "https://besthawaiisnorkeling.com",
+     "desc": "Turtles at Hanauma Bay."
+    }
+   ]
+  },
+  {
+   "slug": "belize-adventures",
+   "name": "Best Belize Adventures",
+   "tag": "Tours · Diving · Fishing",
+   "city": "Belize",
+   "flag": "🇧🇿",
+   "wing": "asia",
+   "url": "https://bestbelizeadventures.com",
+   "cta": "Explore Belize",
+   "logo": {
+    "icon": "🤿",
+    "text": "BELIZE",
+    "sub": "ADVENTURES",
+    "bg": "#065f46",
+    "fg": "#ffffff",
+    "accent": "#fbbf24"
+   },
+   "colors": {
+    "wall": "#065f46",
+    "floor": "#064e3b",
+    "trim": "#fbbf24"
+   },
+   "clerk": {
+    "name": "Marisol",
+    "shirt": "#fbbf24",
+    "lines": [
+     "Welcome! Belize: the Blue Hole, the reef, the jungle, and the friendliest people in Central America.",
+     "Diving, snorkeling, fishing charters, island expeditions. We've got the connections.",
+     "Fun fact: Belize has the second-largest barrier reef on Earth."
+    ]
+   },
+   "about": "Belize tours, diving, snorkeling, fishing charters, and island expeditions.",
+   "products": [
+    {
+     "title": "Belize Tour Packages",
+     "price": "See site",
+     "url": "https://belizetourspackages.com",
+     "desc": "Reef and jungle in one trip."
+    },
+    {
+     "title": "Belize Fishing Charters",
+     "price": "See site",
+     "url": "https://belizefishingcharter.com",
+     "desc": "Bonefish, permit, tarpon."
+    },
+    {
+     "title": "Best Places to Dive in Belize",
+     "price": "Free guide",
+     "url": "https://bestplacestodiveinbelize.com",
+     "desc": "Blue Hole and beyond."
+    }
+   ]
+  },
+  {
+   "slug": "costa-rica-escapes",
+   "name": "Costa Rica Escapes",
+   "tag": "Hotels · Beaches · Things To Do",
+   "city": "Costa Rica",
+   "flag": "🇨🇷",
+   "wing": "asia",
+   "url": "https://placestovisitincostarica.com",
+   "cta": "Plan Costa Rica",
+   "logo": {
+    "icon": "🦜",
+    "text": "COSTA RICA",
+    "sub": "ESCAPES",
+    "bg": "#166534",
+    "fg": "#ffffff",
+    "accent": "#f59e0b"
+   },
+   "colors": {
+    "wall": "#166534",
+    "floor": "#14532d",
+    "trim": "#f59e0b"
+   },
+   "clerk": {
+    "name": "Tico",
+    "shirt": "#f59e0b",
+    "lines": [
+     "¡Pura vida! Costa Rica: volcanoes, sloths, surf, and the best coffee you'll ever drink.",
+     "Hotels, beaches, surf lessons, and places to visit, all in one guide.",
+     "Fun fact: Costa Rica has no army. It spends the money on schools and parks instead."
+    ]
+   },
+   "about": "Costa Rica travel guide: places to visit, best hotels, best beaches, surf lessons, and short-term rentals.",
+   "products": [
+    {
+     "title": "Best Hotels in Costa Rica",
+     "price": "See site",
+     "url": "https://besthotelscostarica.com",
+     "desc": "Jungle lodges to beach resorts."
+    },
+    {
+     "title": "Best Beaches in Costa Rica",
+     "price": "Free guide",
+     "url": "https://bestbeachesincostarica.com",
+     "desc": "Pacific and Caribbean."
+    },
+    {
+     "title": "Surfing Lessons Costa Rica",
+     "price": "See site",
+     "url": "https://surfinglessonscostarica.com",
+     "desc": "Stand up on day one."
+    }
+   ]
+  },
+  {
+   "slug": "puerto-plata-getaways",
+   "name": "Puerto Plata Getaways",
+   "tag": "Dominican Republic Travel & Real Estate",
+   "city": "Puerto Plata, Dominican Republic",
+   "flag": "🇩🇴",
+   "wing": "asia",
+   "url": "https://thingstodoinpuertoplata.com",
+   "cta": "Discover Puerto Plata",
+   "logo": {
+    "icon": "🏝️",
+    "text": "PUERTO PLATA",
+    "sub": "GETAWAYS",
+    "bg": "#1d4ed8",
+    "fg": "#ffffff",
+    "accent": "#f97316"
+   },
+   "colors": {
+    "wall": "#1e40af",
+    "floor": "#1e3a8a",
+    "trim": "#f97316"
+   },
+   "clerk": {
+    "name": "Rosa",
+    "shirt": "#f97316",
+    "lines": [
+     "Bienvenidos! Puerto Plata, Cabarete, Sosúa: the north coast of the Dominican Republic.",
+     "Beaches, kite surfing, restaurants, and homes and condos if you decide to stay. People do.",
+     "Fun fact: Cabarete is one of the kite-surfing capitals of the world."
+    ]
+   },
+   "about": "Puerto Plata, Cabarete, and Sosúa travel guide, restaurants, and real estate on the Dominican Republic's north coast.",
+   "products": [
+    {
+     "title": "Things To Do in Puerto Plata",
+     "price": "Free guide",
+     "url": "https://thingstodoinpuertoplata.com",
+     "desc": "Cable car, beaches, rum."
+    },
+    {
+     "title": "Puerto Plata Restaurants",
+     "price": "Free guide",
+     "url": "https://puertoplatarestaurants.com",
+     "desc": "Where the locals eat."
+    },
+    {
+     "title": "Cabarete Real Estate",
+     "price": "See listings",
+     "url": "https://cabareterealty.com",
+     "desc": "Condos and homes by the beach."
+    }
+   ]
+  },
+  {
+   "slug": "the-salty-pearl",
+   "name": "The Salty Pearl",
+   "tag": "Seafood Restaurant",
+   "city": "Lisbon, Portugal",
+   "flag": "🦞",
+   "wing": "food",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🦞",
+    "text": "THE SALTY",
+    "sub": "PEARL",
+    "bg": "#0b3d5c",
+    "fg": "#ffffff",
+    "accent": "#ffd23f"
+   },
+   "colors": {
+    "wall": "#0b3d5c",
+    "floor": "#072a40",
+    "trim": "#ffd23f"
+   },
+   "clerk": {
+    "name": "Captain Inês",
+    "shirt": "#ffd23f",
+    "lines": [
+     "Welcome aboard The Salty Pearl! Grilled sardines, garlic prawns, and the best cataplana this side of the Atlantic.",
+     "Everything comes off the boat this morning. The lobster was minding its own business an hour ago.",
+     "Fun fact: Portugal eats more fish per person than almost any country on Earth."
+    ]
+   },
+   "about": "A demo seafood restaurant showing what a food-court tenant looks like: menu cards, a host, and a reservation button that would go to the restaurant's own site.",
+   "pitchLine": "FRESH OFF THE BOAT",
+   "posters": [
+    [
+     "FRESH OFF THE BOAT",
+     "every single morning"
+    ],
+    [
+     "RESERVE A TABLE",
+     "(a real restaurant's link would go here)"
+    ]
+   ],
+   "products": [
+    {
+     "title": "Grilled Sardines",
+     "price": "$14",
+     "icon": "🐟",
+     "desc": "Six sardines, sea salt, lemon, grilled over charcoal."
+    },
+    {
+     "title": "Garlic Prawns",
+     "price": "$18",
+     "icon": "🍤",
+     "desc": "Sizzling in olive oil, garlic, and chili."
+    },
+    {
+     "title": "Seafood Cataplana",
+     "price": "$32",
+     "icon": "🍲",
+     "desc": "Clams, prawns, fish, and potatoes in a copper pot."
+    },
+    {
+     "title": "Lobster Roll",
+     "price": "$24",
+     "icon": "🦞",
+     "desc": "Butter-poached, brioche, chips."
+    },
+    {
+     "title": "Fish & Chips",
+     "price": "$16",
+     "icon": "🍟",
+     "desc": "Beer-battered cod, tartar sauce."
+    },
+    {
+     "title": "Oysters (6)",
+     "price": "$19",
+     "icon": "🦪",
+     "desc": "Atlantic, on ice, with mignonette."
+    },
+    {
+     "title": "Clam Chowder",
+     "price": "$11",
+     "icon": "🥣",
+     "desc": "Creamy New England style."
+    },
+    {
+     "title": "Grilled Octopus",
+     "price": "$22",
+     "icon": "🐙",
+     "desc": "Charred, with smoked paprika potatoes."
+    },
+    {
+     "title": "Pastel de Nata",
+     "price": "$4",
+     "icon": "🥮",
+     "desc": "Lisbon's custard tart. Two, minimum."
+    }
+   ]
+  },
+  {
+   "slug": "tokyo-threads",
+   "name": "Tokyo Threads",
+   "tag": "Streetwear",
+   "city": "Tokyo, Japan",
+   "flag": "🇯🇵",
+   "wing": "asia",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "👘",
+    "text": "TOKYO",
+    "sub": "THREADS",
+    "bg": "#1f1f2e",
+    "fg": "#ff4f79",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#1f1f2e",
+    "floor": "#15151f",
+    "trim": "#ff4f79"
+   },
+   "clerk": {
+    "name": "Yuki",
+    "shirt": "#ff4f79",
+    "lines": [
+     "Irasshaimase! Tokyo Threads: Harajuku energy, Shibuya cut.",
+     "Everything here is limited. When it's gone, it's gone. Very Tokyo.",
+     "This is a demo store. A real streetwear brand could take this exact spot."
+    ]
+   },
+   "about": "A demo streetwear store showing how a fashion brand's products would sit on the shelves.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Oversized Graphic Tee",
+     "price": "$45",
+     "icon": "👕",
+     "desc": "Heavyweight cotton, screen-printed in Tokyo."
+    },
+    {
+     "title": "Cargo Pants",
+     "price": "$95",
+     "icon": "👖",
+     "desc": "Six pockets, tapered, techwear-ready."
+    },
+    {
+     "title": "Bomber Jacket",
+     "price": "$180",
+     "icon": "🧥",
+     "desc": "Satin, embroidered back."
+    },
+    {
+     "title": "Bucket Hat",
+     "price": "$38",
+     "icon": "🧢",
+     "desc": "Reversible."
+    },
+    {
+     "title": "Chunky Sneakers",
+     "price": "$160",
+     "icon": "👟",
+     "desc": "Platform sole, reflective details."
+    },
+    {
+     "title": "Crossbody Bag",
+     "price": "$70",
+     "icon": "👜",
+     "desc": "Nylon, magnetic closure."
+    }
+   ]
+  },
+  {
+   "slug": "milano-leather",
+   "name": "Milano Leather",
+   "tag": "Bags & Shoes",
+   "city": "Milan, Italy",
+   "flag": "🇮🇹",
+   "wing": "europe",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "👜",
+    "text": "MILANO",
+    "sub": "LEATHER",
+    "bg": "#3f2a1d",
+    "fg": "#d4a373",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#3f2a1d",
+    "floor": "#2a1b12",
+    "trim": "#d4a373"
+   },
+   "clerk": {
+    "name": "Giulia",
+    "shirt": "#d4a373",
+    "lines": [
+     "Buongiorno! Full-grain leather, hand-stitched, made to outlast you.",
+     "Smell that? That's the good stuff.",
+     "This is a demo store. A real Italian leather house could be here."
+    ]
+   },
+   "about": "A demo leather-goods store: bags, belts, and shoes on the shelves, the way a real brand's would appear.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Tote Bag",
+     "price": "$320",
+     "icon": "👜",
+     "desc": "Full-grain, unlined, ages beautifully."
+    },
+    {
+     "title": "Oxford Shoes",
+     "price": "$450",
+     "icon": "👞",
+     "desc": "Goodyear-welted."
+    },
+    {
+     "title": "Belt",
+     "price": "$120",
+     "icon": "🪢",
+     "desc": "Brass buckle."
+    },
+    {
+     "title": "Cardholder",
+     "price": "$85",
+     "icon": "💳",
+     "desc": "Six slots, slim."
+    },
+    {
+     "title": "Weekender",
+     "price": "$540",
+     "icon": "🧳",
+     "desc": "Two nights, one bag."
+    },
+    {
+     "title": "Loafers",
+     "price": "$390",
+     "icon": "🥿",
+     "desc": "Penny loafers, hand-burnished."
+    }
+   ]
+  },
+  {
+   "slug": "berlin-audio",
+   "name": "Berlin Audio",
+   "tag": "Headphones & Speakers",
+   "city": "Berlin, Germany",
+   "flag": "🇩🇪",
+   "wing": "europe",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🎧",
+    "text": "BERLIN",
+    "sub": "AUDIO",
+    "bg": "#0a0a0a",
+    "fg": "#38f0ff",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#0a0a0a",
+    "floor": "#171717",
+    "trim": "#38f0ff"
+   },
+   "clerk": {
+    "name": "Max",
+    "shirt": "#38f0ff",
+    "lines": [
+     "Hallo. Berlin Audio: sound engineered for people who actually listen.",
+     "Techno-tested, jazz-approved.",
+     "Demo store. Your audio brand could be playing here."
+    ]
+   },
+   "about": "A demo electronics store showing headphones and speakers as product cards.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Studio Headphones",
+     "price": "$249",
+     "icon": "🎧",
+     "desc": "Closed-back, 40mm drivers."
+    },
+    {
+     "title": "Bluetooth Speaker",
+     "price": "$129",
+     "icon": "🔊",
+     "desc": "12-hour battery, waterproof."
+    },
+    {
+     "title": "Turntable",
+     "price": "$399",
+     "icon": "🎵",
+     "desc": "Belt-drive, built-in preamp."
+    },
+    {
+     "title": "Earbuds",
+     "price": "$99",
+     "icon": "🎶",
+     "desc": "Noise-cancelling."
+    },
+    {
+     "title": "DJ Controller",
+     "price": "$299",
+     "icon": "🎛️",
+     "desc": "Two decks, USB."
+    }
+   ]
+  },
+  {
+   "slug": "seoul-skincare",
+   "name": "Seoul Skincare",
+   "tag": "K-Beauty",
+   "city": "Seoul, South Korea",
+   "flag": "🇰🇷",
+   "wing": "asia",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🌸",
+    "text": "SEOUL",
+    "sub": "SKINCARE",
+    "bg": "#fdf2f8",
+    "fg": "#db2777",
+    "accent": "#111"
+   },
+   "colors": {
+    "wall": "#fdf2f8",
+    "floor": "#fce7f3",
+    "trim": "#db2777"
+   },
+   "clerk": {
+    "name": "Ji-woo",
+    "shirt": "#db2777",
+    "lines": [
+     "Annyeong! Ten-step routine? We'll get you to glass skin in four.",
+     "Snail mucin. Trust us.",
+     "This is a demo store. A real K-beauty brand could be right here."
+    ]
+   },
+   "about": "A demo beauty store with skincare products as cards.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Hydrating Toner",
+     "price": "$22",
+     "icon": "💧",
+     "desc": "Hyaluronic, fragrance-free."
+    },
+    {
+     "title": "Snail Mucin Essence",
+     "price": "$26",
+     "icon": "🐌",
+     "desc": "96% mucin. Yes, really."
+    },
+    {
+     "title": "Sheet Masks (10)",
+     "price": "$18",
+     "icon": "🎭",
+     "desc": "Green tea, rice, aloe."
+    },
+    {
+     "title": "SPF 50 Sunscreen",
+     "price": "$19",
+     "icon": "☀️",
+     "desc": "No white cast."
+    },
+    {
+     "title": "Vitamin C Serum",
+     "price": "$32",
+     "icon": "🍊",
+     "desc": "Brightening."
+    },
+    {
+     "title": "Sleeping Mask",
+     "price": "$24",
+     "icon": "🌙",
+     "desc": "Wake up glowing."
+    }
+   ]
+  },
+  {
+   "slug": "bangkok-street-eats",
+   "name": "Bangkok Street Eats",
+   "tag": "Thai Food",
+   "city": "Bangkok, Thailand",
+   "flag": "🇹🇭",
+   "wing": "food",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🍜",
+    "text": "BANGKOK",
+    "sub": "STREET EATS",
+    "bg": "#7c2d12",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#7c2d12",
+    "floor": "#431407",
+    "trim": "#fbbf24"
+   },
+   "clerk": {
+    "name": "Ploy",
+    "shirt": "#fbbf24",
+    "lines": [
+     "Sawasdee ka! Pad thai, boat noodles, mango sticky rice. Spicy? Say how much.",
+     "Everything cooked in a wok the size of a satellite dish.",
+     "Demo kiosk. Your restaurant could be feeding the mall."
+    ]
+   },
+   "about": "A demo Thai food kiosk with menu cards.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Pad Thai",
+     "price": "$12",
+     "icon": "🍜",
+     "desc": "Tamarind, peanuts, lime."
+    },
+    {
+     "title": "Green Curry",
+     "price": "$13",
+     "icon": "🍛",
+     "desc": "Coconut, Thai basil."
+    },
+    {
+     "title": "Boat Noodles",
+     "price": "$11",
+     "icon": "🥣",
+     "desc": "Rich broth, rice noodles."
+    },
+    {
+     "title": "Mango Sticky Rice",
+     "price": "$7",
+     "icon": "🥭",
+     "desc": "The dessert."
+    },
+    {
+     "title": "Thai Iced Tea",
+     "price": "$4",
+     "icon": "🧋",
+     "desc": "Sweet, orange, perfect."
+    }
+   ]
+  },
+  {
+   "slug": "naples-pizza",
+   "name": "Napoli Pizza",
+   "tag": "Wood-Fired Pizza",
+   "city": "Naples, Italy",
+   "flag": "🇮🇹",
+   "wing": "food",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🍕",
+    "text": "NAPOLI",
+    "sub": "PIZZA",
+    "bg": "#14532d",
+    "fg": "#ffffff",
+    "accent": "#ef4444"
+   },
+   "colors": {
+    "wall": "#14532d",
+    "floor": "#052e16",
+    "trim": "#ef4444"
+   },
+   "clerk": {
+    "name": "Enzo",
+    "shirt": "#ef4444",
+    "lines": [
+     "Ciao! 90 seconds in the oven, 900 degrees. That's it. That's the secret.",
+     "Pineapple? We can talk. Outside.",
+     "Demo kiosk. A real pizzeria could be here."
+    ]
+   },
+   "about": "A demo pizzeria kiosk with menu cards.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Margherita",
+     "price": "$14",
+     "icon": "🍕",
+     "desc": "Tomato, mozzarella, basil."
+    },
+    {
+     "title": "Marinara",
+     "price": "$12",
+     "icon": "🍕",
+     "desc": "Tomato, garlic, oregano. No cheese, all flavor."
+    },
+    {
+     "title": "Diavola",
+     "price": "$16",
+     "icon": "🌶️",
+     "desc": "Spicy salami."
+    },
+    {
+     "title": "Calzone",
+     "price": "$15",
+     "icon": "🥟",
+     "desc": "Ricotta and ham, folded."
+    },
+    {
+     "title": "Tiramisu",
+     "price": "$7",
+     "icon": "🍰",
+     "desc": "House-made."
+    }
+   ]
+  },
+  {
+   "slug": "cape-town-coffee",
+   "name": "Cape Town Coffee",
+   "tag": "Coffee Roasters",
+   "city": "Cape Town, South Africa",
+   "flag": "🇿🇦",
+   "wing": "food",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "☕",
+    "text": "CAPE TOWN",
+    "sub": "COFFEE",
+    "bg": "#3f2a1d",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#3f2a1d",
+    "floor": "#2a1b12",
+    "trim": "#fbbf24"
+   },
+   "clerk": {
+    "name": "Thandi",
+    "shirt": "#fbbf24",
+    "lines": [
+     "Howzit! Single-origin, roasted this week. Flat white is the move.",
+     "Rooibos too, for the brave.",
+     "Demo kiosk. A real roaster could be pouring here."
+    ]
+   },
+   "about": "A demo coffee kiosk with menu and beans.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Flat White",
+     "price": "$5",
+     "icon": "☕",
+     "desc": "Double shot, silky."
+    },
+    {
+     "title": "Cold Brew",
+     "price": "$6",
+     "icon": "🧊",
+     "desc": "18-hour steep."
+    },
+    {
+     "title": "Ethiopian Beans (12oz)",
+     "price": "$18",
+     "icon": "🫘",
+     "desc": "Blueberry, floral."
+    },
+    {
+     "title": "Rooibos Latte",
+     "price": "$5",
+     "icon": "🍵",
+     "desc": "Caffeine-free, Cape classic."
+    },
+    {
+     "title": "Rusk",
+     "price": "$3",
+     "icon": "🍪",
+     "desc": "Dunk it."
+    }
+   ]
+  },
+  {
+   "slug": "nairobi-beads",
+   "name": "Nairobi Beads",
+   "tag": "Jewelry & Crafts",
+   "city": "Nairobi, Kenya",
+   "flag": "🇰🇪",
+   "wing": "asia",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "📿",
+    "text": "NAIROBI",
+    "sub": "BEADS",
+    "bg": "#7c2d12",
+    "fg": "#fde047",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#7c2d12",
+    "floor": "#431407",
+    "trim": "#fde047"
+   },
+   "clerk": {
+    "name": "Amani",
+    "shirt": "#fde047",
+    "lines": [
+     "Karibu! Maasai beadwork, made by hand, every color means something.",
+     "Red is bravery. Blue is energy. Green is the land.",
+     "Demo store. A real Kenyan maker could be right here."
+    ]
+   },
+   "about": "A demo craft store showing handmade jewelry as product cards.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Beaded Collar Necklace",
+     "price": "$60",
+     "icon": "📿",
+     "desc": "Traditional Maasai colors."
+    },
+    {
+     "title": "Beaded Bracelet Set",
+     "price": "$25",
+     "icon": "💫",
+     "desc": "Three bracelets."
+    },
+    {
+     "title": "Kiondo Basket",
+     "price": "$45",
+     "icon": "🧺",
+     "desc": "Sisal and leather."
+    },
+    {
+     "title": "Beaded Sandals",
+     "price": "$55",
+     "icon": "🩴",
+     "desc": "Leather sole."
+    },
+    {
+     "title": "Earrings",
+     "price": "$20",
+     "icon": "💎",
+     "desc": "Lightweight, bold."
+    }
+   ]
+  },
+  {
+   "slug": "marrakech-rugs",
+   "name": "Marrakech Rugs",
+   "tag": "Rugs & Home",
+   "city": "Marrakech, Morocco",
+   "flag": "🇲🇦",
+   "wing": "asia",
+   "demo": true,
+   "lead": false,
+   "url": "/lease/",
+   "cta": "Put my brand here",
+   "logo": {
+    "icon": "🧶",
+    "text": "MARRAKECH",
+    "sub": "RUGS",
+    "bg": "#7f1d1d",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   },
+   "colors": {
+    "wall": "#7f1d1d",
+    "floor": "#450a0a",
+    "trim": "#fbbf24"
+   },
+   "clerk": {
+    "name": "Youssef",
+    "shirt": "#fbbf24",
+    "lines": [
+     "Salam! Beni Ourain, Azilal, Boucherouite. Every rug is one of a kind.",
+     "Mint tea while you look? Of course.",
+     "Demo store. A real Moroccan seller could be here."
+    ]
+   },
+   "about": "A demo home-goods store with rugs and lanterns.",
+   "pitchLine": "DEMO STORE · THIS COULD BE YOU",
+   "posters": null,
+   "products": [
+    {
+     "title": "Beni Ourain Rug",
+     "price": "$890",
+     "icon": "🧶",
+     "desc": "Undyed wool, diamond pattern."
+    },
+    {
+     "title": "Boucherouite Rug",
+     "price": "$320",
+     "icon": "🌈",
+     "desc": "Recycled textiles, wild color."
+    },
+    {
+     "title": "Brass Lantern",
+     "price": "$95",
+     "icon": "🏮",
+     "desc": "Hand-pierced."
+    },
+    {
+     "title": "Leather Pouf",
+     "price": "$140",
+     "icon": "🪑",
+     "desc": "Stuffed on arrival."
+    },
+    {
+     "title": "Tea Set",
+     "price": "$60",
+     "icon": "🫖",
+     "desc": "Silver-plated, six glasses."
+    }
+   ]
+  }
+ ],
+ "placeholders": [
+  {
+   "slug": "bali-rattan",
+   "name": "Bali Rattan",
+   "tag": "Home & Furniture",
+   "city": "Bali, Indonesia",
+   "flag": "🇮🇩",
+   "wing": "asia",
+   "colors": {
+    "wall": "#fef3c7",
+    "floor": "#fde68a",
+    "trim": "#92400e"
+   },
+   "logo": {
+    "icon": "🌴",
+    "text": "BALI",
+    "sub": "RATTAN",
+    "bg": "#fef3c7",
+    "fg": "#92400e",
+    "accent": "#111"
+   }
+  },
+  {
+   "slug": "mumbai-spice",
+   "name": "Mumbai Spice Co.",
+   "tag": "Spices & Tea",
+   "city": "Mumbai, India",
+   "flag": "🇮🇳",
+   "wing": "asia",
+   "colors": {
+    "wall": "#7c2d12",
+    "floor": "#431407",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "🌶️",
+    "text": "MUMBAI",
+    "sub": "SPICE CO.",
+    "bg": "#7c2d12",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "manila-weaves",
+   "name": "Manila Weaves",
+   "tag": "Handwoven Bags",
+   "city": "Manila, Philippines",
+   "flag": "🇵🇭",
+   "wing": "asia",
+   "colors": {
+    "wall": "#134e4a",
+    "floor": "#0f3d3a",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🧺",
+    "text": "MANILA",
+    "sub": "WEAVES",
+    "bg": "#134e4a",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "paris-parfum",
+   "name": "Paris Parfum",
+   "tag": "Fragrance",
+   "city": "Paris, France",
+   "flag": "🇫🇷",
+   "wing": "europe",
+   "colors": {
+    "wall": "#111827",
+    "floor": "#0b1220",
+    "trim": "#e9d5ff"
+   },
+   "logo": {
+    "icon": "🌹",
+    "text": "PARIS",
+    "sub": "PARFUM",
+    "bg": "#111827",
+    "fg": "#e9d5ff",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "reykjavik-wool",
+   "name": "Reykjavík Wool",
+   "tag": "Sweaters & Knits",
+   "city": "Reykjavík, Iceland",
+   "flag": "🇮🇸",
+   "wing": "europe",
+   "colors": {
+    "wall": "#e5e7eb",
+    "floor": "#d1d5db",
+    "trim": "#1e3a8a"
+   },
+   "logo": {
+    "icon": "🧶",
+    "text": "REYKJAVÍK",
+    "sub": "WOOL",
+    "bg": "#e5e7eb",
+    "fg": "#1e3a8a",
+    "accent": "#111"
+   }
+  },
+  {
+   "slug": "london-tea",
+   "name": "London Tea House",
+   "tag": "Tea & Biscuits",
+   "city": "London, UK",
+   "flag": "🇬🇧",
+   "wing": "europe",
+   "colors": {
+    "wall": "#7f1d1d",
+    "floor": "#450a0a",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "🫖",
+    "text": "LONDON",
+    "sub": "TEA HOUSE",
+    "bg": "#7f1d1d",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "barcelona-ceramics",
+   "name": "Barcelona Ceramics",
+   "tag": "Handmade Ceramics",
+   "city": "Barcelona, Spain",
+   "flag": "🇪🇸",
+   "wing": "europe",
+   "colors": {
+    "wall": "#fff7ed",
+    "floor": "#ffedd5",
+    "trim": "#c2410c"
+   },
+   "logo": {
+    "icon": "🏺",
+    "text": "BARCELONA",
+    "sub": "CERAMICS",
+    "bg": "#fff7ed",
+    "fg": "#c2410c",
+    "accent": "#111"
+   }
+  },
+  {
+   "slug": "copenhagen-design",
+   "name": "Copenhagen Design",
+   "tag": "Furniture & Lighting",
+   "city": "Copenhagen, Denmark",
+   "flag": "🇩🇰",
+   "wing": "europe",
+   "colors": {
+    "wall": "#f5f5f4",
+    "floor": "#e7e5e4",
+    "trim": "#111"
+   },
+   "logo": {
+    "icon": "🪑",
+    "text": "COPENHAGEN",
+    "sub": "DESIGN",
+    "bg": "#f5f5f4",
+    "fg": "#111111",
+    "accent": "#c2410c"
+   }
+  },
+  {
+   "slug": "lisbon-tiles",
+   "name": "Lisbon Tiles",
+   "tag": "Azulejo Art",
+   "city": "Lisbon, Portugal",
+   "flag": "🇵🇹",
+   "wing": "europe",
+   "colors": {
+    "wall": "#1e40af",
+    "floor": "#1e3a8a",
+    "trim": "#ffffff"
+   },
+   "logo": {
+    "icon": "🟦",
+    "text": "LISBON",
+    "sub": "TILES",
+    "bg": "#1e40af",
+    "fg": "#ffffff",
+    "accent": "#fbbf24"
+   }
+  },
+  {
+   "slug": "athens-olive",
+   "name": "Athens Olive",
+   "tag": "Olive Oil & Honey",
+   "city": "Athens, Greece",
+   "flag": "🇬🇷",
+   "wing": "europe",
+   "colors": {
+    "wall": "#365314",
+    "floor": "#1a2e05",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🫒",
+    "text": "ATHENS",
+    "sub": "OLIVE",
+    "bg": "#365314",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "sao-paulo-surf",
+   "name": "São Paulo Surf",
+   "tag": "Boards & Beachwear",
+   "city": "São Paulo, Brazil",
+   "flag": "🇧🇷",
+   "wing": "americas",
+   "colors": {
+    "wall": "#065f46",
+    "floor": "#064e3b",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🏄",
+    "text": "SÃO PAULO",
+    "sub": "SURF",
+    "bg": "#065f46",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "mexico-city-artesania",
+   "name": "Mexico City Artesanía",
+   "tag": "Folk Art & Textiles",
+   "city": "Mexico City, Mexico",
+   "flag": "🇲🇽",
+   "wing": "americas",
+   "colors": {
+    "wall": "#9f1239",
+    "floor": "#881337",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🎨",
+    "text": "CDMX",
+    "sub": "ARTESANÍA",
+    "bg": "#9f1239",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "toronto-outfitters",
+   "name": "Toronto Outfitters",
+   "tag": "Outdoor Gear",
+   "city": "Toronto, Canada",
+   "flag": "🇨🇦",
+   "wing": "americas",
+   "colors": {
+    "wall": "#7f1d1d",
+    "floor": "#450a0a",
+    "trim": "#ffffff"
+   },
+   "logo": {
+    "icon": "🍁",
+    "text": "TORONTO",
+    "sub": "OUTFITTERS",
+    "bg": "#7f1d1d",
+    "fg": "#ffffff",
+    "accent": "#fbbf24"
+   }
+  },
+  {
+   "slug": "denver-taco-truck",
+   "name": "Best Taco Truck Denver",
+   "tag": "Tacos",
+   "city": "Denver, USA",
+   "flag": "🌮",
+   "wing": "food",
+   "colors": {
+    "wall": "#b45309",
+    "floor": "#78350f",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🌮",
+    "text": "TACO",
+    "sub": "TRUCK DENVER",
+    "bg": "#b45309",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  }
+ ]
 }
