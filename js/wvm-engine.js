@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 export { THREE };
+export const WVM_VERSION = '3';
 
 /* ------------------------------------------------------------
    Small helpers
@@ -91,50 +92,67 @@ export function makeSprite(text, opts = {}) {
 /* ------------------------------------------------------------
    A simple low-poly person (NPC + player avatar)
 ------------------------------------------------------------ */
-const skinTones = [0xf1c9a5, 0xe0ac7e, 0xc68642, 0x8d5524, 0x5c3a1e, 0xffdbac];
+const skinTones = [0xf1c9a5, 0xe0ac7e, 0xc68642, 0x8d5524, 0x5c3a1e, 0xffdbac, 0xd8a27a, 0x7a4a2a];
+const hairColors = { blonde: 0xd9b36c, brown: 0x4a2e15, black: 0x1a1a1a, red: 0xb5432b, grey: 0x9a9a9a, white: 0xf0f0f0, auburn: 0x7a3b1e };
+const shirtColors = [0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff, 0xff8a3d, 0xffffff, 0x2f6bff, 0x1e2a4a, 0x9ad0ff, 0xf2b5d4, 0x2b8a3e];
+/* A varied low-poly person. Every option is random unless given:
+   age: 'kid' | 'adult' | 'senior'; hairStyle: 'short' | 'long' | 'ponytail' | 'bald' | 'bun' | 'curly'; dress: true for a dress instead of pants. */
 export function makePerson(opts = {}) {
-  const {
-    shirt = pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff, 0xff8a3d, 0xffffff, 0x2f6bff]),
-    pants = pick([0x1e2a4a, 0x2b2b2b, 0x4a3b8c, 0x3a6ea5, 0x6b4f2a]),
-    skin = pick(skinTones), hair = pick([0x1a1a1a, 0x4a2e15, 0xd9b36c, 0xb5432b, 0x777777, 0xffffff]),
-    faceTex = null, bag = Math.random() < 0.5, hat = false, scale = 1,
-  } = opts;
+  const age = opts.age || pick(['adult', 'adult', 'adult', 'adult', 'kid', 'senior']);
+  const o = Object.assign({
+    shirt: pick(shirtColors), pants: pick([0x1e2a4a, 0x2b2b2b, 0x4a3b8c, 0x3a6ea5, 0x6b4f2a, 0x8a1c3a, 0x556b2f]),
+    skin: pick(skinTones), hair: age === 'senior' ? pick([hairColors.grey, hairColors.white]) : pick(Object.values(hairColors).slice(0, 4).concat([hairColors.auburn])),
+    hairStyle: pick(['short', 'short', 'long', 'ponytail', 'curly', 'bun', age === 'senior' ? 'bald' : 'short']), dress: Math.random() < 0.3,
+    faceTex: null, bag: Math.random() < 0.5, hat: Math.random() < 0.12, glasses: age === 'senior' ? Math.random() < 0.6 : Math.random() < 0.15, beard: Math.random() < 0.12,
+    scale: age === 'kid' ? rand(0.55, 0.72) : age === 'senior' ? rand(0.9, 1.0) : rand(0.92, 1.1),
+  }, opts);
   const g = new THREE.Group();
   const M = (c, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, ...extra });
-  // legs
+  const skinM = M(o.skin), hairM = M(o.hair), shirtM = M(o.shirt), pantsM = M(o.pants);
+  // legs / dress
   const legGeo = new THREE.CapsuleGeometry(0.11, 0.55, 4, 8);
-  const lL = new THREE.Mesh(legGeo, M(pants)); lL.position.set(-0.14, 0.45, 0);
+  const lL = new THREE.Mesh(legGeo, o.dress ? skinM : pantsM); lL.position.set(-0.14, 0.45, 0);
   const lR = lL.clone(); lR.position.x = 0.14;
+  if (o.dress) { const dr = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.7, 12, 1, true), M(o.pants, { side: THREE.DoubleSide })); dr.position.y = 0.72; g.add(dr); }
   // body
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.5, 4, 12), M(shirt)); body.position.y = 1.12;
-  // arms
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.5, 4, 12), shirtM); body.position.y = 1.12;
+  // arms (sleeves + hands)
   const armGeo = new THREE.CapsuleGeometry(0.08, 0.5, 4, 8);
-  const aL = new THREE.Mesh(armGeo, M(skin)); aL.position.set(-0.38, 1.12, 0);
+  const aL = new THREE.Mesh(armGeo, shirtM); aL.position.set(-0.38, 1.12, 0);
   const aR = aL.clone(); aR.position.x = 0.38;
-  // head
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 20, 16), M(skin)); head.position.y = 1.72;
-  if (faceTex) {
-    // face decal on front of head
-    const face = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshBasicMaterial({ map: faceTex, transparent: true }));
-    face.position.set(0, 1.72, 0.2); g.add(face); g.userData.face = face;
+  for (const a of [aL, aR]) { const hand = new THREE.Mesh(new THREE.SphereGeometry(0.085, 8, 6), skinM); hand.position.y = -0.34; a.add(hand); }
+  // head + face (proud of the sphere so it reads from the front)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 20, 16), skinM); head.position.y = 1.72;
+  const face = new THREE.Group(); face.position.set(0, 1.72, 0); g.add(face);
+  if (o.faceTex) {
+    const fm = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshBasicMaterial({ map: o.faceTex, transparent: true })); fm.position.set(0, 0, 0.215); face.add(fm); g.userData.face = fm;
   } else {
-    // simple friendly face
-    const eyeM = M(0x111111);
-    for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), eyeM); e.position.set(sx * 0.08, 1.76, 0.21); g.add(e); }
-    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.012, 6, 12, Math.PI), eyeM);
-    smile.position.set(0, 1.66, 0.21); smile.rotation.z = Math.PI; g.add(smile);
+    const eyeM = M(0xffffff, { roughness: 0.3 }), pupM = M(0x111111);
+    for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), eyeM); e.position.set(sx * 0.085, 0.04, 0.215); face.add(e); const pu = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), pupM); pu.position.set(sx * 0.085, 0.04, 0.252); face.add(pu); const br = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.018, 0.02), hairM); br.position.set(sx * 0.085, 0.1, 0.225); br.rotation.z = sx * -0.15; face.add(br); }
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.07, 6), skinM); nose.rotation.x = Math.PI / 2; nose.position.set(0, -0.01, 0.255); face.add(nose);
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.014, 6, 14, Math.PI), M(0xb03a4a)); smile.position.set(0, -0.07, 0.22); smile.rotation.z = Math.PI; face.add(smile);
+    if (o.glasses) { for (const sx of [-1, 1]) { const gl = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.008, 6, 16), M(0x222222, { metalness: 0.6 })); gl.position.set(sx * 0.085, 0.04, 0.24); face.add(gl); } }
+    if (o.beard && age !== 'kid') { const bd = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5), hairM); bd.position.set(0, -0.04, 0.09); bd.scale.set(1, 0.9, 1); face.add(bd); }
   }
-  const hairM = new THREE.Mesh(new THREE.SphereGeometry(0.255, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), M(hair)); hairM.position.y = 1.74;
-  g.add(lL, lR, body, aL, aR, head, hairM);
-  if (hat) { const h = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 0.16, 12), M(0xff4f79)); h.position.y = 1.98; g.add(h); }
-  if (bag) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.3, 0.14), M(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0xffffff])));
+  // hair
+  if (o.hairStyle !== 'bald') {
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.255, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairM); cap.position.y = 1.74; g.add(cap);
+    if (o.hairStyle === 'long') { const back = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.4, 4, 10), hairM); back.position.set(0, 1.45, -0.12); back.scale.set(1, 1, 0.55); g.add(back); }
+    if (o.hairStyle === 'ponytail') { const pt = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.35, 4, 8), hairM); pt.position.set(0, 1.5, -0.26); pt.rotation.x = 0.35; g.add(pt); g.userData.ponytail = pt; }
+    if (o.hairStyle === 'bun') { const bn = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), hairM); bn.position.set(0, 1.9, -0.18); g.add(bn); }
+    if (o.hairStyle === 'curly') { for (let i = 0; i < 6; i++) { const cu = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), hairM); const a = i / 6 * Math.PI * 2; cu.position.set(Math.cos(a) * 0.2, 1.9 + Math.sin(i) * 0.03, Math.sin(a) * 0.2 - 0.03); g.add(cu); } }
+  } else { const fringe = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 6, 16, Math.PI), hairM); fringe.position.set(0, 1.7, -0.02); fringe.rotation.x = Math.PI / 2; fringe.rotation.z = Math.PI; g.add(fringe); }
+  g.add(lL, lR, body, aL, aR, head);
+  if (o.hat) { const h = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 0.16, 12), M(pick([0xff4f79, 0x38f0ff, 0x1e2a4a, 0xffffff]))); h.position.y = 1.98; g.add(h); const brim = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.16), h.material); brim.position.set(0, 1.92, 0.3); g.add(brim); }
+  if (o.bag) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.3, 0.14), M(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0xffffff, 0x7cff6b])));
     b.position.set(0.5, 0.75, 0); g.add(b);
     const hd = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.012, 6, 12, Math.PI), M(0x222222)); hd.position.set(0.5, 0.92, 0); g.add(hd);
   }
-  g.scale.setScalar(scale);
+  if (age === 'senior') { g.rotation.x = 0.06; }
+  g.scale.setScalar(o.scale);
   g.userData.limbs = { lL, lR, aL, aR };
-  g.userData.phase = Math.random() * 10;
+  g.userData.phase = Math.random() * 10; g.userData.age = age;
   return g;
 }
 /* Two-mesh rider for coaster cars (cheap). */
@@ -148,7 +166,7 @@ export function animatePerson(p, t, speed = 1) {
   const L = p.userData.limbs; if (!L) return;
   const s = Math.sin((t + p.userData.phase) * 8 * speed) * 0.55 * Math.min(1, speed);
   L.lL.rotation.x = s; L.lR.rotation.x = -s; L.aL.rotation.x = -s * 0.8; L.aR.rotation.x = s * 0.8;
-  p.position.y += 0; // ground handled by mover
+  if (p.userData.ponytail) p.userData.ponytail.rotation.x = 0.35 + s * 0.3;
 }
 
 /* ------------------------------------------------------------
@@ -246,7 +264,7 @@ export class WVM {
     let faceTex = null;
     if (faceData) { const im = new Image(); im.src = faceData; faceTex = new THREE.Texture(im); faceTex.colorSpace = THREE.SRGBColorSpace; im.onload = () => { faceTex.needsUpdate = true; }; }
     if (this.avatar) this.player.remove(this.avatar);
-    this.avatar = makePerson(Object.assign({ bag: false, faceTex }, saved || {}));
+    this.avatar = makePerson(Object.assign({ bag: false, faceTex, age: 'adult', scale: 1, glasses: false, beard: false, dress: false, hairStyle: 'short', hair: 0x4a2e15, skin: 0xe0ac7e, shirt: 0x38f0ff, pants: 0x1e2a4a, hat: false }, saved || {}));
     this.avatar.visible = this.dist > 0.5;
     this.player.add(this.avatar);
     this.faceTex = faceTex;
@@ -271,6 +289,7 @@ export class WVM {
   }
   /* Fade + navigate to another page (portal). */
   go(url, label = 'Teleporting…') {
+    try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
     this.fade.classList.add('on'); this.fade.textContent = label;
     setTimeout(() => { location.href = url; }, 550);
   }
@@ -349,13 +368,14 @@ export class WVM {
 
   _movePlayer(dt) {
     const o = this.opts, p = this.player;
+    if (this.ride) { p.position.copy(this.ride.pos(this.t)); if (this.ride.yaw !== undefined) this.avatar.rotation.y = this.ride.yaw; animatePerson(this.avatar, this.t, 0); if (this.ride.until !== undefined && this.t > this.ride.until) { const r = this.ride; this.ride = null; if (r.done) r.done(this); } return; }
+    if (this.locked) { animatePerson(this.avatar, this.t, this.walkTarget ? 1 : 0); }
     const mv = new THREE.Vector2(0, 0);
     if (this.keys.KeyW || this.keys.ArrowUp) mv.y += 1;
     if (this.keys.KeyS || this.keys.ArrowDown) mv.y -= 1;
     if (this.keys.KeyA || this.keys.ArrowLeft) mv.x -= 1;
     if (this.keys.KeyD || this.keys.ArrowRight) mv.x += 1;
-    mv.add(this.moveVec);
-    if (this.xrMove) mv.add(this.xrMove);
+    if (this.locked) mv.set(0, 0); else { mv.add(this.moveVec); if (this.xrMove) mv.add(this.xrMove); }
     let speed = (this.keys.ShiftLeft || this.keys.ShiftRight || this.running) ? o.runSpeed : o.walkSpeed;
     if (mv.lengthSq() > 1) mv.normalize();
     // tap-to-walk
@@ -601,6 +621,11 @@ export class WVM {
       b.onclick = () => { looks.querySelectorAll('.wvm-look').forEach(x => x.classList.remove('on')); b.classList.add('on'); this._save('wvm_avatar', { shirt: o.shirt, pants: o.pants, hat: this._load('wvm_avatar', {}).hat || false }); this._buildAvatar(); };
       looks.appendChild(b);
     }
+    // hair color / style / skin
+    const row = (label, key, entries) => { const wrap = document.createElement('div'); wrap.className = 'wvm-looks'; wrap.style.marginTop = '2px'; const lb = document.createElement('span'); lb.textContent = label; lb.style.cssText = 'font-size:12px;color:#9fd3ff;width:100%'; wrap.appendChild(lb); for (const [name, val, css] of entries) { const b = document.createElement('button'); b.className = 'wvm-look' + (saved[key] === val ? ' on' : ''); b.title = name; if (css) b.style.background = css; else b.textContent = name; b.onclick = () => { wrap.querySelectorAll('.wvm-look').forEach(x => x.classList.remove('on')); b.classList.add('on'); const a = this._load('wvm_avatar', {}); a[key] = val; this._save('wvm_avatar', a); this._buildAvatar(); }; wrap.appendChild(b); } looks.parentNode.insertBefore(wrap, looks.nextSibling); };
+    row('Skin', 'skin', [['light', 0xffdbac, '#ffdbac'], ['fair', 0xf1c9a5, '#f1c9a5'], ['tan', 0xe0ac7e, '#e0ac7e'], ['olive', 0xc68642, '#c68642'], ['brown', 0x8d5524, '#8d5524'], ['deep', 0x5c3a1e, '#5c3a1e']]);
+    row('Hair color', 'hair', [['blonde', 0xd9b36c, '#d9b36c'], ['brown', 0x4a2e15, '#4a2e15'], ['black', 0x1a1a1a, '#1a1a1a'], ['red', 0xb5432b, '#b5432b'], ['grey', 0x9a9a9a, '#9a9a9a']]);
+    row('Hair style', 'hairStyle', [['short', 'short'], ['long', 'long'], ['ponytail', 'ponytail'], ['curly', 'curly'], ['bun', 'bun'], ['bald', 'bald']]);
     const hat = document.createElement('button'); hat.className = 'wvm-look hat' + (saved.hat ? ' on' : ''); hat.textContent = '🧢'; hat.title = 'Hat';
     hat.onclick = () => { const a = this._load('wvm_avatar', {}); a.hat = !a.hat; this._save('wvm_avatar', a); hat.classList.toggle('on', a.hat); this._buildAvatar(); };
     looks.appendChild(hat);
@@ -660,13 +685,13 @@ export class WVM {
       .wvm-pop-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
       .wvm-help{padding-left:18px} .wvm-help li{margin:6px 0}
       .wvm-looks{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-      .wvm-look{width:40px;height:40px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:20px} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.hat{background:#0b1a3a}
+      .wvm-look{min-width:40px;height:40px;border-radius:20px;border:3px solid transparent;cursor:pointer;font-size:14px;font-weight:700;background:#0b1a3a;color:#fff;padding:0 8px;font-family:inherit} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.hat{background:#0b1a3a}
       .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0} .wvm-cam video{width:0;height:0;border-radius:50%;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:160px;height:160px} .wvm-cam canvas{width:96px;height:96px;border-radius:50%;background:#0b1a3a;border:2px solid #38f0ff}
       #wvm-fade{position:absolute;inset:0;background:#38f0ff;color:#04122a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:.5s}
       #wvm-fade.on{opacity:1;pointer-events:auto}
       #wvm-loader{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#0d2a6b,#040a1e 70%);display:flex;align-items:center;justify-content:center;transition:opacity .6s;z-index:5}
       #wvm-loader.off{opacity:0;pointer-events:none}
-      .wvm-tele{text-align:center;width:min(420px,88vw)} .wvm-tele img{height:56px;margin-bottom:14px}
+      .wvm-tele{text-align:center;width:min(420px,88vw)} .wvm-tele img{height:64px;margin-bottom:14px;background:#fff;padding:8px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
       .wvm-ring{width:120px;height:120px;margin:0 auto 16px;border-radius:50%;border:3px solid rgba(124,248,255,.3);border-top-color:#38f0ff;animation:wvmspin 1.1s linear infinite;box-shadow:0 0 40px rgba(56,240,255,.35) inset}
       @keyframes wvmspin{to{transform:rotate(360deg)}}
       .wvm-loadmsg{font-weight:700;margin-bottom:12px;min-height:22px} .wvm-barwrap{height:12px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(124,248,255,.3)}
