@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>World VR Mall | Walk Through a 3D Virtual Shopping Mall With Stores From All Over the World</title>
+<meta name="description" content="World VR Mall is a free 3D virtual shopping mall you walk through on your phone, laptop, or VR headset. Explore stores and brands from around the world, a huge park with roller coasters, a lake, an old-world market, and more. Get your brand a store today.">
+<link rel="canonical" href="https://worldvrmall.com/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#050b1c">
+<link rel="icon" href="images/world-vr-mall-favicon.png">
+<link rel="apple-touch-icon" href="images/world-vr-mall-favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="World VR Mall">
+<meta property="og:title" content="World VR Mall — The World's Virtual Shopping Mall">
+<meta property="og:description" content="Walk into a 3D mall with stores from every continent. Phone, laptop, or VR headset. Free to visit. Brands: get your store today.">
+<meta property="og:url" content="https://worldvrmall.com/">
+<meta property="og:image" content="https://worldvrmall.com/images/vr-stores-hero-billboard.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="World VR Mall — The World's Virtual Shopping Mall">
+<meta name="twitter:description" content="Walk into a 3D mall with stores from every continent. Free on phone, laptop, or VR.">
+<meta name="twitter:image" content="https://worldvrmall.com/images/vr-stores-hero-billboard.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="images/sky.jpg">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@graph":[
+  {"@type":"Organization","@id":"https://worldvrmall.com/#org","name":"World VR Mall","url":"https://worldvrmall.com/","logo":"https://worldvrmall.com/images/world-vr-mall-logo.png","telephone":"+1-800-481-8638","description":"A 3D virtual shopping mall with stores and brands from around the world, open to anyone on phone, laptop, or VR headset.","address":{"@type":"PostalAddress","streetAddress":"1001 Bannock St #660","addressLocality":"Denver","addressRegion":"CO","postalCode":"80204","addressCountry":"US"},"contactPoint":{"@type":"ContactPoint","telephone":"+1-800-481-8638","contactType":"sales","areaServed":"Worldwide","availableLanguage":"English"}},
+  {"@type":"WebSite","@id":"https://worldvrmall.com/#site","url":"https://worldvrmall.com/","name":"World VR Mall","publisher":{"@id":"https://worldvrmall.com/#org"}},
+  {"@type":"WebApplication","name":"World VR Mall","url":"https://worldvrmall.com/","applicationCategory":"ShoppingApplication","operatingSystem":"Any (web browser, WebXR headsets)","browserRequirements":"Requires WebGL","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free 3D virtual mall you walk through: stores from all over the world, a park with roller coasters, a lake, an old-world market, and a kids' zone.","publisher":{"@id":"https://worldvrmall.com/#org"}},
+  {"@type":"FAQPage","mainEntity":[
+   {"@type":"Question","name":"What is World VR Mall?","acceptedAnswer":{"@type":"Answer","text":"World VR Mall is a 3D virtual shopping mall you walk through in your browser. Stores and brands from around the world have storefronts inside; when you find something you like, the buy button takes you to that brand's own website to check out. Around the mall is a huge park with three roller coasters, a lake, ponds, an old-world market, a train, and a kids' playground."}},
+   {"@type":"Question","name":"Do I need a VR headset?","acceptedAnswer":{"@type":"Answer","text":"No. World VR Mall works on any phone, tablet, or laptop with a modern browser. If you do have a VR headset with a browser (such as a Quest), an Enter VR button appears and the same mall becomes fully immersive."}},
+   {"@type":"Question","name":"How does a business get a store in World VR Mall?","acceptedAnswer":{"@type":"Answer","text":"Call 1-800-481-8638. A store takes about ten minutes to set up: your logo, colors, products, and the links to your own online store. Premium placement near the entrance is limited and sold first come, first served."}},
+   {"@type":"Question","name":"Is World VR Mall free to visit?","acceptedAnswer":{"@type":"Answer","text":"Yes. Visiting, exploring, riding the coasters, and building your shopping list are all free. Purchases happen on each brand's own website."}}
+  ]}
+ ]}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{margin:0;background:#050b1c;color:#eaf4ff;font-family:Poppins,"Segoe UI",Arial,sans-serif}
+  .wvm-content{max-width:1080px;margin:0 auto;padding:56px 22px 80px;line-height:1.65}
+  .wvm-content h1{font-size:clamp(28px,4.4vw,46px);line-height:1.12;margin:0 0 12px;color:#fff}
+  .wvm-content h1 span{color:#38f0ff}
+  .wvm-content h2{font-size:clamp(22px,3vw,32px);margin:44px 0 10px;color:#7cf8ff}
+  .wvm-content h3{font-size:19px;margin:22px 0 6px;color:#fff}
+  .wvm-content p,.wvm-content li{font-size:17px;color:#d7e6ff}
+  .lead{font-size:20px;color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:18px 0}
+  .card{background:linear-gradient(160deg,#0d1f4d,#071233);border:1px solid rgba(124,248,255,.35);border-radius:18px;padding:18px 20px}
+  .card b{color:#7cf8ff;display:block;margin-bottom:6px;font-size:18px}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0}
+  .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:999px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer}
+  .btn.alt{background:transparent;color:#7cf8ff;border:2px solid #38f0ff}
+  .btn.hot{background:#ff4f79;color:#fff}
+  .fact{border-left:4px solid #ffd23f;padding:10px 16px;background:rgba(255,210,63,.08);border-radius:0 12px 12px 0;margin:14px 0}
+  details{background:rgba(8,20,50,.6);border:1px solid rgba(124,248,255,.25);border-radius:14px;padding:12px 18px;margin:10px 0}
+  summary{cursor:pointer;font-weight:700;font-size:17px;color:#fff}
+  footer{border-top:1px solid rgba(255,255,255,.1);margin-top:50px;padding-top:22px;font-size:14px;color:#9fb3d9}
+  footer a{color:#7cf8ff;text-decoration:none}
+  .brandrow{display:flex;flex-wrap:wrap;gap:10px 18px;margin:8px 0}
+  .brandrow a{color:#7cf8ff;text-decoration:none;font-weight:600}
+  .hero-img{width:100%;border-radius:18px;border:1px solid rgba(124,248,255,.35);margin:10px 0 4px}
+</style>
+</head>
+<body>
+<div id="wvm-stage"></div>
+<button class="wvm-scrollhint" id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ About the mall</button>
+
+<main class="wvm-content" id="about">
+  <h1>World VR Mall: <span>the world's virtual shopping mall</span>, open to everyone</h1>
+  <p class="lead">Walk in. Look around in full 360°. Go into stores from Denver to Bangkok, pick up a product, and buy it right from the brand. Then go ride a roller coaster. World VR Mall is a free 3D mall you explore on your phone, laptop, or VR headset, with a huge park outside: three coasters, a lake with a cruise ship, duck ponds, an old-world market with handmade goods, a train, an airport, and a playground for the kids.</p>
+  <div class="cta">
+    <a class="btn" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">▲ Back to the world</a>
+    <a class="btn alt" href="mall.html">Enter the mall</a>
+    <a class="btn hot" href="tel:18004818638">Get your brand a store: 1-800-481-8638</a>
+  </div>
+  <img class="hero-img" src="images/vr-stores-hero-billboard.png" alt="World VR Mall billboard: stores from all over the world, shop, explore, play, experience more" width="1536" height="864" loading="lazy">
+
+  <h2>What you can do here right now</h2>
+  <div class="grid">
+    <div class="card"><b>🛍️ Shop the world in 3D</b>Stores are grouped by region: Americas, Europe, Asia, Islands. Walk into any storefront, look at real products on the shelves, and tap Buy to go straight to the brand's checkout.</div>
+    <div class="card"><b>🎢 Ride three roller coasters</b>Cloud Runner, Aurora Loop, and the Mall Blaster, which shoots straight through the mall's glass towers and back out into the park.</div>
+    <div class="card"><b>🤳 Be yourself in the mall</b>Snap a selfie and your real face goes on your character. The photo stays on your device; nothing is uploaded.</div>
+    <div class="card"><b>📝 Shopping list that walks with you</b>Add products from any store to one list, then buy them all at the end. It's saved on your device and follows you across the whole mall.</div>
+    <div class="card"><b>🧒 Kids' zone and playground</b>Learning corners, fun facts, slides and swings, a skating rink, and a volleyball court. Friendly, uplifting, and safe.</div>
+    <div class="card"><b>🥽 Phone, laptop, or VR</b>One address works everywhere. On a headset browser, an Enter VR button appears and the mall becomes fully immersive.</div>
+  </div>
+
+  <h2>How World VR Mall works</h2>
+  <p>Every store in the mall belongs to a real business. The storefront shows the brand's logo, colors, and products; the buy button links to that brand's own website, so your purchase, shipping, and support are handled by the people who make the product. World VR Mall is the place you discover them, side by side, the way you would in a real mall: a New York brand next to a Thai brand next to a European brand. That's the whole idea. A global melting pot of independent ecommerce, and a lot more fun than scrolling a grid of thumbnails.</p>
+  <div class="fact"><b>Fun fact:</b> The first indoor shopping mall in the United States opened in 1956 in Minnesota. World VR Mall opened in 2026, and it never closes, never has a parking problem, and lets you shop in your socks.</div>
+
+  <h2>Own a business? Get a store in World VR Mall</h2>
+  <p>This is a ground-floor opportunity in the future of ecommerce and advertising. Storefronts are leased month to month, set up in about ten minutes, and include a dedicated, search-optimized store page on worldvrmall.com that links to your site. <strong>Premium placement</strong>, the stores nearest the entrance and the food court, is limited and goes first come, first served.</p>
+  <ul>
+    <li>Your logo, colors, and products on real 3D shelves, with buy buttons to your own checkout</li>
+    <li>A friendly AI clerk in your store that answers shopper questions in your voice</li>
+    <li>A search-engine-friendly store page at worldvrmall.com/stores/your-brand</li>
+    <li>No product modeling, no uploads beyond your logo and product photos, no tech work on your end</li>
+  </ul>
+  <div class="cta"><a class="btn hot" href="tel:18004818638">Call 1-800-481-8638 — set up in 10 minutes</a><a class="btn alt" href="lease.html">See leasing details</a></div>
+
+  <h2>Explore the grounds</h2>
+  <h3>The park</h3>
+  <p>Acres of green grass, walking paths, fountains, and floating affirmation banners. Sit by the lake, watch the cruise ship pass, or feed the ducks at either pond.</p>
+  <h3>The amusement park</h3>
+  <p>Three roller coasters, a ferris wheel, and a carousel. The Mall Blaster is the one that dives through the mall itself. Yes, you can watch it from inside.</p>
+  <h3>The Old World Market</h3>
+  <p>Cobblestone lanes, striped canopies, a gazebo, and a stone well. This is where handmade and homemade goods from small makers get their own booth. A viking boat sits at the market dock, because why not.</p>
+  <h3>Train, airport, and teleport station</h3>
+  <p>A high-speed train loops the whole property. A plane takes off from the airport on the far side of the park. And you arrived through the teleport station, which is where you'll land every time you come back.</p>
+
+  <h2>Frequently asked questions</h2>
+  <details open><summary>Do I need a VR headset?</summary><p>No. World VR Mall runs in any modern browser on a phone, tablet, or laptop. If you visit from a headset browser, an Enter VR button appears automatically.</p></details>
+  <details><summary>Is it free?</summary><p>Visiting, exploring, riding the coasters, and building a shopping list are all free. Purchases happen on each brand's own site at their normal prices.</p></details>
+  <details><summary>How do I move around?</summary><p>On a phone: drag to look, pinch to zoom, use the joystick or D-pad, or tap where you want to walk. On a laptop: W-A-S-D or arrow keys, drag to look, scroll to zoom. In VR: left stick walks, right stick turns.</p></details>
+  <details><summary>Is my selfie stored anywhere?</summary><p>Only in your own browser on your own device. It's never sent to us or to any store.</p></details>
+  <details><summary>How do I get my brand in the mall?</summary><p>Call <a href="tel:18004818638">1-800-481-8638</a>. Setup takes about ten minutes. You'll pick a wing, choose your placement, and send a logo and product list. Your store goes live the same day.</p></details>
+
+  <footer>
+    <div class="brandrow"><a href="mall.html">Enter the mall</a><a href="lease.html">Lease a store</a><a href="about.html">About</a><a href="tel:18004818638">1-800-481-8638</a></div>
+    <p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · Powered by <a href="https://eyetoad.com" rel="noopener">Eye To Ad Media</a> · © 2026 World VR Mall. Stores and brands remain the property of their owners. Purchases are completed on each brand's website.</p>
+  </footer>
+</main>
+
+<script type="module">
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from './js/wvm-engine.js';
+
+/* ------------------------------------------------------------
+   OUTSIDE WORLD
+   Layout (meters): mall at origin, entrance faces +Z.
+   Teleport station (spawn) at (0,120). Park east, lake west,
+   market south-west, playground north, airport far NE.
+------------------------------------------------------------ */
+const LAKE = { x: -230, z: 20, r: 95 };
+const PONDS = [{ x: -90, z: -150, r: 22 }, { x: 70, z: -170, r: 18 }];
+const TERR = 62; // mall terrace radius
+const groundY = (x, z) => {
+  if (x * x + z * z < TERR * TERR) return 6;                       // on the terrace
+  if (Math.abs(x) < 20 && z >= TERR && z <= 84) return 6 * (84 - z) / 22; // grand stairs
+  if (Math.hypot(x, z - 122) < 7.5) return 0.4;                    // teleport pad
+  return 0;
+};
+
+const app = new WVM({
+  worldName: 'Outside World · Teleport Station', page: 'index',
+  spawn: new THREE.Vector3(0, 0, 122), spawnYaw: 0, groundY, bounds: 420,
+  fog: 0xbfdcf2, fogNear: 140, fogFar: 760,
+});
+window.WVM_APP = app; // debug handle
+const S = app.scene, T = THREE;
+const M = (c, o = {}) => new T.MeshStandardMaterial({ color: c, roughness: 0.75, ...o });
+const glow = (c, i = 1.2) => new T.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: i, roughness: 0.4 });
+const glass = new T.MeshPhysicalMaterial({ color: 0xa9e9ff, transparent: true, opacity: 0.42, roughness: 0.05, metalness: 0.25, clearcoat: 1, envMapIntensity: 1.6, depthWrite: false });
+const NEON = 0x38f0ff, PINK = 0xff4f79, GOLD = 0xffd23f, MINT = 0x7cff6b;
+
+document.getElementById('scrollhint').onclick = () => document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+
+/* ---------- textures made on the fly ---------- */
+function grassTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  g.fillStyle = '#4f9a3c'; g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 4200; i++) { g.fillStyle = `hsl(${105 + Math.random() * 25},${45 + Math.random() * 25}%,${28 + Math.random() * 22}%)`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 3 + Math.random() * 3); }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(140, 140); t.colorSpace = T.SRGBColorSpace; return t;
+}
+function stripeTexture(a, b) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d');
+  for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? a : b; g.fillRect(i * 32, 0, 32, 64); }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); t.colorSpace = T.SRGBColorSpace; return t;
+}
+function cloudTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  for (let i = 0; i < 9; i++) { const r = 40 + Math.random() * 50, x = 60 + Math.random() * 136, y = 100 + Math.random() * 70; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
+}
+function pathTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  g.fillStyle = '#c9c2b2'; g.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 700; i++) { g.fillStyle = `rgba(${90 + Math.random() * 60},${85 + Math.random() * 50},${70 + Math.random() * 50},.35)`; g.fillRect(Math.random() * 128, Math.random() * 128, 3, 3); }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.colorSpace = T.SRGBColorSpace; return t;
+}
+
+/* ---------- water shader (lake, ponds, fountain) ---------- */
+function waterMaterial(color = 0x1f7fbf, deep = 0x0b3f6e) {
+  return new T.ShaderMaterial({
+    uniforms: { t: { value: 0 }, c1: { value: new T.Color(color) }, c2: { value: new T.Color(deep) }, sun: { value: new T.Vector3(-0.5, 0.4, -0.75).normalize() } },
+    transparent: true,
+    vertexShader: `uniform float t; varying vec2 vUv; varying vec3 vN; varying vec3 vP;
+      void main(){ vUv=uv; vec3 p=position; float w=sin(p.x*0.35+t*1.3)*0.12+sin(p.y*0.5-t*0.9)*0.1+sin((p.x+p.y)*0.9+t*2.1)*0.05; p.z+=w;
+      vN=normalize(vec3(-cos(p.x*0.35+t*1.3)*0.05,-cos(p.y*0.5-t*0.9)*0.05,1.0)); vP=(modelMatrix*vec4(p,1.0)).xyz; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`,
+    fragmentShader: `uniform float t; uniform vec3 c1,c2,sun; varying vec2 vUv; varying vec3 vN; varying vec3 vP;
+      void main(){ vec3 v=normalize(cameraPosition-vP); vec3 n=normalize(vec3(vN.x,vN.z,vN.y)); float fr=pow(1.0-max(dot(n,v),0.0),2.5);
+      float rip=sin(vUv.x*220.0+t*2.0)*sin(vUv.y*180.0-t*1.7)*0.5+0.5; vec3 col=mix(c2,c1,rip*0.35+0.4); col=mix(col,vec3(0.85,0.95,1.0),fr*0.7);
+      vec3 h=normalize(sun+v); float sp=pow(max(dot(n,h),0.0),140.0)*1.6; col+=vec3(1.0,0.95,0.8)*sp; gl_FragColor=vec4(col,0.92);}`
+  });
+}
+const waterMats = [];
+function water(x, z, r, y = 0.05, col, deep) {
+  const m = waterMaterial(col, deep); waterMats.push(m);
+  const mesh = new T.Mesh(new T.CircleGeometry(r, 64), m); mesh.rotation.x = -Math.PI / 2; mesh.position.set(x, y, z); S.add(mesh);
+  const rim = new T.Mesh(new T.RingGeometry(r - 0.5, r + 2.5, 64), M(0xb8ad93, { roughness: 1 })); rim.rotation.x = -Math.PI / 2; rim.position.set(x, 0.04, z); S.add(rim);
+  app.addObstacle(x, z, r + 0.8);
+  return mesh;
+}
+
+/* ---------- ground, paths, hills, trees ---------- */
+function buildGround() {
+  const g = new T.Mesh(new T.PlaneGeometry(1400, 1400), M(0xffffff, { map: grassTexture(), roughness: 1 })); g.rotation.x = -Math.PI / 2; g.position.y = -0.02; S.add(g);
+  const pathM = M(0xffffff, { map: pathTexture(), roughness: 1 });
+  const path = (x, z, w, l, rot = 0) => { const p = new T.Mesh(new T.PlaneGeometry(w, l), pathM); p.rotation.x = -Math.PI / 2; p.rotation.z = rot; p.position.set(x, 0.01, z); S.add(p); };
+  path(0, 90, 18, 70);           // spawn → mall
+  path(30, 126, 60, 8);          // toward train station
+  path(60, 156, 8, 60);          // up to the platform
+  path(-90, 120, 120, 8);        // to market
+  path(120, 40, 8, 180);         // park north-south
+  path(60, -110, 160, 8);        // to playground
+  path(-150, 60, 8, 120, 0);     // lake walk
+  // far hills to hide the horizon seam
+  const hillM = M(0x6fa85a, { roughness: 1 });
+  for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2; const r = 560 + rand(-30, 30); const h = new T.Mesh(new T.SphereGeometry(rand(60, 130), 12, 8), hillM); h.scale.y = rand(0.25, 0.5); h.position.set(Math.cos(a) * r, -5, Math.sin(a) * r); S.add(h); }
+  // trees (instanced)
+  const trunkG = new T.CylinderGeometry(0.25, 0.4, 3, 6), leafG = new T.ConeGeometry(2.2, 5.5, 7), leafG2 = new T.SphereGeometry(2.4, 8, 6);
+  const trunk = new T.InstancedMesh(trunkG, M(0x6b4a2a), 420), cone = new T.InstancedMesh(leafG, M(0x2f7d3a), 420), ball = new T.InstancedMesh(leafG2, M(0x4caa4f), 420);
+  const d = new T.Object3D(); let n = 0;
+  const blocked = (x, z) => (Math.abs(x) < 95 && Math.abs(z) < 75) || (Math.abs(x) < 16 && z > 40 && z < 135) || dist(x, z, LAKE.x, LAKE.z) < LAKE.r + 8 || PONDS.some(p => dist(x, z, p.x, p.z) < p.r + 6) || (x > 110 && x < 320 && z > -120 && z < 110) || (x < -60 && x > -180 && z > 135 && z < 230) || (z < -130 && z > -260 && x > -60 && x < 110) || (x > 230 && z < -200) || dist(x, z, 0, 122) < 20;
+  while (n < 420) {
+    const x = rand(-520, 520), z = rand(-520, 520); if (blocked(x, z)) continue;
+    const s = rand(0.8, 1.9); d.position.set(x, 1.5 * s, z); d.scale.setScalar(s); d.rotation.set(0, rand(0, 6.28), 0); d.updateMatrix(); trunk.setMatrixAt(n, d.matrix);
+    d.position.y = 5.2 * s; d.updateMatrix(); if (n % 2) cone.setMatrixAt(n, d.matrix); else ball.setMatrixAt(n, d.matrix);
+    n++;
+  }
+  S.add(trunk, cone, ball);
+}
+const dist = (x, z, x2, z2) => Math.hypot(x - x2, z - z2);
+
+/* ---------- clouds ---------- */
+const clouds = [];
+function buildClouds() {
+  const tex = cloudTexture();
+  for (let i = 0; i < 48; i++) {
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: tex, transparent: true, opacity: rand(0.55, 0.95), depthWrite: false }));
+    const s = rand(30, 90); sp.scale.set(s, s * 0.55, 1);
+    // half around mall towers (low), half high in sky
+    if (i < 18) sp.position.set(rand(-110, 110), rand(30, 46), rand(-80, 80)); else sp.position.set(rand(-600, 600), rand(120, 220), rand(-600, 600));
+    sp.userData.v = rand(0.4, 1.4); S.add(sp); clouds.push(sp);
+  }
+  app.onUpdate((dt) => { for (const c of clouds) { c.position.x += c.userData.v * dt; if (c.position.x > 640) c.position.x = -640; } });
+}
+
+/* ---------- teleport station (spawn) ---------- */
+function buildTeleport() {
+  const g = new T.Group(); g.position.set(0, 0, 122);
+  const pad = new T.Mesh(new T.CylinderGeometry(7, 7.5, 0.4, 48), M(0x1a2a5a, { metalness: 0.6, roughness: 0.3 })); pad.position.y = 0.2; g.add(pad);
+  const ringM = glow(NEON, 1.6);
+  const rings = [];
+  for (let i = 0; i < 3; i++) { const r = new T.Mesh(new T.TorusGeometry(5.2 - i * 1.4, 0.12, 8, 64), ringM); r.rotation.x = Math.PI / 2; r.position.y = 0.5 + i * 0.05; g.add(r); rings.push(r); }
+  const beam = new T.Mesh(new T.CylinderGeometry(4.6, 5, 14, 32, 1, true), new T.MeshBasicMaterial({ color: NEON, transparent: true, opacity: 0.12, side: T.DoubleSide, depthWrite: false })); beam.position.y = 7; g.add(beam);
+  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; const py = new T.Mesh(new T.BoxGeometry(0.6, 9, 0.6), M(0x9fb3d9, { metalness: 0.8, roughness: 0.25 })); py.position.set(Math.cos(a) * 8.5, 4.5, Math.sin(a) * 8.5); g.add(py); const tip = new T.Mesh(new T.SphereGeometry(0.5, 12, 8), glow(PINK, 2)); tip.position.set(Math.cos(a) * 8.5, 9.4, Math.sin(a) * 8.5); g.add(tip); }
+  const arch = new T.Mesh(new T.TorusGeometry(9, 0.35, 8, 48, Math.PI), glow(NEON, 1.2)); arch.position.set(0, 0.3, 0); arch.rotation.y = 0; g.add(arch);
+  S.add(g);
+  const sign = makeSign(['TELEPORT STATION', 'You arrived here'], { width: 9, height: 3.2, postHeight: 3, bg: '#07123a', accent: '#38f0ff', small: 'worldvrmall.com · re-materialization complete ✓' }); sign.position.set(-14, 0, 118); sign.rotation.y = 0.5; S.add(sign);
+  app.addHotspot(sign, { title: 'Teleport Station', html: '<p>Welcome to World VR Mall! You just teleported in from wherever you are on Earth. The mall is straight ahead, the park is all around you, and the train station is to your left (east).</p><p>Tip: tap the 👀 button to switch between seeing your character and first-person view.</p>' });
+  app.onUpdate((dt, t) => { rings.forEach((r, i) => { r.rotation.z += dt * (0.4 + i * 0.3); r.material.emissiveIntensity = 1.2 + Math.sin(t * 3 + i) * 0.6; }); beam.material.opacity = 0.08 + Math.sin(t * 2) * 0.04; });
+  // welcome greeter
+  const greeter = makePerson({ shirt: NEON, bag: false, hat: true }); greeter.position.set(9, 0, 112); greeter.rotation.y = 2.3; S.add(greeter);
+  app.addHotspot(greeter, { title: 'Nova, your greeter', html: '<p>“Hey! Welcome to World VR Mall. You made it, and honestly, you look great today. 😊</p><p>The mall is right up the path. Turn around for the train and the market. Anything glowing green, you can tap.”</p>', actions: [{ label: 'Take me to the mall', href: 'mall.html' }] });
+  app.onUpdate((dt, t) => { greeter.userData.limbs.aR.rotation.z = -0.9 + Math.sin(t * 4) * 0.35; });
+}
+
+/* ---------- the billboard ---------- */
+function buildBillboard() {
+  const g = new T.Group(); g.position.set(34, 0, 102); g.rotation.y = 0.55;
+  const tex = app.texLoader.load('images/vr-stores-hero-billboard.png'); tex.colorSpace = T.SRGBColorSpace;
+  const board = new T.Mesh(new T.PlaneGeometry(22, 12.4), new T.MeshBasicMaterial({ map: tex })); board.position.y = 11; g.add(board);
+  const frame = new T.Mesh(new T.BoxGeometry(23, 13.4, 0.5), M(0x0b1a3a, { metalness: 0.6, roughness: 0.3 })); frame.position.set(0, 11, -0.3); g.add(frame);
+  const edge = new T.Mesh(new T.BoxGeometry(23.4, 13.8, 0.2), glow(NEON, 1)); edge.position.set(0, 11, -0.45); g.add(edge);
+  for (const sx of [-1, 1]) { const p = new T.Mesh(new T.CylinderGeometry(0.35, 0.45, 5, 10), M(0x9fb3d9, { metalness: 0.8, roughness: 0.2 })); p.position.set(sx * 6, 2.5, -0.3); g.add(p); }
+  const spots = [-8, 0, 8].map(x => { const s = new T.Mesh(new T.SphereGeometry(0.3, 8, 8), glow(GOLD, 2)); s.position.set(x, 17.8, 0.8); g.add(s); return s; });
+  const sub = new T.Mesh(new T.PlaneGeometry(22, 2.4), new T.MeshBasicMaterial({ map: makeTextTexture('GET YOUR BRAND IN WORLD VR MALL · CALL 1-800-481-8638', { w: 2048, h: 224, bg: '#ff4f79', fg: '#fff', accent: '#ffd23f', font: 'bold 78px Poppins, Segoe UI, Arial', radius: 30, border: '#ffd23f' }) })); sub.position.set(0, 3.7, 0.02); g.add(sub);
+  S.add(g);
+  app.addHotspot(g, { title: 'Get your brand in World VR Mall', html: `<p><b>Ground-floor opportunity.</b> Every mall in history had a first group of stores, and those are the ones people remember. This is that moment.</p><p>Your store, your logo, your products, buy buttons straight to your own checkout, a friendly AI clerk, and a search-optimized store page. Set up in about ten minutes. <b>Premium spots near the entrance are limited</b> and go first come, first served.</p><p>Quick question: if the future of shopping is a place, not a page, do you want to be inside it early, or hear about it later?</p>`, actions: [{ label: '📞 Call 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'See the leasing office inside', href: 'mall.html#leasing' }] });
+  app.onUpdate((dt, t) => spots.forEach((s, i) => s.material.emissiveIntensity = 1.5 + Math.sin(t * 5 + i) * 0.8));
+}
+
+/* ---------- the mall exterior (floating glass palace) ---------- */
+let mallGroup;
+function buildMall() {
+  const g = mallGroup = new T.Group(); S.add(g);
+  // base terrace (walkable, y=6)
+  const base = new T.Mesh(new T.CylinderGeometry(TERR, TERR + 4, 6, 12), M(0xe9f1ff, { roughness: 0.35, metalness: 0.2 })); base.position.y = 3; base.rotation.y = Math.PI / 12; g.add(base);
+  const baseGlow = new T.Mesh(new T.TorusGeometry(TERR, 0.5, 8, 80), glow(NEON, 1.4)); baseGlow.rotation.x = Math.PI / 2; baseGlow.position.y = 6.3; g.add(baseGlow);
+  const baseGlow2 = new T.Mesh(new T.TorusGeometry(TERR + 4, 0.4, 8, 80), glow(PINK, 1.2)); baseGlow2.rotation.x = Math.PI / 2; baseGlow2.position.y = 0.4; g.add(baseGlow2);
+  // you can only get up via the stairs: block the rest of the rim with a ring of boxes
+  for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2; const bx = Math.cos(a) * (TERR + 1), bz = Math.sin(a) * (TERR + 1); if (Math.abs(bx) < 22 && bz > 0) continue; app.addObstacle(bx, bz, 6); }
+  app.addBox(0, 0, 66, 43); // the hall itself
+  for (const [x, z] of [[-52, -30], [52, -30], [-52, 30], [52, 30]]) app.addObstacle(x, z, 12);
+  // main hall
+  const hall = new T.Mesh(new T.BoxGeometry(130, 26, 84), glass); hall.position.y = 19; g.add(hall);
+  const hallEdges = new T.LineSegments(new T.EdgesGeometry(hall.geometry), new T.LineBasicMaterial({ color: NEON })); hallEdges.position.copy(hall.position); g.add(hallEdges);
+  const roof = new T.Mesh(new T.BoxGeometry(134, 1.2, 88), M(0xf4f8ff, { metalness: 0.4, roughness: 0.3 })); roof.position.y = 32.6; g.add(roof);
+  // towers
+  const towerPos = [[-52, -30], [52, -30], [-52, 30], [52, 30]];
+  for (const [x, z] of towerPos) {
+    const tw = new T.Mesh(new T.CylinderGeometry(9, 11, 58, 24), glass); tw.position.set(x, 35, z); g.add(tw);
+    const cap = new T.Mesh(new T.ConeGeometry(11, 10, 24), M(0xf4f8ff, { metalness: 0.5, roughness: 0.2 })); cap.position.set(x, 69, z); g.add(cap);
+    const tip = new T.Mesh(new T.SphereGeometry(1.4, 12, 8), glow(PINK, 2.2)); tip.position.set(x, 75, z); g.add(tip);
+    for (let i = 0; i < 4; i++) { const ring = new T.Mesh(new T.TorusGeometry(11.5, 0.25, 6, 40), glow(NEON, 1.3)); ring.rotation.x = Math.PI / 2; ring.position.set(x, 14 + i * 14, z); g.add(ring); }
+  }
+  // central dome
+  const dome = new T.Mesh(new T.SphereGeometry(26, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), glass); dome.position.y = 33; g.add(dome);
+  const domeRing = new T.Mesh(new T.TorusGeometry(26.5, 0.5, 8, 64), glow(GOLD, 1.4)); domeRing.rotation.x = Math.PI / 2; domeRing.position.y = 33.2; g.add(domeRing);
+  const spire = new T.Mesh(new T.CylinderGeometry(0.3, 0.8, 22, 8), M(0xf4f8ff, { metalness: 0.7, roughness: 0.2 })); spire.position.y = 68; g.add(spire);
+  const orb = new T.Mesh(new T.SphereGeometry(3, 20, 14), glow(NEON, 2)); orb.position.y = 80; g.add(orb);
+  // big sign on the front
+  const signTex = makeTextTexture(['WORLD VR MALL'], { w: 2048, h: 400, bg: 'rgba(5,11,28,0.85)', fg: '#ffffff', accent: '#38f0ff', font: 'bold 220px Poppins, Segoe UI, Arial', radius: 60, border: '#38f0ff' });
+  const sign = new T.Mesh(new T.PlaneGeometry(64, 12.5), new T.MeshBasicMaterial({ map: signTex, transparent: true })); sign.position.set(0, 27, 42.3); g.add(sign);
+  const tag = new T.Mesh(new T.PlaneGeometry(50, 4.2), new T.MeshBasicMaterial({ map: makeTextTexture('STORES & BRANDS FROM ALL OVER THE WORLD', { w: 2048, h: 172, bg: '#ff4f79', fg: '#fff', accent: '#ffd23f', font: 'bold 92px Poppins, Segoe UI, Arial', radius: 40, border: '#ffd23f' }), transparent: true })); tag.position.set(0, 18.5, 42.3); g.add(tag);
+  // grand entrance: stairs + escalators + arch + portal
+  const stairs = new T.Group();
+  for (let i = 0; i < 10; i++) { const st = new T.Mesh(new T.BoxGeometry(40 - i * 1.2, 0.62, 2.2), M(0xf4f8ff, { roughness: 0.4 })); st.position.set(0, 0.31 + i * 0.6, 83 - i * 2.2); stairs.add(st); }
+  g.add(stairs);
+  const stripe = stripeTexture('#38f0ff', '#0b1a3a'); const escM = new T.MeshStandardMaterial({ map: stripe, emissive: 0x1a6b7a, emissiveIntensity: 0.6 });
+  for (const sx of [-1, 1]) { const esc = new T.Mesh(new T.BoxGeometry(3.2, 0.4, 23), escM); esc.position.set(sx * 23, 3.1, 73); esc.rotation.x = 0.266; g.add(esc); for (const rx of [-1, 1]) { const rail = new T.Mesh(new T.BoxGeometry(0.2, 1.2, 23), glass); rail.position.set(sx * 23 + rx * 1.8, 3.9, 73); rail.rotation.x = 0.266; g.add(rail); } }
+  app.onUpdate((dt) => { stripe.offset.y -= dt * 0.5; });
+  const arch = new T.Mesh(new T.TorusGeometry(9, 1.1, 12, 48, Math.PI), glow(NEON, 1.5)); arch.position.set(0, 6.2, 43.5); g.add(arch);
+  const portal = new T.Mesh(new T.CircleGeometry(8.6, 48), new T.ShaderMaterial({
+    uniforms: { t: { value: 0 } }, transparent: true, side: T.DoubleSide,
+    vertexShader: 'varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader: 'uniform float t; varying vec2 vUv; void main(){vec2 c=vUv-0.5; float r=length(c); float a=atan(c.y,c.x); float s=sin(r*40.0-t*4.0+a*3.0)*0.5+0.5; vec3 col=mix(vec3(0.05,0.2,0.6),vec3(0.22,0.94,1.0),s); float e=smoothstep(0.5,0.42,r); gl_FragColor=vec4(col+vec3(1.0,0.31,0.47)*pow(1.0-r*2.0,3.0)*0.6, e*0.9);}'
+  })); portal.position.set(0, 6.2, 43); g.add(portal);
+  const portalMat = portal.material; app.onUpdate((dt) => { portalMat.uniforms.t.value += dt; });
+  const enterSign = makeSign(['ENTER THE MALL', 'tap the portal'], { width: 10, height: 3.4, postHeight: 6, bg: '#07123a', accent: '#7cff6b', border: '#7cff6b', small: 'Stores from every continent inside' }); enterSign.position.set(-30, 6, 50); enterSign.rotation.y = 0.45; g.add(enterSign);
+  app.addHotspot(portal, { go: 'mall.html', label: 'Entering World VR Mall…' });
+  app.addHotspot(arch, { go: 'mall.html', label: 'Entering World VR Mall…' });
+  app.addHotspot(enterSign, { go: 'mall.html', label: 'Entering World VR Mall…' });
+  // "Get your brand" sign sticking out beside the entrance
+  const brand = makeSign(['GET YOUR BRAND IN', 'WORLD VR MALL TODAY'], { width: 12, height: 4, postHeight: 7, bg: '#ff4f79', fg: '#fff', accent: '#ffd23f', border: '#ffd23f', small: 'Leasing office just inside · 1-800-481-8638' }); brand.position.set(30, 6, 50); brand.rotation.y = -0.45; g.add(brand);
+  app.addHotspot(brand, { title: 'Ground-floor opportunity', html: '<p>Premium mall real estate, right by the entrance, where every visitor walks past. Limited spots. Ten-minute setup.</p><p>Walk in and visit the leasing office, or skip the line:</p>', actions: [{ label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'Leasing office', href: 'mall.html#leasing' }] });
+  // coaster tunnel openings on the east wall (Mall Blaster goes through)
+  for (const z of [-18, 18]) { const tun = new T.Mesh(new T.TorusGeometry(4.5, 0.6, 8, 32), glow(GOLD, 1.3)); tun.rotation.y = Math.PI / 2; tun.position.set(65.5, 16, z); g.add(tun); const hole = new T.Mesh(new T.CircleGeometry(4.2, 32), new T.MeshBasicMaterial({ color: 0x03081a })); hole.rotation.y = Math.PI / 2; hole.position.set(65.6, 16, z); g.add(hole); }
+  // gentle hover so it feels alive
+  app.onUpdate((dt, t) => { g.position.y = Math.sin(t * 0.6) * 0.35; orb.material.emissiveIntensity = 1.6 + Math.sin(t * 2) * 0.6; domeRing.rotation.z += dt * 0.1; });
+  // flags of the world ring around the terrace
+  const flagCols = [0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xffffff, 0xb08cff, 0xff8a3d];
+  for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2; if (Math.abs(Math.cos(a) * 72) < 24 && Math.sin(a) > 0) continue; const pole = new T.Mesh(new T.CylinderGeometry(0.08, 0.1, 9, 6), M(0xdde6ff, { metalness: 0.8 })); pole.position.set(Math.cos(a) * 72, 4.5, Math.sin(a) * 72); S.add(pole); const flag = new T.Mesh(new T.PlaneGeometry(2.4, 1.5), M(flagCols[i % flagCols.length], { side: T.DoubleSide })); flag.position.set(Math.cos(a) * 72 + 1.2, 8.2, Math.sin(a) * 72); flag.userData.a = a; S.add(flag); app.onUpdate((dt, t) => { flag.rotation.y = a + Math.sin(t * 2 + i) * 0.35; }); }
+}
+
+/* ---------- plaza: fountain, banners, benches ---------- */
+function buildPlaza() {
+  // fountain
+  const fg = new T.Group(); fg.position.set(-26, 0, 100);
+  const basin = new T.Mesh(new T.CylinderGeometry(7, 7.5, 1, 40), M(0xe4ecff, { roughness: 0.3 })); basin.position.y = 0.5; fg.add(basin);
+  const wm = waterMaterial(0x4fc3ff, 0x1a6fb0); waterMats.push(wm);
+  const wsurf = new T.Mesh(new T.CircleGeometry(6.6, 40), wm); wsurf.rotation.x = -Math.PI / 2; wsurf.position.y = 1.02; fg.add(wsurf);
+  const column = new T.Mesh(new T.CylinderGeometry(0.6, 1.2, 4, 12), M(0xe4ecff)); column.position.y = 3; fg.add(column);
+  const bowl = new T.Mesh(new T.CylinderGeometry(2.6, 1.8, 0.6, 24), M(0xe4ecff)); bowl.position.y = 5; fg.add(bowl);
+  // particle jets
+  const N = 600; const pos = new Float32Array(N * 3), vel = []; for (let i = 0; i < N; i++) { vel.push(spawnDrop()); pos[i * 3 + 1] = -10; }
+  function spawnDrop() { const a = rand(0, 6.28), sp = rand(2, 5); return { x: 0, y: 5.3, z: 0, vx: Math.cos(a) * rand(0.5, 2.5), vy: sp + 3, vz: Math.sin(a) * rand(0.5, 2.5), life: rand(0, 1.4) }; }
+  const pgeo = new T.BufferGeometry(); pgeo.setAttribute('position', new T.BufferAttribute(pos, 3));
+  const pts = new T.Points(pgeo, new T.PointsMaterial({ color: 0xbfefff, size: 0.18, transparent: true, opacity: 0.9, depthWrite: false })); fg.add(pts);
+  app.onUpdate((dt) => { for (let i = 0; i < N; i++) { const v = vel[i]; v.life += dt; v.vy -= 9.8 * dt; v.x += v.vx * dt; v.y += v.vy * dt; v.z += v.vz * dt; if (v.y < 1.0) vel[i] = spawnDrop(); pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z; } pgeo.attributes.position.needsUpdate = true; });
+  S.add(fg); app.addObstacle(-26, 100, 8.2);
+  app.addHotspot(basin, { title: 'The Wishing Fountain', html: '<p>Make a wish. Ours already came true: you\'re here. 💙</p><p><b>Fun fact:</b> the coins in the Trevi Fountain in Rome are collected and donated to charity, about a million euros a year. Ours are virtual, so we donate compliments instead: <i>you have excellent taste in malls.</i></p>' });
+  // affirmation banners floating over the plaza
+  const words = ['You are exactly where you need to be ✨', 'Today is a good day to find something you love', 'Kindness is always in stock', 'The world is bigger, and friendlier, than it looks', 'Go ride a roller coaster. You\'ve earned it 🎢', 'Small brands, big hearts. Shop them.'];
+  words.forEach((w, i) => { const s = makeSprite(w, { scale: 14, bg: 'rgba(8,20,50,0.8)', accent: i % 2 ? '#ffd23f' : '#7cf8ff' }); const a = i / words.length * Math.PI * 2; s.position.set(Math.cos(a) * 40, 9 + (i % 2) * 2, 100 + Math.sin(a) * 22); s.userData.b = rand(0, 6); S.add(s); app.onUpdate((dt, t) => { s.position.y = 9 + (i % 2) * 2 + Math.sin(t * 0.8 + s.userData.b) * 0.5; }); });
+  // benches + lamp posts along the main path
+  for (let i = 0; i < 5; i++) { for (const sx of [-1, 1]) { const z = 88 + i * 8; const b = new T.Mesh(new T.BoxGeometry(2.4, 0.4, 0.8), M(0x8a5a2b)); b.position.set(sx * 11, 0.6, z); S.add(b); const bk = new T.Mesh(new T.BoxGeometry(2.4, 0.8, 0.15), M(0x8a5a2b)); bk.position.set(sx * 11, 1.2, z - 0.35); S.add(bk); const lp = new T.Mesh(new T.CylinderGeometry(0.08, 0.12, 5, 6), M(0x1e2a4a, { metalness: 0.8 })); lp.position.set(sx * 13, 2.5, z + 6); S.add(lp); const bulb = new T.Mesh(new T.SphereGeometry(0.35, 10, 8), glow(0xfff2c0, 1.6)); bulb.position.set(sx * 13, 5.1, z + 6); S.add(bulb); } }
+  // fun-fact kiosk
+  const kiosk = makeSign(['FUN FACT KIOSK', 'tap me'], { width: 5.5, height: 2.6, postHeight: 1.6, bg: '#1a3d0f', accent: '#7cff6b', border: '#7cff6b' }); kiosk.position.set(14, 0, 90); kiosk.rotation.y = 0.9; S.add(kiosk);
+  const facts = ['More than a quarter of the people on Earth now shop online at least once a year.', 'The word "mall" comes from pall-mall, a 16th-century lawn game played on long alleys.', 'The largest mall on Earth by store count has over 1,200 shops. World VR Mall has no ceiling on that number.', 'Roller coasters trace back to Russian "ice slides" from the 1600s, giant wooden ramps covered in ice.', 'A Bangkok street-food stall and a Denver bath-remodel company can be next-door neighbors here. That\'s new.', 'The first escalator was installed at Coney Island in 1896 as an amusement ride.'];
+  app.addHotspot(kiosk, { fn: (a) => a.popup('Fun fact 🧠', `<p>${pick(facts)}</p>`, [{ label: 'Another one!', fn: () => { a.popup('Fun fact 🧠', `<p>${pick(facts)}</p>`, [{ label: 'Another one!', fn: () => a.closePopup(), keep: false }]); }, keep: true }]) });
+}
+
+/* ---------- train around the whole property ---------- */
+function buildTrain() {
+  const C = { x: 60, z: -40 }, R = 225;
+  const railM = M(0x9aa7c7, { metalness: 0.8, roughness: 0.3 });
+  for (const rr of [R - 0.9, R + 0.9]) { const rail = new T.Mesh(new T.TorusGeometry(rr, 0.12, 6, 260), railM); rail.rotation.x = Math.PI / 2; rail.position.set(C.x, 0.35, C.z); S.add(rail); }
+  const bed = new T.Mesh(new T.RingGeometry(R - 2.2, R + 2.2, 260), M(0x7a7367, { roughness: 1 })); bed.rotation.x = -Math.PI / 2; bed.position.set(C.x, 0.03, C.z); S.add(bed);
+  // sleepers (instanced)
+  const sl = new T.InstancedMesh(new T.BoxGeometry(3, 0.16, 0.5), M(0x5a3d22), 400); const d = new T.Object3D();
+  for (let i = 0; i < 400; i++) { const a = i / 400 * Math.PI * 2; d.position.set(C.x + Math.cos(a) * R, 0.2, C.z + Math.sin(a) * R); d.rotation.set(0, -a, 0); d.updateMatrix(); sl.setMatrixAt(i, d.matrix); } S.add(sl);
+  // station near spawn (angle where z max)
+  const sa = Math.PI / 2; const sx = C.x + Math.cos(sa) * R, sz = C.z + Math.sin(sa) * R; // (60, 185)
+  const plat = new T.Mesh(new T.BoxGeometry(34, 1.2, 5), M(0xe4ecff)); plat.position.set(sx, 0.6, sz + 5); S.add(plat);
+  const canopy = new T.Mesh(new T.BoxGeometry(34, 0.3, 7), glass); canopy.position.set(sx, 5.5, sz + 5.5); S.add(canopy);
+  for (let i = -2; i <= 2; i++) { const p = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, 5, 8), railM); p.position.set(sx + i * 8, 3, sz + 8.5); S.add(p); }
+  const ssign = makeSign(['WORLD LOOP EXPRESS', 'Trains every 2 minutes'], { width: 9, height: 3, postHeight: 6.2, bg: '#07123a', accent: '#ffd23f', border: '#ffd23f', small: 'Free rides · loops the whole park' }); ssign.position.set(sx, 0, sz + 9.5); ssign.rotation.y = Math.PI; S.add(ssign);
+  app.addHotspot(ssign, { title: 'World Loop Express', html: '<p>A high-speed train that circles the entire property: the mall, the park, the lake, the market, and the airport. You\'ll see it fly past every couple of minutes.</p><p><b>Fun fact:</b> the fastest trains in the world run at over 270 mph. Ours runs at "whatever makes you smile."</p>' });
+  // train: 1 nose + 5 cars
+  const train = new T.Group(); S.add(train);
+  const cars = [];
+  for (let i = 0; i < 6; i++) { const c = new T.Group(); const body = new T.Mesh(new T.BoxGeometry(2.6, 2.8, i === 0 ? 9 : 8), M(i === 0 ? 0x38f0ff : 0xffffff, { metalness: 0.5, roughness: 0.3 })); body.position.y = 1.9; c.add(body); const strip = new T.Mesh(new T.BoxGeometry(2.7, 0.5, i === 0 ? 9 : 8), glow(PINK, 0.9)); strip.position.y = 1.2; c.add(strip); const win = new T.Mesh(new T.BoxGeometry(2.7, 0.9, (i === 0 ? 9 : 8) - 1), M(0x0b1a3a, { metalness: 0.8, roughness: 0.1 })); win.position.y = 2.6; c.add(win); if (i === 0) { const nose = new T.Mesh(new T.ConeGeometry(1.5, 3, 12), M(0x38f0ff, { metalness: 0.5 })); nose.rotation.x = Math.PI / 2; nose.position.set(0, 1.9, 6); c.add(nose); } train.add(c); cars.push(c); }
+  let u = 0; const gap = 9 / (2 * Math.PI * R);
+  app.onUpdate((dt) => { u = (u + dt * 0.011) % 1; cars.forEach((c, i) => { const a = (u - i * gap) * Math.PI * 2; c.position.set(C.x + Math.cos(a) * R, 0.35, C.z + Math.sin(a) * R); c.rotation.y = -a; }); });
+}
+
+/* ---------- roller coasters ---------- */
+function coaster(name, pts, color, opts = {}) {
+  const curve = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(...p)), true, 'catmullrom', 0.6);
+  const tube = new T.Mesh(new T.TubeGeometry(curve, 360, 0.32, 6, true), M(color, { metalness: 0.5, roughness: 0.4 })); S.add(tube);
+  // second rail + supports
+  const frames = curve.computeFrenetFrames(120, true); const supM = M(0x9aa7c7, { metalness: 0.6, roughness: 0.4 });
+  for (let i = 0; i < 120; i += 2) { const p = curve.getPointAt(i / 120); if (p.y > 2) { const s = new T.Mesh(new T.CylinderGeometry(0.15, 0.2, p.y, 6), supM); s.position.set(p.x, p.y / 2, p.z); S.add(s); } }
+  // cars
+  const n = opts.cars || 6; const carsG = []; const carM = M(opts.carColor || PINK, { metalness: 0.4 });
+  for (let i = 0; i < n; i++) { const c = new T.Group(); const b = new T.Mesh(new T.BoxGeometry(1.6, 0.9, 2.2), carM); c.add(b); for (const sx of [-0.45, 0.45]) { const rider = makeRider(); rider.position.set(sx, 0.3, 0); c.add(rider); } S.add(c); carsG.push(c); }
+  let u = rand(0, 1); const speed = opts.speed || 0.045, gap = 2.6 / curve.getLength();
+  const up = new T.Vector3(0, 1, 0);
+  app.onUpdate((dt) => {
+    const p0 = curve.getPointAt(u); const slope = curve.getTangentAt(u).y; u = (u + dt * speed * (1.3 - slope * 0.9)) % 1;
+    carsG.forEach((c, i) => { const uu = ((u - i * gap) % 1 + 1) % 1; const p = curve.getPointAt(uu); const tn = curve.getTangentAt(uu); c.position.copy(p).addScaledVector(up, 0.7); const m = new T.Matrix4().lookAt(p.clone().add(tn), p, up); c.quaternion.setFromRotationMatrix(m); });
+  });
+  // sign
+  const sg = makeSign([name.toUpperCase(), opts.tag || 'Ride it!'], { width: 8, height: 3, postHeight: 2.6, bg: '#07123a', accent: '#' + color.toString(16).padStart(6, '0'), border: '#' + color.toString(16).padStart(6, '0') }); sg.position.set(pts[0][0], 0, pts[0][2] + 6); S.add(sg);
+  app.addHotspot(sg, { title: name, html: opts.html || '<p>A roller coaster. In a mall. What a time to be alive.</p>' });
+  return curve;
+}
+function buildAmusement() {
+  // Cloud Runner: big classic loop east of the mall
+  coaster('Cloud Runner', [[150, 3, 60], [175, 28, 40], [200, 8, 20], [230, 36, 0], [260, 10, -20], [280, 30, -60], [250, 6, -90], [210, 24, -100], [180, 4, -80], [160, 20, -40], [150, 3, 0]], NEON, { cars: 6, speed: 0.05, tag: 'The big one', html: '<p><b>Cloud Runner</b> climbs above the treeline and dives back toward the lake. Sit anywhere. Scream optional.</p>' });
+  // Aurora Loop: tight corkscrew, gold
+  coaster('Aurora Loop', [[190, 3, 100], [205, 22, 95], [215, 26, 80], [200, 30, 70], [185, 20, 78], [195, 8, 95], [230, 12, 105], [250, 26, 90], [240, 8, 70], [215, 3, 90]], GOLD, { cars: 4, speed: 0.06, carColor: 0x2f6bff, tag: 'Corkscrew!', html: '<p><b>Aurora Loop</b> twists through a corkscrew you can see from the mall towers.</p>' });
+  // Mall Blaster: enters the mall on the east wall and comes back out
+  coaster('Mall Blaster', [[120, 3, 60], [135, 30, 40], [110, 34, 18], [66, 16, 18], [30, 16, 10], [10, 22, 0], [30, 16, -12], [66, 16, -18], [110, 30, -30], [140, 12, -70], [170, 34, -50], [160, 6, 10], [130, 3, 50]], PINK, { cars: 5, speed: 0.058, carColor: GOLD, tag: 'Goes THROUGH the mall', html: '<p><b>Mall Blaster</b> shoots into the mall through the east wall, races over the food court, and comes back out. The only coaster on Earth with a gift shop in the middle.</p>' });
+  // Ferris wheel
+  const fw = new T.Group(); fw.position.set(300, 0, 40); S.add(fw);
+  const wheel = new T.Group(); wheel.position.y = 34; fw.add(wheel);
+  const rim = new T.Mesh(new T.TorusGeometry(30, 0.6, 8, 64), M(0xffffff, { metalness: 0.6 })); wheel.add(rim);
+  const rimGlow = new T.Mesh(new T.TorusGeometry(30, 0.25, 6, 64), glow(NEON, 1.5)); wheel.add(rimGlow);
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const sp = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, 30, 6), M(0xdde6ff)); sp.position.set(Math.cos(a) * 15, Math.sin(a) * 15, 0); sp.rotation.z = a + Math.PI / 2; wheel.add(sp); const gon = new T.Mesh(new T.CylinderGeometry(1.6, 1.4, 2.4, 8), M([PINK, NEON, GOLD, MINT][i % 4])); gon.position.set(Math.cos(a) * 30, Math.sin(a) * 30 - 1.5, 0); gon.userData.a = a; wheel.add(gon); }
+  for (const sx of [-1, 1]) { const leg = new T.Mesh(new T.CylinderGeometry(0.6, 0.9, 40, 8), M(0x9aa7c7, { metalness: 0.7 })); leg.position.set(sx * 10, 18, 3 * sx); leg.rotation.z = sx * 0.25; fw.add(leg); }
+  app.onUpdate((dt) => { wheel.rotation.z += dt * 0.12; wheel.children.forEach(c => { if (c.userData.a !== undefined) c.rotation.z = -wheel.rotation.z; }); });
+  const fsign = makeSign(['SKY WHEEL', 'See the whole world'], { width: 8, height: 3, postHeight: 2.5, bg: '#07123a', accent: '#38f0ff' }); fsign.position.set(292, 0, 60); S.add(fsign);
+  app.addHotspot(fsign, { title: 'Sky Wheel', html: '<p>From the top you can see the mall, the lake, the market, and the airport. On a clear day you can see your own front door. (Not really. But it feels like it.)</p>' });
+  // Carousel
+  const cg = new T.Group(); cg.position.set(160, 0, 130); S.add(cg);
+  const cbase = new T.Mesh(new T.CylinderGeometry(9, 9.5, 0.8, 24), M(0xffffff)); cbase.position.y = 0.4; cg.add(cbase);
+  const croof = new T.Mesh(new T.ConeGeometry(10.5, 4, 24), M(PINK)); croof.position.y = 7; cg.add(croof);
+  const ctop = new T.Mesh(new T.SphereGeometry(1, 12, 8), glow(GOLD, 1.5)); ctop.position.y = 9.4; cg.add(ctop);
+  const spin = new T.Group(); cg.add(spin);
+  for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const pole = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 5, 6), M(GOLD, { metalness: 0.9 })); pole.position.set(Math.cos(a) * 7, 3.3, Math.sin(a) * 7); spin.add(pole); const horse = new T.Group(); const hb = new T.Mesh(new T.BoxGeometry(0.6, 0.6, 1.6), M([0xffffff, PINK, NEON, MINT, GOLD][i % 5])); hb.position.y = 0.3; horse.add(hb); const hh = new T.Mesh(new T.BoxGeometry(0.4, 0.5, 0.5), hb.material); hh.position.set(0, 0.8, 0.8); horse.add(hh); horse.position.set(Math.cos(a) * 7, 2, Math.sin(a) * 7); horse.rotation.y = -a; horse.userData.i = i; spin.add(horse); }
+  app.onUpdate((dt, t) => { spin.rotation.y += dt * 0.5; spin.children.forEach(c => { if (c.userData.i !== undefined) c.position.y = 2 + Math.sin(t * 2 + c.userData.i) * 0.5; }); });
+  app.addObstacle(160, 130, 10); app.addObstacle(300, 40, 12);
+  const gate = makeSign(['WORLD VR PARK', '3 coasters · wheel · carousel'], { width: 14, height: 4, postHeight: 6, bg: '#07123a', accent: '#ff4f79', border: '#ff4f79', small: 'Always free · always open' }); gate.position.set(118, 0, 100); gate.rotation.y = 0.6; S.add(gate);
+}
+
+/* ---------- lake, ships, ponds, ducks ---------- */
+function buildWater() {
+  water(LAKE.x, LAKE.z, LAKE.r, 0.05, 0x1f7fbf, 0x0b3f6e);
+  for (const p of PONDS) water(p.x, p.z, p.r, 0.05, 0x3aa2d8, 0x145b8a);
+  // dock
+  const dock = new T.Mesh(new T.BoxGeometry(4, 0.5, 26), M(0x8a5a2b)); dock.position.set(LAKE.x + LAKE.r - 4, 0.3, LAKE.z + 10); S.add(dock);
+  for (let i = 0; i < 5; i++) { for (const sx of [-1, 1]) { const p = new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 2, 6), M(0x5a3d22)); p.position.set(LAKE.x + LAKE.r - 4 + sx * 1.9, 0.3, LAKE.z - 2 + i * 6); S.add(p); } }
+  // walkable dock: carve an opening by NOT adding an obstacle there (lake obstacle stays; dock sits on rim). Fine for v1.
+  const lsign = makeSign(['CRYSTAL LAKE', 'Cruise ship · sailboats · sunrise'], { width: 9, height: 3, postHeight: 2.6, bg: '#07123a', accent: '#38f0ff' }); lsign.position.set(LAKE.x + LAKE.r + 8, 0, LAKE.z + 30); lsign.rotation.y = -0.8; S.add(lsign);
+  app.addHotspot(lsign, { title: 'Crystal Lake', html: '<p>The cruise ship does a slow lap every few minutes. The sailboats mostly just enjoy themselves.</p><p><b>Fun fact:</b> the sunrise you\'re standing in is a real photograph of a real lake, wrapped around the whole world.</p>' });
+  // cruise ship
+  const ship = new T.Group();
+  const hull = new T.Mesh(new T.BoxGeometry(8, 5, 46), M(0xffffff, { roughness: 0.4 })); hull.position.y = 1.5; ship.add(hull);
+  const bow = new T.Mesh(new T.ConeGeometry(4, 8, 4), M(0xffffff)); bow.rotation.x = Math.PI / 2; bow.rotation.y = Math.PI / 4; bow.position.set(0, 1.5, 27); bow.scale.set(1, 1, 1.25); ship.add(bow);
+  const hullBand = new T.Mesh(new T.BoxGeometry(8.1, 1.2, 46), M(0x0b1a3a)); hullBand.position.y = 0.2; ship.add(hullBand);
+  for (let i = 0; i < 3; i++) { const deck = new T.Mesh(new T.BoxGeometry(7 - i, 2.2, 36 - i * 6), M(0xf4f8ff)); deck.position.y = 5.1 + i * 2.2; ship.add(deck); const win = new T.Mesh(new T.BoxGeometry(7.05 - i, 0.7, 34 - i * 6), M(0x38f0ff, { emissive: 0x1a6b7a, emissiveIntensity: 0.6 })); win.position.y = 5.1 + i * 2.2; ship.add(win); }
+  const funnel = new T.Mesh(new T.CylinderGeometry(1, 1.2, 4, 12), M(PINK)); funnel.position.set(0, 13, -6); ship.add(funnel);
+  const nameTex = makeTextTexture('WORLD VR CRUISES', { w: 1024, h: 160, bg: 'rgba(0,0,0,0)', fg: '#0b1a3a', border: null, glow: false, font: 'bold 96px Poppins, Segoe UI, Arial' });
+  for (const sx of [-1, 1]) { const nm = new T.Mesh(new T.PlaneGeometry(14, 2.2), new T.MeshBasicMaterial({ map: nameTex, transparent: true })); nm.position.set(sx * 4.06, 2.6, 10); nm.rotation.y = sx * Math.PI / 2; ship.add(nm); }
+  S.add(ship);
+  let su = 0; app.onUpdate((dt, t) => { su += dt * 0.02; const a = su, r = LAKE.r - 30; ship.position.set(LAKE.x + Math.cos(a) * r, -0.2 + Math.sin(t * 0.7) * 0.15, LAKE.z + Math.sin(a) * r); ship.rotation.y = -a; ship.rotation.z = Math.sin(t * 0.5) * 0.015; });
+  // sailboats
+  for (let i = 0; i < 4; i++) { const b = new T.Group(); const h = new T.Mesh(new T.BoxGeometry(1.6, 0.8, 4.5), M([0xffffff, PINK, GOLD, MINT][i])); h.position.y = 0.3; b.add(h); const mast = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 5, 6), M(0x5a3d22)); mast.position.y = 3; b.add(mast); const sail = new T.Mesh(new T.PlaneGeometry(2.4, 4), M(0xffffff, { side: T.DoubleSide })); sail.position.set(0.6, 3.2, 0); sail.rotation.y = Math.PI / 2; b.add(sail); S.add(b); const a0 = rand(0, 6.28), rr = rand(20, LAKE.r - 12), sp = rand(0.03, 0.06); app.onUpdate((dt, t) => { const a = a0 + t * sp; b.position.set(LAKE.x + Math.cos(a) * rr, -0.1 + Math.sin(t * 1.3 + i) * 0.12, LAKE.z + Math.sin(a) * rr); b.rotation.y = -a; b.rotation.z = Math.sin(t + i) * 0.08; }); }
+  // viking boat at the market dock (south of lake)
+  const vk = new T.Group(); vk.position.set(LAKE.x + 40, -0.1, LAKE.z + 82);
+  const vh = new T.Mesh(new T.BoxGeometry(2.4, 1, 9), M(0x6b4a2a)); vh.position.y = 0.4; vk.add(vh);
+  for (const sz of [-1, 1]) { const pr = new T.Mesh(new T.CylinderGeometry(0.2, 0.5, 3, 6), M(0x6b4a2a)); pr.position.set(0, 1.4, sz * 4.6); pr.rotation.x = sz * 0.5; vk.add(pr); }
+  const vm = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 6, 6), M(0x5a3d22)); vm.position.y = 3.5; vk.add(vm);
+  const vs = new T.Mesh(new T.PlaneGeometry(4, 3.5), M(0xffffff, { map: stripeTexture('#ff4f79', '#ffffff'), side: T.DoubleSide })); vs.position.set(0, 4, 0); vk.add(vs);
+  for (let i = 0; i < 4; i++) { for (const sx of [-1, 1]) { const sh = new T.Mesh(new T.CircleGeometry(0.5, 12), M([PINK, GOLD, NEON, MINT][i], { side: T.DoubleSide })); sh.position.set(sx * 1.25, 0.9, -3 + i * 2); sh.rotation.y = Math.PI / 2; vk.add(sh); } }
+  S.add(vk); app.onUpdate((dt, t) => { vk.rotation.z = Math.sin(t * 0.9) * 0.04; vk.position.y = -0.1 + Math.sin(t * 1.1) * 0.08; });
+  // ducks
+  for (const p of PONDS) {
+    for (let i = 0; i < 7; i++) {
+      const d = new T.Group(); const body = new T.Mesh(new T.SphereGeometry(0.42, 12, 8), M(i === 0 ? 0x3b6b2a : 0xf2e2b6)); body.scale.set(1, 0.8, 1.3); body.position.y = 0.3; d.add(body);
+      const head = new T.Mesh(new T.SphereGeometry(0.24, 10, 8), M(i === 0 ? 0x1f5a2a : 0xf2e2b6)); head.position.set(0, 0.8, 0.45); d.add(head);
+      const beak = new T.Mesh(new T.ConeGeometry(0.1, 0.32, 8), M(0xff9a1f)); beak.rotation.x = Math.PI / 2; beak.position.set(0, 0.76, 0.78); d.add(beak);
+      S.add(d); const a0 = rand(0, 6.28), rr = rand(3, p.r - 4), sp = rand(0.08, 0.2);
+      app.onUpdate((dt, t) => { const a = a0 + t * sp; d.position.set(p.x + Math.cos(a) * rr, -0.05 + Math.sin(t * 2 + i) * 0.06, p.z + Math.sin(a) * rr); d.rotation.y = -a; });
+    }
+    const ds = makeSign(['DUCK POND', 'please do not feed them pizza'], { width: 7, height: 2.6, postHeight: 1.8, bg: '#1a3d0f', accent: '#ffd23f', border: '#ffd23f' }); ds.position.set(p.x + p.r + 5, 0, p.z + 6); ds.rotation.y = -0.6; S.add(ds);
+    app.addHotspot(ds, { title: 'Duck Pond', html: '<p>Seven ducks live here. The green one is named Gerald. He runs the place.</p><p><b>Fun fact:</b> ducks have waterproof feathers thanks to an oil gland near their tail. Nature\'s raincoat.</p>' });
+  }
+}
+
+/* ---------- Old World Market ---------- */
+function buildMarket() {
+  const cx = -120, cz = 180;
+  const cobble = new T.Mesh(new T.CircleGeometry(48, 48), M(0xffffff, { map: pathTexture(), roughness: 1 })); cobble.rotation.x = -Math.PI / 2; cobble.position.set(cx, 0.015, cz); S.add(cobble);
+  const gate = makeSign(['OLD WORLD MARKET', 'handmade & homemade goods'], { width: 14, height: 4.2, postHeight: 6, bg: '#3a2410', fg: '#ffe9c4', accent: '#ffd23f', border: '#ffd23f', small: 'Makers from everywhere · rent a booth: 1-800-481-8638' }); gate.position.set(cx + 50, 0, cz - 10); gate.rotation.y = -Math.PI / 2; S.add(gate);
+  app.addHotspot(gate, { title: 'Old World Market', html: '<p>Cobblestones, striped canopies, and small makers selling what they make with their own hands: soap, candles, jam, jewelry, woodwork, art.</p><p><b>Sell here:</b> a market booth is the most affordable spot in World VR Mall. Perfect for Etsy shops, farmers-market regulars, and home bakers.</p>', actions: [{ label: '📞 Rent a booth: 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }] });
+  const goods = ['Soap & Candles', 'Hand-Poured Jam', 'Wooden Toys', 'Silver Jewelry', 'Fresh Bread', 'Knit Scarves', 'Honey', 'Ceramics', 'Leather Bags', 'Spices of the World', 'Local Art', 'Hot Sauce'];
+  const cols = [['#ff4f79', '#fff'], ['#38f0ff', '#fff'], ['#ffd23f', '#3a2410'], ['#7cff6b', '#fff'], ['#b08cff', '#fff'], ['#ff8a3d', '#fff']];
+  goods.forEach((name, i) => {
+    const a = i / goods.length * Math.PI * 2; const r = i % 2 ? 20 : 34; const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
+    const st = new T.Group(); st.position.set(x, 0, z); st.rotation.y = -a + Math.PI / 2;
+    const table = new T.Mesh(new T.BoxGeometry(4, 0.2, 1.6), M(0x8a5a2b)); table.position.y = 0.9; st.add(table);
+    for (const sx of [-1.7, 1.7]) for (const sz of [-0.6, 0.6]) { const leg = new T.Mesh(new T.BoxGeometry(0.15, 0.9, 0.15), M(0x5a3d22)); leg.position.set(sx, 0.45, sz); st.add(leg); }
+    for (const sx of [-2, 2]) { const p = new T.Mesh(new T.CylinderGeometry(0.07, 0.07, 3.2, 6), M(0x5a3d22)); p.position.set(sx, 1.6, -0.9); st.add(p); }
+    const can = new T.Mesh(new T.BoxGeometry(4.6, 0.1, 2.4), M(0xffffff, { map: stripeTexture(cols[i % 6][0], '#ffffff'), side: T.DoubleSide })); can.position.set(0, 3.2, -0.2); can.rotation.x = 0.18; st.add(can);
+    for (let k = 0; k < 6; k++) { const item = new T.Mesh(k % 2 ? new T.BoxGeometry(0.4, 0.4, 0.4) : new T.SphereGeometry(0.22, 8, 6), M(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff, 0xff8a3d, 0xffffff]))); item.position.set(-1.5 + k * 0.6, 1.2, rand(-0.4, 0.4)); st.add(item); }
+    const lbl = new T.Mesh(new T.PlaneGeometry(3.6, 0.9), new T.MeshBasicMaterial({ map: makeTextTexture(name, { w: 1024, h: 256, bg: cols[i % 6][0], fg: cols[i % 6][1], border: null, font: 'bold 110px Poppins, Segoe UI, Arial', glow: false }), transparent: true })); lbl.position.set(0, 2.4, -0.7); st.add(lbl);
+    S.add(st); app.addObstacle(x, z, 2.4);
+    app.addHotspot(st, { title: name + ' — booth available', html: `<p>This booth is reserved for a maker of <b>${name.toLowerCase()}</b>. Could be you.</p><p>Market booths are the most affordable spot in World VR Mall, set up in ten minutes, and link straight to your Etsy, Shopify, or Square store.</p>`, actions: [{ label: '📞 Claim this booth', href: 'tel:18004818638', newTab: true, primary: true }] });
+    // vendor behind the table
+    const v = makePerson({ bag: false, hat: i % 3 === 0 }); const vx = x - Math.cos(a) * 1.6, vz = z - Math.sin(a) * 1.6; app.addNPC(v, [new T.Vector3(vx, 0, vz), new T.Vector3(vx + 0.01, 0, vz)], { speed: 0.01, pause: 3 }); v.rotation.y = -a + Math.PI / 2;
+  });
+  // gazebo, well, torches
+  const gz = new T.Group(); gz.position.set(cx, 0, cz);
+  const gf = new T.Mesh(new T.CylinderGeometry(6, 6.4, 0.5, 8), M(0xd9cbb0)); gf.position.y = 0.25; gz.add(gf);
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; const c = new T.Mesh(new T.CylinderGeometry(0.25, 0.3, 4.5, 8), M(0xefe6d2)); c.position.set(Math.cos(a) * 5.2, 2.7, Math.sin(a) * 5.2); gz.add(c); }
+  const gr = new T.Mesh(new T.ConeGeometry(7.2, 3.5, 8), M(0x8a3b2b)); gr.position.y = 6.7; gz.add(gr);
+  const gt = new T.Mesh(new T.SphereGeometry(0.6, 10, 8), glow(GOLD, 1.6)); gt.position.y = 8.8; gz.add(gt);
+  S.add(gz); app.addObstacle(cx, cz, 6.6);
+  const musician = makePerson({ shirt: 0xb08cff, bag: false, hat: true }); musician.position.set(cx, 0.5, cz); S.add(musician);
+  app.onUpdate((dt, t) => { musician.userData.limbs.aL.rotation.z = 1.1 + Math.sin(t * 6) * 0.2; musician.userData.limbs.aR.rotation.z = -1.1 + Math.sin(t * 6 + 1) * 0.2; musician.rotation.y = t * 0.3; });
+  app.addHotspot(musician, { title: 'Street musician', html: '<p>“Every song I know is about somewhere far away. Turns out you can just walk there now.” 🎻</p><p>Tip jar is imaginary. Applause is free.</p>' });
+  const well = new T.Group(); well.position.set(cx + 12, 0, cz + 24);
+  const wb = new T.Mesh(new T.CylinderGeometry(1.4, 1.5, 1.2, 12), M(0x8f8a82)); wb.position.y = 0.6; well.add(wb);
+  const wr = new T.Mesh(new T.ConeGeometry(2, 1.4, 6), M(0x8a3b2b)); wr.position.y = 3.5; well.add(wr);
+  for (const sx of [-1, 1]) { const p = new T.Mesh(new T.BoxGeometry(0.15, 3, 0.15), M(0x5a3d22)); p.position.set(sx * 1.2, 1.6, 0); well.add(p); }
+  S.add(well); app.addObstacle(cx + 12, cz + 24, 2);
+  app.addHotspot(well, { title: 'The Wishing Well', html: '<p>Different from the fountain. This one grants <i>market</i> wishes: fresh bread, a good deal, and a stranger who becomes a friend.</p>' });
+  for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const tp = new T.Mesh(new T.CylinderGeometry(0.08, 0.1, 3.4, 6), M(0x5a3d22)); tp.position.set(cx + Math.cos(a) * 44, 1.7, cz + Math.sin(a) * 44); S.add(tp); const fl = makeSprite('🔥', { scale: 1.6, bg: 'rgba(0,0,0,0)', accent: '#ff8a3d' }); fl.position.set(cx + Math.cos(a) * 44, 3.8, cz + Math.sin(a) * 44); S.add(fl); }
+  // shoppers wandering the market
+  for (let i = 0; i < 5; i++) { const path = []; for (let k = 0; k < 5; k++) { const a = rand(0, 6.28), r = rand(8, 40); path.push(new T.Vector3(cx + Math.cos(a) * r, 0, cz + Math.sin(a) * r)); } app.addNPC(makePerson(), path, { pause: 2 }); }
+}
+
+/* ---------- playground, rink, volleyball, kids learning ---------- */
+function buildPlayground() {
+  const cx = 20, cz = -200;
+  const lawn = new T.Mesh(new T.CircleGeometry(60, 48), M(0x7ed957, { roughness: 1 })); lawn.rotation.x = -Math.PI / 2; lawn.position.set(cx, 0.012, cz); S.add(lawn);
+  const gate = makeSign(['KIDS ZONE & PLAYGROUND', 'play · learn · explore'], { width: 14, height: 4.2, postHeight: 6, bg: '#1a3d0f', accent: '#7cff6b', border: '#7cff6b', small: 'Friendly & safe for all ages' }); gate.position.set(cx, 0, cz + 62); S.add(gate);
+  // slide
+  const sl = new T.Group(); sl.position.set(cx - 25, 0, cz - 10);
+  const tower = new T.Mesh(new T.BoxGeometry(3, 4, 3), M(PINK)); tower.position.y = 2; sl.add(tower);
+  const chute = new T.Mesh(new T.BoxGeometry(1.6, 0.3, 9), M(GOLD, { roughness: 0.2, metalness: 0.4 })); chute.position.set(0, 2, 5.5); chute.rotation.x = 0.42; sl.add(chute);
+  const lad = new T.Mesh(new T.BoxGeometry(1, 4, 0.2), M(0xffffff)); lad.position.set(0, 2, -1.6); lad.rotation.x = -0.3; sl.add(lad);
+  S.add(sl); app.addObstacle(cx - 25, cz - 10, 3);
+  // swings
+  const sw = new T.Group(); sw.position.set(cx + 20, 0, cz - 15);
+  const bar = new T.Mesh(new T.BoxGeometry(10, 0.3, 0.3), M(0x38f0ff)); bar.position.y = 4; sw.add(bar);
+  for (const sx of [-5, 5]) { const leg = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, 4.2, 6), M(0x38f0ff)); leg.position.set(sx, 2, 0); sw.add(leg); }
+  const seats = [];
+  for (const sx of [-2.5, 0, 2.5]) { const seat = new T.Group(); seat.position.set(sx, 4, 0); for (const rx of [-0.4, 0.4]) { const rope = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 3, 4), M(0xdddddd)); rope.position.set(rx, -1.5, 0); seat.add(rope); } const s = new T.Mesh(new T.BoxGeometry(1, 0.1, 0.4), M(0x333333)); s.position.y = -3; seat.add(s); const kid = makePerson({ bag: false, scale: 0.6 }); kid.position.set(0, -3, 0); kid.userData.limbs.lL.rotation.x = 1.2; kid.userData.limbs.lR.rotation.x = 1.2; seat.add(kid); sw.add(seat); seats.push(seat); }
+  S.add(sw); app.addObstacle(cx + 20, cz - 15, 5.5);
+  app.onUpdate((dt, t) => seats.forEach((s, i) => s.rotation.x = Math.sin(t * 1.6 + i * 1.3) * 0.7));
+  // climbing dome
+  const dome = new T.Mesh(new T.IcosahedronGeometry(4, 1), new T.MeshStandardMaterial({ color: MINT, wireframe: true })); dome.position.set(cx, 0, cz - 30); S.add(dome); app.addObstacle(cx, cz - 30, 4.5);
+  // skating rink (oval)
+  const rink = new T.Mesh(new T.CircleGeometry(16, 48), M(0xdff6ff, { roughness: 0.15, metalness: 0.3 })); rink.scale.x = 1.6; rink.rotation.x = -Math.PI / 2; rink.position.set(cx + 45, 0.03, cz + 25); S.add(rink);
+  const rimR = new T.Mesh(new T.RingGeometry(16, 17, 48), M(0xffffff)); rimR.scale.x = 1.6; rimR.rotation.x = -Math.PI / 2; rimR.position.set(cx + 45, 0.035, cz + 25); S.add(rimR);
+  for (let i = 0; i < 6; i++) { const sk = makePerson({ bag: false }); S.add(sk); const a0 = rand(0, 6.28), rr = rand(5, 13), sp = rand(0.25, 0.5); app.onUpdate((dt, t) => { const a = a0 + t * sp; sk.position.set(cx + 45 + Math.cos(a) * rr * 1.6, 0.03, cz + 25 + Math.sin(a) * rr); sk.rotation.y = -a; sk.rotation.z = Math.sin(t * 3 + i) * 0.12; sk.userData.limbs.aL.rotation.z = 0.6; sk.userData.limbs.aR.rotation.z = -0.6; }); }
+  app.addObstacle(cx + 45, cz + 25, 26);
+  const rs = makeSign(['ROLLER RINK', 'skate all day'], { width: 7, height: 2.6, postHeight: 2, bg: '#07123a', accent: '#b08cff', border: '#b08cff' }); rs.position.set(cx + 45, 0, cz + 46); S.add(rs);
+  // volleyball
+  const vb = new T.Group(); vb.position.set(cx - 45, 0, cz + 25);
+  const sand = new T.Mesh(new T.PlaneGeometry(18, 9), M(0xf0dcae, { roughness: 1 })); sand.rotation.x = -Math.PI / 2; sand.position.y = 0.03; vb.add(sand);
+  for (const sx of [-1, 1]) { const p = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 2.6, 6), M(0xffffff)); p.position.set(0, 1.3, sx * 4.6); vb.add(p); }
+  const net = new T.Mesh(new T.PlaneGeometry(9.2, 1), new T.MeshStandardMaterial({ color: 0xffffff, wireframe: true })); net.position.set(0, 2, 0); net.rotation.y = Math.PI / 2; vb.add(net);
+  const ball = new T.Mesh(new T.SphereGeometry(0.3, 12, 8), M(0xffffff)); vb.add(ball);
+  const players = [[-5, 0, 1.5], [-4, 0, -2], [5, 0, 1.5], [4, 0, -2]].map(p => { const pl = makePerson({ bag: false }); pl.position.set(...p); pl.rotation.y = p[0] < 0 ? Math.PI / 2 : -Math.PI / 2; vb.add(pl); return pl; });
+  S.add(vb); app.addObstacle(cx - 45, cz + 25, 10);
+  app.onUpdate((dt, t) => { const k = (t * 0.6) % 2; const dir = k < 1 ? k : 2 - k; ball.position.set(-5 + dir * 10, 1.2 + Math.sin(dir * Math.PI) * 3, 0); players.forEach((p, i) => { p.userData.limbs.aL.rotation.z = 2.4 + Math.sin(t * 4 + i) * 0.5; p.userData.limbs.aR.rotation.z = -2.4 - Math.sin(t * 4 + i) * 0.5; }); });
+  // learning corner
+  const learn = makeSign(['LEARNING CORNER', 'tap for a kid-sized fun fact'], { width: 9, height: 3, postHeight: 2.2, bg: '#3a1a5c', accent: '#ffd23f', border: '#ffd23f' }); learn.position.set(cx, 0, cz + 15); S.add(learn);
+  const kf = ['🐙 An octopus has three hearts and blue blood.', '🌍 Earth spins at about 1,000 miles per hour at the equator. You don\'t feel it because everything spins with you.', '🍯 Honey never goes bad. Archaeologists have found 3,000-year-old honey that was still good.', '🦆 A group of ducks is called a raft, a team, or a paddling.', '🚂 The first steam trains were slower than a horse. Now they beat airplanes for short trips.', '🌈 Rainbows are actually full circles. From the ground you only see the top half.'];
+  app.addHotspot(learn, { fn: (a) => a.popup('Did you know? 🧒', `<p style="font-size:18px">${pick(kf)}</p>`, [{ label: 'One more!', fn: () => a.popup('Did you know? 🧒', `<p style="font-size:18px">${pick(kf)}</p>`), keep: true }]) });
+  for (let i = 0; i < 4; i++) { const path = []; for (let k = 0; k < 4; k++) path.push(new T.Vector3(cx + rand(-40, 40), 0, cz + rand(-20, 50))); app.addNPC(makePerson({ scale: rand(0.6, 0.75), bag: false }), path, { speed: rand(1.8, 2.8), pause: 1.5 }); }
+}
+
+/* ---------- airport ---------- */
+function buildAirport() {
+  const cx = 300, cz = -300;
+  const rw = new T.Mesh(new T.PlaneGeometry(30, 200), M(0x3b3f47, { roughness: 1 })); rw.rotation.x = -Math.PI / 2; rw.rotation.z = 0.6; rw.position.set(cx, 0.02, cz); S.add(rw);
+  for (let i = -8; i <= 8; i++) { const dash = new T.Mesh(new T.PlaneGeometry(1.2, 6), M(0xffffff)); dash.rotation.x = -Math.PI / 2; dash.rotation.z = 0.6; dash.position.set(cx - Math.sin(0.6) * i * 12, 0.03, cz - Math.cos(0.6) * i * 12); S.add(dash); }
+  const term = new T.Mesh(new T.BoxGeometry(40, 10, 16), glass); term.position.set(cx - 40, 5, cz + 20); S.add(term);
+  const tower = new T.Mesh(new T.CylinderGeometry(2, 2.5, 24, 12), M(0xffffff)); tower.position.set(cx - 60, 12, cz + 10); S.add(tower);
+  const towerTop = new T.Mesh(new T.CylinderGeometry(4, 3, 4, 12), glass); towerTop.position.set(cx - 60, 25, cz + 10); S.add(towerTop);
+  const beacon = new T.Mesh(new T.SphereGeometry(0.5, 8, 8), glow(PINK, 2)); beacon.position.set(cx - 60, 28, cz + 10); S.add(beacon);
+  const asign = makeSign(['WORLD VR AIRPORT', 'departures: everywhere'], { width: 12, height: 3.6, postHeight: 4, bg: '#07123a', accent: '#38f0ff', small: 'Fly in from any country. Land in the same mall.' }); asign.position.set(cx - 20, 0, cz + 40); asign.rotation.y = 0.3; S.add(asign);
+  app.addHotspot(asign, { title: 'World VR Airport', html: '<p>Symbolic, mostly: the whole point of this place is that a shopper in Ohio and a brand in Osaka land in the same mall.</p><p><b>Fun fact:</b> about 100,000 flights take off every day worldwide. None of them are this cheap.</p>' });
+  const plane = (col) => { const g = new T.Group(); const f = new T.Mesh(new T.CylinderGeometry(1.6, 1.4, 22, 12), M(0xffffff)); f.rotation.x = Math.PI / 2; g.add(f); const nose = new T.Mesh(new T.SphereGeometry(1.6, 12, 8), M(0xffffff)); nose.position.z = 11; g.add(nose); const w = new T.Mesh(new T.BoxGeometry(26, 0.4, 4), M(col)); w.position.z = -1; g.add(w); const tl = new T.Mesh(new T.BoxGeometry(0.4, 6, 4), M(col)); tl.position.set(0, 3, -10); g.add(tl); const th = new T.Mesh(new T.BoxGeometry(9, 0.3, 3), M(col)); th.position.set(0, 0.5, -10); g.add(th); for (const sx of [-1, 1]) { const e = new T.Mesh(new T.CylinderGeometry(0.9, 0.9, 3.5, 10), M(0x9aa7c7, { metalness: 0.8 })); e.rotation.x = Math.PI / 2; e.position.set(sx * 6, -1, 0); g.add(e); } return g; };
+  const p1 = plane(NEON); S.add(p1); const p2 = plane(PINK); p2.position.set(cx - 30, 2, cz + 5); p2.rotation.y = 0.6 + Math.PI / 2; S.add(p2);
+  app.onUpdate((dt, t) => { const k = (t * 0.06) % 1; const a = k * Math.PI * 2; const r = 160 + Math.sin(k * Math.PI) * 60; const y = k < 0.15 ? 2 + (k / 0.15) * 30 : k > 0.85 ? 2 + ((1 - k) / 0.15) * 30 : 32 + Math.sin((k - 0.15) / 0.7 * Math.PI) * 60; p1.position.set(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r); p1.rotation.y = -a; p1.rotation.z = Math.sin(a) * 0.25; });
+}
+
+/* ---------- people everywhere ---------- */
+function buildPeople() {
+  // plaza crowd
+  for (let i = 0; i < 9; i++) { const path = []; for (let k = 0; k < 5; k++) path.push(new T.Vector3(rand(-34, 34), 0, rand(90, 128))); app.addNPC(makePerson(), path, { pause: 2.5 }); }
+  // park walkers along the north-south path and to the coasters
+  for (let i = 0; i < 6; i++) { const path = [new T.Vector3(rand(112, 128), 0, rand(-60, 100)), new T.Vector3(rand(140, 200), 0, rand(60, 120)), new T.Vector3(rand(112, 128), 0, rand(-60, 100))]; app.addNPC(makePerson(), path, { pause: 3 }); }
+  // lake walkers
+  for (let i = 0; i < 4; i++) { const path = []; for (let k = 0; k < 4; k++) path.push(new T.Vector3(LAKE.x + LAKE.r + rand(6, 16), 0, LAKE.z + rand(-70, 90))); app.addNPC(makePerson({ bag: false }), path, { pause: 4 }); }
+  // people heading in and out of the mall
+  for (let i = 0; i < 4; i++) app.addNPC(makePerson(), [new T.Vector3(rand(-14, 14), 0, 100), new T.Vector3(rand(-10, 10), 0, 50), new T.Vector3(rand(-40, 40), 0, 55)], { pause: 2 });
+  // train station waiters
+  for (let i = 0; i < 3; i++) app.addNPC(makePerson(), [new T.Vector3(50 + i * 8, 0, 197), new T.Vector3(51 + i * 8, 0, 198)], { speed: 0.3, pause: 6 });
+}
+
+/* ---------- build everything ---------- */
+app.start(async (a) => {
+  buildGround(); buildClouds(); buildTeleport(); buildBillboard(); buildMall(); buildPlaza(); buildTrain(); buildPeople();
+  // heavier zones stream in as you get near them (they're still built quickly; this keeps first paint snappy)
+  buildWater(); buildAmusement();
+  app.addZone('market', new T.Vector3(-120, 0, 180), 260, buildMarket);
+  app.addZone('playground', new T.Vector3(20, 0, -200), 300, buildPlayground);
+  app.addZone('airport', new T.Vector3(300, 0, -300), 420, buildAirport);
+  app.onUpdate((dt) => { for (const m of waterMats) m.uniforms.t.value += dt; });
+  // ambient "life": a compliment now and then
+  const nice = ['Nice choice of outfit. 👌', 'You walk with purpose. We noticed.', 'Reminder: you\'re allowed to just have fun today.', 'Somewhere right now, a small business owner is excited you exist.'];
+  setTimeout(() => a.toast(pick(nice), 3500), 9000); setInterval(() => { if (!a.paused && Math.random() < 0.5) a.toast(pick(nice), 3500); }, 75000);
+  // deep link straight to mall on #mall
+  if (location.hash === '#mall') a.go('mall.html');
+});
+</script>
+</body>
+</html>
