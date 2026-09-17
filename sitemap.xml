@@ -3,6 +3,7 @@
   <url><loc>https://worldvrmall.com/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>1.0</priority><image:image><image:loc>https://worldvrmall.com/images/vr-stores-hero-billboard.png</image:loc><image:title>World VR Mall billboard</image:title></image:image></url>
   <url><loc>https://worldvrmall.com/mall/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://worldvrmall.com/lease/</loc><lastmod>2026-09-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://worldvrmall.com/stores/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://worldvrmall.com/about/</loc><lastmod>2026-09-17</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://worldvrmall.com/stores/eye-to-ad-media/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://worldvrmall.com/stores/showers4less/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -19,4 +20,5 @@
   <url><loc>https://worldvrmall.com/stores/belize-adventures/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://worldvrmall.com/stores/costa-rica-escapes/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://worldvrmall.com/stores/puerto-plata-getaways/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://worldvrmall.com/countries/</loc><lastmod>2026-09-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
