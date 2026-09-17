@@ -55,8 +55,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc } from '/js/wvm-engine.js';
-import { buildStore, wingName, STORE_W, STORE_D } from '/js/wvm-store.js';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc } from '/js/wvm-engine.js?v=3';
+import { buildStore, wingName, STORE_W, STORE_D } from '/js/wvm-store.js?v=3';
 
 const T = THREE;
 const app = new WVM({
@@ -102,7 +102,9 @@ const findStore = (slug) => [...DATA.stores, ...DATA.placeholders].find(s => s.s
 function buildShell() {
   const floor = new T.Mesh(new T.PlaneGeometry(320, 320), M(0xffffff, { map: marbleTexture(), roughness: 0.25, metalness: 0.15 })); floor.rotation.x = -Math.PI / 2; S.add(floor);
   // ceiling: white coffered with glass skylight strips over the wings and the lobby
-  const ceil = new T.Mesh(new T.RingGeometry(34, 240, 64), M(0xf7faff, { side: T.DoubleSide, emissive: 0xffffff, emissiveIntensity: 0.25 })); ceil.rotation.x = Math.PI / 2; ceil.position.y = 18; S.add(ceil);
+  const cshape = new T.Shape(); cshape.moveTo(-160, -160); cshape.lineTo(160, -160); cshape.lineTo(160, 160); cshape.lineTo(-160, 160); cshape.closePath();
+  const h1 = new T.Path(); h1.absarc(0, 0, 34, 0, Math.PI * 2, true); cshape.holes.push(h1); const h2 = new T.Path(); h2.absarc(78, 78, 36, 0, Math.PI * 2, true); cshape.holes.push(h2);
+  const ceil = new T.Mesh(new T.ShapeGeometry(cshape, 48), M(0xf7faff, { side: T.DoubleSide, emissive: 0xffffff, emissiveIntensity: 0.25 })); ceil.rotation.x = Math.PI / 2; ceil.position.y = 18; S.add(ceil);
   const sky = (x, z, w, d) => { const s = new T.Mesh(new T.PlaneGeometry(w, d), glass); s.rotation.x = Math.PI / 2; s.position.set(x, 17.9, z); S.add(s); const f = new T.Mesh(new T.BoxGeometry(w + 0.6, 0.3, d + 0.6), new T.MeshBasicMaterial({ color: NEON })); f.position.set(x, 17.85, z); S.add(f); };
   sky(0, 68, 24, 44); sky(-95, 0, 110, 24); sky(95, 0, 110, 24); sky(0, -95, 24, 110);
   // outer walls
@@ -172,8 +174,8 @@ function buildAtrium() {
   app.addHotspot(dir, { fn: (a) => showDirectory(a) });
   // hanging wing signs at the four openings
   const hang = (x, z, text, rot, col) => { const s = new T.Mesh(new T.PlaneGeometry(18, 3.6), new T.MeshBasicMaterial({ map: makeTextTexture(text, { w: 2048, h: 410, bg: 'rgba(5,11,28,0.9)', fg: '#fff', accent: col, font: 'bold 170px Poppins, Segoe UI, Arial', radius: 60, border: col }), transparent: true, side: T.DoubleSide })); s.position.set(x, 11.5, z); s.rotation.y = rot; S.add(s); for (const sx of [-1, 1]) { const c = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 4.5, 4), M(0x9aa7c7)); c.position.set(x + Math.cos(rot) * sx * 7, 15.6, z - Math.sin(rot) * sx * 7); S.add(c); } };
-  hang(-42, 0, '← AMERICAS WING', Math.PI / 2, '#38f0ff'); hang(42, 0, 'EUROPE WING →', -Math.PI / 2, '#ffd23f'); hang(0, -42, '↑ ASIA & ISLANDS WING', 0, '#ff4f79');
-  hang(28, -30, 'GLOBAL FOOD COURT ↗', -Math.PI / 4, '#ff8a3d'); hang(-28, -30, '↖ KIDS\' DISCOVERY ZONE', Math.PI / 4, '#7cff6b'); hang(-28, 30, '↙ AQUARIUM GARDEN', 3 * Math.PI / 4, '#b08cff'); hang(28, 30, 'SKY DECK & ARCADE ↘', -3 * Math.PI / 4, '#ffffff');
+  hang(-42, 0, '← AMERICAS WING', Math.PI / 2, '#38f0ff'); hang(42, 0, 'EUROPE WING →', -Math.PI / 2, '#ffd23f'); hang(0, -42, '↑ ASIA · AFRICA · ISLANDS', 0, '#ff4f79');
+  hang(28, -30, 'GLOBAL FOOD COURT ↗', -Math.PI / 4, '#ff8a3d'); hang(-28, -30, '↖ KIDS\' DISCOVERY ZONE', Math.PI / 4, '#7cff6b'); hang(-28, 30, '↙ AQUARIUM GARDEN', 3 * Math.PI / 4, '#b08cff'); hang(28, 30, 'SKY WHEEL & ARCADE ↘', -3 * Math.PI / 4, '#ffffff');
   // affirmations floating under the dome
   const words = ['You belong here 💙', 'Shop small. Shop the world.', 'Whatever you\'re looking for, you\'ll know it when you see it', 'Breathe. You\'re in a mall with a roller coaster.', 'Kindness ships free, everywhere'];
   words.forEach((w, i) => { const s = makeSprite(w, { scale: 14, bg: 'rgba(8,20,50,0.85)', accent: i % 2 ? '#ffd23f' : '#7cf8ff' }); const a = i / words.length * Math.PI * 2; s.position.set(Math.cos(a) * 18, 10 + (i % 2) * 2.5, Math.sin(a) * 18); S.add(s); app.onUpdate((dt, t) => { const an = a + t * 0.05; s.position.set(Math.cos(an) * 18, 10 + (i % 2) * 2.5 + Math.sin(t + i) * 0.4, Math.sin(an) * 18); }); });
@@ -182,12 +184,12 @@ function buildAtrium() {
 function showDirectory(a) {
   const wings = [['lobby', 0, 65], ['americas', -60, 0], ['europe', 60, 0], ['asia', 0, -60], ['food', 60, -60], ['kids', -60, -60]];
   let html = '<p>Tap a wing and I\'ll walk you there. Tap a store name to go straight to its page.</p>';
-  for (const [w, x, z] of wings) { const list = [...byWing(w, DATA.stores)]; html += `<p><b style="color:#7cf8ff">${esc(wingName(w))}</b> — ${esc(DATA.wings[w]?.blurb || '')}<br>${list.map(s => `<a href="/stores/${s.slug}/" style="color:#fff;text-decoration:underline">${esc(s.flag || '')} ${esc(s.name)}</a>`).join(' · ') || '<i>space available</i>'}</p>`; }
+  for (const [w, x, z] of wings) { const list = [...byWing(w, DATA.stores)]; html += `<p><b style="color:#7cf8ff">${esc(wingName(w))}</b> — ${esc(DATA.wings[w]?.blurb || '')}<br>${list.map(s => s.demo ? `<span>${esc(s.flag || '')} ${esc(s.name)}</span>` : `<a href="/stores/${s.slug}/" style="color:#fff;text-decoration:underline">${esc(s.flag || '')} ${esc(s.name)}</a>`).join(' · ') || '<i>space available</i>'}</p>`; }
   a.popup('Mall Directory 🗺️', html, wings.map(([w, x, z]) => ({ label: 'Walk to ' + wingName(w), fn: () => { a.walkTarget = new T.Vector3(x, 0, z); a.toast('Walking to the ' + wingName(w) + '…'); } })));
 }
 
 /* ---------- wings ---------- */
-function placeRow(stores, positions) { stores.forEach((s, i) => { const p = positions[i]; if (!p) return; const ph = !s.products; const g = buildStore(app, s, { x: p[0], z: p[1], rot: p[2], placeholder: ph }); S.add(g); }); }
+function placeRow(stores, positions) { stores.forEach((s, i) => { const p = positions[i]; if (!p || !s) return; const ph = !s.products; const g = buildStore(app, s, { x: p[0], z: p[1], rot: p[2], placeholder: ph, storePage: !s.demo }); S.add(g); }); }
 function buildWings() {
   const stores = DATA.stores, ph = DATA.placeholders;
   const get = (slug) => findStore(slug);
@@ -203,9 +205,9 @@ function buildWings() {
   placeRow([get('milano-leather'), get('paris-parfum'), get('berlin-audio'), get('reykjavik-wool'), get('london-tea')], EX.map(x => [x, -16, 0]));
   placeRow([get('barcelona-ceramics'), get('copenhagen-design'), get('lisbon-tiles'), get('athens-olive')], EX.map(x => [x, 16, Math.PI]));
   // Asia & Islands wing (z negative). east side faces -x, west side faces +x
-  const NZ = [-58, -76, -94, -112, -130];
-  placeRow([get('tokyo-threads'), get('seoul-skincare'), get('bali-rattan'), get('mumbai-spice'), get('manila-weaves')], NZ.map(z => [16, z, -Math.PI / 2]));
-  placeRow([get('hawaii-snorkeling'), get('belize-adventures'), get('costa-rica-escapes'), get('puerto-plata-getaways')], NZ.map(z => [-16, z, Math.PI / 2]));
+  const NZ = [-58, -76, -94, -112, -130, -148];
+  placeRow([get('tokyo-threads'), get('seoul-skincare'), get('bali-rattan'), get('mumbai-spice'), get('manila-weaves'), get('marrakech-rugs')], NZ.map(z => [16, z, -Math.PI / 2]));
+  placeRow([get('hawaii-snorkeling'), get('belize-adventures'), get('costa-rica-escapes'), get('puerto-plata-getaways'), get('nairobi-beads')], NZ.map(z => [-16, z, Math.PI / 2]));
   // corridor benches, planters, lamp spheres
   const bench = (x, z, rot) => { const b = new T.Mesh(new T.BoxGeometry(3, 0.5, 1), M(0x2f6bff, { roughness: 0.4 })); b.position.set(x, 0.55, z); b.rotation.y = rot; S.add(b); const legs = new T.Mesh(new T.BoxGeometry(2.6, 0.3, 0.6), M(0x1e2a4a)); legs.position.set(x, 0.15, z); legs.rotation.y = rot; S.add(legs); };
   const planter = (x, z) => { const p = new T.Mesh(new T.CylinderGeometry(1.2, 1, 1, 12), M(0xffffff)); p.position.set(x, 0.5, z); S.add(p); const t = new T.Mesh(new T.ConeGeometry(1.2, 3.2, 8), M(0x3fa34d)); t.position.set(x, 2.6, z); S.add(t); app.addObstacle(x, z, 1.4); };
@@ -217,7 +219,7 @@ function buildWings() {
   const cap = (x, z, rot, lines, col) => { const s = makeSign(lines, { width: 12, height: 3.6, postHeight: 7, bg: '#07123a', accent: col, border: col, posts: false }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); return s; };
   app.addHotspot(cap(-150, 0, Math.PI / 2, ['AMERICAS WING', 'North · Central · South America'], '#38f0ff'), { title: 'Americas Wing', html: '<p>From Denver to São Paulo. The stores here ship across the Americas and beyond.</p>' });
   app.addHotspot(cap(150, 0, -Math.PI / 2, ['EUROPE WING', 'Lisbon to Reykjavík'], '#ffd23f'), { title: 'Europe Wing', html: '<p>Every storefront in this wing is waiting for a European brand. Know one? Send them our way.</p>', actions: [{ label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }] });
-  app.addHotspot(cap(0, -150, 0, ['ASIA & ISLANDS WING', 'Tokyo · Bali · Hawaii · Belize · Caribbean'], '#ff4f79'), { title: 'Asia & Islands Wing', html: '<p>Half a world in one hallway: island travel on the left, Asian brands on the right.</p>' });
+  app.addHotspot(cap(0, -150, 0, ['ASIA, AFRICA & ISLANDS', 'Tokyo · Nairobi · Marrakech · Hawaii · Belize'], '#ff4f79'), { title: 'Asia, Africa & Islands Wing', html: '<p>Half a world in one hallway: island travel and African makers on the left, Asian brands on the right.</p>' });
   // waterfall walls on the backs of the wing stores (seen from the quadrants)
   for (const [x, z, rot, w] of [[-103, -29, Math.PI, 110], [-103, 29, 0, 110], [103, -29, Math.PI, 110], [103, 29, 0, 110], [-29, -95, Math.PI / 2, 110], [29, -95, -Math.PI / 2, 110]]) {
     const wf = new T.Mesh(new T.PlaneGeometry(w, 16), waterfallMaterial(0x9fe6ff)); wf.position.set(x, 8.5, z); wf.rotation.y = rot; S.add(wf); shaderMats.push(wf.material);
@@ -275,8 +277,8 @@ function buildFoodCourt() {
   const ring = new T.Mesh(new T.CircleGeometry(40, 48), M(0xfff1dc, { roughness: 0.6 })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx, 0.015, cz); S.add(ring);
   const sign = new T.Mesh(new T.PlaneGeometry(26, 4.6), new T.MeshBasicMaterial({ map: makeTextTexture('🌍 GLOBAL FOOD COURT 🍜', { w: 2048, h: 360, bg: 'rgba(122,31,31,0.95)', fg: '#fff', accent: '#ffd23f', font: 'bold 150px Poppins, Segoe UI, Arial', radius: 60, border: '#ffd23f' }), transparent: true, side: T.DoubleSide })); sign.position.set(cx, 13, cz); S.add(sign);
   app.onUpdate((dt) => { sign.rotation.y += dt * 0.25; });
-  const kiosks = ['link-restaurants', 'bangkok-street-eats', 'naples-pizza', 'cape-town-coffee', 'denver-taco-truck'];
-  kiosks.forEach((slug, i) => { const s = findStore(slug); if (!s) return; const a = Math.PI * 0.55 + i / kiosks.length * Math.PI * 1.55; const x = cx + Math.cos(a) * 30, z = cz + Math.sin(a) * 30; const rot = Math.atan2(cx - x, cz - z); const g = buildStore(app, s, { x, z, rot, placeholder: !s.products }); S.add(g); });
+  const kiosks = ['the-salty-pearl', 'link-restaurants', 'bangkok-street-eats', 'naples-pizza', 'cape-town-coffee', 'denver-taco-truck'];
+  kiosks.forEach((slug, i) => { const s = findStore(slug); if (!s) return; const a = Math.PI * 0.55 + i / kiosks.length * Math.PI * 1.55; const x = cx + Math.cos(a) * 30, z = cz + Math.sin(a) * 30; const rot = Math.atan2(cx - x, cz - z); const g = buildStore(app, s, { x, z, rot, placeholder: !s.products, storePage: !s.demo }); S.add(g); if (slug === 'the-salty-pearl') { const net = new T.Mesh(new T.PlaneGeometry(10, 6), new T.MeshStandardMaterial({ color: 0xd9cbb0, wireframe: true })); net.position.set(x - Math.sin(rot) * 0.5, 11, z - Math.cos(rot) * 0.5); net.rotation.y = rot; S.add(net); const buoy = new T.Mesh(new T.SphereGeometry(0.6, 12, 8), M(0xff4f79)); buoy.position.set(x + Math.sin(rot) * 9, 3, z + Math.cos(rot) * 9); S.add(buoy); const anchor = makeSprite('⚓ The Salty Pearl · seafood', { scale: 8, bg: 'rgba(11,61,92,0.9)', accent: '#ffd23f' }); anchor.position.set(x, 9.5, z); S.add(anchor); } });
   // tables
   for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, r = i % 2 ? 9 : 16; const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r; const tb = new T.Mesh(new T.CylinderGeometry(1.3, 1.3, 0.1, 16), M(0xffffff)); tb.position.set(x, 0.85, z); S.add(tb); const leg = new T.Mesh(new T.CylinderGeometry(0.1, 0.25, 0.85, 8), M(0x1e2a4a)); leg.position.set(x, 0.42, z); S.add(leg); const umb = new T.Mesh(new T.ConeGeometry(1.8, 0.8, 10, 1, true), M(pick([PINK, GOLD, NEON, MINT]), { side: T.DoubleSide })); umb.position.set(x, 2.8, z); S.add(umb); const pole = new T.Mesh(new T.CylinderGeometry(0.04, 0.04, 2, 6), M(0xffffff)); pole.position.set(x, 1.9, z); S.add(pole); app.addObstacle(x, z, 1.6); for (let k = 0; k < 3; k++) { const ca = a + k * 2.1; const ch = new T.Mesh(new T.BoxGeometry(0.5, 0.5, 0.5), M(0xffffff)); ch.position.set(x + Math.cos(ca) * 1.9, 0.45, z + Math.sin(ca) * 1.9); S.add(ch); } if (i % 3 === 0) { const eater = makePerson({ bag: false }); eater.position.set(x + Math.cos(a) * 1.9, 0, z + Math.sin(a) * 1.9); eater.rotation.y = Math.atan2(x - eater.position.x, z - eater.position.z); eater.userData.limbs.lL.rotation.x = 1.4; eater.userData.limbs.lR.rotation.x = 1.4; eater.position.y = 0.2; S.add(eater); } }
   const food = ['🍕', '🌮', '🍜', '☕', '🍩', '🍣', '🥐', '🍦'];
@@ -308,6 +310,17 @@ function buildKids() {
   const facts = ['🌍 There are 195 countries in the world. This mall wants a store from every one.', '🐢 Sea turtles can hold their breath for hours. You can\'t. Don\'t try.', '💡 Light from the Sun takes about 8 minutes to reach your eyes.', '🦒 A giraffe\'s tongue is about 20 inches long and dark purple.', '🚀 Astronauts grow about two inches taller in space.', '🍌 Bananas are berries. Strawberries aren\'t. Nobody is okay with this.', '🧠 Your brain uses about 20% of your energy, even when you\'re just thinking about snacks.'];
   const kiosk = (x, z, title) => { const k = makeSign([title, 'tap me!'], { width: 6, height: 2.8, postHeight: 1.4, bg: '#3a1a5c', accent: '#ffd23f', border: '#ffd23f' }); k.position.set(x, 0, z); k.rotation.y = Math.atan2(cx - x, cz - z) + Math.PI; S.add(k); app.addHotspot(k, { fn: (a) => a.popup('Did you know? 🧒', `<p style="font-size:19px">${pick(facts)}</p>`, [{ label: 'One more!', fn: () => a.popup('Did you know? 🧒', `<p style="font-size:19px">${pick(facts)}</p>`), keep: true }]) }); };
   kiosk(cx - 26, cz + 8, 'SCIENCE CORNER'); kiosk(cx + 26, cz + 8, 'ANIMAL CORNER'); kiosk(cx, cz - 28, 'WORLD CORNER');
+  // petting zoo
+  const zoo = new T.Group(); zoo.position.set(cx - 2, 0, cz + 30); S.add(zoo);
+  const fence = new T.Mesh(new T.TorusGeometry(11, 0.12, 6, 40), M(0x8a5a2b)); fence.rotation.x = Math.PI / 2; fence.position.y = 0.9; zoo.add(fence);
+  for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2; if (i === 10) continue; const post = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 1, 6), M(0x8a5a2b)); post.position.set(Math.cos(a) * 11, 0.5, Math.sin(a) * 11); zoo.add(post); }
+  const hay = new T.Mesh(new T.CircleGeometry(11, 32), M(0xe8d5a0, { roughness: 1 })); hay.rotation.x = -Math.PI / 2; hay.position.y = 0.02; zoo.add(hay);
+  const animal = (kind, col, size) => { const a = new T.Group(); const body = new T.Mesh(new T.SphereGeometry(size, 12, 8), M(col)); body.scale.set(1.3, 0.9, 1); body.position.y = size * 0.9; a.add(body); const head = new T.Mesh(new T.SphereGeometry(size * 0.55, 10, 8), M(col)); head.position.set(size * 1.3, size * 1.3, 0); a.add(head); for (const sx of [-1, 1]) { const ear = new T.Mesh(kind === 'bunny' ? new T.CapsuleGeometry(size * 0.12, size * 0.6, 3, 6) : new T.ConeGeometry(size * 0.18, size * 0.35, 6), M(col)); ear.position.set(size * 1.3, size * (kind === 'bunny' ? 2.1 : 1.75), sx * size * 0.3); a.add(ear); } for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const leg = new T.Mesh(new T.CylinderGeometry(size * 0.12, size * 0.12, size * 0.8, 6), M(col)); leg.position.set(sx * size * 0.6, size * 0.4, sz * size * 0.45); a.add(leg); } const eye = M(0x111111); for (const sx of [-1, 1]) { const e = new T.Mesh(new T.SphereGeometry(size * 0.07, 6, 6), eye); e.position.set(size * 1.75, size * 1.4, sx * size * 0.2); a.add(e); } if (kind === 'goat') { const beard = new T.Mesh(new T.ConeGeometry(size * 0.12, size * 0.35, 6), M(0xffffff)); beard.position.set(size * 1.7, size * 0.95, 0); beard.rotation.z = Math.PI; a.add(beard); } if (kind === 'chick') { const beak = new T.Mesh(new T.ConeGeometry(size * 0.12, size * 0.3, 6), M(0xff9a1f)); beak.rotation.z = -Math.PI / 2; beak.position.set(size * 1.95, size * 1.25, 0); a.add(beak); } return a; };
+  const animals = [['goat', 0xd9cbb0, 0.5, 'Biscuit the goat'], ['goat', 0x6b4f2a, 0.45, 'Pepper the goat'], ['bunny', 0xffffff, 0.28, 'Marshmallow the bunny'], ['bunny', 0x8d5524, 0.26, 'Cocoa the bunny'], ['chick', 0xffd23f, 0.18, 'Nugget the chick'], ['chick', 0xffd23f, 0.16, 'Pip the chick'], ['bunny', 0x9a9a9a, 0.27, 'Pebble the bunny']];
+  const zooFacts = { goat: 'Goats have rectangular pupils so they can see almost all the way around them without turning their head.', bunny: 'Rabbits can turn their ears 270 degrees and hear sounds from two directions at once.', chick: 'Chicks can recognize their mother\'s clucks before they even hatch.' };
+  animals.forEach(([kind, col, size, name], i) => { const an = animal(kind, col, size); zoo.add(an); const a0 = rand(0, 6.28), rr = rand(2, 8), sp = rand(0.05, 0.15); app.onUpdate((dt, t) => { const ang = a0 + t * sp; an.position.set(Math.cos(ang) * rr, kind === 'bunny' ? Math.abs(Math.sin(t * 4 + i)) * 0.25 : 0, Math.sin(ang) * rr); an.rotation.y = -ang - Math.PI / 2; }); app.addHotspot(an, { fn: (a) => a.popup(name + ' 🐾', `<p style="font-size:18px">You pet ${name.split(' ')[0]}. ${name.split(' ')[0]} approves.</p><p><b>Did you know?</b> ${zooFacts[kind]}</p>`) }); });
+  app.addObstacle(cx - 2, cz + 30, 11.3);
+  const zs = makeSign(['PETTING ZOO', 'tap an animal to say hi'], { width: 7, height: 2.8, postHeight: 1.6, bg: '#1a3d0f', accent: '#ffd23f', border: '#ffd23f' }); zs.position.set(cx - 2, 0, cz + 43); zs.rotation.y = Math.PI; S.add(zs);
   // parents watching
   for (let i = 0; i < 3; i++) app.addNPC(makePerson({ bag: true }), [new T.Vector3(cx + rand(-20, 20), 0, cz + rand(10, 26)), new T.Vector3(cx + rand(-20, 20), 0, cz + rand(10, 26))], { pause: 5, speed: 1 });
 }
@@ -323,16 +336,33 @@ function buildGardens() {
   const big = [{ c: 0x7aa7c7, s: 3.2, n: 'whale shark' }, { c: 0x9ca3af, s: 2, n: 'shark' }, { c: 0x1e3a8a, s: 1.6, n: 'manta' }];
   big.forEach((b, i) => { const f = new T.Group(); const body = new T.Mesh(new T.SphereGeometry(0.5, 12, 8), M(b.c)); body.scale.set(1, 0.7, 2.2); f.add(body); const tail = new T.Mesh(new T.ConeGeometry(0.45, 0.9, 3), M(b.c)); tail.rotation.x = Math.PI / 2; tail.position.z = -1.3; f.add(tail); const fin = new T.Mesh(new T.ConeGeometry(0.3, 0.6, 3), M(b.c)); fin.position.y = 0.5; f.add(fin); f.scale.setScalar(b.s); S.add(f); app.onUpdate((dt, t) => { const k = (t * (0.08 + i * 0.03)) % 1; const xx = cx - 9 + Math.sin(k * Math.PI * 2) * 9; f.position.set(xx, 3 + i * 2 + Math.sin(t + i) * 0.5, cz + Math.cos(k * Math.PI * 2 + i) * 2.5); f.rotation.y = Math.cos(k * Math.PI * 2) > 0 ? Math.PI / 2 : -Math.PI / 2; tail.rotation.y = Math.sin(t * 5 + i) * 0.4; }); });
   for (let k = 0; k < 14; k++) { const f = new T.Mesh(new T.SphereGeometry(0.22, 8, 6), M(pick([0xff8a3d, 0xffd23f, 0x38f0ff, 0xff4f79]))); f.scale.set(1, 0.7, 1.6); S.add(f); const y0 = rand(1.8, 9), z0 = rand(-3, 3), sp = rand(0.15, 0.4), ph = rand(0, 6.28); app.onUpdate((dt, t) => { const xx = cx + Math.sin(t * sp + ph) * 10.5; f.position.set(xx, y0 + Math.sin(t * 2 + ph) * 0.3, cz + z0); f.rotation.y = Math.cos(t * sp + ph) > 0 ? Math.PI / 2 : -Math.PI / 2; }); }
-  const asign = makeSign(['AQUARIUM GARDEN', 'whale shark · manta · reef fish'], { width: 10, height: 3.4, postHeight: 2, bg: '#07123a', accent: '#b08cff', border: '#b08cff' }); asign.position.set(cx, 0, cz + 12); asign.rotation.y = Math.PI; S.add(asign);
-  app.addHotspot(asign, { title: 'Aquarium Garden', html: '<p>A quiet corner. Sit, watch the whale shark do laps, and let your feet rest. (Your real feet. The virtual ones are fine.)</p><p><b>Fun fact:</b> whale sharks are the biggest fish on Earth and eat almost nothing but plankton. Gentle giants.</p>' });
+  // butterflies
+  const bfTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.font = '96px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🦋', 64, 70); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })();
+  for (let i = 0; i < 40; i++) { const bf = new T.Sprite(new T.SpriteMaterial({ map: bfTex, transparent: true, depthWrite: false, color: pick([0xffffff, 0xffd23f, 0xff8a3d, 0xb08cff, 0x7cf8ff]) })); const sc = rand(0.5, 1.1); bf.scale.set(sc, sc, 1); S.add(bf); const a0 = rand(0, 6.28), rr = rand(6, 30), sp = rand(0.1, 0.3), yb = rand(1.5, 9), ph = rand(0, 6.28); app.onUpdate((dt, t) => { const ang = a0 + t * sp; bf.position.set(cx + Math.cos(ang) * rr + Math.sin(t * 3 + ph) * 1.5, yb + Math.sin(t * 2.5 + ph) * 1.2, cz + Math.sin(ang) * rr + Math.cos(t * 2 + ph)); const fl = 0.7 + Math.abs(Math.sin(t * 14 + ph)) * 0.4; bf.scale.set(sc * fl, sc, 1); }); }
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; const fl = new T.Mesh(new T.SphereGeometry(0.35, 8, 6), M(pick([0xff4f79, 0xffd23f, 0xb08cff, 0xff8a3d]))); fl.position.set(cx + Math.cos(a) * 18, 0.6, cz + Math.sin(a) * 18); S.add(fl); const st = new T.Mesh(new T.CylinderGeometry(0.04, 0.04, 0.6, 5), M(0x3fa34d)); st.position.set(cx + Math.cos(a) * 18, 0.3, cz + Math.sin(a) * 18); S.add(st); }
+  const asign = makeSign(['AQUARIUM & BUTTERFLY GARDEN', 'whale shark · manta · 40 butterflies'], { width: 10, height: 3.4, postHeight: 2, bg: '#07123a', accent: '#b08cff', border: '#b08cff' }); asign.position.set(cx, 0, cz + 12); asign.rotation.y = Math.PI; S.add(asign);
+  app.addHotspot(asign, { title: 'Aquarium & Butterfly Garden', html: '<p>A quiet corner. Watch the whale shark do laps while forty butterflies do whatever butterflies do.</p><p><b>Fun facts:</b> whale sharks are the biggest fish on Earth and eat almost nothing but plankton. Butterflies taste with their feet.</p>' });
   for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const p = new T.Mesh(new T.CylinderGeometry(1, 0.8, 1, 10), M(0xffffff)); p.position.set(cx + Math.cos(a) * 24, 0.5, cz + Math.sin(a) * 24); S.add(p); const t = new T.Mesh(new T.SphereGeometry(1.6, 8, 6), M(0x3fa34d)); t.position.set(cx + Math.cos(a) * 24, 2.2, cz + Math.sin(a) * 24); S.add(t); app.addObstacle(cx + Math.cos(a) * 24, cz + Math.sin(a) * 24, 1.3); }
-  // SE: sky deck (watch the Mall Blaster) + arcade sign
-  const dx = 78, dz = 78;
-  const deck = new T.Mesh(new T.CylinderGeometry(14, 14, 3, 32), M(0x1e2a4a, { metalness: 0.5, roughness: 0.3 })); deck.position.set(dx, 1.5, dz); S.add(deck); app.addObstacle(dx, dz, 14.5);
-  const rail = new T.Mesh(new T.TorusGeometry(14, 0.15, 6, 48), glow(NEON, 1.3)); rail.rotation.x = Math.PI / 2; rail.position.set(dx, 4, dz); S.add(rail);
-  for (let i = 0; i < 6; i++) { const w = makePerson({ bag: Math.random() < 0.5 }); const a = i / 6 * Math.PI * 2; w.position.set(dx + Math.cos(a) * 11, 3, dz + Math.sin(a) * 11); w.rotation.y = a + Math.PI / 2; w.userData.limbs.aL.rotation.z = 2.4; S.add(w); }
-  const dsign = makeSign(['SKY DECK', 'best view of the Mall Blaster'], { width: 9, height: 3.2, postHeight: 4.5, bg: '#07123a', accent: '#ffffff' }); dsign.position.set(dx, 0, dz + 16); dsign.rotation.y = Math.PI; S.add(dsign);
-  app.addHotspot(dsign, { title: 'Sky Deck', html: '<p>Look up. The Mall Blaster comes screaming through the east wall every minute or so, loops the dome, and blasts back out. From here you can wave at the riders.</p>' });
+  // SE: the Sky Wheel — 30m radius, straight through the roof, rideable
+  const dx = 78, dz = 78, WR = 30, WY = 36;
+  const house = new T.Mesh(new T.CylinderGeometry(36, 36, 56, 48, 1, true), new T.MeshPhysicalMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0.1, side: T.DoubleSide, depthWrite: false })); house.position.set(dx, 18 + 28, dz); S.add(house);
+  const houseDome = new T.Mesh(new T.SphereGeometry(36, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), house.material); houseDome.position.set(dx, 74, dz); S.add(houseDome);
+  for (let i = 0; i < 4; i++) { const r = new T.Mesh(new T.TorusGeometry(36.2, 0.3, 6, 64), glow(i % 2 ? NEON : PINK, 1.3)); r.rotation.x = Math.PI / 2; r.position.set(dx, 18 + i * 14, dz); S.add(r); }
+  const wheel = new T.Group(); wheel.position.set(dx, WY, dz); S.add(wheel);
+  wheel.add(new T.Mesh(new T.TorusGeometry(WR, 0.6, 8, 72), M(0xffffff, { metalness: 0.6 })));
+  wheel.add(new T.Mesh(new T.TorusGeometry(WR, 0.25, 6, 72), glow(NEON, 1.5)));
+  const hub = new T.Mesh(new T.CylinderGeometry(2.5, 2.5, 3, 16), M(0x1e2a4a, { metalness: 0.7 })); hub.rotation.x = Math.PI / 2; wheel.add(hub);
+  const gondolas = [];
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const sp = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, WR, 6), M(0xdde6ff)); sp.position.set(Math.cos(a) * WR / 2, Math.sin(a) * WR / 2, 0); sp.rotation.z = a + Math.PI / 2; wheel.add(sp); const gon = new T.Group(); const cab = new T.Mesh(new T.CylinderGeometry(1.7, 1.5, 2.6, 10), M([PINK, NEON, GOLD, MINT][i % 4])); cab.position.y = -1.5; gon.add(cab); const win = new T.Mesh(new T.CylinderGeometry(1.72, 1.72, 0.9, 10), glass); win.position.y = -1.3; gon.add(win); gon.position.set(Math.cos(a) * WR, Math.sin(a) * WR, 0); gon.userData.a = a; wheel.add(gon); gondolas.push(gon); }
+  for (const sx of [-1, 1]) { const leg = new T.Mesh(new T.CylinderGeometry(0.7, 1.0, WY + 2, 8), M(0x9aa7c7, { metalness: 0.7 })); leg.position.set(dx + sx * 12, (WY + 2) / 2 - 1, dz + 3 * sx); leg.rotation.z = sx * 0.3; S.add(leg); }
+  const plat = new T.Mesh(new T.CylinderGeometry(9, 9, 1.2, 24), M(0x1e2a4a, { metalness: 0.5 })); plat.position.set(dx, 0.6, dz + WR); S.add(plat); app.addObstacle(dx, dz, 6); app.addBox(dx, dz + 2, 14, 2);
+  app.onUpdate((dt) => { wheel.rotation.z += dt * 0.08; gondolas.forEach(g => { g.rotation.z = -wheel.rotation.z; }); });
+  const gondolaWorld = (i) => { const a = gondolas[i].userData.a + wheel.rotation.z; return new T.Vector3(dx + Math.cos(a) * WR, WY + Math.sin(a) * WR - 2.2, dz); };
+  const rideSign = makeSign(['RIDE THE SKY WHEEL', 'tap to board · 360° view'], { width: 10, height: 3.4, postHeight: 2, bg: '#07123a', accent: '#38f0ff', border: '#38f0ff' }); rideSign.position.set(dx, 0, dz + WR + 8); rideSign.rotation.y = Math.PI; S.add(rideSign);
+  const board = (a) => { if (a.ride) return; let best = 0, bd = 1e9; gondolas.forEach((g, i) => { const p = gondolaWorld(i); const d = Math.abs(p.y - 0) + Math.abs(p.z - (dz + WR)); if (d < bd) { bd = d; best = i; } }); const prevDist = a.targetDist; a.targetDist = 0.01; a.toast('Boarding the Sky Wheel. Look around: it goes through the roof. 🎡', 4000); a.ride = { pos: () => gondolaWorld(best), until: a.t + (Math.PI * 2) / 0.08 + 1, done: (aa) => { aa.targetDist = prevDist > 0.6 ? prevDist : 6; aa.player.position.set(dx, 0, dz + WR + 6); aa.toast('Welcome back to Earth. How was the view?', 3500); } }; };
+  app.addHotspot(rideSign, { fn: board }); app.addHotspot(plat, { fn: board });
+  // people waiting
+  for (let i = 0; i < 6; i++) app.addNPC(makePerson(), [new T.Vector3(dx + rand(-8, 8), 0, dz + WR + rand(6, 12)), new T.Vector3(dx + rand(-8, 8), 0, dz + WR + rand(6, 12))], { pause: 5, speed: 0.8 });
   const arcade = makeSign(['ARCADE · COMING SOON', 'games, prizes, and a high-score board'], { width: 12, height: 3.6, postHeight: 6, bg: '#3a1a5c', accent: '#ff4f79', border: '#ff4f79', posts: false }); arcade.position.set(dx + 30, 0, dz + 40); arcade.rotation.y = Math.PI * 0.75; S.add(arcade);
   app.addHotspot(arcade, { title: 'Arcade (coming soon)', html: '<p>Mini-games, a high-score board, and prizes that are actually discount codes from the stores. Under construction; the carpenters are virtual and unionized.</p>' });
 }
@@ -353,7 +383,7 @@ function buildBlaster() {
 /* ---------- shoppers ---------- */
 function buildShoppers() {
   const spots = [[0, 65], [0, 30], [-60, 0], [-100, 0], [-140, 0], [60, 0], [100, 0], [140, 0], [0, -60], [0, -100], [0, -140], [78, -60], [-78, -60], [-60, 60], [60, 60], [20, 20], [-20, -20]];
-  for (let i = 0; i < 22; i++) { const path = []; let last = pick(spots); for (let k = 0; k < 5; k++) { let n = pick(spots); if (n === last) n = pick(spots); const v = new T.Vector3(n[0] + rand(-6, 6), 0, n[1] + rand(-6, 6)); path.push(v); last = n; } app.addNPC(makePerson(), path, { pause: 3 }); }
+  for (let i = 0; i < 44; i++) { const path = []; let last = pick(spots); for (let k = 0; k < 5; k++) { let n = pick(spots); if (n === last) n = pick(spots); const v = new T.Vector3(n[0] + rand(-6, 6), 0, n[1] + rand(-6, 6)); path.push(v); last = n; } app.addNPC(makePerson(), path, { pause: 3 }); }
 }
 
 /* ---------- SEO directory (HTML) ---------- */
@@ -362,7 +392,7 @@ function renderDirectory() {
   for (const w of ['lobby', 'americas', 'europe', 'asia', 'food', 'kids']) {
     const real = byWing(w, DATA.stores), ph = byWing(w, DATA.placeholders);
     html += `<h2>${esc(wingName(w))}</h2><p>${esc(DATA.wings[w]?.blurb || '')}</p><div class="grid">`;
-    for (const s of real) html += `<div class="card"><b><a href="/stores/${s.slug}/">${esc(s.flag || '')} ${esc(s.name)}</a></b><small>${esc(s.tag)} · ${esc(s.city)}</small><p style="font-size:14px;margin:6px 0 0">${esc(s.about || '')}</p></div>`;
+    for (const s of real) html += s.demo ? `<div class="card" style="opacity:.85"><b>${esc(s.flag || '')} ${esc(s.name)}</b><small>${esc(s.tag)} · ${esc(s.city)} · <span style="color:#ffd23f">demo store</span></small><p style="font-size:14px;margin:6px 0 0">${esc(s.about || '')}</p></div>` : `<div class="card"><b><a href="/stores/${s.slug}/">${esc(s.flag || '')} ${esc(s.name)}</a></b><small>${esc(s.tag)} · ${esc(s.city)}</small><p style="font-size:14px;margin:6px 0 0">${esc(s.about || '')}</p></div>`;
     for (const s of ph) html += `<div class="card" style="opacity:.75"><b>${esc(s.flag || '')} ${esc(s.name)}</b><small>${esc(s.tag)} · ${esc(s.city)} · <span style="color:#ff4f79">space available</span></small></div>`;
     if (w === 'kids') html += `<div class="card"><b>Learning corners</b><small>Science, animals, and the world</small><p style="font-size:14px;margin:6px 0 0">Ball pit, tunnel, slide, alphabet blocks, and tap-to-learn kiosks with kid-sized fun facts.</p></div>`;
     html += '</div>';
@@ -381,8 +411,11 @@ app.start(async (a) => {
   renderDirectory();
   a.onUpdate((dt) => { for (const m of shaderMats) m.uniforms.t.value += dt; });
   // where-am-I label updates as you walk
-  a.onUpdate(() => { const p = a.player.position; let w = 'Grand Lobby'; if (p.z < 40 && Math.abs(p.x) < 40 && p.z > -40) w = 'The Atrium'; else if (p.x < -40 && Math.abs(p.z) < 30) w = 'Americas Wing'; else if (p.x > 40 && Math.abs(p.z) < 30) w = 'Europe Wing'; else if (p.z < -40 && Math.abs(p.x) < 30) w = 'Asia & Islands Wing'; else if (p.x > 40 && p.z < -40) w = 'Global Food Court'; else if (p.x < -40 && p.z < -40) w = "Kids' Discovery Zone"; else if (p.x < -40 && p.z > 40) w = 'Aquarium Garden'; else if (p.x > 40 && p.z > 40) w = 'Sky Deck'; const el = a.hud.querySelector('.wvm-where'); const txt = 'Inside the Mall · ' + w; if (el.textContent !== txt) el.textContent = txt; });
-  setTimeout(() => a.toast('Welcome in! Tap the 🗺️ directory ahead, or just wander.', 4000), 1500);
+  a.onUpdate(() => { const p = a.player.position; let w = 'Grand Lobby'; if (p.z < 40 && Math.abs(p.x) < 40 && p.z > -40) w = 'The Atrium'; else if (p.x < -40 && Math.abs(p.z) < 30) w = 'Americas Wing'; else if (p.x > 40 && Math.abs(p.z) < 30) w = 'Europe Wing'; else if (p.z < -40 && Math.abs(p.x) < 30) w = 'Asia & Islands Wing'; else if (p.x > 40 && p.z < -40) w = 'Global Food Court'; else if (p.x < -40 && p.z < -40) w = "Kids' Discovery Zone"; else if (p.x < -40 && p.z > 40) w = 'Aquarium Garden'; else if (p.x > 40 && p.z > 40) w = 'Sky Wheel'; const el = a.hud.querySelector('.wvm-where'); const txt = 'Inside the Mall · ' + w; if (el.textContent !== txt) el.textContent = txt; });
+  // walk-in scene when arriving from outside: you stroll through the doors, then get control
+  let from = null; try { from = sessionStorage.getItem('wvm_from'); sessionStorage.removeItem('wvm_from'); } catch (e) { }
+  if (from === 'index') { a.player.position.set(0, 0, 106); a.targetDist = 7; a.pitch = -0.1; a.locked = true; a.walkTarget = new T.Vector3(0, 0, 82); const un = setInterval(() => { if (!a.loader.classList.contains('off')) return; setTimeout(() => { a.locked = false; a.walkTarget = null; a.toast('Welcome in! Tap the 🗺️ directory ahead, or just wander.', 4000); }, 3200); clearInterval(un); }, 200); }
+  else setTimeout(() => a.toast('Welcome in! Tap the 🗺️ directory ahead, or just wander.', 4000), 1500);
   if (location.hash === '#leasing') { a.player.position.set(20, 0, 72); a.yaw = -Math.PI / 2; setTimeout(() => pitch(a, 0), 1200); }
 });
 </script>
