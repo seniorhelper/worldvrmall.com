@@ -264,6 +264,7 @@ export class WVM {
   _blocked(nx, nz) { for (const ob of this.obstacles) { if (ob.hw !== undefined) { if (Math.abs(nx - ob.x) < ob.hw && Math.abs(nz - ob.z) < ob.hd) return true; } else { const dx = nx - ob.x, dz = nz - ob.z; if (dx * dx + dz * dz < ob.r * ob.r) return true; } } return false; }
   addHotspot(obj, data) { obj.traverse(c => { c.userData.hotspot = data; }); this.hotspots.push(obj); return obj; }
   addZone(name, center, radius, build) { this.zones.push({ name, center, radius, build, built: false }); }
+  addTrigger(x, z, r, fn) { (this.triggers = this.triggers || []).push({ x, z, r, fn, fired: false }); }
   addNPC(person, path, opts = {}) {
     const n = { p: person, path, i: 0, speed: opts.speed || rand(1.2, 2.2), wait: 0, loop: opts.loop !== false, pause: opts.pause || 0 };
     person.position.copy(path[0]); this.scene.add(person); this.npcs.push(n); return n;
@@ -341,6 +342,7 @@ export class WVM {
     this._updateCamera(dt);
     this._updateNPCs(dt);
     this._updateZones();
+    if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     this.renderer.render(this.scene, this.camera);
   }
@@ -362,7 +364,7 @@ export class WVM {
       if (d.length() < 0.6) { this.walkTarget = null; } else {
         // convert world dir to camera-relative move
         const yaw = this.yaw; const dir = d.clone().normalize();
-        const fwd = new THREE.Vector2(-Math.sin(yaw), -Math.cos(yaw)); const right = new THREE.Vector2(fwd.y, -fwd.x);
+        const fwd = new THREE.Vector2(-Math.sin(yaw), -Math.cos(yaw)); const right = new THREE.Vector2(-fwd.y, fwd.x);
         mv.set(dir.dot(right), dir.dot(fwd));
       }
     }
@@ -370,7 +372,7 @@ export class WVM {
     if (this.moving) {
       const yaw = this.yaw;
       const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-      const right = new THREE.Vector3(fwd.z, 0, -fwd.x);
+      const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
       const step = fwd.multiplyScalar(mv.y).add(right.multiplyScalar(mv.x)).multiplyScalar(speed * dt);
       const nx = p.position.x + step.x, nz = p.position.z + step.z;
       // obstacles (circles + boxes), with sliding
