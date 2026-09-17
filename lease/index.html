@@ -20,10 +20,10 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebPage","@id":"https://worldvrmall.com/lease/#page","url":"https://worldvrmall.com/lease/","name":"Lease a Store in World VR Mall","isPartOf":{"@id":"https://worldvrmall.com/#site"},"about":{"@id":"https://worldvrmall.com/#org"},"speakable":{"@type":"SpeakableSpecification","cssSelector":["h1",".lead"]}},
- {"@type":"Service","@id":"https://worldvrmall.com/lease/#service","name":"World VR Mall storefront lease","serviceType":"Virtual storefront in a 3D shopping mall","provider":{"@type":"Organization","@id":"https://worldvrmall.com/#org","name":"World VR Mall","telephone":"+1-800-481-8638","email":"info@eyetoad.com","url":"https://worldvrmall.com/"},"areaServed":"Worldwide","audience":{"@type":"BusinessAudience","audienceType":"Ecommerce brands, local businesses, makers"},"description":"A 3D storefront in World VR Mall with the brand's logo, colors, and products; buy buttons to the brand's own checkout; an AI clerk; and a search-optimized store page on worldvrmall.com.","offers":{"@type":"Offer","availability":"https://schema.org/LimitedAvailability","priceSpecification":{"@type":"PriceSpecification","description":"Monthly lease; pricing depends on placement and store size. Call for pricing."}}},
+ {"@type":"Service","@id":"https://worldvrmall.com/lease/#service","name":"World VR Mall storefront lease","serviceType":"Virtual storefront in a 3D shopping mall","provider":{"@type":"Organization","@id":"https://worldvrmall.com/#org","name":"World VR Mall","telephone":"+1-800-481-8638","email":"info@eyetoad.com","url":"https://worldvrmall.com/"},"areaServed":"Worldwide","audience":{"@type":"BusinessAudience","audienceType":"Ecommerce brands, local businesses, makers"},"description":"A 3D storefront in World VR Mall with the brand's logo, colors, and products; buy buttons to the brand's own checkout; an AI clerk; and a search-optimized store page on worldvrmall.com.","offers":[{"@type":"Offer","name":"Storefront (founding tenant rate)","price":"99","priceCurrency":"USD","priceSpecification":{"@type":"UnitPriceSpecification","price":"99","priceCurrency":"USD","unitText":"month"},"availability":"https://schema.org/LimitedAvailability","validThrough":"2026-12-31"},{"@type":"Offer","name":"Storefront + Search Optimized (founding tenant rate)","price":"199","priceCurrency":"USD","priceSpecification":{"@type":"UnitPriceSpecification","price":"199","priceCurrency":"USD","unitText":"month"},"availability":"https://schema.org/LimitedAvailability","validThrough":"2026-12-31"}]},
  {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"World VR Mall","item":"https://worldvrmall.com/"},{"@type":"ListItem","position":2,"name":"Lease a Store","item":"https://worldvrmall.com/lease/"}]},
  {"@type":"FAQPage","mainEntity":[
-  {"@type":"Question","name":"How much does a store in World VR Mall cost?","acceptedAnswer":{"@type":"Answer","text":"Stores are a monthly lease. Pricing depends on placement (lobby, wing, food court, or market booth) and store size, so it's a ten-minute phone call rather than a price list. Call 1-800-481-8638."}},
+  {"@type":"Question","name":"How much does a store in World VR Mall cost?","acceptedAnswer":{"@type":"Answer","text":"Founding tenant rates for 2026: a Storefront is $99 per month (up to 8 products) and a Storefront + Search Optimized store with its own store page is $199 per month (up to 25 products). Extra products are $10 per month per 5. Sign up in 2026 and the rate is locked for 12 months. Add-ons include premium lobby placement, logo file install and hosting ($25/mo), billboards ($100/mo), and custom attractions ($299/mo). Call 1-800-481-8638."}},
   {"@type":"Question","name":"Do I need to build anything?","acceptedAnswer":{"@type":"Answer","text":"No. You send a logo, your brand colors, and a product list with links to where people buy. We build the storefront, the AI clerk, and your store page. Setup takes about ten minutes on the phone and your store is usually live the same day."}},
   {"@type":"Question","name":"Who handles the payments?","acceptedAnswer":{"@type":"Answer","text":"You do. Every buy button links to your own checkout: Shopify, Square, Etsy, WooCommerce, or any site. World VR Mall never touches your money or your customer data."}},
   {"@type":"Question","name":"What is premium placement?","acceptedAnswer":{"@type":"Answer","text":"The storefronts every visitor walks past: the Grand Lobby and the first stores in each wing. They are limited to the doors that exist and go first come, first served."}},
@@ -36,7 +36,7 @@
   *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
   a{color:var(--cyan)}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:rgba(4,10,30,.9);position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(124,248,255,.2)}
-  header img{height:36px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:var(--pink);padding:8px 14px;border-radius:999px}
+  header img{height:40px;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:var(--pink);padding:8px 14px;border-radius:999px}
   .hero{position:relative;overflow:hidden;padding:72px 22px 56px;text-align:center;background:radial-gradient(circle at 50% 20%,#123a8a,#050b1c 65%)}
   .hero h1{font-size:clamp(32px,5.6vw,60px);line-height:1.05;margin:0 0 14px;color:#fff;max-width:900px;margin-inline:auto} .hero h1 span{color:var(--cyan)}
   .lead{font-size:clamp(18px,2.4vw,23px);color:#d7e6ff;max-width:760px;margin:0 auto 26px}
@@ -75,12 +75,12 @@
   <h1>Your brand deserves a front door. <span>Not a listing.</span></h1>
   <p class="lead">World VR Mall is a 3D mall people actually walk through, on phones, laptops, and VR headsets. Get a storefront with your name over the door, next to brands from every continent. This is the ground floor.</p>
   <div class="cta"><a class="btn hot" href="tel:18004818638">📞 Call 1-800-481-8638 — 10-minute setup</a><a class="btn alt" href="#inquire">Request a callback</a></div>
-  <p style="color:#9fd3ff;font-size:14px">Premium placement is limited and goes first come, first served.</p>
+  <p style="color:#9fd3ff;font-size:14px">Founding tenant rates: $99/mo storefront · $199/mo optimized · locked 12 months for 2026 sign-ups.</p>
 </section>
 
 <main>
   <h2>Why now</h2>
-  <p>Every famous mall had a first tenant list. The businesses that signed early got the doors everyone walks past. World VR Mall opened in 2026; you're reading this before most of the world knows it exists. Two things are true on the ground floor: the best spots are still open, and the brands that take them are the originals.</p>
+  <p>Every famous mall had a first tenant list. The businesses that signed early got the doors everyone walks past. World VR Mall opened in 2026; you're reading this before most of the world knows it exists. Two things are true on the ground floor: the best spots are still open, and the founding rates are the lowest they will ever be.</p>
   <div class="quote">Tonight, somebody in Ohio, Osaka, and Oslo is going to shop online. Where would you rather they run into your brand: page four of a marketplace, or a store with your name over the door?</div>
 
   <h2>What your store includes</h2>
@@ -93,15 +93,24 @@
     <div class="card"><b>🧑‍💻 Zero tech work</b>Send a logo and a product list. We do the rest. If you can send an email, you're overqualified.</div>
   </div>
 
-  <h2>Placement</h2>
-  <p>Where your store sits is the whole game. Pricing depends on placement and size, which is why it's a ten-minute call rather than a price list.</p>
+  <h2>Founding tenant rates (2026 only)</h2>
+  <p>Sign up in 2026 and your rate is <b>locked for 12 months</b>. Rates are expected to rise in 2027. No long-term contract; leases are month to month.</p>
   <div class="grid">
-    <div class="card tier premium"><span class="ribbon">LIMITED</span><b>Grand Lobby · Premium</b>The first doors every visitor sees. Limited to the storefronts that exist. When they have names on them, they're gone.</div>
-    <div class="card tier"><b>Wing storefront · Standard</b>Americas, Europe, or Asia & Islands. Full store, shelves, clerk, and page. Always available, works beautifully.</div>
-    <div class="card tier food"><b>Food Court kiosk</b>Restaurants, cafés, food brands, and restaurant services. Right where people sit down and stay a while.</div>
-    <div class="card tier market"><b>Old World Market booth</b>The most affordable spot in the mall, built for makers: soap, candles, jam, jewelry, art, woodwork. Links to your Etsy, Square, or Shopify.</div>
+    <div class="card tier"><b>Storefront · $99/mo</b>A full 3D store in the wing that fits you. Up to <b>8 products</b> on the shelves with buy buttons to your own checkout, an AI clerk, your storefront on the mall directory. Setup in ten minutes.</div>
+    <div class="card tier premium"><span class="ribbon">MOST POPULAR</span><b>Storefront + Search Optimized · $199/mo</b>Everything in Storefront, up to <b>25 products</b>, plus your own search-optimized store page at worldvrmall.com/stores/your-brand, written to rank for your brand and category and to be cited by AI search.</div>
+    <div class="card tier market"><b>Extra products</b>$10/mo per 5 additional products, on either plan.</div>
   </div>
-
+  <h2>Add-ons</h2>
+  <div class="grid">
+    <div class="card"><b>Premium lobby placement</b>The first doors every visitor sees. Limited to the storefronts that exist; when they have names on them, they're gone. Ask for current availability.</div>
+    <div class="card"><b>Logo file install & hosting · $25/mo</b>Your brand name is on the storefront by default. Want your actual logo artwork on the sign, the shelves, and your store page? We install and host it.</div>
+    <div class="card"><b>Billboard · $100/mo</b>A billboard outside the mall or a sign inside, in the park, at the entrance, or in the wing of your choice.</div>
+    <div class="card"><b>Custom attraction · $299/mo</b>Your own ride, game, booth, or feature in the mall, branded to you. A coaster car with your name on it, a photo booth, a mini-game with your prize.</div>
+    <div class="card"><b>Custom features · quote</b>Anything programmed into the mall specifically for you: a product configurator, a multi-language clerk, a virtual showroom.</div>
+    <div class="card tier market"><b>Old World Market booth</b>The most affordable spot in the mall, built for makers: soap, candles, jam, jewelry, art. Ask for booth pricing.</div>
+  </div>
+  <h2>Placement</h2>
+  <p>Where your store sits matters. Stores are grouped in regional wings (Americas, Europe, Asia · Africa · Islands) and cross-listed by category (bath, auto, food, clothing, beauty, web…), so a brand from Lagos can sit next to one from Denver and both are found either way.</p>
   <h2>How it works</h2>
   <div class="steps">
     <div><h3>Call, or request a callback</h3><p>Ten minutes. We pick your wing, your placement, and your store name.</p></div>
@@ -110,9 +119,7 @@
   </div>
 
   <h2>Who's already in</h2>
-  <div class="tenants"><span>Eye To Ad Media</span><span>Showers4Less</span><span>Search Converts</span><span>BuyWebURL</span><span>Aging Safely Baths</span><span>A Nu Do Salon</span><span>Gnomad Promotions</span><span>Bear Creek Auto Glass</span><span>Bighorn Painting</span><span>MySalesHelp</span><span>Link Restaurants</span></div>
-  <p>Built and run by a Denver team that has done search, AI optimization, and custom websites since 2012, BBB A+ accredited, with 5-star reviews. Real businesses, real products, a mall that gets bigger every week.</p>
-
+  <p>The mall opened full, not empty: retail, home services, health, travel, restaurants, marketing, technology, and makers. Walk the wings and you'll pass dozens of storefronts, booths, and kiosks already in place, from Denver to Lisbon to Nairobi. Built and run by a Denver team that has done search, AI optimization, and custom websites since 2012, BBB A+ accredited, with 5-star reviews.</p>
   <h2>One honest question</h2>
   <p>You've put years into your business. Late nights, real risk, real work. If we could get your store live today at a budget that works for you, is there any reason you wouldn't want to be in early?</p>
   <div class="cta" style="justify-content:flex-start"><a class="btn hot" href="tel:18004818638">📞 No reason. Call 1-800-481-8638</a><a class="btn alt" href="#inquire">I have a question first</a></div>
@@ -130,7 +137,7 @@
     </div>
     <div class="row">
       <div><label for="f-site">Website or shop link</label><input id="f-site" name="website" type="url" placeholder="https://"></div>
-      <div><label for="f-place">Placement you're interested in</label><select id="f-place" name="placement"><option>Not sure yet — advise me</option><option>Grand Lobby (premium)</option><option>Americas Wing</option><option>Europe Wing</option><option>Asia & Islands Wing</option><option>Food Court kiosk</option><option>Old World Market booth</option></select></div>
+      <div><label for="f-place">Placement you're interested in</label><select id="f-place" name="placement"><option>Not sure yet — advise me</option><option>Storefront $99/mo</option><option>Storefront + Search Optimized $199/mo</option><option>Grand Lobby (premium)</option><option>Americas Wing</option><option>Europe Wing</option><option>Asia & Islands Wing</option><option>Food Court kiosk</option><option>Old World Market booth</option></select></div>
     </div>
     <label for="f-msg">What do you sell, and where are you based?</label><textarea id="f-msg" name="message"></textarea>
     <div style="display:none"><label>Leave blank<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></div>
@@ -140,7 +147,7 @@
   </form>
 
   <h2>Frequently asked questions</h2>
-  <details open><summary>How much does a store in World VR Mall cost?</summary><p>Stores are a monthly lease. Pricing depends on placement (lobby, wing, food court, or market booth) and store size, so it's a ten-minute phone call rather than a price list. Call <a href="tel:18004818638">1-800-481-8638</a>.</p></details>
+  <details open><summary>How much does a store in World VR Mall cost?</summary><p>Founding tenant rates for 2026: a Storefront is $99 per month (up to 8 products) and a Storefront + Search Optimized store with its own store page is $199 per month (up to 25 products). Extra products are $10 per month per 5. Sign up in 2026 and the rate is locked for 12 months. Add-ons include premium lobby placement, logo file install and hosting ($25/mo), billboards ($100/mo), and custom attractions ($299/mo). Call <a href="tel:18004818638">1-800-481-8638</a>.</p></details>
   <details><summary>Do I need to build anything?</summary><p>No. You send a logo, your brand colors, and a product list with links to where people buy. We build the storefront, the AI clerk, and your store page. Setup takes about ten minutes on the phone and your store is usually live the same day.</p></details>
   <details><summary>Who handles the payments?</summary><p>You do. Every buy button links to your own checkout: Shopify, Square, Etsy, WooCommerce, or any site. World VR Mall never touches your money or your customer data.</p></details>
   <details><summary>What is premium placement?</summary><p>The storefronts every visitor walks past: the Grand Lobby and the first stores in each wing. They are limited to the doors that exist and go first come, first served.</p></details>
