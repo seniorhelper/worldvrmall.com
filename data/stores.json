@@ -27,6 +27,10 @@
   "market": {
    "name": "Old World Market",
    "blurb": "Handmade & homemade goods (outside)"
+  },
+  "booths": {
+   "name": "Atrium Booths",
+   "blurb": "Kiosks in the middle of the mall"
   }
  },
  "stores": [
@@ -78,6 +82,13 @@
      "desc": "Get cited by ChatGPT, Gemini, Claude, Perplexity, and Copilot when people ask for what you do."
     },
     {
+     "title": "Custom-Coded Website — from $99/mo",
+     "price": "$99/mo",
+     "url": "https://denver-webdesign.com/",
+     "icon": "💻",
+     "desc": "Search-optimized, hand-coded, fast. Lease with a buyout option."
+    },
+    {
      "title": "Custom-Coded Website Lease",
      "price": "$99/mo & up",
      "url": "https://eyetoad.com",
@@ -94,6 +105,20 @@
      "price": "Call for pricing",
      "url": "/lease/",
      "desc": "Get your brand in the mall you're standing in. Ten-minute setup."
+    },
+    {
+     "title": "Free AI Chatbot Generator",
+     "price": "Free",
+     "url": "https://conversationalaibot.com/",
+     "icon": "🤖",
+     "desc": "Build an AI chatbot for your business in two minutes. Free."
+    },
+    {
+     "title": "Advertising For Contractors",
+     "price": "See site",
+     "url": "https://advertisingforcontractors.com/",
+     "icon": "🔧",
+     "desc": "Marketing built for trades and home services."
     }
    ],
    "leadIntro": "Want to start marketing? Tell us your business and website. Sticky forwards it to a human at Eye To Ad Media who calls you back with a free audit. No obligation.",
@@ -108,6 +133,38 @@
      "SINCE 2012 · DENVER",
      "BBB A+ · 5-star reviews"
     ]
+   ],
+   "lead": true,
+   "layout": "agency",
+   "cats": [
+    "marketing",
+    "web"
+   ],
+   "size": "large",
+   "serpQuery": "seo company denver",
+   "serp": [
+    [
+     "eyetoad.com",
+     "Eye To Ad Media — Denver SEO & AI Search Optimization",
+     "Get found in Google, Maps, and AI answers. Since 2012. BBB A+."
+    ],
+    [
+     "searchconverts.com",
+     "Search Converts — Conversion Rate Optimization",
+     "You already have the traffic. Now convert it."
+    ],
+    [
+     "denver-webdesign.com",
+     "Custom-Coded Websites from $99/mo",
+     "Search-optimized, hand-coded, fast."
+    ]
+   ],
+   "whiteboard": [
+    "YOUR MARKETING PLAN",
+    "1. Get found (SEO + AI answers)",
+    "2. Get chosen (website that converts)",
+    "3. Get more (ads, video, CTV)",
+    "Website from $99/mo"
    ]
   },
   {
@@ -135,91 +192,474 @@
     "trim": "#4770db"
    },
    "clerk": {
-    "name": "Dana",
+    "name": "Lilly",
     "shirt": "#4770db",
     "lines": [
-     "Welcome to Showers4Less! Barrier-free, roll-in, and ADA showers, made in the USA, shipped to your door.",
+     "Welcome to Showers4Less! I'm Lilly. Barrier-free, roll-in, and ADA showers, made in the USA, shipped to your door.",
      "DIY kits or one-day professional installation in most of the country. No high-pressure pricing, ever.",
-     "Tap any shower on the shelf to see it and buy it on our site. Questions? Call 1-888-779-2284."
+     "Pans on the left, full packages on the right, designer systems in the back. Tap anything to see it and buy it on our site. Questions? Call 1-888-779-2284."
     ]
    },
    "about": "Roll-in showers, ADA shower kits, and low-threshold walk-in showers. Made in the USA. DIY-friendly systems or one-day installation, without high-pressure pricing.",
    "products": [
     {
-     "title": "36\" x 36\" Barrier Free Shower Pan",
+     "title": "36 x 36 Single Piece Curbed Shower | 5.25\" Curb | Walls & Pan",
+     "price": "$1,600",
+     "url": "https://showers4less.com/products/36-x-36-single-piece-curbed-shower-5-25-curb-height-smooth-finish-walls-pan-only",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_583c68f3-2355-4c73-bdff-87bf884b264e.png?v=1766852593&width=533",
+     "icon": "🚿",
+     "desc": "Complete 36\" x 36\" shower system: pan plus wall panels, ready for a one-day install. Curbed step-in entry.",
+     "cat": "package"
+    },
+    {
+     "title": "36\" x 36\" Barrier Free Shower Pan | Roll In",
      "price": "$1,450",
      "url": "https://showers4less.com/products/36-x-36-barrier-free-shower-pan-roll-in-shower-pan",
      "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_949bfa4a-ab9e-43c2-81d8-74a0d3c95eec.png?v=1761168191&width=533",
-     "desc": "Roll-in shower pan with a threshold low enough for a wheelchair.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "36\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
     },
     {
      "title": "36\" x 36\" Barrier Free Shower Package",
      "price": "$3,989",
      "url": "https://showers4less.com/products/36-x-36-multi-piece-shower-system",
      "img": "https://showers4less.com/cdn/shop/products/36x36showerimage.png?v=1666904505&width=533",
-     "desc": "Pan plus walls: a complete multi-piece shower system.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "Complete 36\" x 36\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "38\" x 38\" Roll In Shower Package",
+     "price": "$3,989",
+     "url": "https://showers4less.com/products/30-x-60-shower-package",
+     "img": "https://showers4less.com/cdn/shop/products/3838rollinshowerimage.png?v=1666905006&width=533",
+     "icon": "🚿",
+     "desc": "Complete 38\" x 38\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "38\" x 38\" Barrier Free Shower Pan | Low Threshold",
+     "price": "From $1,555",
+     "url": "https://showers4less.com/products/38-x-38-barrier-free-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3a2d0054-922a-46ad-98d7-22500f279cc3.png?v=1761171444&width=533",
+     "icon": "🚿",
+     "desc": "38\" x 38\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
     },
     {
      "title": "40\" x 38\" ADA Compliant Handicap Shower",
      "price": "$4,491",
      "url": "https://showers4less.com/products/40-x-38-ada-compliant-handicap-shower-barrier-free-shower",
      "img": "https://showers4less.com/cdn/shop/products/4038ADAcompliantshowerimage.jpg?v=1668019660&width=533",
-     "desc": "ADA-designed with grab-bar support and seat options.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "40\" x 38\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. ADA-designed.",
+     "cat": "pan"
     },
     {
-     "title": "42\" x 36\" Roll In Shower Full Package",
+     "title": "42\" x 36\" Barrier Free Shower Pan | Roll In",
+     "price": "From $1,280",
+     "url": "https://showers4less.com/products/42-x-36-barrier-free-shower-roll-in-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_90ad7d1c-69f1-4557-be6b-08726a33ca9c.png?v=1761176352&width=533",
+     "icon": "🚿",
+     "desc": "42\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "42\" x 36\" Roll In Shower | Full Package | Center Drain",
      "price": "$4,995",
      "url": "https://showers4less.com/products/42-x-36-roll-in-shower-full-package-multi-piece-shower-center-drain-integrated-soap-dishes",
      "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_869bcc38-e7ec-4d57-b7c6-012abead2d31.png?v=1764471266&width=533",
-     "desc": "Center drain, integrated soap dishes, white.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "Complete 42\" x 36\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "package"
+    },
+    {
+     "title": "42\" x 42\" Neo Angle Corner Shower Pan",
+     "price": "From $1,490",
+     "url": "https://showers4less.com/products/42-x-42-barrier-free-shower-pan-neo-angle-corner-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_fadff333-f019-4332-b670-c1f622b21c03.png?v=1761183415&width=533",
+     "icon": "🚿",
+     "desc": "42\" x 42\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Corner layout.",
+     "cat": "pan"
+    },
+    {
+     "title": "45\" x 50\" Roll In Shower Pan | Trench Drain",
+     "price": "$1,980",
+     "url": "https://showers4less.com/products/45-x-50-roll-in-shower-pan-barrier-free-trench-drain-75-up-to-2-option",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_53ddc1b6-b21f-4e69-9b53-e337c9415300.webp?v=1764204574&width=533",
+     "icon": "🚿",
+     "desc": "45\" x 50\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Trench drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "48\" x 34\" Roll In Shower Pan",
+     "price": "$1,490",
+     "url": "https://showers4less.com/products/48-x-34-roll-in-shower-pan-barrier-free",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_a73ac86f-7075-40fb-a21d-b3dd6d3cf7f3.png?v=1764206624&width=533",
+     "icon": "🚿",
+     "desc": "48\" x 34\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "48\" x 36\" Roll In Shower Pan | Trench or Center Drain",
+     "price": "From $1,575",
+     "url": "https://showers4less.com/products/48-x-36-roll-in-shower-pan-barrier-free-trench-drain-center-drain-option",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_2d1e91fe-9a03-46c5-9ce8-b997e34febc5.png?v=1764211027&width=533",
+     "icon": "🚿",
+     "desc": "48\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Trench drain. Center drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "48\" x 48\" Barrier Free Shower Package",
+     "price": "$4,178",
+     "url": "https://showers4less.com/products/48-x-48-barrier-free-shower",
+     "img": "https://showers4less.com/cdn/shop/products/4848Barrierfreeshowerimage.png?v=1666970817&width=533",
+     "icon": "🚿",
+     "desc": "Complete 48\" x 48\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "48\" x 48\" Corner Roll In Shower Pan | Center Drain",
+     "price": "$1,650",
+     "url": "https://showers4less.com/products/48-x-48-corner-roll-in-shower-pan-barrier-free",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_26d07d4a-f7bb-4f96-8de5-c85b941a32b1.png?v=1764213063&width=533",
+     "icon": "🚿",
+     "desc": "48\" x 48\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain. Corner layout.",
+     "cat": "pan"
+    },
+    {
+     "title": "48\" x 48\" Roll In Shower Pan | Center Drain",
+     "price": "$1,690",
+     "url": "https://showers4less.com/products/48-x-48-roll-in-shower-pan-barrier-free-center-drain",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_48d29a62-c318-46f0-adae-7ae419ca68d7.png?v=1764212712&width=533",
+     "icon": "🚿",
+     "desc": "48\" x 48\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "51\" x 39\" Barrier Free Shower Pan | Low Threshold",
+     "price": "From $1,859",
+     "url": "https://showers4less.com/products/barrie-free-shower-pan-51-x-39-low-threshold-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/products/5139fronttrenchdrainbarrierfreeshowerpanimage.webp?v=1676933165&width=533",
+     "icon": "🚿",
+     "desc": "51\" x 39\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "54\" x 30\" Barrier Free Shower Pan | Roll In",
+     "price": "From $1,360",
+     "url": "https://showers4less.com/products/low-threshold-shower-pan-54-x-30-roll-in-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/products/Lowthresholdshowerpan5430image.png?v=1676855466&width=533",
+     "icon": "🚿",
+     "desc": "54\" x 30\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "54\" x 36\" Barrier Free Shower Pan | Step In",
+     "price": "$1,489",
+     "url": "https://showers4less.com/products/barrier-free-shower-pan-54-x-36",
+     "img": "https://showers4less.com/cdn/shop/products/barrierfreeshowerpan5436image.png?v=1676854542&width=533",
+     "icon": "🚿",
+     "desc": "54\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Curbed step-in entry.",
+     "cat": "pan"
+    },
+    {
+     "title": "60 x 33 Curbed Shower | 5\" Curb | 4\" Tile Design",
+     "price": "$1,795",
+     "url": "https://showers4less.com/products/60-x-33-single-piece-5-curbed-shower-kit-4-tile-design-center-drain",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_aa7bad9c-648c-4923-a11c-d2782f82b8ee.jpg?v=1766853356&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 33\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Curbed step-in entry. Designer wall finish.",
+     "cat": "pan"
+    },
+    {
+     "title": "60 x 36 Designer Roll In Shower | Venetian Marble Walls",
+     "price": "$6,285",
+     "url": "https://showers4less.com/products/60-x-36-designer-roll-in-shower-system-full-package-venetian-marble",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_8ff4c8b3-4b7e-4219-8723-42d4056ff9c6.jpg?v=1766817068&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 36\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Designer wall finish.",
+     "cat": "package"
+    },
+    {
+     "title": "60 x 36 Corner Roll In Shower Pan | Center Drain",
+     "price": "$1,840",
+     "url": "https://showers4less.com/products/60-x-36-roll-in-shower-pan-corner",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_dbc33b0c-2c12-4b24-b0db-82730472b554.png?v=1764222078&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain. Corner layout.",
+     "cat": "pan"
+    },
+    {
+     "title": "60 x 48 Curbed Multi-Piece Shower | Pan + Walls",
+     "price": "$4,800",
+     "url": "https://showers4less.com/products/60-x-48-curbed-multi-piece-shower-pan-walls-package",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_b2cceb6f-a76c-49ed-b59d-5bd76eb27521.webp?v=1766851843&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 48\" shower system: pan plus wall panels, ready for a one-day install. Curbed step-in entry.",
+     "cat": "package"
+    },
+    {
+     "title": "60 x 48 Designer Roll In Shower | Grecian Earth Walls",
+     "price": "$6,695",
+     "url": "https://showers4less.com/products/60-x-48-roll-in-shower-package-grecian-earth-wall-system",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3bfdb621-9c4d-40c6-bac6-d8b45c3f164c.jpg?v=1766815957&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 48\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Designer wall finish.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 29\" Barrier Free Shower Pan | Wheelchair Accessible",
+     "price": "$1,454",
+     "url": "https://showers4less.com/products/wheelchair-accessible-shower-pan-60-x-29-low-roll-in-threshold",
+     "img": "https://showers4less.com/cdn/shop/products/6029wheelchairaccessibleshowerpanimage.png?v=1676853535&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 29\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 30\" Barrier Free Shower Pan",
+     "price": "$1,691",
+     "url": "https://showers4less.com/products/60-x-30-barrier-free-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/products/6030barrierfreeshowerpanimage.png?v=1667515006&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 30\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 30\" Barrier Free Shower Package",
+     "price": "$4,998",
+     "url": "https://showers4less.com/products/60-x-30-roll-in-shower",
+     "img": "https://showers4less.com/cdn/shop/products/6030rollinshowerimage.png?v=1666971407&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 30\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
     },
     {
      "title": "60\" x 30\" Brushed Nickel Shower Package",
      "price": "$4,800",
      "url": "https://showers4less.com/products/brushed-nickel-shower-package-30-x-60-barrier-free-shower",
      "img": "https://showers4less.com/cdn/shop/files/walkinshowerimage.jpg?v=1741656224&width=533",
-     "desc": "Waterproof, grout-free wall tiles with the look of natural stone.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "Complete 60\" x 30\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Designer wall finish.",
+     "cat": "package"
     },
     {
-     "title": "60\" x 48\" Designer Roll In Shower — Grecian Earth",
-     "price": "$6,695",
-     "url": "https://showers4less.com/products/60-x-48-roll-in-shower-package-grecian-earth-wall-system",
-     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3bfdb621-9c4d-40c6-bac6-d8b45c3f164c.jpg?v=1766815957&width=533",
-     "desc": "Complete 60 x 48 package, everything you need in one system.",
-     "icon": "🚿"
+     "title": "60\" x 30\" Curbed 5-Piece Step In Shower Package",
+     "price": "$4,987",
+     "url": "https://showers4less.com/products/60-x-30-curbed-5-piece-shower-curbed-step-in-shower-package",
+     "img": "https://showers4less.com/cdn/shop/products/6030curbedshowerimage.jpg?v=1676934045&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 30\" shower system: pan plus wall panels, ready for a one-day install. Curbed step-in entry.",
+     "cat": "package"
     },
     {
-     "title": "60\" x 48\" Roll In Shower Pan — Center Drain",
+     "title": "60\" x 32\" Barrier Free Shower Pan | Trench Drain",
+     "price": "From $1,753",
+     "url": "https://showers4less.com/products/6032-barrier-free-shower-pan-trench-drain",
+     "img": "https://showers4less.com/cdn/shop/products/6032barrierfreeshowerpantrenchdrainimage.png?v=1667523708&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 32\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Trench drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 32\" Barrier Free Shower Pan | Walk In",
+     "price": "$1,583",
+     "url": "https://showers4less.com/products/6032-barrier-free-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/products/6032barrierfreeshowerpanimage.png?v=1667523410&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 32\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 32\" Barrier Free Shower Package",
+     "price": "$5,889",
+     "url": "https://showers4less.com/products/60-x-32-roll-in-shower-barrier-free-shower-handicap-shower",
+     "img": "https://showers4less.com/cdn/shop/products/6032rollinshowerimage.png?v=1666971998&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 32\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 32\" Designer Roll In Shower | Full Package",
+     "price": "$5,900",
+     "url": "https://showers4less.com/products/60-x-32-roll-in-shower-designer-wall-tiles-full-package-no-glass",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_39adf056-03b6-4ff1-b7a9-c630a3f1fabb.jpg?v=1764472026&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 32\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Designer wall finish.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 33\" Barrier Free Shower Package | Center Drain",
+     "price": "$5,499",
+     "url": "https://showers4less.com/products/60-x-33-roll-in-shower-barrier-free-shower-handicap-shower",
+     "img": "https://showers4less.com/cdn/shop/products/6033rollinshowerimage.webp?v=1666972498&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 33\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 34\" Barrier Free Shower Pan | Walk In",
+     "price": "$1,687",
+     "url": "https://showers4less.com/products/60-x-34-roll-in-shower-pan-walk-in-shower-pan",
+     "img": "https://showers4less.com/cdn/shop/products/6034rollinshowerpanimage.png?v=1667588289&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 34\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 34\" Barrier Free Shower Package",
+     "price": "$5,618",
+     "url": "https://showers4less.com/products/60-x-34-roll-in-shower-barrier-free-shower-diy-shower-kit",
+     "img": "https://showers4less.com/cdn/shop/products/6034rollinshowerimage.jpg?v=1666972907&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 34\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 36\" Barrier Free Shower Pan | Trench Drain",
+     "price": "$1,771",
+     "url": "https://showers4less.com/products/60-x-36-roll-in-shower-barrier-free-shower-trench-drain",
+     "img": "https://showers4less.com/cdn/shop/products/6036trenchdrainrollinshowerimage.png?v=1667590578&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Trench drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 36\" Barrier Free Shower Package",
+     "price": "$5,812",
+     "url": "https://showers4less.com/products/60-x-36",
+     "img": "https://showers4less.com/cdn/shop/products/6036rollinshowersimage.png?v=1666973667&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 36\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 36\" Roll In Shower Pan | End Drain",
+     "price": "$1,739",
+     "url": "https://showers4less.com/products/60-x-36-roll-in-shower-pan-barrier-free-shower-pan-end-drain",
+     "img": "https://showers4less.com/cdn/shop/products/6036barrierfreeshowerpanenddrainimage.png?v=1667589712&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 36\" Roll In Shower Pan | Left or Right Drain",
+     "price": "$1,750",
+     "url": "https://showers4less.com/products/60-x-36-roll-in-shower-pan-left-or-right-drain-configuration",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_e4f281d0-7aa9-4bbd-9577-d4acd24cb860.webp?v=1764220674&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 36\" Roll In Shower Pan | Trench Drain (Contemporary)",
+     "price": "$2,095",
+     "url": "https://showers4less.com/products/60-x-36-roll-in-shower-pan-trench-drain",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_3208256e-e3c7-4815-9d60-38a2a6607bb0.webp?v=1764221493&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Trench drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 36\" Roll In Shower Pan | Center Drain",
+     "price": "$1,750",
+     "url": "https://showers4less.com/products/60-x36-roll-in-shower-pan-center-drain",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_125c8a91-e7a6-4dec-ab99-b0a49803dced.png?v=1764218831&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 42\" Barrier Free Shower Package",
+     "price": "$5,921",
+     "url": "https://showers4less.com/products/60-x-42-roll-in-shower-barrier-free-shower-diy-shower-kits",
+     "img": "https://showers4less.com/cdn/shop/products/6042barrierfreeshowerimage.png?v=1666974493&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 42\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 42\" Roll In Shower Pan | Center Drain | ADA",
+     "price": "$1,849",
+     "url": "https://showers4less.com/products/60-x-42-roll-in-shower-pan-center-drain-6042-ada",
+     "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_f658519e-4745-4e25-b897-f680bc7a34e2.png?v=1764223005&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 42\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain. ADA-designed.",
+     "cat": "pan"
+    },
+    {
+     "title": "60\" x 48\" Barrier Free Shower Package | Handicap",
+     "price": "$6,391",
+     "url": "https://showers4less.com/products/60-x-48-roll-in-shower-handicap-showers-large-wheelchair-accessible-shower",
+     "img": "https://showers4less.com/cdn/shop/products/6048rollinshowersimage.png?v=1666974964&width=533",
+     "icon": "🚿",
+     "desc": "Complete 60\" x 48\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 48\" Roll In Shower Pan | Center Drain",
      "price": "From $1,490",
      "url": "https://showers4less.com/products/60-x-48-roll-in-shower-pan-center-drain",
      "img": "https://showers4less.com/cdn/shop/files/rn-image_picker_lib_temp_669246a5-eb57-43e0-938c-505594e9dcc5.png?v=1764224071&width=533",
-     "desc": "Extra-wide mobility space.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "60\" x 48\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "pan"
     },
     {
      "title": "60\" x 60\" Barrier Free Shower Package",
      "price": "$6,581",
      "url": "https://showers4less.com/products/60-x-60-roll-in-shower-kit-barrier-free-showers-handicap-showers",
      "img": "https://showers4less.com/cdn/shop/products/6060rollinshowerkitimage.png?v=1666975471&width=533",
-     "desc": "One of the largest barrier-free showers we carry.",
-     "icon": "🚿"
+     "icon": "🚿",
+     "desc": "Complete 60\" x 60\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access.",
+     "cat": "package"
+    },
+    {
+     "title": "60\" x 36\" Barrier Free Shower Pan | Center Drain",
+     "price": "$1,739",
+     "url": "https://showers4less.com/products/60-x36-roll-in-shower-pan-barrier-free-shower-pan-center-drain",
+     "img": "https://showers4less.com/cdn/shop/products/6036rollinshowerpanimage.png?v=1667588858&width=533",
+     "icon": "🚿",
+     "desc": "60\" x 36\" pan, ready to install right from the factory (no mud set). Customize color and drain location. Low or zero threshold for wheelchair and walker access. Center drain.",
+     "cat": "pan"
+    },
+    {
+     "title": "72\" x 48\" Bariatric Roll In Shower | Subway Tile Package",
+     "price": "From $5,695",
+     "url": "https://showers4less.com/products/72-x-48-roll-in-shower-large-walk-in-shower-bariatric-shower-stall",
+     "img": "https://showers4less.com/cdn/shop/products/7248rollinshowerimage.png?v=1666975974&width=533",
+     "icon": "🚿",
+     "desc": "Complete 72\" x 48\" shower system: pan plus wall panels, ready for a one-day install. Low or zero threshold for wheelchair and walker access. Extra-wide bariatric footprint. Designer wall finish.",
+     "cat": "package"
     },
     {
      "title": "Sketch Your Bathroom & Get a Quote",
      "price": "Free",
      "url": "https://showers4less.com/#s4l-sketch-root",
+     "icon": "📐",
      "desc": "Draw your layout on the site and get a custom quote in one business day.",
-     "icon": "🚿"
+     "cat": "service"
+    },
+    {
+     "title": "Get Financing",
+     "price": "Apply",
+     "url": "https://showers4less.com/pages/get-financing-1",
+     "icon": "💳",
+     "desc": "Financing options for your accessible shower.",
+     "cat": "service"
     }
    ],
    "leadIntro": "Tell us your rough measurements and the kind of shower you want. We reply within one business day with options and pricing.",
-   "greeting": "Welcome! Looking for a safer, easier shower? Barrier-free, roll-in, ADA. Ships to your door, made in the USA.",
-   "pitchLine": "TOP QUALITY SHOWERS WITHOUT THE HIGH PRICES"
+   "greeting": "Welcome! I'm Lilly. Looking for a safer, easier shower? Pans are on the left, full packages on the right. Sizes from 36 x 36 up to 72 x 48.",
+   "pitchLine": "TOP QUALITY SHOWERS WITHOUT THE HIGH PRICES",
+   "layout": "showroom",
+   "lead": true,
+   "cats": [
+    "bath",
+    "home"
+   ]
   },
   {
    "slug": "buyweburl",
@@ -287,7 +727,12 @@
      "desc": "The padlock. Google requires it."
     }
    ],
-   "leadIntro": "Tell us the name you want. We'll check availability and set you up."
+   "leadIntro": "Tell us the name you want. We'll check availability and set you up.",
+   "lead": true,
+   "layout": "tech",
+   "cats": [
+    "web"
+   ]
   },
   {
    "slug": "aging-safely-baths",
@@ -359,7 +804,13 @@
      "icon": "🛁"
     }
    ],
-   "leadIntro": "Tell us about the bathroom and who it's for. A specialist calls to help you size the right tub."
+   "leadIntro": "Tell us about the bathroom and who it's for. A specialist calls to help you size the right tub.",
+   "lead": true,
+   "layout": "showroom",
+   "cats": [
+    "bath",
+    "home"
+   ]
   },
   {
    "slug": "a-nu-do-salon",
@@ -425,7 +876,12 @@
      "desc": "The gift that always fits."
     }
    ],
-   "leadIntro": "Tell us what you're thinking for your hair and we'll get you booked."
+   "leadIntro": "Tell us what you're thinking for your hair and we'll get you booked.",
+   "lead": false,
+   "layout": "salon",
+   "cats": [
+    "beauty"
+   ]
   },
   {
    "slug": "gnomad-promotions",
@@ -497,7 +953,13 @@
      "desc": "Browse thousands of items."
     }
    ],
-   "leadIntro": "What do you want your logo on, and how many? We'll send options and pricing."
+   "leadIntro": "What do you want your logo on, and how many? We'll send options and pricing.",
+   "lead": false,
+   "layout": "boutique",
+   "cats": [
+    "merch",
+    "marketing"
+   ]
   },
   {
    "slug": "bear-creek-auto-glass",
@@ -564,7 +1026,12 @@
      "desc": "Scott calls you back with a real number."
     }
    ],
-   "leadIntro": "Year, make, model, and what's wrong with the glass. Scott calls back with a real quote."
+   "leadIntro": "Year, make, model, and what's wrong with the glass. Scott calls back with a real quote.",
+   "lead": false,
+   "layout": "garage",
+   "cats": [
+    "auto"
+   ]
   },
   {
    "slug": "bighorn-painting",
@@ -631,7 +1098,13 @@
      "desc": "We come to you. 720-912-4676."
     }
    ],
-   "leadIntro": "Interior, exterior, or cabinets? Tell us the address area and we'll set up an in-home estimate."
+   "leadIntro": "Interior, exterior, or cabinets? Tell us the address area and we'll set up an in-home estimate.",
+   "lead": false,
+   "layout": "garage",
+   "cats": [
+    "home",
+    "contractors"
+   ]
   },
   {
    "slug": "my-sales-help",
@@ -691,7 +1164,12 @@
      "desc": "Because reps learn faster when they're having fun."
     }
    ],
-   "leadIntro": "Tell us about your team and what you sell. We'll point you to the right training."
+   "leadIntro": "Tell us about your team and what you sell. We'll point you to the right training.",
+   "lead": true,
+   "layout": "agency",
+   "cats": [
+    "training"
+   ]
   },
   {
    "slug": "search-converts",
@@ -761,7 +1239,19 @@
    ],
    "leadIntro": "Tell us your site and roughly how many visitors it gets. You'll get a free 30-minute strategy session, no obligation.",
    "greeting": "You already have the traffic. Want to see what it should be earning?",
-   "pitchLine": "NOW CONVERT IT."
+   "pitchLine": "NOW CONVERT IT.",
+   "lead": true,
+   "layout": "agency",
+   "cats": [
+    "marketing"
+   ],
+   "serpQuery": "conversion rate optimization agency",
+   "whiteboard": [
+    "AFTER THE CLICK",
+    "Traffic ≠ customers",
+    "Fix the funnel first",
+    "Then scale: PPC · CTV · video · AI"
+   ]
   },
   {
    "slug": "link-restaurants",
@@ -819,10 +1309,47 @@
      "price": "Ask",
      "url": "https://linkrestaurants.com",
      "desc": "Get listed across the network."
+    },
+    {
+     "title": "Restaurants Advertising Ideas",
+     "price": "Free",
+     "url": "https://restaurantsadvertisingideas.com/",
+     "icon": "💡",
+     "desc": "Ideas that fill tables."
     }
    ],
    "lead": true,
-   "leadIntro": "Restaurant owner? Tell us your restaurant and city. We'll show you how to fill more tables."
+   "leadIntro": "Restaurant owner? Tell us your restaurant and city. We'll show you how to fill more tables.",
+   "layout": "agency",
+   "cats": [
+    "restaurants",
+    "marketing"
+   ],
+   "serpQuery": "restaurant near me",
+   "serp": [
+    [
+     "yourrestaurant.com",
+     "Your Restaurant — Best in Town",
+     "Top of search. Full tables. That is the job."
+    ],
+    [
+     "restaurantsseo.com",
+     "Restaurants SEO",
+     "Restaurant search optimization."
+    ],
+    [
+     "advertisingforrestaurant.com",
+     "Advertising For Restaurant",
+     "Walk into the 3D diner."
+    ]
+   ],
+   "whiteboard": [
+    "FILL THE TABLES",
+    "1. Get found on Maps",
+    "2. Get the booking",
+    "3. Get them back",
+    "restaurantsseo.com"
+   ]
   },
   {
    "slug": "hawaii-snorkeling",
@@ -875,6 +1402,11 @@
      "url": "https://besthawaiisnorkeling.com",
      "desc": "Turtles at Hanauma Bay."
     }
+   ],
+   "lead": true,
+   "layout": "travel",
+   "cats": [
+    "travel"
    ]
   },
   {
@@ -928,6 +1460,11 @@
      "url": "https://bestplacestodiveinbelize.com",
      "desc": "Blue Hole and beyond."
     }
+   ],
+   "lead": true,
+   "layout": "travel",
+   "cats": [
+    "travel"
    ]
   },
   {
@@ -981,6 +1518,11 @@
      "url": "https://surfinglessonscostarica.com",
      "desc": "Stand up on day one."
     }
+   ],
+   "lead": true,
+   "layout": "travel",
+   "cats": [
+    "travel"
    ]
   },
   {
@@ -1034,6 +1576,12 @@
      "url": "https://cabareterealty.com",
      "desc": "Condos and homes by the beach."
     }
+   ],
+   "lead": true,
+   "layout": "travel",
+   "cats": [
+    "travel",
+    "real-estate"
    ]
   },
   {
@@ -1063,11 +1611,23 @@
    "clerk": {
     "name": "Captain Inês",
     "shirt": "#ffd23f",
-    "lines": [
-     "Welcome aboard The Salty Pearl! Grilled sardines, garlic prawns, and the best cataplana this side of the Atlantic.",
-     "Everything comes off the boat this morning. The lobster was minding its own business an hour ago.",
-     "Fun fact: Portugal eats more fish per person than almost any country on Earth."
-    ]
+    "lines": {
+     "en": [
+      "Welcome aboard The Salty Pearl! Grilled sardines, garlic prawns, and the best cataplana this side of the Atlantic.",
+      "Everything comes off the boat this morning. The lobster was minding its own business an hour ago.",
+      "Fun fact: Portugal eats more fish per person than almost any country on Earth."
+     ],
+     "pt": [
+      "Bem-vindo ao The Salty Pearl! Sardinhas grelhadas, camarão ao alho e a melhor cataplana deste lado do Atlântico.",
+      "Tudo saiu do barco esta manhã.",
+      "Curiosidade: Portugal come mais peixe por pessoa do que quase qualquer país."
+     ],
+     "es": [
+      "¡Bienvenido a The Salty Pearl! Sardinas a la parrilla, gambas al ajillo y la mejor cataplana de este lado del Atlántico.",
+      "Todo llegó del barco esta mañana.",
+      "Dato: Portugal come más pescado por persona que casi cualquier país."
+     ]
+    }
    },
    "about": "A demo seafood restaurant showing what a food-court tenant looks like: menu cards, a host, and a reservation button that would go to the restaurant's own site.",
    "pitchLine": "FRESH OFF THE BOAT",
@@ -1136,7 +1696,16 @@
      "icon": "🥮",
      "desc": "Lisbon's custard tart. Two, minimum."
     }
-   ]
+   ],
+   "layout": "cafe",
+   "cats": [
+    "food"
+   ],
+   "greeting": {
+    "en": "Welcome aboard! Grab a table, tap the green button, and I'll take your order.",
+    "pt": "Bem-vindo a bordo! Escolha uma mesa e toque no botão verde.",
+    "es": "¡Bienvenido a bordo! Elige una mesa y toca el botón verde."
+   }
   },
   {
    "slug": "tokyo-threads",
@@ -1165,11 +1734,23 @@
    "clerk": {
     "name": "Yuki",
     "shirt": "#ff4f79",
-    "lines": [
-     "Irasshaimase! Tokyo Threads: Harajuku energy, Shibuya cut.",
-     "Everything here is limited. When it's gone, it's gone. Very Tokyo.",
-     "This is a demo store. A real streetwear brand could take this exact spot."
-    ]
+    "lines": {
+     "en": [
+      "Irasshaimase! Tokyo Threads: Harajuku energy, Shibuya cut.",
+      "Everything here is limited. When it's gone, it's gone. Very Tokyo.",
+      "This is a demo store. A real streetwear brand could take this exact spot."
+     ],
+     "ja": [
+      "いらっしゃいませ！Tokyo Threads：原宿のエネルギー、渋谷のカット。",
+      "ここにあるものはすべて限定。なくなったら終わり。とても東京。",
+      "これはデモストアです。本物のストリートブランドがこの場所を使えます。"
+     ],
+     "es": [
+      "¡Bienvenido! Tokyo Threads: energía de Harajuku, corte de Shibuya.",
+      "Todo aquí es limitado. Cuando se acaba, se acaba. Muy Tokio.",
+      "Esta es una tienda demo. Una marca real podría ocupar este lugar."
+     ]
+    }
    },
    "about": "A demo streetwear store showing how a fashion brand's products would sit on the shelves.",
    "pitchLine": "DEMO STORE · THIS COULD BE YOU",
@@ -1211,6 +1792,10 @@
      "icon": "👜",
      "desc": "Nylon, magnetic closure."
     }
+   ],
+   "layout": "boutique",
+   "cats": [
+    "clothing"
    ]
   },
   {
@@ -1286,6 +1871,11 @@
      "icon": "🥿",
      "desc": "Penny loafers, hand-burnished."
     }
+   ],
+   "layout": "boutique",
+   "cats": [
+    "clothing",
+    "accessories"
    ]
   },
   {
@@ -1355,6 +1945,10 @@
      "icon": "🎛️",
      "desc": "Two decks, USB."
     }
+   ],
+   "layout": "tech",
+   "cats": [
+    "electronics"
    ]
   },
   {
@@ -1430,6 +2024,10 @@
      "icon": "🌙",
      "desc": "Wake up glowing."
     }
+   ],
+   "layout": "shelves",
+   "cats": [
+    "beauty"
    ]
   },
   {
@@ -1499,6 +2097,10 @@
      "icon": "🧋",
      "desc": "Sweet, orange, perfect."
     }
+   ],
+   "layout": "cafe",
+   "cats": [
+    "food"
    ]
   },
   {
@@ -1568,6 +2170,10 @@
      "icon": "🍰",
      "desc": "House-made."
     }
+   ],
+   "layout": "cafe",
+   "cats": [
+    "food"
    ]
   },
   {
@@ -1637,6 +2243,10 @@
      "icon": "🍪",
      "desc": "Dunk it."
     }
+   ],
+   "layout": "cafe",
+   "cats": [
+    "food"
    ]
   },
   {
@@ -1706,6 +2316,11 @@
      "icon": "💎",
      "desc": "Lightweight, bold."
     }
+   ],
+   "layout": "market",
+   "cats": [
+    "jewelry",
+    "handmade"
    ]
   },
   {
@@ -1775,6 +2390,11 @@
      "icon": "🫖",
      "desc": "Silver-plated, six glasses."
     }
+   ],
+   "layout": "market",
+   "cats": [
+    "home",
+    "handmade"
    ]
   }
  ],
@@ -2072,6 +2692,425 @@
     "fg": "#fde047",
     "accent": "#fff"
    }
+  },
+  {
+   "slug": "brooklyn-vinyl",
+   "name": "Brooklyn Vinyl",
+   "tag": "Records & Audio",
+   "city": "Brooklyn, USA",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "colors": {
+    "wall": "#1f1f2e",
+    "floor": "#1f1f2e",
+    "trim": "#ffd23f"
+   },
+   "logo": {
+    "icon": "🎵",
+    "text": "BROOKLYN",
+    "sub": "VINYL",
+    "bg": "#1f1f2e",
+    "fg": "#ffd23f",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "austin-boots",
+   "name": "Austin Boots",
+   "tag": "Western Boots",
+   "city": "Austin, USA",
+   "flag": "🇺🇸",
+   "wing": "americas",
+   "colors": {
+    "wall": "#5c2e0e",
+    "floor": "#5c2e0e",
+    "trim": "#ffd23f"
+   },
+   "logo": {
+    "icon": "🥾",
+    "text": "AUSTIN",
+    "sub": "BOOTS",
+    "bg": "#5c2e0e",
+    "fg": "#ffd23f",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "vancouver-outdoors",
+   "name": "Vancouver Outdoors",
+   "tag": "Outdoor Gear",
+   "city": "Vancouver, Canada",
+   "flag": "🇨🇦",
+   "wing": "americas",
+   "colors": {
+    "wall": "#14532d",
+    "floor": "#14532d",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🏕️",
+    "text": "VANCOUVER",
+    "sub": "OUTDOORS",
+    "bg": "#14532d",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "lima-alpaca",
+   "name": "Lima Alpaca",
+   "tag": "Alpaca Knits",
+   "city": "Lima, Peru",
+   "flag": "🇵🇪",
+   "wing": "americas",
+   "colors": {
+    "wall": "#7f1d1d",
+    "floor": "#7f1d1d",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🦙",
+    "text": "LIMA",
+    "sub": "ALPACA",
+    "bg": "#7f1d1d",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "havana-cigars-coffee",
+   "name": "Havana Coffee",
+   "tag": "Coffee & Cigars",
+   "city": "Havana, Cuba",
+   "flag": "🇨🇺",
+   "wing": "americas",
+   "colors": {
+    "wall": "#3f2a1d",
+    "floor": "#3f2a1d",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "☕",
+    "text": "HAVANA",
+    "sub": "COFFEE",
+    "bg": "#3f2a1d",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "amsterdam-bikes",
+   "name": "Amsterdam Bikes",
+   "tag": "Bicycles",
+   "city": "Amsterdam, Netherlands",
+   "flag": "🇳🇱",
+   "wing": "europe",
+   "colors": {
+    "wall": "#ea580c",
+    "floor": "#ea580c",
+    "trim": "#fff"
+   },
+   "logo": {
+    "icon": "🚲",
+    "text": "AMSTERDAM",
+    "sub": "BIKES",
+    "bg": "#ea580c",
+    "fg": "#fff",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "vienna-chocolate",
+   "name": "Vienna Chocolate",
+   "tag": "Chocolate & Pastry",
+   "city": "Vienna, Austria",
+   "flag": "🇦🇹",
+   "wing": "europe",
+   "colors": {
+    "wall": "#3f2a1d",
+    "floor": "#3f2a1d",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "🍫",
+    "text": "VIENNA",
+    "sub": "CHOCOLATE",
+    "bg": "#3f2a1d",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "prague-glass",
+   "name": "Prague Glass",
+   "tag": "Crystal & Glass",
+   "city": "Prague, Czechia",
+   "flag": "🇨🇿",
+   "wing": "europe",
+   "colors": {
+    "wall": "#1e3a8a",
+    "floor": "#1e3a8a",
+    "trim": "#bfe9ff"
+   },
+   "logo": {
+    "icon": "🍷",
+    "text": "PRAGUE",
+    "sub": "GLASS",
+    "bg": "#1e3a8a",
+    "fg": "#bfe9ff",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "dublin-knits",
+   "name": "Dublin Knits",
+   "tag": "Aran Sweaters",
+   "city": "Dublin, Ireland",
+   "flag": "🇮🇪",
+   "wing": "europe",
+   "colors": {
+    "wall": "#166534",
+    "floor": "#166534",
+    "trim": "#fff"
+   },
+   "logo": {
+    "icon": "🧶",
+    "text": "DUBLIN",
+    "sub": "KNITS",
+    "bg": "#166534",
+    "fg": "#fff",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "warsaw-amber",
+   "name": "Warsaw Amber",
+   "tag": "Amber Jewelry",
+   "city": "Warsaw, Poland",
+   "flag": "🇵🇱",
+   "wing": "europe",
+   "colors": {
+    "wall": "#7c2d12",
+    "floor": "#7c2d12",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "💎",
+    "text": "WARSAW",
+    "sub": "AMBER",
+    "bg": "#7c2d12",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "stockholm-toys",
+   "name": "Stockholm Toys",
+   "tag": "Wooden Toys",
+   "city": "Stockholm, Sweden",
+   "flag": "🇸🇪",
+   "wing": "europe",
+   "colors": {
+    "wall": "#1e40af",
+    "floor": "#1e40af",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🧸",
+    "text": "STOCKHOLM",
+    "sub": "TOYS",
+    "bg": "#1e40af",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "shanghai-silk",
+   "name": "Shanghai Silk",
+   "tag": "Silk & Scarves",
+   "city": "Shanghai, China",
+   "flag": "🇨🇳",
+   "wing": "asia",
+   "colors": {
+    "wall": "#7f1d1d",
+    "floor": "#7f1d1d",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🧣",
+    "text": "SHANGHAI",
+    "sub": "SILK",
+    "bg": "#7f1d1d",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "sydney-surf",
+   "name": "Sydney Surf",
+   "tag": "Surf & Swim",
+   "city": "Sydney, Australia",
+   "flag": "🇦🇺",
+   "wing": "asia",
+   "colors": {
+    "wall": "#0891b2",
+    "floor": "#0891b2",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🏄",
+    "text": "SYDNEY",
+    "sub": "SURF",
+    "bg": "#0891b2",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "lagos-fabrics",
+   "name": "Lagos Fabrics",
+   "tag": "Ankara Prints",
+   "city": "Lagos, Nigeria",
+   "flag": "🇳🇬",
+   "wing": "asia",
+   "colors": {
+    "wall": "#166534",
+    "floor": "#166534",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🧵",
+    "text": "LAGOS",
+    "sub": "FABRICS",
+    "bg": "#166534",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "cairo-spices",
+   "name": "Cairo Spices",
+   "tag": "Spices & Tea",
+   "city": "Cairo, Egypt",
+   "flag": "🇪🇬",
+   "wing": "asia",
+   "colors": {
+    "wall": "#7c2d12",
+    "floor": "#7c2d12",
+    "trim": "#fbbf24"
+   },
+   "logo": {
+    "icon": "🌶️",
+    "text": "CAIRO",
+    "sub": "SPICES",
+    "bg": "#7c2d12",
+    "fg": "#fbbf24",
+    "accent": "#fff"
+   }
+  },
+  {
+   "slug": "accra-shea",
+   "name": "Accra Shea",
+   "tag": "Shea Butter Skincare",
+   "city": "Accra, Ghana",
+   "flag": "🇬🇭",
+   "wing": "asia",
+   "colors": {
+    "wall": "#0f766e",
+    "floor": "#0f766e",
+    "trim": "#fde047"
+   },
+   "logo": {
+    "icon": "🧴",
+    "text": "ACCRA",
+    "sub": "SHEA",
+    "bg": "#0f766e",
+    "fg": "#fde047",
+    "accent": "#fff"
+   }
+  }
+ ],
+ "booths": [
+  {
+   "slug": "search-converts-booth",
+   "name": "Search Converts",
+   "tag": "Free 30-Minute Strategy Session",
+   "url": "https://searchconverts.com",
+   "phone": "+1 720-712-8615",
+   "lead": true,
+   "leadIntro": "Tell us your site and roughly how many visitors it gets. You'll get a free 30-minute strategy session, no obligation.",
+   "logo": {
+    "icon": "📈",
+    "text": "SEARCH",
+    "sub": "CONVERTS",
+    "bg": "#0b1a3a",
+    "fg": "#ff8a00",
+    "accent": "#fff"
+   },
+   "colors": {
+    "trim": "#ff8a00"
+   },
+   "rep": {
+    "name": "Vera",
+    "lines": [
+     "You already have the traffic. Want to see what it should be earning?",
+     "Free 30-minute strategy session. No pitch, just numbers."
+    ]
+   },
+   "about": "Full-service conversion rate optimization agency. Fixes what happens after the click."
+  },
+  {
+   "slug": "elevation-health-booth",
+   "name": "Elevation Health",
+   "tag": "GLP-1 Weight Loss · Denver",
+   "url": "https://loseweightonglp1.com",
+   "lead": false,
+   "logo": {
+    "icon": "⛰️",
+    "text": "ELEVATION",
+    "sub": "HEALTH",
+    "bg": "#0f766e",
+    "fg": "#ffffff",
+    "accent": "#a7f3d0"
+   },
+   "colors": {
+    "trim": "#2dd4bf"
+   },
+   "rep": {
+    "name": "Elle",
+    "lines": [
+     "Got your GLP-1? Elevation Health helps Denver lose weight with medically guided GLP-1 programs.",
+     "Ask me anything. No judgment, no pressure."
+    ]
+   },
+   "about": "Medically guided GLP-1 weight-loss programs in Denver, Colorado."
+  },
+  {
+   "slug": "raised-in-a-barn-booth",
+   "name": "Raised In A Barn Furniture",
+   "tag": "Reclaimed Barnwood Furniture · Colorado",
+   "url": "https://rusticbarnwoodfurniture.com",
+   "phone": "(970) 518-2883",
+   "lead": false,
+   "logo": {
+    "icon": "🪵",
+    "text": "RAISED IN",
+    "sub": "A BARN · Handmade Furniture",
+    "bg": "#f3e6d2",
+    "fg": "#6b3f1d",
+    "accent": "#c9541f"
+   },
+   "colors": {
+    "trim": "#c9541f"
+   },
+   "rep": {
+    "name": "Cody",
+    "lines": [
+     "One of a kind, reclaimed barnwood furniture, custom made in Colorado. Any size, any finish.",
+     "The more you buy, the more you save. Call (970) 518-2883 for a free quote."
+    ]
+   },
+   "about": "Custom reclaimed barnwood furniture, handmade in Colorado. Any size, any finish."
   }
  ]
 }
