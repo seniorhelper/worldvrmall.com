@@ -131,7 +131,7 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from '/js/wvm-engine.js?v=3';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from '/js/wvm-engine.js?v=4';
 
 /* ------------------------------------------------------------
    OUTSIDE WORLD
@@ -151,7 +151,7 @@ const groundY = (x, z) => {
 
 const app = new WVM({
   worldName: 'Outside World · Welcome', page: 'index',
-  spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 420,
+  spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 520,
   fog: 0xbfdcf2, fogNear: 140, fogFar: 760,
 });
 window.WVM_APP = app; // debug handle
@@ -410,6 +410,7 @@ function buildTrain() {
   const cars = [];
   for (let i = 0; i < 6; i++) { const c = new T.Group(); const body = new T.Mesh(new T.BoxGeometry(2.6, 2.8, i === 0 ? 9 : 8), M(i === 0 ? 0x38f0ff : 0xffffff, { metalness: 0.5, roughness: 0.3 })); body.position.y = 1.9; c.add(body); const strip = new T.Mesh(new T.BoxGeometry(2.7, 0.5, i === 0 ? 9 : 8), glow(PINK, 0.9)); strip.position.y = 1.2; c.add(strip); const win = new T.Mesh(new T.BoxGeometry(2.7, 0.9, (i === 0 ? 9 : 8) - 1), M(0x0b1a3a, { metalness: 0.8, roughness: 0.1 })); win.position.y = 2.6; c.add(win); if (i === 0) { const nose = new T.Mesh(new T.ConeGeometry(1.5, 3, 12), M(0x38f0ff, { metalness: 0.5 })); nose.rotation.x = Math.PI / 2; nose.position.set(0, 1.9, 6); c.add(nose); } train.add(c); cars.push(c); }
   let u = 0; const gap = 9 / (2 * Math.PI * R);
+  app.addInteractable(sx, sz + 7, 5, '🚄 Ride the World Loop Express', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast('Next stop: everywhere. One full loop of the property. 🚄', 3500); a.ride = { pos: () => { const an = (u - gap) * Math.PI * 2; return new T.Vector3(C.x + Math.cos(an) * R, 1.6, C.z + Math.sin(an) * R); }, until: t0 + 1 / 0.011, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; aa.player.position.set(sx, 0, sz + 8); aa.toast('Thanks for riding the World Loop Express.', 3000); } }; });
   app.onUpdate((dt) => { u = (u + dt * 0.011) % 1; cars.forEach((c, i) => { const a = (u - i * gap) * Math.PI * 2; c.position.set(C.x + Math.cos(a) * R, 0.35, C.z + Math.sin(a) * R); c.rotation.y = -a; }); });
 }
 
@@ -429,6 +430,8 @@ function coaster(name, pts, color, opts = {}) {
     const p0 = curve.getPointAt(u); const slope = curve.getTangentAt(u).y; u = (u + dt * speed * (1.3 - slope * 0.9)) % 1;
     carsG.forEach((c, i) => { const uu = ((u - i * gap) % 1 + 1) % 1; const p = curve.getPointAt(uu); const tn = curve.getTangentAt(uu); c.position.copy(p).addScaledVector(up, 0.7); const m = new T.Matrix4().lookAt(p.clone().add(tn), p, up); c.quaternion.setFromRotationMatrix(m); });
   });
+  // ride it: stand at the sign, tap the green button, one full lap in first person
+  app.addInteractable(pts[0][0], pts[0][2] + 4, 4.5, `🎢 Ride ${name}`, (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast(`Buckle up. ${name} leaving now! 🎢`, 3000); const dur = 1 / speed; a.ride = { pos: (t) => { const uu = ((t - t0) * speed) % 1; const p = curve.getPointAt(uu); return new T.Vector3(p.x, p.y - 0.9, p.z); }, until: t0 + dur, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; aa.player.position.set(pts[0][0], 0, pts[0][2] + 5); aa.toast('Legs a little wobbly? Good. 🎢', 3000); } }; });
   // sign
   const sg = makeSign([name.toUpperCase(), opts.tag || 'Ride it!'], { width: 8, height: 3, postHeight: 2.6, bg: '#07123a', accent: '#' + color.toString(16).padStart(6, '0'), border: '#' + color.toString(16).padStart(6, '0') }); sg.position.set(pts[0][0], 0, pts[0][2] + 6); S.add(sg);
   app.addHotspot(sg, { title: name, html: opts.html || '<p>A roller coaster. In a mall. What a time to be alive.</p>' });
@@ -449,6 +452,7 @@ function buildAmusement() {
   for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const sp = new T.Mesh(new T.CylinderGeometry(0.15, 0.15, 30, 6), M(0xdde6ff)); sp.position.set(Math.cos(a) * 15, Math.sin(a) * 15, 0); sp.rotation.z = a + Math.PI / 2; wheel.add(sp); const gon = new T.Mesh(new T.CylinderGeometry(1.6, 1.4, 2.4, 8), M([PINK, NEON, GOLD, MINT][i % 4])); gon.position.set(Math.cos(a) * 30, Math.sin(a) * 30 - 1.5, 0); gon.userData.a = a; wheel.add(gon); }
   for (const sx of [-1, 1]) { const leg = new T.Mesh(new T.CylinderGeometry(0.6, 0.9, 40, 8), M(0x9aa7c7, { metalness: 0.7 })); leg.position.set(sx * 10, 18, 3 * sx); leg.rotation.z = sx * 0.25; fw.add(leg); }
   app.onUpdate((dt) => { wheel.rotation.z += dt * 0.12; wheel.children.forEach(c => { if (c.userData.a !== undefined) c.rotation.z = -wheel.rotation.z; }); });
+  app.addInteractable(300, 40 + 34, 5, '🎡 Ride the Sky Wheel', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast('Up we go. 360° of the whole world. 🎡', 3000); a.ride = { pos: (t) => { const ang = -Math.PI / 2 + (t - t0) * 0.12; return new T.Vector3(300 + Math.cos(ang) * 30, 34 + Math.sin(ang) * 30 - 1.2, 40); }, until: t0 + Math.PI * 2 / 0.12, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; aa.player.position.set(300, 0, 76); aa.toast('Back on solid ground.', 2500); } }; });
   const fsign = makeSign(['SKY WHEEL', 'See the whole world'], { width: 8, height: 3, postHeight: 2.5, bg: '#07123a', accent: '#38f0ff' }); fsign.position.set(292, 0, 60); S.add(fsign);
   app.addHotspot(fsign, { title: 'Sky Wheel', html: '<p>From the top you can see the mall, the lake, the market, and the airport. On a clear day you can see your own front door. (Not really. But it feels like it.)</p>' });
   // Carousel
@@ -610,6 +614,23 @@ function buildAirport() {
   app.onUpdate((dt, t) => { const k = (t * 0.06) % 1; const a = k * Math.PI * 2; const r = 160 + Math.sin(k * Math.PI) * 60; const y = k < 0.15 ? 2 + (k / 0.15) * 30 : k > 0.85 ? 2 + ((1 - k) / 0.15) * 30 : 32 + Math.sin((k - 0.15) / 0.7 * Math.PI) * 60; p1.position.set(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r); p1.rotation.y = -a; p1.rotation.z = Math.sin(a) * 0.25; });
 }
 
+/* ---------- billboards for the family of sites + hot-air balloon ---------- */
+function buildAds() {
+  const bb = (x, z, rot, lines, col, url, title, html) => { const s = makeSign(lines, { width: 16, height: 6, postHeight: 7, bg: '#07123a', accent: col, border: col }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); app.addHotspot(s, { title, html, actions: [{ label: 'Visit ' + url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: url, newTab: true, primary: true }] }); };
+  bb(-40, 150, -0.5, ['CUSTOM-CODED WEBSITES', 'from $99/mo · search optimized'], '#7cff6b', 'https://denver-webdesign.com/', 'Websites from $99/mo', '<p>Hand-coded, fast, search-optimized, leased month to month. Built by the team that built this world.</p>');
+  bb(128, 150, 0.6, ['ADVERTISING FOR CONTRACTORS', 'more calls for the trades'], '#ff8a3d', 'https://advertisingforcontractors.com/', 'Advertising For Contractors', '<p>Marketing built for plumbers, painters, remodelers, and every trade.</p>');
+  bb(-150, 100, 1.2, ['RESTAURANTS SEO', 'top of search · full tables'], '#ffd23f', 'https://restaurantsseo.com/', 'Restaurants SEO', '<p>Restaurant search optimization, and a 3D diner that explains it: advertisingforrestaurant.com</p>');
+  bb(60, -60, 2.6, ['FREE AI CHATBOT', 'built in 2 minutes · conversationalaibot.com'], '#38f0ff', 'https://conversationalaibot.com/', 'Free AI chatbot generator', '<p>Pick your industry, write your answers, copy one block of code. Never charges per conversation.</p>');
+  // hot-air balloon ride: up to 120 m, slow circle over everything
+  const bx = -70, bz = 230; const bal = new T.Group(); bal.position.set(bx, 0, bz); S.add(bal);
+  const env = new T.Mesh(new T.SphereGeometry(9, 24, 16), M(0xffffff, { map: (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 256; const g = c.getContext('2d'); ['#ff4f79', '#ffd23f', '#38f0ff', '#7cff6b'].forEach((col, i) => { for (let k = i; k < 16; k += 4) { g.fillStyle = col; g.fillRect(k * 32, 0, 32, 256); } }); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })() })); env.scale.y = 1.25; env.position.y = 16; bal.add(env);
+  const basket = new T.Mesh(new T.CylinderGeometry(1.6, 1.4, 1.4, 12), M(0x8a5a2b)); basket.position.y = 1.4; bal.add(basket); for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2; const rope = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 6, 4), M(0x5a3d22)); rope.position.set(Math.cos(a) * 1.4, 5, Math.sin(a) * 1.4); bal.add(rope); }
+  const flame = new T.Mesh(new T.ConeGeometry(0.4, 1.2, 8), glow(0xff8a3d, 2)); flame.position.y = 3; bal.add(flame); app.onUpdate((dt, t) => { flame.scale.y = 0.8 + Math.abs(Math.sin(t * 9)) * 0.6; });
+  app.addObstacle(bx, bz, 2.2);
+  const bsign = makeSign(['HOT-AIR BALLOON', 'see the whole world from 120 m'], { width: 9, height: 3.2, postHeight: 2, bg: '#07123a', accent: '#ff4f79', border: '#ff4f79' }); bsign.position.set(bx + 8, 0, bz + 4); bsign.rotation.y = -0.7; S.add(bsign);
+  app.addInteractable(bx + 4, bz + 3, 4.5, '🎈 Ride the balloon', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast('Lifting off. Look down: the whole world. 🎈', 3500); a.ride = { pos: (t) => { const k = t - t0; const up = clamp(k / 15, 0, 1), down = clamp((k - 40) / 15, 0, 1); const y = 120 * (up - down); const ang = k * 0.06; const r = 60 * up * (1 - down); bal.position.set(bx + Math.sin(ang) * r, y, bz - r + Math.cos(ang) * r); return new T.Vector3(bal.position.x, y + 2.2, bal.position.z); }, until: t0 + 55, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; bal.position.set(bx, 0, bz); aa.player.position.set(bx + 4, 0, bz + 4); aa.toast('Touchdown. 🎈', 2500); } }; });
+}
+
 /* ---------- people everywhere ---------- */
 function buildPeople() {
   // plaza crowd
@@ -626,7 +647,7 @@ function buildPeople() {
 
 /* ---------- build everything ---------- */
 app.start(async (a) => {
-  buildGround(); buildClouds(); buildTeleport(); buildBillboard(); buildMall(); buildPlaza(); buildTrain(); buildPeople();
+  buildGround(); buildClouds(); buildTeleport(); buildBillboard(); buildMall(); buildPlaza(); buildTrain(); buildPeople(); buildAds();
   // heavier zones stream in as you get near them (they're still built quickly; this keeps first paint snappy)
   buildWater(); buildAmusement();
   app.addZone('market', new T.Vector3(-120, 0, 180), 260, buildMarket);
