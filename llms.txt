@@ -13,6 +13,7 @@
 - [Outside world / home](https://worldvrmall.com/): teleport station, park, coasters, lake, market, train, airport, playground; FAQ.
 - [Inside the mall](https://worldvrmall.com/mall/): all wings, stores, food court, kids' zone, leasing office; full store directory.
 - [Lease a store](https://worldvrmall.com/lease/): what a storefront includes, placement tiers, setup steps, callback form.
+- [All stores](https://worldvrmall.com/stores/): every store grouped by wing, with open storefronts marked.
 - [About](https://worldvrmall.com/about/): why it exists, who built it, how to visit, privacy, press boilerplate.
 
 ## Stores (each has a walk-in 3D store and a product page)
@@ -35,3 +36,11 @@
 ## Contact
 - Phone: 1-800-481-8638
 - Leasing: https://worldvrmall.com/lease/
+
+- [Every country](https://worldvrmall.com/countries/): all 195 countries invited; each gets its own street as its first stores open; multi-language clerks; one sign-up form.
+
+## Pricing (founding tenant rates, 2026)
+- Storefront: $99/mo, up to 8 products, AI clerk, buy buttons to the tenant's own site.
+- Storefront + Search Optimized: $199/mo, up to 25 products, plus a search-optimized store page at worldvrmall.com/stores/<brand>/.
+- Extra products: $10/mo per 5. Rates locked 12 months for 2026 sign-ups; expected to rise in 2027.
+- Add-ons: premium lobby placement, logo file install & hosting $25/mo, billboard $100/mo, custom attraction $299/mo, custom features by quote.
