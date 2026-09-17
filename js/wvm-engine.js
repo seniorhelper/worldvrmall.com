@@ -8,7 +8,10 @@ import * as THREE from 'three';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 export { THREE };
-export const WVM_VERSION = '3';
+export const WVM_VERSION = '4';
+export const LANG = (typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en').slice(0, 2).toLowerCase();
+/* Pick a language variant: value may be a string/array or an object keyed by language code. */
+export function L(v) { if (v && typeof v === 'object' && !Array.isArray(v)) return v[LANG] || v.en || Object.values(v)[0]; return v; }
 
 /* ------------------------------------------------------------
    Small helpers
@@ -124,7 +127,11 @@ export function makePerson(opts = {}) {
   // head + face (proud of the sphere so it reads from the front)
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 20, 16), skinM); head.position.y = 1.72;
   const face = new THREE.Group(); face.position.set(0, 1.72, 0); g.add(face);
-  if (o.faceTex) {
+  if (o.faceTex && o.portrait) {
+    // oval portrait (head + shoulders) replaces the head; double-sided so it reads from behind too
+    head.visible = false; o.hairStyle = 'bald';
+    const fm = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 1.06), new THREE.MeshBasicMaterial({ map: o.faceTex, transparent: true, side: THREE.DoubleSide, alphaTest: 0.2 })); fm.position.set(0, -0.2, 0.02); face.add(fm); g.userData.face = fm; g.userData.portrait = true;
+  } else if (o.faceTex) {
     const fm = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshBasicMaterial({ map: o.faceTex, transparent: true })); fm.position.set(0, 0, 0.215); face.add(fm); g.userData.face = fm;
   } else {
     const eyeM = M(0xffffff, { roughness: 0.3 }), pupM = M(0x111111);
@@ -141,7 +148,7 @@ export function makePerson(opts = {}) {
     if (o.hairStyle === 'ponytail') { const pt = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.35, 4, 8), hairM); pt.position.set(0, 1.5, -0.26); pt.rotation.x = 0.35; g.add(pt); g.userData.ponytail = pt; }
     if (o.hairStyle === 'bun') { const bn = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), hairM); bn.position.set(0, 1.9, -0.18); g.add(bn); }
     if (o.hairStyle === 'curly') { for (let i = 0; i < 6; i++) { const cu = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), hairM); const a = i / 6 * Math.PI * 2; cu.position.set(Math.cos(a) * 0.2, 1.9 + Math.sin(i) * 0.03, Math.sin(a) * 0.2 - 0.03); g.add(cu); } }
-  } else { const fringe = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 6, 16, Math.PI), hairM); fringe.position.set(0, 1.7, -0.02); fringe.rotation.x = Math.PI / 2; fringe.rotation.z = Math.PI; g.add(fringe); }
+  } else if (!g.userData.portrait) { const fringe = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 6, 16, Math.PI), hairM); fringe.position.set(0, 1.7, -0.02); fringe.rotation.x = Math.PI / 2; fringe.rotation.z = Math.PI; g.add(fringe); }
   g.add(lL, lR, body, aL, aR, head);
   if (o.hat) { const h = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 0.16, 12), M(pick([0xff4f79, 0x38f0ff, 0x1e2a4a, 0xffffff]))); h.position.y = 1.98; g.add(h); const brim = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.16), h.material); brim.position.set(0, 1.92, 0.3); g.add(brim); }
   if (o.bag) {
@@ -236,19 +243,19 @@ export class WVM {
     // VR
     try {
       if ('xr' in navigator) {
-        const btn = VRButton.createButton(renderer);
-        btn.id = 'wvm-vr'; this.hud.appendChild(btn);
-        navigator.xr.isSessionSupported('immersive-vr').then(ok => { if (!ok) btn.remove(); }).catch(() => btn.remove());
+        navigator.xr.isSessionSupported('immersive-vr').then(ok => { if (ok) { const btn = VRButton.createButton(renderer); btn.id = 'wvm-vr'; this.hud.appendChild(btn); } else this._vrBadge(); }).catch(() => this._vrBadge());
         renderer.xr.addEventListener('sessionstart', () => this._xrStart());
         renderer.xr.addEventListener('sessionend', () => this._xrEnd());
       }
-    } catch (e) { /* no XR */ }
+    } catch (e) { this._vrBadge(); }
+    if (!('xr' in navigator)) this._vrBadge();
 
     // shopping list + face from storage
     this.list = this._load('wvm_list', []);
     this._renderList();
   }
 
+  _vrBadge() { if (this.hud.querySelector('.wvm-vrbadge')) return; const b = document.createElement('div'); b.className = 'wvm-vrbadge'; b.textContent = '🥽 Works on VR headsets too'; b.title = 'Open this same address in a headset browser and an Enter VR button appears'; this.hud.appendChild(b); }
   _loadSky(url) {
     this.texLoader.load(url, (tex) => {
       tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
@@ -264,7 +271,7 @@ export class WVM {
     let faceTex = null;
     if (faceData) { const im = new Image(); im.src = faceData; faceTex = new THREE.Texture(im); faceTex.colorSpace = THREE.SRGBColorSpace; im.onload = () => { faceTex.needsUpdate = true; }; }
     if (this.avatar) this.player.remove(this.avatar);
-    this.avatar = makePerson(Object.assign({ bag: false, faceTex, age: 'adult', scale: 1, glasses: false, beard: false, dress: false, hairStyle: 'short', hair: 0x4a2e15, skin: 0xe0ac7e, shirt: 0x38f0ff, pants: 0x1e2a4a, hat: false }, saved || {}));
+    this.avatar = makePerson(Object.assign({ bag: false, faceTex, portrait: !!faceTex, age: 'adult', scale: 1, glasses: false, beard: false, dress: false, hairStyle: 'short', hair: 0x4a2e15, skin: 0xe0ac7e, shirt: 0x38f0ff, pants: 0x1e2a4a, hat: false }, saved || {}));
     this.avatar.visible = this.dist > 0.5;
     this.player.add(this.avatar);
     this.faceTex = faceTex;
@@ -283,15 +290,57 @@ export class WVM {
   addHotspot(obj, data) { obj.traverse(c => { c.userData.hotspot = data; }); this.hotspots.push(obj); return obj; }
   addZone(name, center, radius, build) { this.zones.push({ name, center, radius, build, built: false }); }
   addTrigger(x, z, r, fn) { (this.triggers = this.triggers || []).push({ x, z, r, fn, fired: false }); }
+  /* Something you can DO when standing near it: shows a big green button with the label. */
+  addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); }
+  _updateInteractables() {
+    if (!this.interactables) return; const p = this.player.position; let best = null, bd = 1e9;
+    for (const it of this.interactables) { const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
+    if (this.ride || this.paused) best = null;
+    if (best !== this._act) { this._act = best; this.actBtn.textContent = best ? best.label : ''; this.actBtn.classList.toggle('on', !!best); }
+  }
   addNPC(person, path, opts = {}) {
     const n = { p: person, path, i: 0, speed: opts.speed || rand(1.2, 2.2), wait: 0, loop: opts.loop !== false, pause: opts.pause || 0 };
     person.position.copy(path[0]); this.scene.add(person); this.npcs.push(n); return n;
+  }
+  /* A ball you can kick by walking into it. bounds = {x1,z1,x2,z2} it stays inside. */
+  addBall(mesh, radius, bounds) { (this.balls = this.balls || []).push({ m: mesh, r: radius, v: new THREE.Vector3(), b: bounds }); }
+  _updateBalls(dt) {
+    if (!this.balls) return; const p = this.player.position;
+    for (const b of this.balls) {
+      const dx = b.m.position.x - p.x, dz = b.m.position.z - p.z, d = Math.hypot(dx, dz);
+      if (d < b.r + 0.75 && d > 0.001) { const k = this.moving ? 7 : 3; b.v.x = dx / d * k; b.v.z = dz / d * k; this.toast('⚽ Kick!', 700); }
+      if (b.v.lengthSq() > 0.0001) {
+        b.m.position.x += b.v.x * dt; b.m.position.z += b.v.z * dt; b.v.multiplyScalar(0.985);
+        const q = b.b; if (q) { if (b.m.position.x < q.x1 + b.r) { b.m.position.x = q.x1 + b.r; b.v.x *= -0.8; } if (b.m.position.x > q.x2 - b.r) { b.m.position.x = q.x2 - b.r; b.v.x *= -0.8; } if (b.m.position.z < q.z1 + b.r) { b.m.position.z = q.z1 + b.r; b.v.z *= -0.8; } if (b.m.position.z > q.z2 - b.r) { b.m.position.z = q.z2 - b.r; b.v.z *= -0.8; } }
+        for (const ob of this.obstacles) { if (ob.hw !== undefined) continue; const ox = b.m.position.x - ob.x, oz = b.m.position.z - ob.z, od = Math.hypot(ox, oz); if (od < ob.r + b.r && od > 0.001) { b.m.position.x = ob.x + ox / od * (ob.r + b.r); b.m.position.z = ob.z + oz / od * (ob.r + b.r); const n = new THREE.Vector3(ox / od, 0, oz / od); const dot = b.v.dot(n); b.v.addScaledVector(n, -2 * dot).multiplyScalar(0.8); } }
+        b.m.rotation.x += b.v.z * dt / b.r; b.m.rotation.z -= b.v.x * dt / b.r;
+      }
+      b.m.position.y = this.opts.groundY(b.m.position.x, b.m.position.z) + b.r;
+    }
+  }
+  /* Drive a cart: player moves 2.5x faster, the cart mesh follows, avatar rides in it. */
+  driveCart(cart, opts = {}) {
+    if (this.vehicle) return; this.vehicle = { m: cart, speed: opts.speed || 2.6 }; this.avatar.position.y = 0.5; this.toast(opts.label || '🚗 Vroom. Tap the button to hop out.', 3000);
+    const it = { x: 0, z: 0, r: 1e9, label: '🚪 Hop out of the cart', fn: (a) => { const v = a.vehicle; a.vehicle = null; a.avatar.position.y = 0; a.interactables = a.interactables.filter(i => i !== it); v.m.position.copy(a.player.position); v.m.position.x += 2; v.m.rotation.y = a.avatar.rotation.y; if (v.park) v.park(v); } }; this.addInteractable(it.x, it.z, it.r, it.label, it.fn);
   }
   /* Fade + navigate to another page (portal). */
   go(url, label = 'Teleporting…') {
     try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
     this.fade.classList.add('on'); this.fade.textContent = label;
     setTimeout(() => { location.href = url; }, 550);
+  }
+  photoBooth(caption = 'Making history at the World\'s 1st Global VR Mall 🌍', sub = 'worldvrmall.com') {
+    try {
+      this.renderer.render(this.scene, this.camera); const src = this.renderer.domElement;
+      const c = document.createElement('canvas'); const W = 1080, H = Math.round(1080 * src.height / src.width); c.width = W; c.height = H; const g = c.getContext('2d');
+      g.drawImage(src, 0, 0, W, H);
+      const band = Math.round(H * 0.16); g.fillStyle = 'rgba(5,11,28,0.82)'; g.fillRect(0, H - band, W, band);
+      g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.font = `bold ${Math.round(band * 0.28)}px Poppins, Segoe UI, Arial`; g.fillText(caption, 36, H - band * 0.62, W - 300);
+      g.fillStyle = '#38f0ff'; g.font = `bold ${Math.round(band * 0.2)}px Poppins, Segoe UI, Arial`; g.fillText(sub, 36, H - band * 0.25);
+      const face = localStorage.getItem('wvm_face');
+      const finish = () => { const url = c.toDataURL('image/jpeg', 0.9); this.popup('Your photo 📸', `<img src="${url}" style="width:100%;border-radius:12px"><p class="muted">Long-press or tap Save to keep it. Post it. Tag the mall.</p>`, [{ label: '⬇️ Save photo', fn: () => { const a = document.createElement('a'); a.href = url; a.download = 'world-vr-mall-photo.jpg'; document.body.appendChild(a); a.click(); a.remove(); }, keep: true }]); };
+      if (face) { const im = new Image(); im.onload = () => { const fw = Math.round(band * 1.1), fh = Math.round(fw * 4 / 3); g.drawImage(im, W - fw - 30, H - fh - 20, fw, fh); finish(); }; im.onerror = finish; im.src = face; } else finish();
+    } catch (e) { this.toast('Photo booth needs a moment; try again.'); }
   }
   toast(msg, ms = 2600) {
     const el = this.toastEl; el.textContent = msg; el.classList.add('on');
@@ -339,7 +388,7 @@ export class WVM {
   _progress(p) { this._prog = Math.max(this._prog || 0, p); this.bar.style.width = Math.round(this._prog * 100) + '%'; }
   start(buildFn) {
     // fake-real teleport sequence
-    const msgs = ['Scanning your signature…', 'Uploading you to World VR Mall…', 'Materializing shops from 6 continents…', 'Polishing the floors…', 'Welcome. Have a great day!'];
+    const msgs = ['Locking on to your signature…', 'Beaming you to World VR Mall…', 'Re-assembling you, atom by atom…', 'Materializing shops from 6 continents…', 'Welcome. Have a great day!'];
     let mi = 0; this.loadMsg.textContent = msgs[0];
     const tick = setInterval(() => { mi = Math.min(msgs.length - 1, mi + 1); this.loadMsg.textContent = msgs[mi]; }, 700);
     this._progress(0.08);
@@ -360,7 +409,7 @@ export class WVM {
     if (!this.paused) this._movePlayer(dt);
     this._updateCamera(dt);
     this._updateNPCs(dt);
-    this._updateZones();
+    this._updateZones(); this._updateInteractables(); this._updateBalls(dt);
     if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     this.renderer.render(this.scene, this.camera);
@@ -376,7 +425,7 @@ export class WVM {
     if (this.keys.KeyA || this.keys.ArrowLeft) mv.x -= 1;
     if (this.keys.KeyD || this.keys.ArrowRight) mv.x += 1;
     if (this.locked) mv.set(0, 0); else { mv.add(this.moveVec); if (this.xrMove) mv.add(this.xrMove); }
-    let speed = (this.keys.ShiftLeft || this.keys.ShiftRight || this.running) ? o.runSpeed : o.walkSpeed;
+    let speed = (this.keys.ShiftLeft || this.keys.ShiftRight || this.running) ? o.runSpeed : o.walkSpeed; if (this.vehicle) speed *= this.vehicle.speed;
     if (mv.lengthSq() > 1) mv.normalize();
     // tap-to-walk
     if (this.walkTarget && mv.lengthSq() < 0.01) {
@@ -405,6 +454,7 @@ export class WVM {
       const ang = Math.atan2(step.x, step.z); this.avatar.rotation.y = lerpAngle(this.avatar.rotation.y, ang, 0.25);
     }
     p.position.y = o.groundY(p.position.x, p.position.z);
+    if (this.vehicle) { const v = this.vehicle.m; v.position.copy(p.position); v.rotation.y = this.avatar.rotation.y; const L = this.avatar.userData.limbs; L.lL.rotation.x = L.lR.rotation.x = 1.3; L.aL.rotation.x = L.aR.rotation.x = -0.9; return; }
     animatePerson(this.avatar, this.t, this.moving ? (speed / o.walkSpeed) : 0);
   }
 
@@ -481,12 +531,12 @@ export class WVM {
       e.preventDefault();
     }, { passive: false });
     el.addEventListener('touchend', e => { if (e.changedTouches.length && dragging) onUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
-    el.addEventListener('wheel', e => { e.preventDefault(); this.targetDist = clamp(this.targetDist + e.deltaY * 0.01, 0.01, 18); if (this.targetDist < 0.6) this.targetDist = 0.01; }, { passive: false });
+    el.addEventListener('wheel', e => { e.preventDefault(); this.targetDist = clamp(this.targetDist + e.deltaY * 0.01, 0.01, 18); if (this.targetDist < 2.2) this.targetDist = e.deltaY < 0 ? 0.01 : 2.2; if (this.targetDist > 0.6 && this.targetDist < 2.2) this.targetDist = 2.2; }, { passive: false });
     el.addEventListener('contextmenu', e => e.preventDefault());
     this._buildJoystick();
   }
   _zoom(fov) { this.camera.fov = clamp(fov, 30, 100); this.camera.updateProjectionMatrix(); }
-  toggleView() { this.targetDist = this.targetDist > 0.6 ? 0.01 : 6; this.toast(this.targetDist > 0.6 ? 'Third person 👀' : 'First person 🎯'); }
+  toggleView() { this.targetDist = this.targetDist > 0.6 ? 0.01 : 5; this.toast(this.targetDist > 0.6 ? 'Third person 👀' : 'First person 🎯'); }
   _tap(x, y) {
     if (this.paused) return;
     const ndc = new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
@@ -571,13 +621,14 @@ export class WVM {
         </div>
       </div>
       <div id="wvm-toast"></div>
+      <button id="wvm-act"></button>
       <div id="wvm-listpanel" class="wvm-panel"><div class="wvm-panel-head"><b>🛍️ My Shopping List</b><button class="wvm-x">✕</button></div><div class="wvm-list-body"></div></div>
       <div id="wvm-pop" class="wvm-modal"><div class="wvm-card"><h3></h3><div class="wvm-pop-body"></div><div class="wvm-pop-actions"></div></div></div>
       <div id="wvm-selfie" class="wvm-modal"><div class="wvm-card">
         <h3>Make it you 🤳</h3>
-        <p>Pick a look, then snap a selfie to put your real face on your character. Your photo never leaves this device — it's stored only in your browser.</p>
+        <p>Pick a look, then snap a selfie and your real face and shoulders go on your character.</p><p style="font-size:13px;background:rgba(124,248,255,.1);border:1px solid rgba(124,248,255,.35);border-radius:10px;padding:8px 10px">🔒 <b>Your photo stays on this device.</b> Nothing is uploaded or sent anywhere; it's saved only in this browser and you can clear it any time. Kids: ask a parent to tap the camera button.</p>
         <div class="wvm-looks"></div>
-        <div class="wvm-cam"><video autoplay playsinline muted></video><canvas width="160" height="160"></canvas></div>
+        <div class="wvm-cam"><video autoplay playsinline muted></video><canvas width="240" height="320"></canvas></div>
         <div class="wvm-pop-actions">
           <button class="wvm-btn" id="wvm-cam-on">📷 Turn on camera</button>
           <button class="wvm-btn primary" id="wvm-cam-snap" disabled>Snap selfie</button>
@@ -586,9 +637,9 @@ export class WVM {
         </div>
       </div></div>
       <div id="wvm-fade"></div>
-      <div id="wvm-loader"><div class="wvm-tele"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall"><div class="wvm-ring"></div><div class="wvm-loadmsg">Scanning…</div><div class="wvm-barwrap"><div class="wvm-bar"></div></div><small>Teleport station · worldvrmall.com</small></div></div>`;
+      <div id="wvm-loader"><div class="wvm-tele"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall"><div class="wvm-beam"><div class="wvm-beamcol"></div><svg class="wvm-silh" viewBox="0 0 100 160" aria-hidden="true"><circle cx="50" cy="26" r="18"/><path d="M22 160V88c0-22 12-40 28-40s28 18 28 40v72z"/></svg><div class="wvm-pad"></div></div><div class="wvm-loadmsg">Scanning…</div><div class="wvm-barwrap"><div class="wvm-bar"></div></div><small>Teleport station · worldvrmall.com</small></div></div>`;
     stage.appendChild(hud);
-    this.toastEl = hud.querySelector('#wvm-toast'); this.listPanel = hud.querySelector('#wvm-listpanel'); this.listBtn = hud.querySelector('#wvm-list');
+    this.toastEl = hud.querySelector('#wvm-toast'); this.actBtn = hud.querySelector('#wvm-act'); this.actBtn.onclick = () => { if (this._act) this._act.fn(this); }; this.listPanel = hud.querySelector('#wvm-listpanel'); this.listBtn = hud.querySelector('#wvm-list');
     this.pop = hud.querySelector('#wvm-pop'); this.fade = hud.querySelector('#wvm-fade'); this.loader = hud.querySelector('#wvm-loader');
     this.bar = hud.querySelector('.wvm-bar'); this.loadMsg = hud.querySelector('.wvm-loadmsg'); this.selfieEl = hud.querySelector('#wvm-selfie');
     hud.querySelector('#wvm-view').onclick = () => this.toggleView();
@@ -636,11 +687,13 @@ export class WVM {
       catch (e) { this.toast('Camera not available — cartoon face it is 😄'); }
     };
     el.querySelector('#wvm-cam-snap').onclick = () => {
-      const g = cv.getContext('2d'); const s = Math.min(video.videoWidth, video.videoHeight) || 160;
-      g.save(); g.beginPath(); g.arc(80, 80, 80, 0, Math.PI * 2); g.clip();
-      g.translate(160, 0); g.scale(-1, 1); // mirror
-      g.drawImage(video, (video.videoWidth - s) / 2, (video.videoHeight - s) / 2, s, s, 0, 0, 160, 160); g.restore();
-      try { localStorage.setItem('wvm_face', cv.toDataURL('image/jpeg', 0.8)); } catch (e) { }
+      const g = cv.getContext('2d'); g.clearRect(0, 0, 240, 320);
+      const vw = video.videoWidth || 480, vh = video.videoHeight || 640; const ar = 240 / 320; let sw = vw, sh = vw / ar; if (sh > vh) { sh = vh; sw = vh * ar; }
+      g.save(); g.beginPath(); g.ellipse(120, 160, 118, 158, 0, 0, Math.PI * 2); g.clip();
+      g.translate(240, 0); g.scale(-1, 1); // mirror
+      g.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, 240, 320); g.restore();
+      g.lineWidth = 6; g.strokeStyle = '#38f0ff'; g.beginPath(); g.ellipse(120, 160, 116, 156, 0, 0, Math.PI * 2); g.stroke();
+      try { localStorage.setItem('wvm_face', cv.toDataURL('image/png')); } catch (e) { }
       this._buildAvatar(); this.toast('Looking good! That\'s you now ✨');
     };
     el.querySelector('#wvm-cam-clear').onclick = () => { localStorage.removeItem('wvm_face'); this._buildAvatar(); this.toast('Cartoon face restored'); };
@@ -659,7 +712,7 @@ export class WVM {
       #wvm-hud{position:absolute;inset:0;pointer-events:none}
       #wvm-hud > *{pointer-events:auto}
       .wvm-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(180deg,rgba(4,10,30,.75),rgba(4,10,30,0));}
-      .wvm-brand img{height:34px;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+      .wvm-brand img{height:34px;display:block;background:#fff;padding:3px 8px;border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
       .wvm-where{font-weight:700;font-size:13px;letter-spacing:.5px;text-shadow:0 1px 4px #000;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .wvm-tools{display:flex;gap:6px}
       .wvm-ico{position:relative;width:40px;height:40px;border-radius:12px;border:1px solid rgba(124,248,255,.35);background:rgba(8,20,50,.7);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
@@ -686,14 +739,18 @@ export class WVM {
       .wvm-help{padding-left:18px} .wvm-help li{margin:6px 0}
       .wvm-looks{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
       .wvm-look{min-width:40px;height:40px;border-radius:20px;border:3px solid transparent;cursor:pointer;font-size:14px;font-weight:700;background:#0b1a3a;color:#fff;padding:0 8px;font-family:inherit} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.hat{background:#0b1a3a}
-      .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0} .wvm-cam video{width:0;height:0;border-radius:50%;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:160px;height:160px} .wvm-cam canvas{width:96px;height:96px;border-radius:50%;background:#0b1a3a;border:2px solid #38f0ff}
+      .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0} .wvm-cam video{width:0;height:0;border-radius:50%;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:160px;height:160px} .wvm-cam canvas{width:90px;height:120px;border-radius:50%;background:#0b1a3a}
       #wvm-fade{position:absolute;inset:0;background:#38f0ff;color:#04122a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:.5s}
       #wvm-fade.on{opacity:1;pointer-events:auto}
       #wvm-loader{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#0d2a6b,#040a1e 70%);display:flex;align-items:center;justify-content:center;transition:opacity .6s;z-index:5}
       #wvm-loader.off{opacity:0;pointer-events:none}
-      .wvm-tele{text-align:center;width:min(420px,88vw)} .wvm-tele img{height:64px;margin-bottom:14px;background:#fff;padding:8px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
-      .wvm-ring{width:120px;height:120px;margin:0 auto 16px;border-radius:50%;border:3px solid rgba(124,248,255,.3);border-top-color:#38f0ff;animation:wvmspin 1.1s linear infinite;box-shadow:0 0 40px rgba(56,240,255,.35) inset}
-      @keyframes wvmspin{to{transform:rotate(360deg)}}
+      .wvm-tele{text-align:center;width:min(440px,90vw)} .wvm-tele img{height:84px;margin-bottom:10px;background:#fff;padding:10px 22px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+      .wvm-beam{position:relative;width:160px;height:200px;margin:0 auto 12px}
+      .wvm-beamcol{position:absolute;left:35px;right:35px;top:0;bottom:16px;background:linear-gradient(180deg,rgba(56,240,255,0),rgba(56,240,255,.35) 40%,rgba(56,240,255,.55));border-radius:40px 40px 6px 6px;animation:wvmbeam 1.6s ease-in-out infinite;filter:blur(1px)}
+      .wvm-silh{position:absolute;left:30px;top:20px;width:100px;height:160px;fill:#7cf8ff;filter:drop-shadow(0 0 14px #38f0ff);animation:wvmmat 2.4s ease-in-out infinite}
+      .wvm-pad{position:absolute;left:10px;right:10px;bottom:0;height:16px;border-radius:50%;background:radial-gradient(ellipse,#38f0ff,rgba(56,240,255,0) 70%);animation:wvmpulse 1.2s ease-in-out infinite}
+      @keyframes wvmbeam{0%,100%{opacity:.5}50%{opacity:1}} @keyframes wvmmat{0%{clip-path:inset(0 0 100% 0);opacity:.2}60%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:1}} @keyframes wvmpulse{0%,100%{transform:scaleX(.8);opacity:.6}50%{transform:scaleX(1.1);opacity:1}}
+      @media (prefers-reduced-motion: reduce){.wvm-beamcol,.wvm-silh,.wvm-pad{animation:none}}
       .wvm-loadmsg{font-weight:700;margin-bottom:12px;min-height:22px} .wvm-barwrap{height:12px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(124,248,255,.3)}
       .wvm-bar{height:100%;width:0;background:linear-gradient(90deg,#38f0ff,#ff4f79,#ffd23f);transition:width .4s;box-shadow:0 0 16px #38f0ff}
       .wvm-tele small{display:block;margin-top:10px;color:#9fd3ff}
@@ -708,6 +765,10 @@ export class WVM {
       #wvm-pad[data-mode=dpad] .wvm-stick{display:none} #wvm-pad[data-mode=dpad] .wvm-dpad{display:grid}
       @media (hover:hover) and (pointer:fine){ #wvm-pad{opacity:.55} #wvm-pad:hover{opacity:1} }
       #wvm-hud.xr > *{display:none} #wvm-hud.xr #wvm-vr{display:block}
+.wvm-vrbadge{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(8,20,50,.7);border:1px solid rgba(124,248,255,.35);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:#9fd3ff;pointer-events:none}
+      #wvm-act{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);background:#7cff6b;color:#04122a;border:0;border-radius:999px;padding:14px 26px;font-weight:900;font-size:17px;display:none;box-shadow:0 8px 30px rgba(124,255,107,.45);font-family:inherit;cursor:pointer;animation:wvmpop .4s}
+      #wvm-act.on{display:block} @keyframes wvmpop{from{transform:translateX(-50%) scale(.7)}to{transform:translateX(-50%) scale(1)}}
+      @media (prefers-reduced-motion: reduce){#wvm-act{animation:none} .wvm-ring{animation:none}}
       .wvm-scrollhint{position:absolute;bottom:14px;right:14px;background:rgba(8,20,50,.75);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
     `;
     document.head.appendChild(s);
