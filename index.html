@@ -131,7 +131,7 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from '/js/wvm-engine.js';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from '/js/wvm-engine.js?v=3';
 
 /* ------------------------------------------------------------
    OUTSIDE WORLD
@@ -150,8 +150,8 @@ const groundY = (x, z) => {
 };
 
 const app = new WVM({
-  worldName: 'Outside World · Mall Entrance', page: 'index',
-  spawn: new THREE.Vector3(0, 0, 96), spawnYaw: 0, groundY, bounds: 420,
+  worldName: 'Outside World · Welcome', page: 'index',
+  spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 420,
   fog: 0xbfdcf2, fogNear: 140, fogFar: 760,
 });
 window.WVM_APP = app; // debug handle
@@ -285,7 +285,7 @@ function buildBillboard() {
   const spots = [-8, 0, 8].map(x => { const s = new T.Mesh(new T.SphereGeometry(0.3, 8, 8), glow(GOLD, 2)); s.position.set(x, 17.8, 0.8); g.add(s); return s; });
   const sub = new T.Mesh(new T.PlaneGeometry(22, 2.4), new T.MeshBasicMaterial({ map: makeTextTexture('GET YOUR BRAND IN WORLD VR MALL · CALL 1-800-481-8638', { w: 2048, h: 224, bg: '#ff4f79', fg: '#fff', accent: '#ffd23f', font: 'bold 78px Poppins, Segoe UI, Arial', radius: 30, border: '#ffd23f' }) })); sub.position.set(0, 3.7, 0.02); g.add(sub);
   S.add(g);
-  app.addHotspot(g, { title: 'Get your brand in World VR Mall', html: `<p><b>Ground-floor opportunity.</b> Every mall in history had a first group of stores, and those are the ones people remember. This is that moment.</p><p>Your store, your logo, your products, buy buttons straight to your own checkout, a friendly AI clerk, and a search-optimized store page. Set up in about ten minutes. <b>Premium spots near the entrance are limited</b> and go first come, first served.</p><p>Quick question: if the future of shopping is a place, not a page, do you want to be inside it early, or hear about it later?</p>`, actions: [{ label: '📞 Call 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'See the leasing office inside', href: '/mall/#leasing' }] });
+  app.addHotspot(g, { title: 'Get your brand in World VR Mall', html: `<p><b>Ground-floor opportunity.</b> Every mall in history had a first group of stores, and those are the ones people remember. This is that moment.</p><p>Your store, your logo, your products, buy buttons straight to your own checkout, a friendly AI clerk, and a search-optimized store page. Set up in about ten minutes. <b>Premium spots near the entrance are limited</b> and go first come, first served.</p><p>Quick question: if the future of shopping is a place, not a page, do you want to be inside it early, or hear about it later?</p>`, actions: [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '📞 Call 1-800-481-8638', href: 'tel:18004818638', newTab: true }, { label: 'Leasing office inside', href: '/mall/#leasing' }] });
   app.onUpdate((dt, t) => spots.forEach((s, i) => s.material.emissiveIntensity = 1.5 + Math.sin(t * 5 + i) * 0.8));
 }
 
@@ -639,7 +639,7 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  const arrive = setInterval(() => { if (a.selfieEl.classList.contains('on') || !a.loader.classList.contains('off')) return; clearInterval(arrive); a.popup('You\'re at the mall entrance 🏬', '<p>The glowing door straight ahead takes you inside. Or stay out here: the park, three roller coasters, the lake, the market, and the playground are all around you.</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do.') }]); }, 600);
+  const arrive = setInterval(() => { if (a.selfieEl.classList.contains('on') || !a.loader.classList.contains('off')) return; clearInterval(arrive); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do.') }]); }, 600);
 });
 </script>
 </body>
