@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=8';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=10';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -79,6 +79,37 @@ function artTexture(seed) {
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
 }
 
+/* ---------- interior variety: each store gets its own floor, wall band, lamps and props, seeded by its slug ---------- */
+function hashStr(s) { let h = 7; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) % 1000003; return h; }
+function storeFloorTex(kind, trim) {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  if (kind === 'wood') { for (let i = 0; i < 8; i++) { g.fillStyle = `hsl(28,${40 + Math.random() * 15}%,${34 + Math.random() * 14}%)`; g.fillRect(0, i * 32, 256, 32); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(0, i * 32, 256, 1); for (let k = 0; k < 20; k++) { g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(Math.random() * 256, i * 32 + Math.random() * 30, 40 + Math.random() * 80, 1); } } }
+  else if (kind === 'marble') { g.fillStyle = '#eef1f6'; g.fillRect(0, 0, 256, 256); g.strokeStyle = 'rgba(120,130,150,.35)'; g.lineWidth = 1.5; for (let i = 0; i < 18; i++) { g.beginPath(); g.moveTo(Math.random() * 256, Math.random() * 256); for (let k = 0; k < 4; k++) g.quadraticCurveTo(Math.random() * 256, Math.random() * 256, Math.random() * 256, Math.random() * 256); g.stroke(); } g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = 3; g.strokeRect(0, 0, 128, 128); g.strokeRect(128, 128, 128, 128); }
+  else if (kind === 'tile') { for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) { g.fillStyle = (x + y) % 2 ? '#dfe5ef' : '#f4f7fb'; g.fillRect(x * 64, y * 64, 64, 64); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x * 64, y * 64, 64, 2); g.fillRect(x * 64, y * 64, 2, 64); } }
+  else if (kind === 'carpet') { g.fillStyle = trim; g.fillRect(0, 0, 256, 256); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.12})`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); } }
+  else if (kind === 'concrete') { g.fillStyle = '#9aa0ab'; g.fillRect(0, 0, 256, 256); for (let i = 0; i < 2500; i++) { g.fillStyle = `rgba(${40 + Math.random() * 60},${40 + Math.random() * 60},${50 + Math.random() * 60},.25)`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); } g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 2; g.strokeRect(2, 2, 252, 252); }
+  else { g.fillStyle = '#1a1f2e'; g.fillRect(0, 0, 256, 256); g.strokeStyle = trim; g.lineWidth = 2; g.globalAlpha = 0.6; for (let i = 0; i < 4; i++) g.strokeRect(i * 64 + 4, 4, 56, 248); g.globalAlpha = 1; }
+  const t = canvasTex(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+}
+function decorate(g, store, W, D, H, colors, M, app, box) {
+  const h = hashStr(store.slug || store.name); const kinds = ['wood', 'marble', 'tile', 'carpet', 'concrete', 'neon']; const kind = store.floorKind || kinds[h % kinds.length];
+  const ft = storeFloorTex(kind, colors.trim); ft.repeat.set(W / 3, D / 3);
+  const fl = new T.Mesh(new T.PlaneGeometry(W - 0.4, D - 0.4), M(0xffffff, { map: ft, roughness: kind === 'marble' ? 0.15 : 0.7, metalness: kind === 'marble' ? 0.2 : 0 })); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0.025, -D / 2); fl.receiveShadow = true; g.add(fl);
+  // wall band + wainscot
+  const bandY = 3.2 + (h % 3) * 0.6; const band = new T.Mesh(new T.BoxGeometry(W - 0.5, 0.25, 0.08), new T.MeshStandardMaterial({ color: hex(colors.trim), emissive: hex(colors.trim), emissiveIntensity: 0.5 })); band.position.set(0, bandY, -D + 0.2); g.add(band);
+  for (const sx of [-1, 1]) { const b2 = band.clone(); b2.geometry = new T.BoxGeometry(0.08, 0.25, D - 0.5); b2.position.set(sx * (W / 2 - 0.2), bandY, -D / 2); g.add(b2); }
+  // pendant lamps in a pattern that differs per store
+  const lampStyle = h % 4; const rows = Math.max(2, Math.round(D / 6)), cols = Math.max(2, Math.round(W / 7));
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const x = -W / 2 + (c + 0.5) * W / cols, z = -(r + 0.5) * D / rows; const cord = new T.Mesh(new T.CylinderGeometry(0.015, 0.015, 1.6, 4), M(0x222222)); cord.position.set(x, H - 0.85, z); g.add(cord); let lamp; if (lampStyle === 0) lamp = new T.Mesh(new T.SphereGeometry(0.28, 12, 10), new T.MeshStandardMaterial({ color: 0xfff2c0, emissive: 0xfff2c0, emissiveIntensity: 1.6 })); else if (lampStyle === 1) lamp = new T.Mesh(new T.ConeGeometry(0.4, 0.4, 12, 1, true), new T.MeshStandardMaterial({ color: 0x222222, emissive: 0xfff2c0, emissiveIntensity: 0.8, side: T.DoubleSide })); else if (lampStyle === 2) lamp = new T.Mesh(new T.CylinderGeometry(0.3, 0.3, 0.22, 16), new T.MeshStandardMaterial({ color: hex(colors.trim), emissive: hex(colors.trim), emissiveIntensity: 1.2 })); else lamp = new T.Mesh(new T.BoxGeometry(1.4, 0.08, 0.18), new T.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.4 })); lamp.position.set(x, H - 1.7, z); g.add(lamp); }
+  // props: rug, plants, bench, a mannequin or a display table depending on the hash
+  const rug = new T.Mesh(new T.CircleGeometry(1.8 + (h % 3) * 0.5, 24), M(hex(colors.trim), { roughness: 1 })); rug.rotation.x = -Math.PI / 2; rug.position.set(0, 0.03, -2.6); rug.material.transparent = true; rug.material.opacity = 0.75; if (h % 5 !== 2) g.add(rug);
+  const plantN = 1 + (h % 3); for (let i = 0; i < plantN; i++) { const px = (i % 2 ? 1 : -1) * (W / 2 - 1.2), pz = -D + 1.2 - i * 0.2; const pot = new T.Mesh(new T.CylinderGeometry(0.4, 0.32, 0.7, 10), M(pick([0xd9cbb0, 0x1e2a4a, 0xffffff]))); pot.position.set(px, 0.35, pz); g.add(pot); const leaf = new T.Mesh(new T.ConeGeometry(0.75, 2.0 + (h % 4) * 0.3, 8), M(pick([0x3fa34d, 0x2f8f6a, 0x6fbf4a]))); leaf.position.set(px, 1.7, pz); leaf.castShadow = true; g.add(leaf); }
+  if (h % 4 === 0) { const bench = new T.Mesh(new T.BoxGeometry(2.4, 0.45, 0.8), M(0x8a5a2b, { roughness: 0.8 })); bench.position.set(0, 0.5, -D / 2 - 1); g.add(bench); for (const sx of [-1, 1]) { const leg = new T.Mesh(new T.BoxGeometry(0.1, 0.5, 0.7), M(0x1e2a4a)); leg.position.set(sx * 1.05, 0.25, -D / 2 - 1); g.add(leg); } box(0, -D / 2 - 1, 1.3, 0.5); }
+  if (h % 4 === 1) { const dt = new T.Mesh(new T.CylinderGeometry(1.1, 1.1, 0.1, 20), M(0xffffff, { roughness: 0.2 })); dt.position.set(0, 0.95, -D / 2 - 1); g.add(dt); const dl = new T.Mesh(new T.CylinderGeometry(0.15, 0.4, 0.9, 10), M(0x9aa7c7, { metalness: 0.8 })); dl.position.set(0, 0.45, -D / 2 - 1); g.add(dl); box(0, -D / 2 - 1, 1.2, 1.2); }
+  if (h % 4 === 2) { const mq = makePerson({ bag: false, skin: 0xdddddd, hair: 0xdddddd, hairStyle: 'bald', shirt: hex(colors.trim).getHex(), pants: 0xffffff }); mq.position.set(W / 2 - 2.2, 0.35, -2.2); mq.rotation.y = -0.6; g.add(mq); const base = new T.Mesh(new T.CylinderGeometry(0.5, 0.5, 0.35, 16), M(0x1e2a4a)); base.position.set(W / 2 - 2.2, 0.17, -2.2); g.add(base); box(W / 2 - 2.2, -2.2, 0.7, 0.7); }
+  if (h % 4 === 3) { const aq = new T.Mesh(new T.BoxGeometry(2.6, 1.2, 0.9), new T.MeshPhysicalMaterial({ color: 0x38b6ff, transparent: true, opacity: 0.35, roughness: 0.05 })); aq.position.set(-W / 2 + 2, 1.3, -D + 1.2); g.add(aq); const stand = new T.Mesh(new T.BoxGeometry(2.7, 0.7, 1.0), M(0x1e2a4a)); stand.position.set(-W / 2 + 2, 0.35, -D + 1.2); g.add(stand); const fish = []; for (let i = 0; i < 5; i++) { const f = new T.Mesh(new T.SphereGeometry(0.09, 8, 6), new T.MeshStandardMaterial({ color: pick([0xff8a3d, 0xffd23f, 0xffffff, 0x38f0ff]), emissive: 0x222222 })); f.scale.set(1.6, 1, 0.6); f.userData.o = Math.random() * 6; aq.add(f); fish.push(f); } app.onUpdate((dt, t) => { for (const f of fish) { f.position.set(Math.sin(t * 0.7 + f.userData.o) * 1.1, Math.sin(t * 1.3 + f.userData.o) * 0.35, Math.cos(t * 0.9 + f.userData.o) * 0.3); f.rotation.y = Math.cos(t * 0.7 + f.userData.o) > 0 ? 0 : Math.PI; } }); box(-W / 2 + 2, -D + 1.2, 1.5, 0.7); }
+}
+
 /* ---------- filler goods: colorful boxes, bottles, cans that make shelves look stocked ---------- */
 function filler(colors) {
   const g = new T.Group(); const M = (c) => new T.MeshStandardMaterial({ color: c, roughness: 0.55 });
@@ -142,7 +173,7 @@ export function buildStore(app, store, opts = {}) {
   const ceil = new T.Mesh(new T.PlaneGeometry(W, D), M(0xffffff, { side: T.DoubleSide, emissive: 0xffffff, emissiveIntensity: placeholder ? 0.15 : 0.35 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, H - 0.05, -D / 2); g.add(ceil);
   const roof = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.3, D + 0.6), M(0x2a3350, { roughness: 0.9 })); roof.position.set(0, H + 0.1, -D / 2); roof.receiveShadow = true; g.add(roof);
   for (const zz of (big ? [-3, -7, -11, -15] : [-3, -6, -9])) { const strip = new T.Mesh(new T.BoxGeometry(W - 2, 0.1, 0.3), new T.MeshBasicMaterial({ color: placeholder ? 0x445 : 0xffffff })); strip.position.set(0, H - 0.2, zz); g.add(strip); }
-  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), M(trimHex, { emissive: trimHex, emissiveIntensity: 0.15, roughness: 0.6 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.03, -D / 2 + 0.3); g.add(runner);
+  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), M(trimHex, { emissive: trimHex, emissiveIntensity: 0.15, roughness: 0.6 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.035, -D / 2 + 0.3); if (placeholder) g.add(runner);
 
   // facade: header + logo, URL bar, glass, door mat, plants, neon marquee
   const header = sh(new T.Mesh(new T.BoxGeometry(W + 0.6, 2.2, 0.6), M(hex(store.logo?.bg || colors.wall), { roughness: 0.4 }))); header.position.set(0, H - 1.1, 0.3); g.add(header);
@@ -198,6 +229,7 @@ export function buildStore(app, store, opts = {}) {
   box(-hw, -D / 2, 0.4, D / 2 + 0.3); box(hw, -D / 2, 0.4, D / 2 + 0.3); box(0, -D, hw + 0.3, 0.4);
   box(-(hw + 2.2) / 2, 0, (hw - 2.2) / 2, 0.3); box((hw + 2.2) / 2, 0, (hw - 2.2) / 2, 0.3);
   const doorWorld = toW(0, -1.6);
+  if (!placeholder && !['cafe', 'market', 'garage', 'travel', 'tech'].includes(layout)) decorate(g, store, W, D, H, colors, M, app, box);
 
   if (placeholder) {
     const s1 = makeSprite('SPACE AVAILABLE', { scale: 8, bg: 'rgba(255,79,121,0.9)', fg: '#fff', accent: '#ffd23f' }); s1.position.set(0, 3.8, -4); g.add(s1);

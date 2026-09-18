@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Inside World VR Mall | Walk the Wings: Americas, Europe, Asia & Islands, Food Court, Kids' Zone</title>
-<meta name="description" content="Step inside World VR Mall. Walk the Grand Lobby, the Americas, Europe, and Asia & Islands wings, the Global Food Court, and the Kids' Discovery Zone. Tap any store to go in, see real products, and buy from the brand. Get your own store: 1-800-481-8638.">
+<meta name="description" content="Walk a 3D virtual mall in your browser: 80+ storefronts across the Americas, Europe, Asia, Chinatown, an Alien Quarter and an Upper Level with a cinema and game room. Phones, laptops and VR headsets. Step inside World VR Mall. Walk the Grand Lobby, the Americas, Europe, and Asia & Islands wings, the Global Food Court, and the Kids' Discovery Zone. Tap any store to go in, see real products, and buy from the brand. Get your own store: 1-800-481-8638.">
 <link rel="canonical" href="https://worldvrmall.com/mall/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#050b1c">
@@ -20,6 +20,15 @@
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is World VR Mall?","acceptedAnswer":{"@type":"Answer","text":"World VR Mall is a free walk-in 3D shopping mall in your web browser with storefronts from businesses around the world. Every product links to the brand's own website. It works on phones, laptops and VR headsets from one address, worldvrmall.com."}},
+{"@type":"Question","name":"Does World VR Mall work on iPhone and Android?","acceptedAnswer":{"@type":"Answer","text":"Yes. It runs in Safari and Chrome with no app to install. On phones you get a joystick and tap-to-walk; on a VR headset an Enter VR button appears."}},
+{"@type":"Question","name":"What is inside the mall?","acceptedAnswer":{"@type":"Answer","text":"Americas, Europe and Asia-Africa-Islands wings, a Global Food Court, a Kids' Zone with a zoo, gardens with a carousel, a Sky Wheel, an Upper Level with a cinema, a game room and a piano, Chinatown, an Alien Quarter, a Future Wing, and the Grand Concourse. Outside: a park with roller coasters including The Chiller world tour, a hot-air balloon tour, a train, a gondola, a beach, an observatory and a zoo."}},
+{"@type":"Question","name":"How much does a storefront in World VR Mall cost?","acceptedAnswer":{"@type":"Answer","text":"Standard storefronts are leased month to month with a ten-minute setup: your logo, products, buy buttons to your own site, an AI clerk and a search-optimized store page. The 360-degree Showroom upgrade, a photo-real custom room, launches at $499 per month on a 24-month term. A custom branded world is $1,000 per month, 12-month minimum. Call 1-800-481-8638."}},
+{"@type":"Question","name":"Is my selfie uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The selfie that goes on your avatar is saved only in your own browser and never leaves your device."}}
+]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
@@ -69,8 +78,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=8';
-import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=8';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=10';
+import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=10';
 
 const T = THREE;
 const app = new WVM({
@@ -901,8 +910,23 @@ function buildLobbyWow() {
   for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const p = makePerson(); app.addNPC(p, [new T.Vector3(Math.cos(a) * 46, 9, Math.sin(a) * 46), new T.Vector3(Math.cos(a + 0.5) * 46, 9, Math.sin(a + 0.5) * 46)], { pause: 4, speed: 0.8, y: 9 }); }
 }
 
+/* ----- Concierge: type what you want, it finds the store and walks you there ----- */
+function concierge(a) {
+  const id = 'cq' + Math.floor(Math.random() * 1e6);
+  a.popup('🧭 Concierge', `<p>Tell me what you\'re looking for: a product, a store, a city, a country, or a place in the mall.</p><input id="${id}" placeholder="e.g. showers, Denver, tea, cinema, Italy…" style="width:100%;padding:12px;border-radius:12px;border:1px solid #38f0ff;background:#050b1c;color:#fff;font:inherit;font-size:16px"><div id="${id}-r" style="margin-top:10px;display:grid;gap:6px"></div>`, []);
+  const inp = document.getElementById(id), out = document.getElementById(id + '-r'); inp.focus();
+  const places = [['Upper Level · cinema & games', 46, -34, 'elevator'], ['Chinatown', 196, 0, 'portal at the end of Europe'], ['Alien Quarter', -196, 0, 'portal at the end of Americas'], ['Future Wing', 0, -60, 'portal north of the atrium'], ['Grand Concourse', 0, -230, ''], ['Food Court', 100, -100, ''], ['Kids Zone & Zoo', -100, -100, ''], ['Gardens & carousel', -100, 100, ''], ['Sky Wheel', 100, 100, ''], ['Exit to outside', 0, 100, '']];
+  const run = () => { const q = inp.value.trim().toLowerCase(); out.innerHTML = ''; if (q.length < 2) return; const hits = [];
+    for (const s of [...(DATA.stores || []), ...(DATA.placeholders || [])]) { const hay = [s.name, s.tag, s.city, s.about, ...(s.products || []).map(p => p.title)].join(' ').toLowerCase(); if (hay.includes(q)) { const pos = STORE_POS[s.slug]; if (pos) hits.push([`${s.flag || '🏬'} ${s.name} · ${s.tag || ''} · ${s.city || ''}`, pos.x, pos.z]); } }
+    for (const [n, x, z, hint] of places) if (n.toLowerCase().includes(q)) hits.push([`📍 ${n}${hint ? ' · ' + hint : ''}`, x, z]);
+    if (!hits.length) { out.innerHTML = '<p class="muted">Nothing yet under that name. Try a category (fashion, food, tech) or a city.</p>'; return; }
+    hits.slice(0, 8).forEach(([label, x, z]) => { const b = document.createElement('button'); b.className = 'wvm-btn small'; b.style.textAlign = 'left'; b.textContent = label + '  → walk me there'; b.onclick = () => { a.closePopup(); a.walkTarget = new T.Vector3(x, 0, z); a.toast('On our way. 🚶', 2500); }; out.appendChild(b); }); };
+  inp.addEventListener('input', run); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const b = out.querySelector('button'); if (b) b.click(); } });
+}
 function buildExpansion(a) {
   buildLobbyWow();
+  app.addInteractable(4, 74, 5, '🧭 Concierge: find anything', concierge);
+  const cq = makeSprite('🧭 concierge · tap', { scale: 4, bg: 'rgba(8,20,50,0.9)', accent: '#38f0ff' }); cq.position.set(6, 3.2, 72); S.add(cq); app.addHotspot(cq, { fn: concierge });
   buildFloors(); buildDirectoryPole(0, 78); buildWalkways(); buildSunroof(); buildPiano(-24, 78); buildFloatingStairs(); buildConcourse();
   a.onUpdate(() => { a.level = LEVEL.cur; });
   a.addPortal(204, 0, new T.Vector3(604, 0, 0), { label: 'Chinatown 🏮', color: 0xffd23f, yaw: -Math.PI / 2 });
