@@ -376,7 +376,14 @@ export function loadRiggedPerson(url, opts = {}) {
     // selfie face on the rigged head: a small floating face plate parented to the head bone
     if (opts.faceTex) {
       let headBone = null; model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name)) headBone = o; });
-      if (headBone) { const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, 0.115); plate.userData.head.visible = false; const hb = new THREE.Group(); hb.add(plate); plate.position.set(0, 0.06 / s, 0.02 / s); plate.scale.setScalar(1 / s); headBone.add(hb); g.userData.face = plate.userData.cap; }
+      let headMesh = null; model.traverse(o => { if (!headMesh && o.isMesh && /head/i.test(o.name)) headMesh = o; });
+      if (headBone) {
+        model.updateMatrixWorld(true); const box = new THREE.Box3(); if (headMesh) { headMesh.geometry.computeBoundingBox(); box.copy(headMesh.geometry.boundingBox).applyMatrix4(headMesh.matrixWorld); } else { box.setFromCenterAndSize(new THREE.Vector3(0, 1.62, 0), new THREE.Vector3(0.3, 0.3, 0.3)); }
+        const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
+        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, r); plate.userData.head.visible = false;
+        const wrap = new THREE.Group(); wrap.position.copy(center); wrap.position.z += size.z * 0.12; model.add(wrap); headBone.attach(wrap); wrap.add(plate); plate.position.set(0, 0, 0);
+        g.userData.face = plate.userData.cap;
+      }
     }
     if (opts.sunglasses) { let hb = null; model.traverse(o => { if (!hb && o.isBone && /head/i.test(o.name)) hb = o; }); if (hb) { const f = new THREE.Group(); addSunglasses(f, 0.06 / s, 0.08 / s); f.scale.setScalar(1 / s); hb.add(f); } }
     return g;
@@ -551,7 +558,7 @@ export class WVM {
     const saved = this._load('wvm_avatar', {}) || {};
     const faceData = localStorage.getItem('wvm_face');
     let faceTex = null;
-    if (faceData) { const im = new Image(); im.src = faceData; faceTex = new THREE.Texture(im); faceTex.colorSpace = THREE.SRGBColorSpace; im.onload = () => { faceTex.needsUpdate = true; }; }
+    if (faceData) { faceTex = new THREE.TextureLoader().load(faceData); faceTex.colorSpace = THREE.SRGBColorSpace; }
     this.faceTex = faceTex;
     const ch = CHARACTERS.find(c => c.id === (saved.character || 'classic')) || CHARACTERS[0];
     // instant placeholder so the world never shows an empty rig while a GLB downloads
@@ -748,7 +755,9 @@ export class WVM {
       if (this.opts.shadows) this.enableShadows(this.scene);
       this._progress(0.9);
       setTimeout(done, 900);
-    }).catch(err => { console.error(err); this.loadMsg.textContent = 'Something hiccuped. Refresh to try again.'; });
+    }).catch(err => { console.error(err); clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Build error: <code style="font-size:12px;color:#c00">' + esc(err && err.message ? err.message : String(err)) + '</code><br><small>' + esc((err && err.stack ? err.stack.split('\n')[1] : '') || '') + '</small><br>Screenshot this and send it to Zach.'; });
+    addEventListener('error', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Script error: <code style="font-size:12px;color:#c00">' + esc(ev.message || '') + '</code><br><small>' + esc((ev.filename || '').split('/').pop() + ':' + ev.lineno) + '</small>'; } });
+    addEventListener('unhandledrejection', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Load error: <code style="font-size:12px;color:#c00">' + esc(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)) + '</code>'; } });
     this.renderer.setAnimationLoop(() => this._frame());
   }
 

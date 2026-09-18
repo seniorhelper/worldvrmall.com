@@ -64,8 +64,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=5';
-import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=5';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=6';
+import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=6';
 
 const T = THREE;
 const app = new WVM({
@@ -285,7 +285,7 @@ function placeRow(stores, positions) { stores.forEach((s, i) => { const p = posi
 function buildWings() {
   const get = (slug) => findStore(slug);
   // Lobby: two LARGE anchors on the left, BuyWebURL + leasing office on the right
-  placeRow([get('eye-to-ad-media'), get('showers4less')], [[-40, 88, Math.PI / 2], [-40, 60, Math.PI / 2]]);
+  placeRow([get('eye-to-ad-media'), get('showers4less')], [[-40, 96, Math.PI / 2], [-40, 62, Math.PI / 2]]);
   placeRow([get('buyweburl')], [[38, 56, -Math.PI / 2]]);
   // Americas wing (x negative)
   const AX = [-66, -86, -106, -126, -146, -166, -186, -206];
@@ -315,10 +315,10 @@ function buildWings() {
 
 function adSigns() {
   const ad = (x, z, rot, lines, col, url, title, html) => { const s = makeSign(lines, { width: 9, height: 3, postHeight: 5.5, bg: '#07123a', accent: col, border: col, posts: false }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); app.addHotspot(s, { title, html, actions: [{ label: 'Visit ' + url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: url, newTab: true, primary: true }] }); return s; };
-  ad(-56, -32, Math.PI / 4, ['CUSTOM-CODED WEBSITES', 'from $99/mo · search optimized'], '#7cff6b', 'https://denver-webdesign.com/', 'Websites from $99/mo', '<p>Hand-coded, fast, search-optimized, leased month to month with a buyout option. The same team that built this mall.</p>');
-  ad(56, -32, -Math.PI / 4, ['ADVERTISING FOR CONTRACTORS', 'trades · home services · marketing'], '#ff8a3d', 'https://advertisingforcontractors.com/', 'Advertising For Contractors', '<p>Marketing built for plumbers, painters, remodelers, and every trade.</p>');
-  ad(56, 32, -3 * Math.PI / 4, ['FREE AI CHATBOT', 'built in two minutes · conversationalaibot.com'], '#38f0ff', 'https://conversationalaibot.com/', 'Free AI chatbot generator', '<p>Pick your industry, write your answers, copy one block of code. Works on any website and never charges per conversation.</p>');
-  ad(-56, 32, 3 * Math.PI / 4, ['RESTAURANTS SEO', 'top of search · full tables'], '#ffd23f', 'https://restaurantsseo.com/', 'Restaurants SEO', '<p>Restaurant search optimization. Walk into the diner at advertisingforrestaurant.com for the full pitch over a milkshake.</p>');
+  ad(-56, -32, Math.PI / 4, ['denver-webdesign.com', 'custom-coded websites from $99/mo'], '#7cff6b', 'https://denver-webdesign.com/', 'Websites from $99/mo', '<p>Hand-coded, fast, search-optimized, leased month to month with a buyout option. The same team that built this mall.</p>');
+  ad(56, -32, -Math.PI / 4, ['advertisingforcontractors.com', 'more calls for the trades'], '#ff8a3d', 'https://advertisingforcontractors.com/', 'Advertising For Contractors', '<p>Marketing built for plumbers, painters, remodelers, and every trade.</p>');
+  ad(56, 32, -3 * Math.PI / 4, ['conversationalaibot.com', 'free AI chatbot · built in two minutes'], '#38f0ff', 'https://conversationalaibot.com/', 'Free AI chatbot generator', '<p>Pick your industry, write your answers, copy one block of code. Works on any website and never charges per conversation.</p>');
+  ad(-56, 32, 3 * Math.PI / 4, ['restaurantsseo.com', 'restaurant marketing · full tables'], '#ffd23f', 'https://restaurantsseo.com/', 'Restaurants SEO', '<p>Restaurant search optimization. Walk into the diner at advertisingforrestaurant.com for the full pitch over a milkshake.</p>');
   ad(-130, -26, 0, ['ADVERTISING FOR RESTAURANT', 'the 3D walk-in diner'], '#ff4f79', 'https://advertisingforrestaurant.com/', 'Advertising For Restaurant', '<p>A 50\'s diner you walk into. Peggy, Dot, Sal, and Hank explain how restaurants get found.</p>');
   // floating word ads: rising words that fade, like a breeze of tag lines
   const lines = ['websites from $99/mo', 'get found. get chosen.', 'your brand deserves a front door', 'restaurants: fill more tables', 'free AI chatbot in 2 minutes', 'contractors: get more calls', 'you already have the traffic. now convert it.'];
@@ -908,6 +908,16 @@ function buildExpansion(a) {
 /* ---------- go ---------- */
 app.start(async (a) => {
   try { const r = await fetch('/data/stores.json', { cache: 'no-cache' }); DATA = await r.json(); } catch (e) { console.error('stores.json failed', e); }
+  // Zach's own stores: flagship treatment (bigger, neon, animations, coupon ads) without touching stores.json
+  const OV = {
+    'eye-to-ad-media': { size: 'xl', neon: 'EYETOAD.COM', fun: true, funLabel: 'flagship · Eye To Ad Media', back: 'projector', ads: [{ lines: ['EYETOAD.COM COUPON', 'only found here', 'FREE custom-coded, trained', 'salesperson chatbot', 'with website purchase · $5,000 value'], bg: '#0b1a3a', fg: '#ffffff', accent: '#7cff6b', title: 'Eyetoad.com coupon · only in World VR Mall', about: 'Buy a website from Eye To Ad Media and get a custom-coded, trained AI salesperson chatbot free. A $5,000 value. Mention the VR Mall coupon.', cta: 'Claim it at eyetoad.com', url: 'https://eyetoad.com' }] },
+    'showers4less': { size: 'xl', neon: 'SHOWERS4LESS', fun: true, funLabel: 'flagship · Showers4Less' },
+    'aging-safely-baths': { neon: 'AGING SAFELY', fun: true, funLabel: 'Aging Safely Baths', ads: [{ lines: ['FREE HYDROTHERAPY', 'UPGRADE', 'one per customer', 'agingsafelybaths.com'], bg: '#ffffff', fg: '#0b1a3a', accent: '#38f0ff', title: 'Free hydrotherapy upgrade', about: 'Buy a walk-in tub from Aging Safely Baths and the hydrotherapy jets are on us. One per customer. Say you saw it in World VR Mall.', cta: 'agingsafelybaths.com', url: 'https://agingsafelybaths.com' }] },
+    'my-sales-help': { neon: 'MYSALESHELP.COM', fun: true, funLabel: 'My Sales Help' },
+    'search-converts': { neon: 'SEARCHCONVERTS.COM', fun: true, funLabel: 'Search Converts' },
+    'buyweburl': { neon: 'BUYWEBURL.COM', fun: true, funLabel: 'BuyWebURL' },
+  };
+  for (const s of DATA.stores || []) if (OV[s.slug]) Object.assign(s, OV[s.slug]);
   buildShell(); buildAtrium(); buildWings(); buildLeasing(); buildCarts(); buildBotBooth(); buildShoppers(); buildBlaster();
   a.addZone('food', new T.Vector3(100, 0, -100), 170, buildFoodCourt);
   a.addZone('kids', new T.Vector3(-100, 0, -100), 170, buildKids);

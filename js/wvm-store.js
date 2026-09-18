@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L } from './wvm-engine.js?v=5';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L } from './wvm-engine.js?v=6';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -153,7 +153,7 @@ export function buildStore(app, store, opts = {}) {
     const mq = new T.Mesh(new T.PlaneGeometry(W + 0.4, 0.28), new T.MeshBasicMaterial({ map: marqueeTexture(colors.trim) })); mq.material.map.repeat.set((W + 0.4) / 2, 1); mq.position.set(0, H + 0.06, 0.62); g.add(mq);
     const mq2 = mq.clone(); mq2.position.y = H - 2.3; mq2.position.z = 0.66; g.add(mq2);
     app.onUpdate((dt, t) => { mq.material.map.offset.x = Math.floor(t * 6) / 8; trimBar.material.emissiveIntensity = 0.9 + Math.sin(t * 2.2 + x) * 0.5; });
-    if (store.neon) { const ns = new T.Mesh(new T.PlaneGeometry(Math.min(W - 2, 9), 1.1), new T.MeshBasicMaterial({ map: makeTextTexture(store.neon, { w: 1400, h: 180, bg: 'rgba(0,0,0,0)', fg: colors.trim, accent: colors.trim, border: null, glow: true, font: 'bold 120px Poppins, Segoe UI, Arial', radius: 0 }), transparent: true })); ns.position.set(0, H + 0.9, 0.4); g.add(ns); app.onUpdate((dt, t) => { ns.material.opacity = Math.random() < 0.015 ? 0.35 : 0.8 + Math.sin(t * 5) * 0.2; }); }
+    if (store.neon) { const ns = new T.Mesh(new T.PlaneGeometry(Math.min(W - 1, 14), 1.7), new T.MeshBasicMaterial({ map: makeTextTexture(store.neon, { w: 1400, h: 180, bg: 'rgba(0,0,0,0)', fg: colors.trim, accent: colors.trim, border: null, glow: true, font: 'bold 120px Poppins, Segoe UI, Arial', radius: 0 }), transparent: true })); ns.position.set(0, H + 1.3, 0.4); g.add(ns); const ns2 = ns.clone(); ns2.rotation.y = Math.PI; ns2.position.z = 0.38; g.add(ns2); const halo = new T.Mesh(new T.PlaneGeometry(Math.min(W - 1, 14) + 1.5, 2.6), new T.MeshBasicMaterial({ color: hex(colors.trim), transparent: true, opacity: 0.18 })); halo.position.set(0, H + 1.3, 0.3); g.add(halo); app.onUpdate((dt, t) => { const flick = Math.random() < 0.015 ? 0.35 : 0.85 + Math.sin(t * 5) * 0.15; ns.material.opacity = flick; halo.material.opacity = 0.1 + flick * 0.15; halo.scale.setScalar(1 + Math.sin(t * 3) * 0.04); }); }
   }
   if (!placeholder && store.url && store.url.startsWith('http')) {
     const urlBar = new T.Mesh(new T.PlaneGeometry(W - 3, 0.8), new T.MeshBasicMaterial({ map: makeTextTexture(host(store.url), { w: 1600, h: 128, bg: colors.trim, fg: '#04122a', border: null, glow: false, font: 'bold 84px Poppins, Segoe UI, Arial', radius: 40 }), transparent: true })); urlBar.position.set(0, H - 2.75, 0.62); g.add(urlBar);
@@ -340,6 +340,15 @@ export function buildStore(app, store, opts = {}) {
   // extra wall ads (e.g. Roof Solutions asked for a couple): store.ads = [{lines:[...], bg, accent, url, title}]
   (store.ads || []).slice(0, 3).forEach((ad, i) => { const sx = i % 2 ? 1 : -1; const zz = -D + 1.5 - i * 0.2; const p = new T.Mesh(new T.PlaneGeometry(4.6, 2.2), new T.MeshBasicMaterial({ map: makeTextTexture(ad.lines, { w: 1400, h: 660, bg: ad.bg || '#ffffff', fg: ad.fg || '#0b1a3a', accent: ad.accent || colors.trim, border: ad.accent || colors.trim, glow: false, font: 'bold 96px Poppins, Segoe UI, Arial', radius: 30 }) })); p.position.set(sx * (hw - 0.18), 2.6, zz - 2); p.rotation.y = sx * -Math.PI / 2; g.add(p); app.addHotspot(p, { title: ad.title || store.name, html: `<p>${esc(ad.about || store.about || '')}</p>`, actions: [{ label: ad.cta || 'Learn more', href: ad.url || store.url, newTab: true, primary: true }] }); });
 
+  // ----- store.fun: balloons, a spinning logo cube, sweeping spotlight, confetti (Zach's own stores) -----
+  if (store.fun && !placeholder) {
+    for (let i = 0; i < 7; i++) { const b = new T.Mesh(new T.SphereGeometry(0.42, 12, 10), M(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff]), { roughness: 0.3 })); b.scale.y = 1.2; const bx = rand(-hw + 2, hw - 2), bz = rand(-D + 2, -2), by = rand(H - 3, H - 1); b.position.set(bx, by, bz); g.add(b); const str = new T.Mesh(new T.CylinderGeometry(0.01, 0.01, 1.6, 4), M(0xffffff)); str.position.set(bx, by - 1.3, bz); g.add(str); app.onUpdate((dt, t) => { const y = by + Math.sin(t * 1.1 + i) * 0.3; b.position.y = y; str.position.y = y - 1.3; b.position.x = bx + Math.sin(t * 0.6 + i) * 0.2; str.position.x = b.position.x; }); }
+    const cube = new T.Mesh(new T.BoxGeometry(2.2, 2.2, 2.2), new T.MeshStandardMaterial({ map: logoTexture(store.logo || { text: store.name }, { w: 512, h: 512 }), emissive: 0x222222, roughness: 0.3, metalness: 0.4 })); cube.position.set(0, H - 2.6, -D / 2); g.add(cube); const cubeRing = new T.Mesh(new T.TorusGeometry(2.1, 0.08, 6, 40), lipM); cubeRing.position.copy(cube.position); g.add(cubeRing);
+    const sweep = new T.SpotLight(hex(colors.trim), 30, 30, 0.35, 0.6, 1); sweep.position.set(0, H - 0.5, -2); sweep.target.position.set(0, 0, -D / 2); g.add(sweep); g.add(sweep.target);
+    const confM = new T.SpriteMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false }); const conf = []; for (let i = 0; i < 24; i++) { const sp = new T.Sprite(confM.clone()); sp.material.color.set(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff])); sp.scale.set(0.18, 0.28, 1); sp.userData.x = rand(-hw + 1, hw - 1); sp.userData.z = rand(-D + 1, -1); sp.userData.o = rand(0, 10); g.add(sp); conf.push(sp); }
+    app.onUpdate((dt, t) => { cube.rotation.y += dt * 0.8; cube.rotation.x = Math.sin(t) * 0.3; cubeRing.rotation.x += dt; cubeRing.rotation.y += dt * 0.5; sweep.target.position.set(Math.sin(t * 0.8) * (hw - 3), 0, -D / 2 + Math.cos(t * 0.5) * (D / 2 - 3)); for (const sp of conf) { const k = ((t * 0.25 + sp.userData.o) % 8) / 8; sp.position.set(sp.userData.x + Math.sin(t * 2 + sp.userData.o) * 0.4, H - 0.5 - k * (H - 1.2), sp.userData.z); sp.material.rotation += dt * 3; sp.material.opacity = k > 0.9 ? (1 - k) * 9 : 0.9; } });
+    const wow = makeSprite('✨ ' + (store.funLabel || 'flagship store') + ' ✨', { scale: 6, bg: 'rgba(255,79,121,0.92)', fg: '#fff', accent: '#ffd23f' }); wow.position.set(0, H + 2.6, 0.5); g.add(wow);
+  }
   // ----- counter + clerk -----
   const counterZ = layout === 'cafe' ? -3.5 : layout === 'clinic' ? -3.2 : -D + 3.2;
   if (layout !== 'cafe' && layout !== 'clinic') { const counter = sh(new T.Mesh(new T.BoxGeometry(5, 1.1, 1.2), M(trimHex, { roughness: 0.3, metalness: 0.2 }))); counter.position.set(0, 0.55, -D + 3.2); g.add(counter);
