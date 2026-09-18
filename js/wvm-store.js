@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L } from './wvm-engine.js?v=6';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L } from './wvm-engine.js?v=7';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -71,10 +71,10 @@ function marqueeTexture(color) {
 /* Art for the backs of stores: abstract canvas paintings generated on the fly (no files, no copyright). */
 function artTexture(seed) {
   const c = document.createElement('canvas'); c.width = 512; c.height = 384; const g = c.getContext('2d');
-  let s = seed; const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  let s = Math.abs(Math.round(seed)) % 233280; const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
   const pal = pick([['#ff4f79', '#ffd23f', '#38f0ff', '#0b1a3a'], ['#7cff6b', '#b08cff', '#ffffff', '#1e2a4a'], ['#ff8a3d', '#f2b5d4', '#38f0ff', '#111827'], ['#ffd23f', '#ff4f79', '#2f6bff', '#ffffff']]);
   g.fillStyle = pal[3]; g.fillRect(0, 0, 512, 384);
-  for (let i = 0; i < 14; i++) { g.fillStyle = pal[i % 3]; g.globalAlpha = 0.55 + rnd() * 0.45; g.beginPath(); const x = rnd() * 512, y = rnd() * 384, r = 30 + rnd() * 130; if (rnd() < 0.5) g.arc(x, y, r, 0, Math.PI * 2); else g.rect(x - r / 2, y - r / 3, r, r * 0.66); g.fill(); }
+  for (let i = 0; i < 14; i++) { g.fillStyle = pal[i % 3]; g.globalAlpha = 0.55 + rnd() * 0.45; g.beginPath(); const x = rnd() * 512, y = rnd() * 384, r = Math.abs(30 + rnd() * 130); if (rnd() < 0.5) g.arc(x, y, r, 0, Math.PI * 2); else g.rect(x - r / 2, y - r / 3, r, r * 0.66); g.fill(); }
   g.globalAlpha = 1; g.lineWidth = 8; g.strokeStyle = pal[2]; g.beginPath(); g.moveTo(rnd() * 512, rnd() * 384); for (let i = 0; i < 5; i++) g.quadraticCurveTo(rnd() * 512, rnd() * 384, rnd() * 512, rnd() * 384); g.stroke();
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
 }

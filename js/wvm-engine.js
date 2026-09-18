@@ -380,8 +380,10 @@ export function loadRiggedPerson(url, opts = {}) {
       if (headBone) {
         model.updateMatrixWorld(true); const box = new THREE.Box3(); if (headMesh) { headMesh.geometry.computeBoundingBox(); box.copy(headMesh.geometry.boundingBox).applyMatrix4(headMesh.matrixWorld); } else { box.setFromCenterAndSize(new THREE.Vector3(0, 1.62, 0), new THREE.Vector3(0.3, 0.3, 0.3)); }
         const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
-        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, r); plate.userData.head.visible = false;
-        const wrap = new THREE.Group(); wrap.position.copy(center); wrap.position.z += size.z * 0.12; model.add(wrap); headBone.attach(wrap); wrap.add(plate); plate.position.set(0, 0, 0);
+        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, r);
+        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(r * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = r * 0.08; plate.add(hairCap);
+        if (headMesh) headMesh.visible = false;
+        const wrap = new THREE.Group(); wrap.position.copy(center); model.add(wrap); headBone.attach(wrap); wrap.add(plate); plate.position.set(0, 0, 0);
         g.userData.face = plate.userData.cap;
       }
     }
@@ -1132,7 +1134,7 @@ export class WVM {
       // soft edge so the face blends into the skin of the head
       g.save(); g.globalCompositeOperation = 'destination-in'; const gr = g.createRadialGradient(W / 2, H * 0.5, H * 0.32, W / 2, H * 0.5, H * 0.5); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.85, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore();
       try { localStorage.setItem('wvm_face', cv.toDataURL('image/png')); } catch (e) { }
-      this._buildAvatar(); this.toast('Looking good! That\'s you now ✨');
+      const ok = !!localStorage.getItem('wvm_face'); this._buildAvatar(); this.toast(ok ? 'Looking good! That\'s you now ✨' : '⚠️ Could not save the selfie on this device.', 3000);
     };
     el.querySelector('#wvm-cam-clear').onclick = () => { localStorage.removeItem('wvm_face'); this._buildAvatar(); this.toast('Cartoon face restored'); };
     el.querySelector('#wvm-selfie-done').onclick = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; el.classList.remove('cam'); } el.classList.remove('on'); this.paused = false; document.body.classList.remove('wvm-modal-open'); localStorage.setItem('wvm_seen', '1'); };
