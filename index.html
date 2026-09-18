@@ -67,6 +67,7 @@
   .brandrow{display:flex;flex-wrap:wrap;gap:10px 18px;margin:8px 0}
   .brandrow a{color:#7cf8ff;text-decoration:none;font-weight:600}
   .hero-img{width:100%;border-radius:18px;border:1px solid rgba(124,248,255,.35);margin:10px 0 4px}
+  #wvm-pop.slide .wvm-card{animation:wvmslide .85s cubic-bezier(.2,.9,.2,1)} @keyframes wvmslide{from{transform:translateX(120vw) rotate(4deg);opacity:0}to{transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -108,6 +109,10 @@
   <div class="cta"><a class="btn hot" href="tel:18004818638">Call 1-800-481-8638 — set up in 10 minutes</a><a class="btn alt" href="/lease/">See leasing details</a></div>
 
   <h2>Explore the grounds</h2>
+  <h3>A world that floats</h3>
+  <p>Pinch out or scroll back and the whole property turns out to be an island drifting above the clouds, rock and roots hanging beneath it. Drag to orbit it from any angle.</p>
+  <h3>The hot-air balloon and the observatory</h3>
+  <p>The balloon climbs to 190 meters on a slow two-minute circle, high enough to see every corner of the world and the sky panorama above it. The observatory on the far hill has a working telescope: point it at the mall, the coasters, the airport, or straight up at the night sky and distant things fill the screen.</p>
   <h3>The park</h3>
   <p>Acres of green grass, walking paths, fountains, and floating affirmation banners. Sit by the lake, watch the cruise ship pass, or feed the ducks at either pond.</p>
   <h3>The amusement park</h3>
@@ -131,7 +136,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture } from '/js/wvm-engine.js?v=4';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile } from '/js/wvm-engine.js?v=5';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
    OUTSIDE WORLD
@@ -166,9 +172,12 @@ document.getElementById('scrollhint').onclick = () => document.getElementById('a
 /* ---------- textures made on the fly ---------- */
 function grassTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
-  g.fillStyle = '#4f9a3c'; g.fillRect(0, 0, 256, 256);
-  for (let i = 0; i < 4200; i++) { g.fillStyle = `hsl(${105 + Math.random() * 25},${45 + Math.random() * 25}%,${28 + Math.random() * 22}%)`; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 3 + Math.random() * 3); }
-  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(140, 140); t.colorSpace = T.SRGBColorSpace; return t;
+  c.width = c.height = 512;
+  g.fillStyle = '#4a8f36'; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 40; i++) { const gr = g.createRadialGradient(Math.random() * 512, Math.random() * 512, 0, 256, 256, 90 + Math.random() * 120); gr.addColorStop(0, `hsla(${95 + Math.random() * 30},50%,${30 + Math.random() * 18}%,0.35)`); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 512, 512); }
+  for (let i = 0; i < 16000; i++) { const x = Math.random() * 512, y = Math.random() * 512, h = 3 + Math.random() * 6; g.strokeStyle = `hsl(${100 + Math.random() * 28},${48 + Math.random() * 28}%,${26 + Math.random() * 26}%)`; g.lineWidth = 1 + Math.random(); g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random() - 0.5) * 3, y - h); g.stroke(); }
+  for (let i = 0; i < 260; i++) { g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.55)' : 'rgba(255,225,80,0.6)'; g.beginPath(); g.arc(Math.random() * 512, Math.random() * 512, 1.2, 0, 6.28); g.fill(); }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(170, 170); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t;
 }
 function stripeTexture(a, b) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d');
@@ -212,7 +221,16 @@ function water(x, z, r, y = 0.05, col, deep) {
 
 /* ---------- ground, paths, hills, trees ---------- */
 function buildGround() {
-  const g = new T.Mesh(new T.PlaneGeometry(1400, 1400), M(0xffffff, { map: grassTexture(), roughness: 1 })); g.rotation.x = -Math.PI / 2; g.position.y = -0.02; S.add(g);
+  // The whole world is a floating island: a round lawn on top, a rocky underside hanging in the clouds.
+  const ISLAND = 640;
+  const g = new T.Mesh(new T.CircleGeometry(ISLAND, 96), M(0xffffff, { map: grassTexture(), roughness: 1 })); g.rotation.x = -Math.PI / 2; g.position.y = -0.02; g.receiveShadow = true; S.add(g);
+  const rockM = M(0x4a3626, { roughness: 1 });
+  const under = new T.Mesh(new T.SphereGeometry(ISLAND, 48, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), rockM); under.scale.y = 0.42; under.position.y = -0.5; S.add(under);
+  const pos = under.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y < -1) { const k = 1 + (Math.sin(pos.getX(i) * 0.05) * Math.cos(pos.getZ(i) * 0.04)) * 0.12; pos.setX(i, pos.getX(i) * k); pos.setZ(i, pos.getZ(i) * k); pos.setY(i, y * (0.85 + Math.random() * 0.3)); } } pos.needsUpdate = true; under.geometry.computeVertexNormals();
+  const rim = new T.Mesh(new T.TorusGeometry(ISLAND - 4, 14, 10, 96), M(0x5c4632, { roughness: 1 })); rim.rotation.x = Math.PI / 2; rim.position.y = -8; S.add(rim);
+  for (let i = 0; i < 40; i++) { const a = rand(0, 6.28), r = rand(80, ISLAND * 0.85); const spike = new T.Mesh(new T.ConeGeometry(rand(8, 22), rand(40, 120), 6), rockM); spike.rotation.x = Math.PI; spike.position.set(Math.cos(a) * r, -ISLAND * 0.42 * Math.sqrt(1 - (r / ISLAND) ** 2) + 10, Math.sin(a) * r); S.add(spike); }
+  const cm = new T.SpriteMaterial({ map: cloudTexture(), transparent: true, opacity: 0.85, depthWrite: false });
+  for (let i = 0; i < 34; i++) { const cl = new T.Sprite(cm); const a = rand(0, 6.28), r = rand(200, ISLAND + 260); cl.position.set(Math.cos(a) * r, rand(-320, -60), Math.sin(a) * r); cl.scale.set(rand(140, 300), rand(70, 140), 1); S.add(cl); }
   const pathM = M(0xffffff, { map: pathTexture(), roughness: 1 });
   const path = (x, z, w, l, rot = 0) => { const p = new T.Mesh(new T.PlaneGeometry(w, l), pathM); p.rotation.x = -Math.PI / 2; p.rotation.z = rot; p.position.set(x, 0.01, z); S.add(p); };
   path(0, 90, 18, 70);           // spawn → mall
@@ -224,7 +242,7 @@ function buildGround() {
   path(-150, 60, 8, 120, 0);     // lake walk
   // far hills to hide the horizon seam
   const hillM = M(0x6fa85a, { roughness: 1 });
-  for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2; const r = 560 + rand(-30, 30); const h = new T.Mesh(new T.SphereGeometry(rand(60, 130), 12, 8), hillM); h.scale.y = rand(0.25, 0.5); h.position.set(Math.cos(a) * r, -5, Math.sin(a) * r); S.add(h); }
+  for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2; const r = 520 + rand(-30, 30); const h = new T.Mesh(new T.SphereGeometry(rand(60, 130), 12, 8), hillM); h.scale.y = rand(0.25, 0.5); h.position.set(Math.cos(a) * r, -5, Math.sin(a) * r); S.add(h); }
   // trees (instanced)
   const trunkG = new T.CylinderGeometry(0.25, 0.4, 3, 6), leafG = new T.ConeGeometry(2.2, 5.5, 7), leafG2 = new T.SphereGeometry(2.4, 8, 6);
   const trunk = new T.InstancedMesh(trunkG, M(0x6b4a2a), 420), cone = new T.InstancedMesh(leafG, M(0x2f7d3a), 420), ball = new T.InstancedMesh(leafG2, M(0x4caa4f), 420);
@@ -628,7 +646,56 @@ function buildAds() {
   const flame = new T.Mesh(new T.ConeGeometry(0.4, 1.2, 8), glow(0xff8a3d, 2)); flame.position.y = 3; bal.add(flame); app.onUpdate((dt, t) => { flame.scale.y = 0.8 + Math.abs(Math.sin(t * 9)) * 0.6; });
   app.addObstacle(bx, bz, 2.2);
   const bsign = makeSign(['HOT-AIR BALLOON', 'see the whole world from 120 m'], { width: 9, height: 3.2, postHeight: 2, bg: '#07123a', accent: '#ff4f79', border: '#ff4f79' }); bsign.position.set(bx + 8, 0, bz + 4); bsign.rotation.y = -0.7; S.add(bsign);
-  app.addInteractable(bx + 4, bz + 3, 4.5, '🎈 Ride the balloon', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast('Lifting off. Look down: the whole world. 🎈', 3500); a.ride = { pos: (t) => { const k = t - t0; const up = clamp(k / 15, 0, 1), down = clamp((k - 40) / 15, 0, 1); const y = 120 * (up - down); const ang = k * 0.06; const r = 60 * up * (1 - down); bal.position.set(bx + Math.sin(ang) * r, y, bz - r + Math.cos(ang) * r); return new T.Vector3(bal.position.x, y + 2.2, bal.position.z); }, until: t0 + 55, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; bal.position.set(bx, 0, bz); aa.player.position.set(bx + 4, 0, bz + 4); aa.toast('Touchdown. 🎈', 2500); } }; });
+  app.addInteractable(bx + 4, bz + 3, 4.5, '🎈 Ride the balloon', (a) => { if (a.ride) return; const prev = a.targetDist; a.targetDist = Math.max(a.targetDist, 9);
+    a.startRide((k) => { const up = clamp(k / 0.28, 0, 1), down = clamp((k - 0.72) / 0.28, 0, 1); const lift = Math.sin(Math.min(up, 1 - down) * Math.PI / 2); const y = 190 * lift; const ang = k * 5.2; const r = 120 * lift; return new T.Vector3(bx + Math.sin(ang) * r, y, bz - r + Math.cos(ang) * r); },
+      { duration: 110, vehicle: bal, seat: new T.Vector3(0, 0.75, 0), lookUp: true, exit: new T.Vector3(bx + 4, 0, bz + 4), toast: '🎈 Lifting off. Drag to look around: tilt up for the sky, down for the whole floating world.', endToast: 'Back on solid ground. What a view. 🎈', exitLabel: '🪂 Bail out (soft landing, promise)', onEnd: () => { bal.position.set(bx, 0, bz); a.targetDist = prev > 0.6 ? prev : 6; } }); });
+}
+
+/* ---------- observatory: dome, giant telescope, and a view that brings the far side up close ---------- */
+function buildObservatory() {
+  const ox = -330, oz = -330; const g = new T.Group(); g.position.set(ox, 0, oz); S.add(g);
+  const base = new T.Mesh(new T.CylinderGeometry(22, 26, 6, 24), M(0x6b6f7a, { roughness: 0.8 })); base.position.y = 3; g.add(base);
+  const steps = new T.Mesh(new T.CylinderGeometry(30, 34, 1.2, 24), M(0x8a8f9c)); steps.position.y = 0.6; g.add(steps);
+  const tower = new T.Mesh(new T.CylinderGeometry(10, 12, 16, 24), M(0xe9eef7, { roughness: 0.5 })); tower.position.y = 14; g.add(tower);
+  const dome = new T.Mesh(new T.SphereGeometry(11, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), M(0xbfc9d9, { metalness: 0.6, roughness: 0.25 })); dome.position.y = 22; g.add(dome);
+  const slit = new T.Mesh(new T.BoxGeometry(2.2, 11, 0.6), M(0x0b1a3a)); slit.position.set(0, 27, 10.4); slit.rotation.x = -0.5; g.add(slit);
+  const scope = new T.Group(); scope.position.y = 22; g.add(scope);
+  const tube = new T.Mesh(new T.CylinderGeometry(1.6, 2.1, 18, 20), M(0x1e2a4a, { metalness: 0.7, roughness: 0.3 })); tube.rotation.x = -0.9; tube.position.set(0, 3, 4); scope.add(tube);
+  const lens = new T.Mesh(new T.CylinderGeometry(2.15, 2.15, 0.4, 20), glow(0x38f0ff, 1.4)); lens.rotation.x = -0.9; lens.position.set(0, 3 + Math.sin(0.9) * 9.2, 4 + Math.cos(0.9) * 9.2); scope.add(lens);
+  for (const sx of [-1, 1]) { const ring = new T.Mesh(new T.TorusGeometry(2.6, 0.2, 8, 24), M(0xffd23f, { metalness: 0.8 })); ring.rotation.x = -0.9; ring.position.set(0, 3 + sx * 2.5, 4 + sx * 1.6); scope.add(ring); }
+  app.onUpdate((dt, t) => { scope.rotation.y = Math.sin(t * 0.15) * 0.6; dome.rotation.y = scope.rotation.y; slit.position.set(Math.sin(scope.rotation.y) * 10.4, 27, Math.cos(scope.rotation.y) * 10.4); slit.rotation.y = scope.rotation.y; });
+  app.addObstacle(ox, oz, 27);
+  const sign = makeSign(['SKY OBSERVATORY', 'giant telescope · tap to look'], { width: 10, height: 3.4, postHeight: 3, bg: '#07123a', accent: '#b08cff', border: '#b08cff', small: 'the far side of the world, up close' }); sign.position.set(ox + 34, 0, oz + 22); sign.rotation.y = -0.8; S.add(sign);
+  app.addHotspot(sign, { title: 'Sky Observatory', html: '<p>A working telescope. Point it at the mall, the airport, the coasters, or straight up at the moon and stars after 6 pm. Things that look like specks from here fill the whole screen.</p>' });
+  const targets = [['🏬 The mall', new T.Vector3(0, 22, 0), 14], ['🎢 The coasters', new T.Vector3(230, 24, -10), 12], ['✈️ The airport', new T.Vector3(330, 14, -320), 12], ['🎡 Sky Wheel', new T.Vector3(300, 38, 40), 10], ['🌙 Straight up', null, 9]];
+  const eye = new T.Vector3(ox, 25.5, oz + 6);
+  const look = (a, tgt, fov) => {
+    if (a.ride) return; const prevD = a.targetDist, prevFov = a.camera.fov; a.targetDist = 0.01; a.dist = 0.01; a.player.position.set(ox, 0, oz + 6); a.locked = true;
+    const dir = tgt ? new T.Vector3().subVectors(tgt, eye).normalize() : new T.Vector3(0.2, 1, -0.3).normalize();
+    a.yaw = Math.atan2(-dir.x, -dir.z); a.pitch = Math.asin(dir.y); a.camera.fov = fov; a.camera.updateProjectionMatrix();
+    a.toast('🔭 Drag to pan. Pinch to zoom. Tap the button to step away.', 4000);
+    const it = { x: 0, z: 0, r: 1e9, label: '🔭 Step away from the eyepiece', fn: () => { a.locked = false; a.camera.fov = prevFov; a.camera.updateProjectionMatrix(); a.targetDist = prevD > 0.6 ? prevD : 6; a.interactables = a.interactables.filter(i => i.label !== it.label); a.player.position.set(ox + 30, 0, oz + 20); } };
+    a.addInteractable(0, 0, 1e9, it.label, it.fn);
+  };
+  app.addInteractable(ox + 30, oz + 18, 6, '🔭 Look through the telescope', (a) => a.popup('Sky Observatory 🔭', '<p>Where to?</p>', targets.map(([label, tgt, fov]) => ({ label, fn: () => look(a, tgt, fov) }))));
+  for (let i = 0; i < 3; i++) app.addNPC(makePerson({ bag: false }), [new T.Vector3(ox + 34 + i * 4, 0, oz + 30), new T.Vector3(ox + 40, 0, oz + 44 + i * 3)], { pause: 5 });
+}
+
+/* ---------- real trees + flowers from /models (Quaternius, converted): nearby only, phones get fewer ---------- */
+function buildRealTrees() {
+  const loader = new GLTFLoader(); const few = isMobile();
+  const spots = [];
+  const add = (x, z, kind, s) => spots.push({ x, z, kind, s });
+  // along the grand path and around the plaza, the lake walk, the park path, the observatory hill
+  for (let i = 0; i < (few ? 10 : 22); i++) { add(-24 + (i % 2) * 48 + rand(-3, 3), 60 + Math.floor(i / 2) * 7, i % 3 ? 'maple' : 'birch', rand(1.6, 2.6)); }
+  for (let i = 0; i < (few ? 8 : 18); i++) { add(LAKE.x + LAKE.r + rand(10, 24), LAKE.z + rand(-80, 90), pick(['birch', 'maple', 'maple2']), rand(1.4, 2.4)); }
+  for (let i = 0; i < (few ? 6 : 14); i++) { add(rand(104, 112), rand(-60, 100), pick(['maple', 'birch2']), rand(1.5, 2.3)); }
+  for (let i = 0; i < (few ? 5 : 12); i++) { const a = rand(0, 6.28); add(-330 + Math.cos(a) * rand(40, 70), -330 + Math.sin(a) * rand(40, 70), pick(['maple', 'maple2', 'birch']), rand(1.6, 2.8)); }
+  for (let i = 0; i < (few ? 12 : 40); i++) { add(rand(-60, 60), rand(56, 150), pick(['flowers', 'flowers2', 'bush']), rand(1.2, 2.2)); }
+  const files = { maple: 'tree-maple-1', maple2: 'tree-maple-2', birch: 'tree-birch-1', birch2: 'tree-birch-2', flowers: 'flowers-1', flowers2: 'flowers-2', bush: 'bush-flowers' };
+  const cache = {};
+  const get = (k) => cache[k] || (cache[k] = new Promise((res, rej) => loader.load('/models/' + files[k] + '.glb', (g) => { g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material.map) o.material.map.colorSpace = T.SRGBColorSpace; o.material.alphaTest = o.material.transparent ? 0.5 : 0; o.material.side = T.DoubleSide; } }); res(g.scene); }, undefined, rej)));
+  spots.forEach(sp => { if (dist(sp.x, sp.z, 0, 122) < 14) return; get(sp.kind).then(src => { const m = src.clone(); m.position.set(sp.x, groundY(sp.x, sp.z), sp.z); m.scale.setScalar(sp.s); m.rotation.y = rand(0, 6.28); S.add(m); if (sp.kind.startsWith('maple') || sp.kind.startsWith('birch')) app.addObstacle(sp.x, sp.z, 0.7 * sp.s); }).catch(() => { }); });
 }
 
 /* ---------- people everywhere ---------- */
@@ -660,7 +727,8 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  const arrive = setInterval(() => { if (a.selfieEl.classList.contains('on') || !a.loader.classList.contains('off')) return; clearInterval(arrive); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do.') }]); }, 600);
+  a.onFirstSteps(12, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 900); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
+  buildObservatory(); buildRealTrees();
 });
 </script>
 </body>
