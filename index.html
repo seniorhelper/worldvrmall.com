@@ -87,7 +87,7 @@
   <h2>What you can do here right now</h2>
   <div class="grid">
     <div class="card"><b>🛍️ Shop the world in 3D</b>Stores are grouped by region: Americas, Europe, Asia, Islands. Walk into any storefront, look at real products on the shelves, and tap Buy to go straight to the brand's checkout.</div>
-    <div class="card"><b>🎢 Ride three roller coasters</b>Cloud Runner, Aurora Loop, and the Mall Blaster, which shoots straight through the mall's glass towers and back out into the park.</div>
+    <div class="card"><b>🎢 Ride three roller coasters</b>The Chiller (the world-famous one), Aurora Loop, and the Mall Blaster, which shoots straight through the mall's glass towers and back out into the park.</div>
     <div class="card"><b>🤳 Be yourself in the mall</b>Snap a selfie and your real face goes on your character. The photo stays on your device; nothing is uploaded.</div>
     <div class="card"><b>📝 Shopping list that walks with you</b>Add products from any store to one list, then buy them all at the end. It's saved on your device and follows you across the whole mall.</div>
     <div class="card"><b>🧒 Kids' zone and playground</b>Learning corners, fun facts, slides and swings, a skating rink, and a volleyball court. Friendly, uplifting, and safe.</div>
@@ -158,7 +158,7 @@ const groundY = (x, z) => {
 const app = new WVM({
   worldName: 'Outside World · Welcome', page: 'index',
   spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 520,
-  fog: 0xbfdcf2, fogNear: 140, fogFar: 760,
+  fog: 0xbfdcf2, fogNear: 140, fogFar: 760, showSelfieOnFirstVisit: false,
 });
 window.WVM_APP = app; // debug handle
 const S = app.scene, T = THREE;
@@ -457,7 +457,7 @@ function coaster(name, pts, color, opts = {}) {
 }
 function buildAmusement() {
   // Cloud Runner: big classic loop east of the mall
-  coaster('Cloud Runner', [[150, 3, 60], [175, 28, 40], [200, 8, 20], [230, 36, 0], [260, 10, -20], [280, 30, -60], [250, 6, -90], [210, 24, -100], [180, 4, -80], [160, 20, -40], [150, 3, 0]], NEON, { cars: 6, speed: 0.05, tag: 'The big one', html: '<p><b>Cloud Runner</b> climbs above the treeline and dives back toward the lake. Sit anywhere. Scream optional.</p>' });
+  coaster('The Chiller', [[150, 3, 60], [175, 28, 40], [200, 8, 20], [230, 36, 0], [260, 10, -20], [280, 30, -60], [250, 6, -90], [210, 24, -100], [180, 4, -80], [160, 20, -40], [150, 3, 0]], NEON, { cars: 6, speed: 0.05, tag: 'The big one', html: '<p><b>Cloud Runner</b> climbs above the treeline and dives back toward the lake. Sit anywhere. Scream optional.</p>' });
   // Aurora Loop: tight corkscrew, gold
   coaster('Aurora Loop', [[190, 3, 100], [205, 22, 95], [215, 26, 80], [200, 30, 70], [185, 20, 78], [195, 8, 95], [230, 12, 105], [250, 26, 90], [240, 8, 70], [215, 3, 90]], GOLD, { cars: 4, speed: 0.06, carColor: 0x2f6bff, tag: 'Corkscrew!', html: '<p><b>Aurora Loop</b> twists through a corkscrew you can see from the mall towers.</p>' });
   // Mall Blaster: enters the mall on the east wall and comes back out
@@ -635,6 +635,7 @@ function buildAirport() {
 /* ---------- billboards for the family of sites + hot-air balloon ---------- */
 function buildAds() {
   const bb = (x, z, rot, lines, col, url, title, html) => { const s = makeSign(lines, { width: 16, height: 6, postHeight: 7, bg: '#07123a', accent: col, border: col }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); app.addHotspot(s, { title, html, actions: [{ label: 'Visit ' + url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: url, newTab: true, primary: true }] }); };
+  bb(150, 130, 0.9, ['THE CHILLER', 'world-famous VR roller coaster · ride it'], '#38f0ff', 'https://worldvrmall.com/', 'The Chiller 🎢', '<p>The coaster this place is famous for. You just want to chill after you ride it. The green ring at the start of the track is where you get on.</p>');
   bb(-40, 150, -0.5, ['CUSTOM-CODED WEBSITES', 'from $99/mo · search optimized'], '#7cff6b', 'https://denver-webdesign.com/', 'Websites from $99/mo', '<p>Hand-coded, fast, search-optimized, leased month to month. Built by the team that built this world.</p>');
   bb(128, 150, 0.6, ['ADVERTISING FOR CONTRACTORS', 'more calls for the trades'], '#ff8a3d', 'https://advertisingforcontractors.com/', 'Advertising For Contractors', '<p>Marketing built for plumbers, painters, remodelers, and every trade.</p>');
   bb(-150, 100, 1.2, ['RESTAURANTS SEO', 'top of search · full tables'], '#ffd23f', 'https://restaurantsseo.com/', 'Restaurants SEO', '<p>Restaurant search optimization, and a 3D diner that explains it: advertisingforrestaurant.com</p>');
@@ -728,8 +729,48 @@ app.start(async (a) => {
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
   a.onFirstSteps(12, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 900); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
-  buildObservatory(); buildRealTrees();
+  buildObservatory(); buildRealTrees(); buildMallExtras();
+  a.setMap((g, xy) => {
+    const box = (x, z, w, d, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(cx - w * 0.5 * 0.55, cz - d * 0.5 * 0.55, w * 0.55, d * 0.55); g.globalAlpha = 1; if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
+    const circ = (x, z, r, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.beginPath(); g.arc(cx, cz, r * 0.55, 0, Math.PI * 2); g.fill(); if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
+    circ(0, 0, 640, '#2f7d3a'); circ(0, 0, 630, '#3fa34d');
+    g.strokeStyle = '#ffd23f'; g.lineWidth = 4; g.beginPath(); const [tx, tz] = xy(60, 20); g.arc(tx, tz, 200 * 0.55, 0, Math.PI * 2); g.stroke();
+    circ(-230, 20, 95, '#1f7fbf', 'Crystal Lake'); circ(-90, -150, 22, '#1f7fbf'); circ(70, -170, 18, '#1f7fbf');
+    circ(0, 0, 62, '#38f0ff', 'THE MALL'); box(0, 122, 20, 20, '#b08cff', 'Teleport'); box(210, 20, 190, 220, '#ff4f79', 'Park · Coasters'); circ(300, 40, 16, '#ffd23f', 'Wheel'); box(-120, 180, 120, 90, '#8a5a2b', 'Old World Market'); box(20, -200, 150, 100, '#7cff6b', 'Kids Zone'); box(300, -300, 120, 100, '#9fd3ff', 'Airport'); circ(-330, -330, 30, '#e9eef7', 'Observatory'); circ(-70, 230, 12, '#ff8a3d', 'Balloon'); box(60, 200, 40, 16, '#ffd23f', 'Train');
+    g.fillStyle = '#fff'; g.font = 'bold 22px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('World VR Mall · the floating island', 16, 30);
+  }, { scale: 0.5, cx: 0, cz: 0 });
+  const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go);
+    introSweep(a, [[-160, 90, 260], [-60, 40, 190], [10, 14, 150], [30, 5, 132]], [0, 30, 0], 11, () => { if (!localStorage.getItem('wvm_seen')) a.openSelfie(); }); }, 150);
 });
+
+/* ----- intro sweep: slow camera flight, avatar hidden, then reveal the whole body in third person ----- */
+function introSweep(a, pts, lookAt, secs, done) {
+  const curve = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(...p))); const L = new T.Vector3(...lookAt);
+  const t0 = a.t; const prev = a.targetDist > 0.6 ? a.targetDist : 7; a.locked = true; a.avatar.visible = false;
+  const skip = document.createElement('button'); skip.className = 'wvm-btn'; skip.textContent = 'Skip ▶'; skip.style.cssText = 'position:absolute;bottom:22px;right:16px;z-index:4'; a.hud.appendChild(skip);
+  const fn = () => { const k = clamp((a.t - t0) / secs, 0, 1); const e = 0.5 - Math.cos(k * Math.PI) / 2; a.rig.position.copy(curve.getPoint(e)); a.rig.rotation.set(0, 0, 0); a.camera.position.set(0, 0, 0); a.rig.updateMatrixWorld(); a.camera.lookAt(L); if (k >= 1) end(); };
+  a._intro = fn; a.updaters.push(fn);
+  const end = () => { if (!a._intro) return; a.updaters = a.updaters.filter(u => u !== fn); a._intro = null; skip.remove(); a.locked = false; a.avatar.visible = true; a.targetDist = prev; a.dist = prev; if (done) done(); };
+  skip.onclick = end;
+}
+
+/* ----- the mall from outside: levels of shops, a rotating ring, a helipad, a spiral slide you can ride, sweeping spotlights ----- */
+function buildMallExtras() {
+  const g = mallGroup;
+  for (const [y, r, col] of [[22, 44, NEON], [30, 38, GOLD], [46, 30, PINK]]) { const deck = new T.Mesh(new T.CylinderGeometry(r, r, 1.6, 48), M(0xe9f1ff, { roughness: 0.3, metalness: 0.2 })); deck.position.y = y; g.add(deck); const edge = new T.Mesh(new T.TorusGeometry(r, 0.4, 8, 64), glow(col, 1.3)); edge.rotation.x = Math.PI / 2; edge.position.y = y + 0.9; g.add(edge); const rail = new T.Mesh(new T.CylinderGeometry(r, r, 1.4, 48, 1, true), glass); rail.position.y = y + 1.6; g.add(rail); for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const shop = new T.Mesh(new T.BoxGeometry(6, 4, 4), M(pick([0xffffff, 0xdfe6f5, 0xf2b5d4, 0x9ad0ff]))); shop.position.set(Math.cos(a) * (r - 4), y + 2.8, Math.sin(a) * (r - 4)); shop.rotation.y = -a; g.add(shop); const trim = new T.Mesh(new T.BoxGeometry(6.2, 0.3, 4.2), glow(pick([NEON, PINK, GOLD, MINT]), 1.2)); trim.position.copy(shop.position); trim.position.y += 2.1; trim.rotation.y = -a; g.add(trim); } }
+  const rot = new T.Mesh(new T.TorusGeometry(34, 1.4, 12, 64), M(0xffffff, { metalness: 0.6, roughness: 0.2 })); rot.rotation.x = Math.PI / 2; rot.position.y = 40; g.add(rot); for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; const pod = new T.Mesh(new T.SphereGeometry(1.6, 12, 10), glow(i % 2 ? NEON : PINK, 1.4)); pod.position.set(Math.cos(a) * 34, 0, Math.sin(a) * 34); rot.add(pod); }
+  const padT = new T.Mesh(new T.CylinderGeometry(6, 7, 26, 16), M(0xdfe6f5, { roughness: 0.4 })); padT.position.set(52, 19, -20); g.add(padT); const pad = new T.Mesh(new T.CylinderGeometry(12, 12, 1, 32), M(0x1e2a4a)); pad.position.set(52, 32.5, -20); g.add(pad); const H = new T.Mesh(new T.PlaneGeometry(14, 14), new T.MeshBasicMaterial({ map: makeTextTexture('H', { w: 512, h: 512, bg: '#1e2a4a', fg: '#ffd23f', accent: '#ffd23f', font: 'bold 380px Poppins, Segoe UI, Arial', radius: 256, border: '#ffd23f', glow: false }), transparent: true })); H.rotation.x = -Math.PI / 2; H.position.set(52, 33.05, -20); g.add(H); for (let i = 0; i < 12; i++) { const lt = new T.Mesh(new T.SphereGeometry(0.4, 6, 6), glow(GOLD, 2)); const a = i / 12 * Math.PI * 2; lt.position.set(52 + Math.cos(a) * 11.5, 33.3, -20 + Math.sin(a) * 11.5); g.add(lt); app.onUpdate((dt, t) => { lt.material.emissiveIntensity = 1 + (Math.sin(t * 6 + i) > 0.6 ? 2 : 0); }); }
+  const heli = new T.Group(); heli.position.set(52, 34.5, -20); g.add(heli); const hb = new T.Mesh(new T.CapsuleGeometry(1.4, 4, 4, 10), M(0xff4f79, { metalness: 0.5, roughness: 0.3 })); hb.rotation.z = Math.PI / 2; hb.position.y = 1.4; heli.add(hb); const tail = new T.Mesh(new T.BoxGeometry(6, 0.5, 0.5), hb.material); tail.position.set(-5, 1.8, 0); heli.add(tail); const rotor = new T.Mesh(new T.BoxGeometry(9, 0.08, 0.5), M(0x222222)); rotor.position.y = 3.1; heli.add(rotor); const bub = new T.Mesh(new T.SphereGeometry(1.5, 12, 10), glass); bub.position.set(2.4, 1.6, 0); heli.add(bub); app.onUpdate((dt, t) => { rotor.rotation.y += dt * 9; heli.position.y = 34.5 + Math.max(0, Math.sin(t * 0.15)) * 40; heli.position.x = 52 + Math.max(0, Math.sin(t * 0.15)) * 30; });
+  const pts = []; for (let i = 0; i <= 60; i++) { const k = i / 60; const a = k * Math.PI * 3.2; const r = 40 + k * 22; pts.push(new T.Vector3(Math.cos(a) * r, 30 - k * 23.5, Math.sin(a) * r)); }
+  const curve = new T.CatmullRomCurve3(pts);
+  const slide = new T.Mesh(new T.TubeGeometry(curve, 120, 1.5, 10, false), new T.MeshPhysicalMaterial({ color: 0x38f0ff, transparent: true, opacity: 0.55, roughness: 0.05, side: T.DoubleSide, depthWrite: false })); g.add(slide);
+  const top = pts[0], bottom = pts[pts.length - 1];
+  const stairs = new T.Mesh(new T.BoxGeometry(3, 24, 3), M(0xdfe6f5)); stairs.position.set(top.x, 18, top.z); g.add(stairs);
+  const ss = makeSign(['THE BIG SLIDE', 'gold deck to the terrace · ride it'], { width: 8, height: 2.8, postHeight: 1.6, bg: '#07123a', accent: '#38f0ff', border: '#38f0ff' }); ss.position.set(bottom.x + 4, 6, bottom.z + 4); ss.rotation.y = -0.8; S.add(ss);
+  app.addInteractable(bottom.x + 3, bottom.z + 3, 5, '🛝 Ride the Big Slide', (a) => { if (a.ride) return; a.targetDist = Math.max(a.targetDist, 6); a.startRide((k) => curve.getPoint(1 - k).add(new T.Vector3(0, 0.6, 0)), { duration: 9, toast: '🛝 Wheeeee', endToast: 'Again? Stairs are right there.', exit: new T.Vector3(bottom.x + 3, 6, bottom.z + 3) }); });
+  for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + 0.4; const cone = new T.Mesh(new T.CylinderGeometry(0.3, 6, 90, 12, 1, true), new T.MeshBasicMaterial({ color: pick([NEON, PINK, GOLD]), transparent: true, opacity: 0.16, side: T.DoubleSide, depthWrite: false })); cone.position.set(Math.cos(a) * 58, 51, Math.sin(a) * 58); g.add(cone); app.onUpdate((dt, t) => { cone.rotation.z = Math.sin(t * 0.5 + i) * 0.45; cone.rotation.x = Math.cos(t * 0.35 + i) * 0.45; }); }
+  app.onUpdate((dt) => { rot.rotation.z += dt * 0.15; });
+}
 </script>
 </body>
 </html>

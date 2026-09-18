@@ -337,7 +337,7 @@ export function buildCharacter(ch, av = {}, faceTex = null) {
   if (ch.kind === 'robot') return Promise.resolve(makeRobot({ accent: av.shirt || 0x38f0ff }));
   if (ch.kind === 'drone') return Promise.resolve(makeDrone({ accent: av.shirt || 0x38f0ff }));
   if (ch.kind === 'bobble') return Promise.resolve(makeBobble(ch.bobble, Object.assign({}, common)));
-  if (ch.kind === 'glb') return loadRiggedPerson(ch.model, Object.assign({ faceTex: ch.face ? faceTex : null }, common)).catch(err => { console.warn('rigged character failed, using Classic', err); return makePerson(Object.assign({ age: 'adult', faceTex: faceTex, hairStyle: 'short' }, common)); });
+  if (ch.kind === 'glb') return loadRiggedPerson(ch.model, Object.assign({ faceTex: ch.face ? faceTex : null }, common)).catch(err => { console.error('rigged character failed, using Classic', err); if (window.WVM_APP) WVM_APP.toast('⚠️ 3D character could not load (' + (err && err.message ? err.message : err) + '). Using Classic.', 6000); return makePerson(Object.assign({ age: 'adult', faceTex: faceTex, hairStyle: 'short' }, common)); });
   return Promise.resolve(makePerson(common));
 }
 
@@ -443,7 +443,7 @@ export class WVM {
     this.t = 0; this.clock = new THREE.Clock();
     this.updaters = []; this.hotspots = []; this.obstacles = []; this.npcs = [];
     this.keys = {}; this.moveVec = new THREE.Vector2(); this.running = false;
-    this.yaw = this.opts.spawnYaw; this.pitch = -0.18; this.dist = this.opts.thirdPerson ? 6 : 0.01;
+    this.yaw = this.opts.spawnYaw; this.pitch = -0.1; this.dist = this.opts.thirdPerson ? 7 : 0.01;
     this.targetDist = this.dist; this.walkTarget = null;
     this.zones = []; this.paused = false; this.ride = null; this.vehicle = null; this.viewMode = 'follow'; this.walked = 0; this._stepHooks = [];
     this._build();
@@ -875,7 +875,7 @@ export class WVM {
   /* ----- input ----- */
   _bindInput() {
     const el = this.renderer.domElement;
-    addEventListener('keydown', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; this.keys[e.code] = true; if (e.code === 'KeyV') this.toggleView(); if (e.code === 'Escape') this.closePopup(); if (e.code === 'KeyL') this.toggleList(); if (e.code === 'KeyT' && this.vehicle) this.turbo(); });
+    addEventListener('keydown', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; this.keys[e.code] = true; if (e.code === 'KeyV') this.toggleView(); if (e.code === 'Escape') this.closePopup(); if (e.code === 'KeyL') this.toggleList(); if (e.code === 'KeyM') this.showMap(); if (e.code === 'KeyT' && this.vehicle) this.turbo(); });
     addEventListener('keyup', e => { this.keys[e.code] = false; });
     let dragging = false, lx = 0, ly = 0, moved = 0, downT = 0, pinch0 = 0, dist0 = 0, fov0 = 70;
     const onDown = (x, y) => { dragging = true; lx = x; ly = y; moved = 0; downT = performance.now(); };
@@ -984,6 +984,7 @@ export class WVM {
           <button class="wvm-ico" id="wvm-view" title="Change view (V)">👀</button>
           <button class="wvm-ico" id="wvm-me" title="Your character & selfie">🧑</button>
           <button class="wvm-ico" id="wvm-radio" title="Radio">📻</button>
+          <button class="wvm-ico" id="wvm-map" title="Map (M)">🗺️</button>
           <button class="wvm-ico" id="wvm-list" title="My shopping list (L)">🛍️<span>0</span></button>
           <button class="wvm-ico" id="wvm-help" title="Controls">❔</button>
         </div>
@@ -1029,6 +1030,7 @@ export class WVM {
     hud.querySelector('#wvm-view').onclick = () => this.toggleView();
     hud.querySelector('#wvm-list').onclick = () => this.toggleList();
     hud.querySelector('#wvm-radio').onclick = () => this.toggleRadio();
+    hud.querySelector('#wvm-map').onclick = () => this.showMap();
     this.listPanel.querySelector('.wvm-x').onclick = () => this.toggleList(false);
     this.radioPanel.querySelector('.wvm-x').onclick = () => this.toggleRadio(false);
     hud.querySelector('#wvm-me').onclick = () => this.openSelfie();
@@ -1043,6 +1045,20 @@ export class WVM {
       </ul>`);
     this.pop.addEventListener('click', e => { if (e.target === this.pop) this.closePopup(); });
     this._buildSelfie(); this._buildRadio();
+  }
+  /* Map: the page calls setMap(drawFn, {scale, cx, cz}) once. drawFn(ctx, toXY) paints the world; the engine adds you. */
+  setMap(drawFn, opts = {}) { this.mapDraw = drawFn; this.mapOpts = Object.assign({ scale: 0.5, cx: 0, cz: 0, size: 720 }, opts); }
+  showMap() {
+    if (!this.mapDraw) { this.toast('No map for this area yet'); return; }
+    const o = this.mapOpts, S = o.size; const c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
+    const toXY = (x, z) => [S / 2 + (x - o.cx) * o.scale, S / 2 + (z - o.cz) * o.scale];
+    g.fillStyle = '#071233'; g.fillRect(0, 0, S, S); this.mapDraw(g, toXY);
+    const p = this.player.position; const [px, py] = toXY(p.x, p.z); g.fillStyle = '#ff4f79'; g.beginPath(); g.arc(px, py, 9, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.stroke();
+    const d = -this.yaw; g.beginPath(); g.moveTo(px, py); g.lineTo(px + Math.sin(d) * 26, py - Math.cos(d) * 26); g.strokeStyle = '#ff4f79'; g.lineWidth = 4; g.stroke();
+    g.fillStyle = '#fff'; g.font = 'bold 20px Poppins, Segoe UI, Arial'; g.fillText('● you', px + 14, py + 6);
+    this.popup('🗺️ Map', '', []); const body = this.pop.querySelector('.wvm-pop-body'); c.style.cssText = 'width:100%;border-radius:12px;background:#071233'; body.appendChild(c);
+    const hint = document.createElement('p'); hint.className = 'muted'; hint.textContent = 'Tap anywhere on the map to walk there.'; body.appendChild(hint);
+    c.onclick = (ev) => { const r = c.getBoundingClientRect(); const mx = (ev.clientX - r.left) / r.width * S, my = (ev.clientY - r.top) / r.height * S; const wx = (mx - S / 2) / o.scale + o.cx, wz = (my - S / 2) / o.scale + o.cz; this.closePopup(); this.walkTo(wx, wz); this.toast('Walking there… 🚶', 2000); };
   }
   toggleList(force) { const on = force ?? !this.listPanel.classList.contains('on'); this.listPanel.classList.toggle('on', on); if (on) this.radioPanel.classList.remove('on'); }
   toggleRadio(force) { const on = force ?? !this.radioPanel.classList.contains('on'); this.radioPanel.classList.toggle('on', on); if (on) this.listPanel.classList.remove('on'); }

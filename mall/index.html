@@ -252,11 +252,11 @@ function buildElevator(x, z) {
   const ds = makeSign(['UPPER LEVEL', 'stores · cinema · game room · sunroof'], { width: 10, height: 3.2, postHeight: 2, bg: '#07123a', accent: '#ffd23f', border: '#ffd23f' }); ds.position.set(x + 8, 62.5, z + 4); ds.rotation.y = -0.6; S.add(ds);
   app.addObstacle(x, z, 4.8);
   const sign = makeSign(['GLASS ELEVATOR', 'to the Upper Level ⬆️'], { width: 8, height: 3, postHeight: 1.6, bg: '#07123a', accent: '#b08cff', border: '#b08cff' }); sign.position.set(x + 7, 0, z + 4); sign.rotation.y = -0.6; S.add(sign);
-  const ride = (a) => { if (a.ride) return; const t0 = a.t; const prevD = a.targetDist; a.targetDist = 0.01; a.toast('Going up. Look around: the mall, then the clouds. ☁️', 3500); a.ride = { pos: (t) => { const k = t - t0; const up = clamp(k / 12, 0, 1), stay = clamp((k - 12) / 8, 0, 1), down = clamp((k - 20) / 12, 0, 1); const y = 62 * (up - down); car.position.y = y; return new T.Vector3(x, y + 0.4, z); }, until: t0 + 33, done: (aa) => { aa.targetDist = prevD > 0.6 ? prevD : 5; aa.player.position.set(x + 6, 0, z + 6); car.position.y = 0; aa.toast('Back on the ground floor.', 2500); } };
+  const ride = (a) => { if (a.ride) return; const t0 = a.t; const prevD = a.targetDist; a.targetDist = 0.01; a.toast('Going up. Look around: the mall, then the clouds. ☁️', 3500); a.ride = { pos: (t) => { const k = t - t0; const up = clamp(k / 12, 0, 1), stay = clamp((k - 12) / 8, 0, 1), down = clamp((k - 20) / 12, 0, 1); const y = 62 * (up - down); car.position.y = y; return new T.Vector3(x, y + 0.4, z); }, until: t0 + 33, done: (aa) => { aa.targetDist = prevD > 0.6 ? prevD : 5; aa.player.position.set(x + 6, 0, z + 6); car.position.y = 0; aa.toast('Back on the ground floor.', 2500); } }; };
   // v5: the elevator is a real lift between floors. Up = Upper Level (stores, theater, game room). Down = lobby.
   const lift = (a) => { if (a.ride) return; const goingUp = LEVEL.cur === 0; if (goingUp) ensureUpper(); const y0 = goingUp ? 0 : UPPER.y, y1 = goingUp ? UPPER.y : 0; a.targetDist = Math.max(a.targetDist, 6); a.toast(goingUp ? '🛗 Going up to the Upper Level. Look down through the glass. ☁️' : '🛗 Going down to the Grand Lobby.', 3000);
     a.startRide((k) => { const y = y0 + (y1 - y0) * (0.5 - Math.cos(Math.min(1, k) * Math.PI) / 2); car.position.y = y; return new T.Vector3(x, y + 0.4, z); }, { duration: 9, sit: false, toast: false, exitLabel: '⏹ Stop', onEnd: () => { LEVEL.cur = goingUp ? 1 : 0; car.position.y = y1; a.player.position.set(x + 6, y1, z + 6); a.toast(goingUp ? 'Upper Level: 20 stores, the Cinema, the Game Room, and the sunroof. 🎮🎬' : 'Ground floor. 🛍️', 3500); } }); };
-  app.addInteractable(x + 5, z + 5, 4, '🛗 Elevator: Upper Level ⇅ Lobby', lift); };
+  app.addInteractable(x + 5, z + 5, 4, '🛗 Elevator: Upper Level ⇅ Lobby', lift);
   app.addHotspot(sign, { fn: lift }); app.addHotspot(car, { fn: lift });
 }
 
@@ -860,7 +860,39 @@ function buildFutureWing() {
   app.addPortal(cx, cz - 66, new T.Vector3(0, 0, -58), { label: 'Back to the Atrium', color: 0x38f0ff, yaw: Math.PI });
 }
 
+/* ----- intro sweep: a slow camera flight with the avatar hidden, then reveal the whole body ----- */
+function introSweep(a, pts, lookAt, secs, done) {
+  const curve = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(...p))); const L = new T.Vector3(...lookAt);
+  const t0 = a.t; const prev = a.targetDist > 0.6 ? a.targetDist : 7; a.locked = true; a.avatar.visible = false;
+  const skip = document.createElement('button'); skip.className = 'wvm-btn'; skip.textContent = 'Skip ▶'; skip.style.cssText = 'position:absolute;bottom:22px;right:16px;z-index:4'; a.hud.appendChild(skip);
+  const fn = () => { const k = clamp((a.t - t0) / secs, 0, 1); const e = 0.5 - Math.cos(k * Math.PI) / 2; a.rig.position.copy(curve.getPoint(e)); a.rig.rotation.set(0, 0, 0); a.camera.position.set(0, 0, 0); a.rig.updateMatrixWorld(); a.camera.lookAt(L); if (k >= 1) end(); };
+  a._intro = fn; a.updaters.push(fn);
+  const end = () => { if (!a._intro) return; a.updaters = a.updaters.filter(u => u !== fn); a._intro = null; skip.remove(); a.locked = false; a.avatar.visible = true; a.targetDist = prev; a.dist = prev; if (done) done(); };
+  skip.onclick = end;
+}
+
+/* ----- lobby wow: hanging globe, orbiting country banners, sweeping lasers, second-floor balcony ring ----- */
+function buildLobbyWow() {
+  const globe = new T.Group(); globe.position.set(0, 12, 0); S.add(globe);
+  const earth = new T.Mesh(new T.SphereGeometry(5.5, 32, 24), new T.MeshStandardMaterial({ color: 0x2f8cff, roughness: 0.6, emissive: 0x0a2a6a, emissiveIntensity: 0.3 })); globe.add(earth);
+  for (let i = 0; i < 26; i++) { const land = new T.Mesh(new T.SphereGeometry(rand(1.2, 2.6), 10, 8), M(0x3fa34d, { roughness: 0.9 })); land.position.setFromSphericalCoords(5.35, rand(0.4, 2.7), rand(0, 6.28)); land.scale.set(1, rand(0.5, 1), 0.35); land.lookAt(0, 0, 0); globe.add(land); }
+  const ring = new T.Mesh(new T.TorusGeometry(8.5, 0.25, 8, 64), glow(GOLD, 1.5)); ring.rotation.x = 1.2; globe.add(ring);
+  const ring2 = new T.Mesh(new T.TorusGeometry(10.5, 0.18, 8, 64), glow(NEON, 1.4)); ring2.rotation.x = -0.8; ring2.rotation.y = 0.6; globe.add(ring2);
+  const flags = ['🇺🇸 USA', '🇨🇦 Canada', '🇲🇽 Mexico', '🇧🇷 Brazil', '🇬🇧 UK', '🇫🇷 France', '🇩🇪 Germany', '🇯🇵 Japan', '🇰🇷 Korea', '🇮🇳 India', '🇦🇺 Australia', '🇿🇦 South Africa', '🇳🇬 Nigeria', '🇪🇬 Egypt', '🇨🇳 China', '🇮🇹 Italy'];
+  const sprites = flags.map((f) => { const s = makeSprite(f, { scale: 5, bg: 'rgba(5,11,28,0.85)', accent: pick(['#38f0ff', '#ffd23f', '#ff4f79', '#7cff6b']) }); S.add(s); return s; });
+  const hang = new T.Mesh(new T.CylinderGeometry(0.08, 0.08, 6, 6), M(0x9aa7c7)); hang.position.set(0, 21, 0); S.add(hang);
+  const banner = new T.Mesh(new T.PlaneGeometry(26, 3), new T.MeshBasicMaterial({ map: makeTextTexture('195 COUNTRIES · ONE MALL', { w: 2000, h: 240, bg: 'rgba(5,11,28,0.9)', fg: '#fff', accent: '#ffd23f', font: 'bold 150px Poppins, Segoe UI, Arial', radius: 60, border: '#ffd23f' }), transparent: true, side: T.DoubleSide })); banner.position.set(0, 4.5, 0); S.add(banner);
+  const lasers = []; for (let i = 0; i < 6; i++) { const l = new T.Mesh(new T.CylinderGeometry(0.06, 0.6, 40, 6, 1, true), new T.MeshBasicMaterial({ color: pick([NEON, PINK, GOLD, MINT, VIOLET]), transparent: true, opacity: 0.35, side: T.DoubleSide, depthWrite: false })); l.position.set(0, 17.5, 0); S.add(l); lasers.push(l); }
+  app.onUpdate((dt, t) => { globe.rotation.y += dt * 0.25; ring.rotation.z += dt * 0.4; ring2.rotation.z -= dt * 0.3; banner.rotation.y += dt * 0.5; sprites.forEach((s, i) => { const a = t * 0.25 + i / sprites.length * Math.PI * 2; s.position.set(Math.cos(a) * 15, 8.5 + Math.sin(t * 1.3 + i) * 1.2, Math.sin(a) * 15); }); lasers.forEach((l, i) => { l.rotation.z = Math.sin(t * 0.7 + i) * 0.9; l.rotation.x = Math.cos(t * 0.5 + i * 1.3) * 0.9; l.material.opacity = 0.2 + Math.abs(Math.sin(t * 2 + i)) * 0.25; }); });
+  app.addHotspot(earth, { title: 'One mall, 195 countries 🌍', html: '<p>Every storefront here belongs to a real business somewhere on this globe. Pick a country, walk to its wing.</p>', actions: [{ label: '🗺️ Directory', fn: () => showDirectory(app), keep: true }] });
+  const bal = new T.Mesh(new T.RingGeometry(42, 52, 64), M(0xffffff, { roughness: 0.4, side: T.DoubleSide })); bal.rotation.x = -Math.PI / 2; bal.position.y = 9; S.add(bal);
+  const balEdge = new T.Mesh(new T.TorusGeometry(42, 0.3, 8, 64), glow(NEON, 1.2)); balEdge.rotation.x = Math.PI / 2; balEdge.position.y = 9.2; S.add(balEdge);
+  const railing = new T.Mesh(new T.CylinderGeometry(42.2, 42.2, 1.1, 64, 1, true), glass); railing.position.y = 9.7; S.add(railing);
+  for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const p = makePerson(); app.addNPC(p, [new T.Vector3(Math.cos(a) * 46, 9, Math.sin(a) * 46), new T.Vector3(Math.cos(a + 0.5) * 46, 9, Math.sin(a + 0.5) * 46)], { pause: 4, speed: 0.8, y: 9 }); }
+}
+
 function buildExpansion(a) {
+  buildLobbyWow();
   buildFloors(); buildDirectoryPole(0, 78); buildWalkways(); buildSunroof(); buildPiano(-24, 78); buildFloatingStairs(); buildConcourse();
   a.onUpdate(() => { a.level = LEVEL.cur; });
   a.addPortal(204, 0, new T.Vector3(604, 0, 0), { label: 'Chinatown 🏮', color: 0xffd23f, yaw: -Math.PI / 2 });
@@ -881,11 +913,21 @@ app.start(async (a) => {
   a.addZone('kids', new T.Vector3(-100, 0, -100), 170, buildKids);
   a.addZone('gardens', new T.Vector3(0, 0, 100), 200, buildGardens);
   buildExpansion(a);
+  a.setMap((g, xy) => {
+    const box = (x, z, w, d, col, label, s = 0.75) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.fillRect(cx - w * 0.5 * s, cz - d * 0.5 * s, w * s, d * s); if (label) { g.fillStyle = '#fff'; g.font = 'bold 14px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
+    box(0, 0, 440, 440, '#e9eefc'); box(0, 0, 430, 430, '#dfe6f5');
+    box(-132, 0, 168, 40, '#38f0ff', 'Americas Wing'); box(132, 0, 168, 40, '#ffd23f', 'Europe Wing'); box(0, -132, 40, 168, '#ff4f79', 'Asia · Africa · Islands');
+    box(100, -100, 90, 90, '#b08cff', 'Food Court'); box(-100, -100, 90, 90, '#7cff6b', 'Kids Zone · Zoo'); box(-100, 100, 90, 90, '#9ad0ff', 'Gardens'); box(100, 100, 90, 90, '#ff8a3d', 'Sky Wheel');
+    box(0, 0, 80, 80, '#ffffff', 'Atrium · Globe'); box(0, 80, 60, 60, '#f2b5d4', 'Lobby'); box(0, 108, 20, 8, '#7cff6b', 'EXIT');
+    box(40, -40, 14, 14, '#1e2a4a', '🛗'); box(-12, -30, 14, 14, '#1e2a4a', '🪜');
+    box(0, -300, 70, 160, '#ffb37a', 'Grand Concourse →'); box(204, 0, 10, 10, '#ffd23f', '🏮'); box(-204, 0, 10, 10, '#7cff6b', '👽'); box(0, -62, 10, 10, '#38f0ff', '🤖');
+    g.fillStyle = '#fff'; g.font = 'bold 20px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('Inside the mall · portals: 🏮 Chinatown 👽 Alien Quarter 🤖 Future Wing · 🛗🪜 Upper Level', 12, 28);
+  }, { scale: 0.55, cx: 0, cz: -40 });
   renderDirectory();
   a.onUpdate((dt) => { for (const m of shaderMats) m.uniforms.t.value += dt; });
   a.onUpdate(() => { const p = a.player.position; let w = 'Grand Lobby'; if (LEVEL.cur === 1) w = 'Upper Level'; else if (p.z < -230) w = 'Grand Concourse · Sunset Promenade'; else if (p.x > 500) w = 'Chinatown'; else if (p.x < -500) w = 'Alien Quarter'; else if (p.z > 500) w = 'Future Wing'; else if (p.z < 48 && Math.abs(p.x) < 48 && p.z > -48) w = 'The Atrium'; else if (p.x < -48 && Math.abs(p.z) < 32) w = 'Americas Wing'; else if (p.x > 48 && Math.abs(p.z) < 32) w = 'Europe Wing'; else if (p.z < -48 && Math.abs(p.x) < 32) w = 'Asia · Africa · Islands'; else if (p.x > 48 && p.z < -48) w = 'Global Food Court'; else if (p.x < -48 && p.z < -48) w = "Kids' Discovery Zone"; else if (p.x < -48 && p.z > 48) w = 'Butterfly Garden'; else if (p.x > 48 && p.z > 48) w = 'Sky Wheel'; const el = a.hud.querySelector('.wvm-where'); const txt = 'Inside the Mall · ' + w; if (el.textContent !== txt) el.textContent = txt; });
   let from = null; try { from = sessionStorage.getItem('wvm_from'); sessionStorage.removeItem('wvm_from'); } catch (e) { }
-  if (from === 'index') { a.player.position.set(3, 0, 104); a.targetDist = 9; a.pitch = -0.12; a.yaw = 0.05; a.locked = true; a.walkTarget = new T.Vector3(3, 0, 88); const un = setInterval(() => { if (!a.loader.classList.contains('off')) return; setTimeout(() => { a.locked = false; a.walkTarget = null; a.toast('Welcome in! Green buttons = things you can do. 🗺️ directory is straight ahead.', 4500); }, 3600); clearInterval(un); }, 200); }
+  if (from === 'index') { a.player.position.set(3, 0, 88); a.targetDist = 7; a.pitch = -0.08; a.yaw = 0.05; a.locked = true; a.avatar.visible = false; const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go); introSweep(a, [[0, 14, 130], [0, 9, 96], [-18, 5, 60], [0, 3, 40]], [0, 6, -40], 10, () => { a.toast('Welcome in. Green buttons = things you can do. The glowing pole shows the way. 🗺️', 4500); }); }, 150); }
   else setTimeout(() => a.toast('Welcome in! Green buttons = things you can do. 🗺️ directory is straight ahead.', 4500), 1500);
   if (location.hash === '#leasing') { a.player.position.set(22, 0, 84); a.yaw = -Math.PI / 2; setTimeout(() => pitch(a, 0), 1200); }
 });
