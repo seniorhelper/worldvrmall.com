@@ -45,6 +45,10 @@ export const lerp = (a, b, t) => a + (b - a) * t;
 const isTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 /* Phones and small tablets get the lighter render path. */
 export const isMobile = () => isTouch() && Math.min(innerWidth, innerHeight) < 900;
+export const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/* Phones get half-size generated textures (a quarter of the GPU memory). iPhones are the strictest: Safari kills a tab that uses too much. */
+export const TEX_SCALE = isMobile() ? 0.5 : 1;
+export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; } return t; }
 
 /* ---- Sky presets (files live in /images/) ---- */
 export const SKIES = {
@@ -65,8 +69,8 @@ export function makeTextTexture(lines, opts = {}) {
     font = 'bold 72px Poppins, Segoe UI, Arial, sans-serif', pad = 40, radius = 40,
     align = 'center', glow = true, border = accent, lineGap = 1.15, small = null,
   } = opts;
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const g = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = Math.round(w * TEX_SCALE); c.height = Math.round(h * TEX_SCALE);
+  const g = c.getContext('2d'); g.scale(TEX_SCALE, TEX_SCALE);
   g.fillStyle = bg;
   roundRect(g, 0, 0, w, h, radius); g.fill();
   if (border) { g.lineWidth = 12; g.strokeStyle = border; roundRect(g, 6, 6, w - 12, h - 12, radius); g.stroke(); }
@@ -87,7 +91,7 @@ export function makeTextTexture(lines, opts = {}) {
     g.font = 'bold 34px Poppins, Segoe UI, Arial, sans-serif'; g.fillStyle = accent;
     g.fillText(small, w / 2, h - pad, w - pad * 2);
   }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  const t = canvasTex(c); t.anisotropy = isMobile() ? 1 : 4;
   return t;
 }
 function roundRect(g, x, y, w, h, r) {
@@ -171,9 +175,10 @@ export function makeFaceHead(faceTex, skin, radius = 0.24) {
   const g = new THREE.Group();
   const head = new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 16), M(skin)); head.castShadow = true; g.add(head);
   if (faceTex) {
-    const phiLen = Math.PI * 0.72;
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(radius + 0.006, 24, 18, Math.PI / 2 - phiLen / 2, phiLen, Math.PI * 0.14, Math.PI * 0.78), new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, alphaTest: 0.35, roughness: 0.9 }));
-    cap.scale.set(1, 1, 0.82); g.add(cap); g.userData.cap = cap;
+    // the selfie oval as a gently curved plate on the front of the head: always visible, no z-fighting, no hiding inside hair
+    const geo = new THREE.SphereGeometry(radius * 1.55, 20, 16, Math.PI / 2 - 0.62, 1.24, Math.PI * 0.28, Math.PI * 0.44);
+    const cap = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide }));
+    cap.position.set(0, 0, -radius * 0.45); cap.scale.set(0.95, 1.15, 1); g.add(cap); g.userData.cap = cap;
   }
   g.userData.head = head;
   return g;
@@ -380,10 +385,11 @@ export function loadRiggedPerson(url, opts = {}) {
       if (headBone) {
         model.updateMatrixWorld(true); const box = new THREE.Box3(); if (headMesh) { headMesh.geometry.computeBoundingBox(); box.copy(headMesh.geometry.boundingBox).applyMatrix4(headMesh.matrixWorld); } else { box.setFromCenterAndSize(new THREE.Vector3(0, 1.62, 0), new THREE.Vector3(0.3, 0.3, 0.3)); }
         const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
-        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, r);
-        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(r * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = r * 0.08; plate.add(hairCap);
+        const hr = 0.125 * ((opts.height || 1.8) / 1.8);
+        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
+        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
         if (headMesh) headMesh.visible = false;
-        const wrap = new THREE.Group(); wrap.position.copy(center); model.add(wrap); headBone.attach(wrap); wrap.add(plate); plate.position.set(0, 0, 0);
+        g.add(plate); g.userData.faceHead = plate; g.userData.headBone = headBone; g.userData.headOffset = new THREE.Vector3(0, hr * 0.55, 0.02);
         g.userData.face = plate.userData.cap;
       }
     }
@@ -417,6 +423,7 @@ export function animatePerson(p, t, speed = 1) {
   const u = p.userData;
   if (u.mixer) {
     const dt = clamp(t - (u.lastT || t), 0, 0.05); u.lastT = t; u.mixer.update(dt);
+    if (u.faceHead && u.headBone) { p.updateMatrixWorld(true); const v = new THREE.Vector3(); u.headBone.getWorldPosition(v); p.worldToLocal(v); u.faceHead.position.copy(v).add(u.headOffset); }
     const A = u.actions; const want = u.pose === 'sit' && A.sit ? 'sit' : u.pose === 'wave' && A.wave ? 'wave' : speed > 1.4 && A.run ? 'run' : speed > 0.05 && A.walk ? 'walk' : 'idle';
     for (const k of Object.keys(A)) { const a = A[k]; if (!a) continue; const target = k === want ? 1 : 0; a.setEffectiveWeight(lerp(a.getEffectiveWeight(), target, 0.12)); if (k === 'walk' || k === 'run') a.setEffectiveTimeScale(clamp(speed, 0.6, 1.8)); }
     return;
@@ -446,7 +453,7 @@ export class WVM {
       title: 'World VR Mall', sky: SKIES.day, nightSky: SKIES.night, autoNight: true, fog: 0x9fd3ff, fogNear: 60, fogFar: 420,
       spawn: new THREE.Vector3(0, 0, 20), spawnYaw: Math.PI, thirdPerson: true,
       groundY: () => 0, walkSpeed: 6.5, runSpeed: 11, worldName: 'Outside World', page: 'index',
-      showSelfieOnFirstVisit: true, exposure: 1.0, shadows: true, bloom: !isMobile(), bloomStrength: 0.45, envFromSky: true,
+      showSelfieOnFirstVisit: true, exposure: 1.0, shadows: !isIOS(), bloom: !isMobile(), bloomStrength: 0.45, envFromSky: !isMobile(),
       shadowSize: isMobile() ? 1024 : 2048, shadowRange: isMobile() ? 45 : 70, maxDist: 320,
     }, opts);
     this.t = 0; this.clock = new THREE.Clock();
@@ -465,8 +472,9 @@ export class WVM {
     this._injectCSS();
     this._buildHUD();
 
-    const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio < 2, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.5 : 1.75));
+    const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: !isMobile() && window.devicePixelRatio < 2, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.25 : 1.75));
+    const pre = document.getElementById('wvm-preload'); if (pre) pre.remove();
     renderer.setSize(innerWidth, innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = o.exposure;
@@ -536,16 +544,20 @@ export class WVM {
   /* Load a 360 panorama as the sky. Pass a path WITHOUT extension to try .avif first, then .jpg.
      The previous sky texture is disposed so only one lives in memory. */
   setSky(url, opts = {}) {
+    this._skyCache = this._skyCache || new Map(); this.skyUrl = url;
+    if (this._skyCache.has(url)) { this._applySky(this._skyCache.get(url), opts, true); return; }
     const hasExt = /\.(avif|jpe?g|png|webp)$/i.test(url);
-    const tryLoad = (u, onFail) => this.texLoader.load(u, (tex) => this._applySky(tex, opts), undefined, onFail);
+    const done = (tex) => { if (isMobile() && tex.image && tex.image.width > 2048) { const c = document.createElement('canvas'); c.width = 2048; c.height = 1024; c.getContext('2d').drawImage(tex.image, 0, 0, 2048, 1024); const t2 = new THREE.CanvasTexture(c); tex.dispose(); tex = t2; } this._skyCache.set(url, tex); this._applySky(tex, opts, true); };
+    const tryLoad = (u, onFail) => this.texLoader.load(u, done, undefined, onFail);
     if (hasExt) tryLoad(url, () => { this.scene.background = new THREE.Color(0x87c6ff); });
     else tryLoad(url + '.avif', () => tryLoad(url + '.jpg', () => tryLoad('/images/sky.jpg', () => { this.scene.background = new THREE.Color(0x87c6ff); })));
     this.skyUrl = url;
   }
+  preloadSky(url) { this._skyCache = this._skyCache || new Map(); if (this._skyCache.has(url)) return; const hasExt = /\.(avif|jpe?g|png|webp)$/i.test(url); const u = hasExt ? url : url + '.avif'; this.texLoader.load(u, (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }, undefined, () => { if (!hasExt) this.texLoader.load(url + '.jpg', (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }); }); }
+  buzz(ms = 60) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
   _applySky(tex, opts = {}) {
-    tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
-    const old = this.scene.background; this.scene.background = tex;
-    if (old && old.isTexture) old.dispose();
+    tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
+    this.scene.background = tex;
     if (this.opts.envFromSky) {
       const pm = new THREE.PMREMGenerator(this.renderer); const env = pm.fromEquirectangular(tex).texture; pm.dispose();
       if (this.scene.environment) this.scene.environment.dispose(); this.scene.environment = env;
@@ -1055,7 +1067,7 @@ export class WVM {
         <li>The joystick can be dragged anywhere on the screen (grab the ⋮⋮ handle) and switched to a D-pad with ⟲.</li>
       </ul>`);
     this.pop.addEventListener('click', e => { if (e.target === this.pop) this.closePopup(); });
-    this._buildSelfie(); this._buildRadio();
+    this._buildSelfie(); this._buildRadio(); this._dragPanel(this.radioPanel); this._dragPanel(this.listPanel);
   }
   /* Map: the page calls setMap(drawFn, {scale, cx, cz}) once. drawFn(ctx, toXY) paints the world; the engine adds you. */
   setMap(drawFn, opts = {}) { this.mapDraw = drawFn; this.mapOpts = Object.assign({ scale: 0.5, cx: 0, cz: 0, size: 720 }, opts); }
@@ -1070,6 +1082,13 @@ export class WVM {
     this.popup('🗺️ Map', '', []); const body = this.pop.querySelector('.wvm-pop-body'); c.style.cssText = 'width:100%;border-radius:12px;background:#071233'; body.appendChild(c);
     const hint = document.createElement('p'); hint.className = 'muted'; hint.textContent = 'Tap anywhere on the map to walk there.'; body.appendChild(hint);
     c.onclick = (ev) => { const r = c.getBoundingClientRect(); const mx = (ev.clientX - r.left) / r.width * S, my = (ev.clientY - r.top) / r.height * S; const wx = (mx - S / 2) / o.scale + o.cx, wz = (my - S / 2) / o.scale + o.cz; this.closePopup(); this.walkTo(wx, wz); this.toast('Walking there… 🚶', 2000); };
+  }
+  _dragPanel(panel) {
+    const head = panel.querySelector('.wvm-panel-head'); let dr = false, ox = 0, oy = 0; head.style.cursor = 'grab'; head.title = 'Drag me anywhere';
+    const st = (x, y) => { dr = true; const r = panel.getBoundingClientRect(); ox = x - r.left; oy = y - r.top; };
+    const mv = (x, y) => { if (!dr) return; panel.style.left = clamp(x - ox, 0, innerWidth - 80) + 'px'; panel.style.top = clamp(y - oy, 0, innerHeight - 60) + 'px'; panel.style.right = 'auto'; };
+    head.addEventListener('mousedown', ev => { if (ev.target.tagName === 'BUTTON') return; st(ev.clientX, ev.clientY); ev.preventDefault(); }); addEventListener('mousemove', ev => mv(ev.clientX, ev.clientY)); addEventListener('mouseup', () => dr = false);
+    head.addEventListener('touchstart', ev => { if (ev.target.tagName === 'BUTTON') return; st(ev.touches[0].clientX, ev.touches[0].clientY); }, { passive: true }); head.addEventListener('touchmove', ev => { mv(ev.touches[0].clientX, ev.touches[0].clientY); ev.preventDefault(); }, { passive: false }); head.addEventListener('touchend', () => dr = false);
   }
   toggleList(force) { const on = force ?? !this.listPanel.classList.contains('on'); this.listPanel.classList.toggle('on', on); if (on) this.radioPanel.classList.remove('on'); }
   toggleRadio(force) { const on = force ?? !this.radioPanel.classList.contains('on'); this.radioPanel.classList.toggle('on', on); if (on) this.listPanel.classList.remove('on'); }
@@ -1134,7 +1153,7 @@ export class WVM {
       // soft edge so the face blends into the skin of the head
       g.save(); g.globalCompositeOperation = 'destination-in'; const gr = g.createRadialGradient(W / 2, H * 0.5, H * 0.32, W / 2, H * 0.5, H * 0.5); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.85, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore();
       try { localStorage.setItem('wvm_face', cv.toDataURL('image/png')); } catch (e) { }
-      const ok = !!localStorage.getItem('wvm_face'); this._buildAvatar(); this.toast(ok ? 'Looking good! That\'s you now ✨' : '⚠️ Could not save the selfie on this device.', 3000);
+      const ok = !!localStorage.getItem('wvm_face'); const sv = this._load('wvm_avatar', {}) || {}; const chNow = CHARACTERS.find(c => c.id === (sv.character || 'classic')); if (chNow && !chNow.face) { sv.character = 'classic'; this._save('wvm_avatar', sv); this.toast('Switched to Classic so your face fits 🙂', 2500); } this._buildAvatar(); this.toast(ok ? 'Looking good! That\'s you now ✨' : '⚠️ Could not save the selfie on this device.', 3000);
     };
     el.querySelector('#wvm-cam-clear').onclick = () => { localStorage.removeItem('wvm_face'); this._buildAvatar(); this.toast('Cartoon face restored'); };
     el.querySelector('#wvm-selfie-done').onclick = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; el.classList.remove('cam'); } el.classList.remove('on'); this.paused = false; document.body.classList.remove('wvm-modal-open'); localStorage.setItem('wvm_seen', '1'); };
@@ -1163,7 +1182,7 @@ export class WVM {
       #wvm-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
       .wvm-panel{position:absolute;top:58px;right:10px;width:min(360px,92vw);max-height:70vh;overflow:auto;background:rgba(8,20,50,.95);border:1px solid rgba(124,248,255,.4);border-radius:16px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.5)}
       .wvm-panel.on{display:block}
-      .wvm-panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+      .wvm-panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1);user-select:none;-webkit-user-select:none}
       .wvm-x{background:none;border:0;color:#fff;font-size:16px;cursor:pointer}
       .wvm-list-body,.wvm-radio-body{padding:10px 14px}
       .wvm-stations{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px} .wvm-radio-frame{aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden}

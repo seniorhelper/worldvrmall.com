@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L } from './wvm-engine.js?v=7';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=8';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -17,7 +17,7 @@ export const STORE_W = 14, STORE_D = 12, STORE_H = 7;
 /* ---------- textures ---------- */
 export function logoTexture(logo, opts = {}) {
   const { w = 1024, h = 320 } = opts;
-  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = Math.round(w * TEX_SCALE); c.height = Math.round(h * TEX_SCALE); const g = c.getContext('2d'); g.scale(TEX_SCALE, TEX_SCALE);
   g.fillStyle = logo.bg || '#0b1a3a'; g.fillRect(0, 0, w, h);
   g.strokeStyle = logo.accent || '#fff'; g.lineWidth = 10; g.strokeRect(8, 8, w - 16, h - 16);
   g.textBaseline = 'middle'; g.textAlign = 'left';
@@ -27,7 +27,7 @@ export function logoTexture(logo, opts = {}) {
   fitText(g, logo.text || '', 300, h / 2 - (logo.sub ? 55 : 0), w - 340, 130);
   g.shadowBlur = 0;
   if (logo.sub) { g.fillStyle = logo.accent || '#fff'; g.font = 'bold 64px Poppins, "Segoe UI", Arial, sans-serif'; fitText(g, logo.sub, 300, h / 2 + 70, w - 340, 64); }
-  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; return t;
+  const t = canvasTex(c); t.anisotropy = isMobile() ? 1 : 4; return t;
 }
 function fitText(g, text, x, y, maxW, size) {
   let s = size; const fam = g.font.replace(/^(bold )?\d+px /, ''); const bold = g.font.startsWith('bold') ? 'bold ' : '';
@@ -35,14 +35,14 @@ function fitText(g, text, x, y, maxW, size) {
   g.fillText(text, x, y);
 }
 function cardTexture(p, colors) {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 512; const g = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = Math.round(512 * TEX_SCALE); c.height = Math.round(512 * TEX_SCALE); const g = c.getContext('2d'); g.scale(TEX_SCALE, TEX_SCALE);
   g.fillStyle = '#ffffff'; g.fillRect(0, 0, 512, 512);
   g.fillStyle = colors.trim || '#38f0ff'; g.fillRect(0, 0, 512, 18);
   g.font = '150px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(p.icon || '🛍️', 256, 130);
   g.fillStyle = '#0b1a3a'; wrap(g, p.title, 256, 290, 440, 'bold 38px Poppins, "Segoe UI", Arial', 46);
   g.fillStyle = colors.trim || '#38f0ff'; g.font = 'bold 44px Poppins, "Segoe UI", Arial'; g.fillText(p.price || '', 256, 400);
   g.fillStyle = '#0b1a3a'; g.font = '26px Poppins, "Segoe UI", Arial'; g.fillText('tap to view', 256, 468);
-  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
+  return canvasTex(c);
 }
 function wrap(g, text, x, y, maxW, font, lh) {
   g.font = font; const words = String(text).split(' '); const lines = []; let line = '';
@@ -170,7 +170,7 @@ export function buildStore(app, store, opts = {}) {
     const kind = store.back || pick(['art', 'ad', 'projector', 'art', 'mural']);
     const bz = -D - 0.2; const addBack = (mesh) => { mesh.rotation.y = Math.PI; mesh.position.z = bz; g.add(mesh); return mesh; };
     if (kind === 'art') {
-      for (let i = 0; i < (big ? 3 : 2); i++) { const fr = addBack(new T.Mesh(new T.BoxGeometry(4.2, 3.2, 0.12), M(0x2a1a10, { roughness: 0.6 }))); fr.position.set(-(big ? 8 : 3.5) + i * (big ? 8 : 7), H * 0.55, bz - 0.06); const art = addBack(new T.Mesh(new T.PlaneGeometry(3.8, 2.8), new T.MeshBasicMaterial({ map: artTexture(Math.round(x * 7 + z * 13 + i * 31)) }))); art.position.set(fr.position.x, H * 0.55, bz - 0.14); const lamp = new T.PointLight(0xfff1d6, 0.5, 6); lamp.position.set(fr.position.x, H * 0.55 + 2, bz - 1); g.add(lamp); }
+      for (let i = 0; i < (big ? 3 : 2); i++) { const fr = addBack(new T.Mesh(new T.BoxGeometry(4.2, 3.2, 0.12), M(0x2a1a10, { roughness: 0.6 }))); fr.position.set(-(big ? 8 : 3.5) + i * (big ? 8 : 7), H * 0.55, bz - 0.06); const art = addBack(new T.Mesh(new T.PlaneGeometry(3.8, 2.8), new T.MeshBasicMaterial({ map: artTexture(Math.round(x * 7 + z * 13 + i * 31)) }))); art.position.set(fr.position.x, H * 0.55, bz - 0.14); }
     } else if (kind === 'ad') {
       const ad = store.backAd || { lines: ['SEO CAMPAIGN', '10% OFF', 'eyetoad.com'], bg: '#0b1a3a', accent: '#ffd23f' };
       const p = addBack(new T.Mesh(new T.PlaneGeometry(W - 3, (W - 3) * 0.45), new T.MeshBasicMaterial({ map: makeTextTexture(ad.lines, { w: 1600, h: 720, bg: ad.bg, fg: '#fff', accent: ad.accent, font: 'bold 150px Poppins, Segoe UI, Arial', border: ad.accent, radius: 30 }) }))); p.position.set(0, H * 0.55, bz - 0.12);
@@ -203,7 +203,7 @@ export function buildStore(app, store, opts = {}) {
     const s1 = makeSprite('SPACE AVAILABLE', { scale: 8, bg: 'rgba(255,79,121,0.9)', fg: '#fff', accent: '#ffd23f' }); s1.position.set(0, 3.8, -4); g.add(s1);
     const s2 = makeSprite(`Reserved for a ${store.tag} brand from ${store.city}`, { scale: 9, bg: 'rgba(8,20,50,0.85)', accent: colors.trim }); s2.position.set(0, 2.6, -4); g.add(s2);
     for (const sx of [-1, 1]) for (const y of [1.0, 2.6]) { const shf = new T.Mesh(new T.BoxGeometry(0.9, 0.08, D - 3.5), M(0xdfe6f5)); shf.position.set(sx * (hw - 0.6), y, -D / 2 - 1.2); g.add(shf); }
-    const hot = { title: `${store.name} — space available`, html: `<p>This storefront in the <b>${esc(wingName(store.wing))}</b> is reserved for a <b>${esc(store.tag)}</b> brand from <b>${esc(store.city)}</b>. It could be yours instead.</p><p>Ten-minute setup. Your logo, your products, buy buttons to your own site, an AI clerk, and a search-optimized store page. Premium spots go first come, first served.</p>`, actions: [{ label: '📞 Claim this space: 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'Leasing details', href: '/lease/' }] };
+    const hot = { title: `${store.name} — space available`, html: `<p>This storefront in the <b>${esc(wingName(store.wing))}</b> is reserved for a <b>${esc(store.tag)}</b> brand from <b>${esc(store.city)}</b>. It could be yours instead.</p><p>Ten-minute setup. Your logo, your products, buy buttons to your own site, an AI clerk, and a search-optimized store page. Premium spots go first come, first served.</p><p><b>360° Showroom upgrade:</b> a photo-real custom-built room with your products placed inside it (see the model showroom up front). Launch price $499/mo, 24-month minimum.</p>`, actions: [{ label: '📞 Claim this space: 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'Leasing details', href: '/lease/' }] };
     app.addHotspot(g, hot);
     return g;
   }
@@ -344,7 +344,7 @@ export function buildStore(app, store, opts = {}) {
   if (store.fun && !placeholder) {
     for (let i = 0; i < 7; i++) { const b = new T.Mesh(new T.SphereGeometry(0.42, 12, 10), M(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff]), { roughness: 0.3 })); b.scale.y = 1.2; const bx = rand(-hw + 2, hw - 2), bz = rand(-D + 2, -2), by = rand(H - 3, H - 1); b.position.set(bx, by, bz); g.add(b); const str = new T.Mesh(new T.CylinderGeometry(0.01, 0.01, 1.6, 4), M(0xffffff)); str.position.set(bx, by - 1.3, bz); g.add(str); app.onUpdate((dt, t) => { const y = by + Math.sin(t * 1.1 + i) * 0.3; b.position.y = y; str.position.y = y - 1.3; b.position.x = bx + Math.sin(t * 0.6 + i) * 0.2; str.position.x = b.position.x; }); }
     const cube = new T.Mesh(new T.BoxGeometry(2.2, 2.2, 2.2), new T.MeshStandardMaterial({ map: logoTexture(store.logo || { text: store.name }, { w: 512, h: 512 }), emissive: 0x222222, roughness: 0.3, metalness: 0.4 })); cube.position.set(0, H - 2.6, -D / 2); g.add(cube); const cubeRing = new T.Mesh(new T.TorusGeometry(2.1, 0.08, 6, 40), lipM); cubeRing.position.copy(cube.position); g.add(cubeRing);
-    const sweep = new T.SpotLight(hex(colors.trim), 30, 30, 0.35, 0.6, 1); sweep.position.set(0, H - 0.5, -2); sweep.target.position.set(0, 0, -D / 2); g.add(sweep); g.add(sweep.target);
+    const sweep = new T.SpotLight(hex(colors.trim), isMobile() ? 0 : 30, 30, 0.35, 0.6, 1); sweep.position.set(0, H - 0.5, -2); sweep.target.position.set(0, 0, -D / 2); if (!isMobile()) { g.add(sweep); g.add(sweep.target); }
     const confM = new T.SpriteMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false }); const conf = []; for (let i = 0; i < 24; i++) { const sp = new T.Sprite(confM.clone()); sp.material.color.set(pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff])); sp.scale.set(0.18, 0.28, 1); sp.userData.x = rand(-hw + 1, hw - 1); sp.userData.z = rand(-D + 1, -1); sp.userData.o = rand(0, 10); g.add(sp); conf.push(sp); }
     app.onUpdate((dt, t) => { cube.rotation.y += dt * 0.8; cube.rotation.x = Math.sin(t) * 0.3; cubeRing.rotation.x += dt; cubeRing.rotation.y += dt * 0.5; sweep.target.position.set(Math.sin(t * 0.8) * (hw - 3), 0, -D / 2 + Math.cos(t * 0.5) * (D / 2 - 3)); for (const sp of conf) { const k = ((t * 0.25 + sp.userData.o) % 8) / 8; sp.position.set(sp.userData.x + Math.sin(t * 2 + sp.userData.o) * 0.4, H - 0.5 - k * (H - 1.2), sp.userData.z); sp.material.rotation += dt * 3; sp.material.opacity = k > 0.9 ? (1 - k) * 9 : 0.9; } });
     const wow = makeSprite('✨ ' + (store.funLabel || 'flagship store') + ' ✨', { scale: 6, bg: 'rgba(255,79,121,0.92)', fg: '#fff', accent: '#ffd23f' }); wow.position.set(0, H + 2.6, 0.5); g.add(wow);

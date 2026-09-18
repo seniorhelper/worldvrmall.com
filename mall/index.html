@@ -38,9 +38,14 @@
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0} .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:999px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer} .btn.alt{background:transparent;color:#7cf8ff;border:2px solid #38f0ff} .btn.hot{background:#ff4f79;color:#fff}
   footer{border-top:1px solid rgba(255,255,255,.1);margin-top:50px;padding-top:22px;font-size:14px;color:#9fb3d9} footer a{color:#7cf8ff;text-decoration:none}
   .pitch p{font-size:17px} .pitch .big{font-size:21px;color:#fff;font-weight:700} .pitch ul{padding-left:20px} .pitch li{margin:6px 0}
+  body:not(.wvm) main{display:none}
+  #wvm-pop.slide .wvm-card{animation:wvmslide .85s cubic-bezier(.2,.9,.2,1);position:relative}
+  #wvm-pop.slide .wvm-card::after{content:"";position:absolute;left:-6%;right:-6%;bottom:-38px;height:70px;background:radial-gradient(ellipse at 30% 60%,rgba(255,255,255,.95),rgba(255,255,255,0) 60%),radial-gradient(ellipse at 60% 40%,rgba(255,255,255,.9),rgba(255,255,255,0) 60%),radial-gradient(ellipse at 85% 65%,rgba(255,255,255,.85),rgba(255,255,255,0) 60%);filter:blur(4px);pointer-events:none;animation:wvmcloud 6s ease-in-out infinite}
+  @keyframes wvmslide{from{transform:translateX(120vw) rotate(4deg);opacity:0}to{transform:none;opacity:1}} @keyframes wvmcloud{0%,100%{transform:translateX(0)}50%{transform:translateX(12px)}}
 </style>
 </head>
 <body>
+<div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:radial-gradient(circle at 50% 30%,#fff,#e9f4ff 55%,#cfe6ff);display:flex;align-items:center;justify-content:center"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
 <div id="wvm-stage"></div>
 <button id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ Mall directory</button>
 
@@ -64,8 +69,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=7';
-import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=7';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=8';
+import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=8';
 
 const T = THREE;
 const app = new WVM({
@@ -771,6 +776,11 @@ function buildCinema(x, z, y) {
   const pop = new T.Mesh(new T.BoxGeometry(3, 2.2, 1.6), M(0xff4f79, { roughness: 0.4 })); pop.position.set(16, 1.1, 12); g.add(pop); const popG = new T.Mesh(new T.BoxGeometry(2.6, 1.4, 1.2), glass); popG.position.set(16, 2.9, 12); g.add(popG); for (let i = 0; i < 40; i++) { const k = new T.Mesh(new T.SphereGeometry(0.12, 6, 5), M(0xfff2c0)); k.position.set(16 + rand(-1.1, 1.1), 2.3 + rand(0, 1.1), 12 + rand(-0.4, 0.4)); g.add(k); }
   const ps = makeSprite('🍿 POPCORN · free, obviously', { scale: 5, bg: 'rgba(255,79,121,0.9)', fg: '#fff', accent: '#ffd23f' }); ps.position.set(16, 4.6, 12); g.add(ps); app.addObstacle(x + 16, z + 12, 2);
   app.addInteractable(x + 16, z + 14.5, 3.5, '🍿 Grab popcorn', (a) => a.toast(pick(['Extra butter. You earned it. 🍿', 'Large popcorn, zero calories. Virtual perks.', 'The popcorn guy says the bloopers get better around hour two.']), 3000));
+  // Mission Control next door: NASA's live solar system on a wall screen
+  const nasa = new T.Mesh(new T.PlaneGeometry(10, 6), new T.MeshBasicMaterial({ map: makeTextTexture(['🛰️ MISSION CONTROL', 'NASA live solar system · tap'], { w: 1000, h: 600, bg: '#050b1c', fg: '#7dff9b', accent: '#7dff9b', font: 'bold 92px Poppins, Segoe UI, Arial', border: '#7dff9b', radius: 20 }) })); nasa.position.set(-21, 5, -4); nasa.rotation.y = Math.PI / 2; g.add(nasa);
+  const nasaFrame = new T.Mesh(new T.BoxGeometry(0.4, 6.6, 10.6), glow(0x7dff9b, 0.9)); nasaFrame.position.set(-21.3, 5, -4); g.add(nasaFrame);
+  const openNasa = (a) => a.popup('🛰️ Mission Control · NASA Eyes', '<div style="position:relative;padding-top:62%;border-radius:12px;overflow:hidden;background:#000"><iframe src="https://eyes.nasa.gov/apps/solar-system/#/home?interactPrompt=true" title="NASA Eyes on the Solar System" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" allowfullscreen></iframe></div><p class="muted">NASA\'s real map: every planet and spacecraft exactly where it is right now.</p>', []);
+  app.addHotspot(nasa, { fn: openNasa }); app.addInteractable(x - 17, z - 4, 5, '🛰️ Mission Control (NASA live)', openNasa);
   const mq = makeSign(['WORLD VR CINEMA', 'now showing: 2 hours of bloopers'], { width: 12, height: 3.6, postHeight: 8, bg: '#1a0f2e', accent: '#ffd23f', border: '#ffd23f', posts: false, neon: true }); mq.position.set(0, 0, 15.6); g.add(mq);
 }
 
@@ -937,7 +947,7 @@ app.start(async (a) => {
   a.onUpdate((dt) => { for (const m of shaderMats) m.uniforms.t.value += dt; });
   a.onUpdate(() => { const p = a.player.position; let w = 'Grand Lobby'; if (LEVEL.cur === 1) w = 'Upper Level'; else if (p.z < -230) w = 'Grand Concourse · Sunset Promenade'; else if (p.x > 500) w = 'Chinatown'; else if (p.x < -500) w = 'Alien Quarter'; else if (p.z > 500) w = 'Future Wing'; else if (p.z < 48 && Math.abs(p.x) < 48 && p.z > -48) w = 'The Atrium'; else if (p.x < -48 && Math.abs(p.z) < 32) w = 'Americas Wing'; else if (p.x > 48 && Math.abs(p.z) < 32) w = 'Europe Wing'; else if (p.z < -48 && Math.abs(p.x) < 32) w = 'Asia · Africa · Islands'; else if (p.x > 48 && p.z < -48) w = 'Global Food Court'; else if (p.x < -48 && p.z < -48) w = "Kids' Discovery Zone"; else if (p.x < -48 && p.z > 48) w = 'Butterfly Garden'; else if (p.x > 48 && p.z > 48) w = 'Sky Wheel'; const el = a.hud.querySelector('.wvm-where'); const txt = 'Inside the Mall · ' + w; if (el.textContent !== txt) el.textContent = txt; });
   let from = null; try { from = sessionStorage.getItem('wvm_from'); sessionStorage.removeItem('wvm_from'); } catch (e) { }
-  if (from === 'index') { a.player.position.set(3, 0, 88); a.targetDist = 7; a.pitch = -0.08; a.yaw = 0.05; a.locked = true; a.avatar.visible = false; const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go); introSweep(a, [[0, 14, 130], [0, 9, 96], [-18, 5, 60], [0, 3, 40]], [0, 6, -40], 10, () => { a.toast('Welcome in. Green buttons = things you can do. The glowing pole shows the way. 🗺️', 4500); }); }, 150); }
+  if (from === 'index') { a.player.position.set(3, 0, 88); a.targetDist = 7; a.pitch = -0.08; a.yaw = 0.05; a.locked = true; a.avatar.visible = false; const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go); introSweep(a, [[0, 14, 130], [0, 9, 96], [-18, 5, 60], [0, 3, 40]], [0, 6, -40], 10, () => { a.onFirstSteps(8, () => { a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Where to first? 🗺️', '<p>Green buttons are things you can do. The glowing pole by the entrance points everywhere.</p>', [{ label: '⬆️ Upper Level: cinema & games', fn: () => { a.walkTarget = new T.Vector3(46, 0, -34); a.toast('Elevator is ahead on the right.'); } }, { label: '🏮 Chinatown', fn: () => { a.walkTarget = new T.Vector3(196, 0, 0); } }, { label: '👽 Alien Quarter', fn: () => { a.walkTarget = new T.Vector3(-196, 0, 0); } }, { label: '🌇 Grand Concourse', fn: () => { a.walkTarget = new T.Vector3(0, 0, -230); } }, { label: '🛍️ Just wander', fn: () => { } }]); }); }); }, 150); }
   else setTimeout(() => a.toast('Welcome in! Green buttons = things you can do. 🗺️ directory is straight ahead.', 4500), 1500);
   if (location.hash === '#leasing') { a.player.position.set(22, 0, 84); a.yaw = -Math.PI / 2; setTimeout(() => pitch(a, 0), 1200); }
 });
