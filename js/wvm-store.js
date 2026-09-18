@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=11';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=12';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -409,7 +409,7 @@ export function buildStore(app, store, opts = {}) {
   return g;
 }
 
-export function wingName(w) { return ({ lobby: 'Grand Lobby', americas: 'Americas Wing', europe: 'Europe Wing', asia: 'Asia & Islands Wing', food: 'Global Food Court', kids: "Kids' Discovery Zone", market: 'Old World Market', chinatown: 'Chinatown', alien: 'Alien Quarter', upper: 'Upper Level', arcade: 'Game Room', future: 'Future Wing', village: 'World Village' })[w] || 'Mall'; }
+export function wingName(w) { return ({ lobby: 'Grand Lobby', americas: 'Americas Wing', europe: 'Europe Wing', asia: 'Asia & Islands Wing', food: 'Global Food Court', kids: "Kids' Discovery Zone", market: 'Old World Market', chinatown: 'Chinatown', alien: 'Alien Quarter', upper: 'Upper Level', arcade: 'Game Room', future: 'Future Wing', village: 'World Village', mainstreet: 'Main Street' })[w] || 'Mall'; }
 
 /* ---------- product popup (v3): blurred store behind, product floats big, BUY on the tenant's domain, heart-save ---------- */
 let popCSS = false;
