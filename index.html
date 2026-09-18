@@ -136,13 +136,13 @@
   <details><summary>How do I get my brand in the mall?</summary><p>Call <a href="tel:18004818638">1-800-481-8638</a>. Setup takes about ten minutes. You'll pick a wing, choose your placement, and send a logo and product list. Your store goes live the same day.</p></details>
 
   <footer>
-    <div class="brandrow"><a href="/mall/">Enter the mall</a><a href="/lease/">Lease a store</a><a href="/about/">About</a><a href="tel:18004818638">1-800-481-8638</a></div>
+    <div class="brandrow"><a href="/mall/">Enter the mall</a><a href="/lease/">Lease a store</a><a href="/about/">About</a><a href="/terms/">Terms & Privacy</a><a href="tel:18004818638">1-800-481-8638</a></div>
     <p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · Powered by <a href="https://eyetoad.com" rel="noopener">Eye To Ad Media</a> · © 2026 World VR Mall. Stores and brands remain the property of their owners. Purchases are completed on each brand's website.</p>
   </footer>
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=12';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=13';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -223,11 +223,17 @@ function waterMaterial(color = 0x1f7fbf, deep = 0x0b3f6e) {
   });
 }
 const waterMats = [];
-function water(x, z, r, y = 0.05, col, deep) {
+/* natural shorelines: every lake and pond is an irregular shape (bays, points, a narrow inlet), like a real lake seen from above */
+function lakeOutline(x, z, r, seed = 1) { const pts = []; for (let i = 0; i < 72; i++) { const a = i / 72 * Math.PI * 2; const k = 1 + 0.22 * Math.sin(3 * a + seed) + 0.12 * Math.cos(5 * a + seed * 2.1) + 0.07 * Math.sin(9 * a + seed * 0.7) - 0.16 * Math.max(0, Math.cos(a - seed) - 0.85) * 4; pts.push([x + Math.cos(a) * r * k, z + Math.sin(a) * r * k]); } return pts; }
+const LAKE_PTS = []; 
+function water(x, z, r, y = 0.05, col, deep, seed = 1) {
   const m = waterMaterial(col, deep); waterMats.push(m);
-  const mesh = new T.Mesh(new T.CircleGeometry(r, 64), m); mesh.rotation.x = -Math.PI / 2; mesh.position.set(x, y, z); S.add(mesh);
-  const rim = new T.Mesh(new T.RingGeometry(r - 0.5, r + 2.5, 64), M(0xb8ad93, { roughness: 1 })); rim.rotation.x = -Math.PI / 2; rim.position.set(x, 0.04, z); S.add(rim);
-  app.addObstacle(x, z, r + 0.8);
+  const pts = lakeOutline(x, z, r, seed); const shape = new T.Shape(pts.map(p => new T.Vector2(p[0] - x, -(p[1] - z))));
+  const mesh = new T.Mesh(new T.ShapeGeometry(shape, 8), m); mesh.rotation.x = -Math.PI / 2; mesh.position.set(x, y, z); S.add(mesh);
+  const rimShape = new T.Shape(lakeOutline(x, z, r + 2.6, seed).map(p => new T.Vector2(p[0] - x, -(p[1] - z)))); rimShape.holes.push(new T.Path(lakeOutline(x, z, r - 0.4, seed).map(p => new T.Vector2(p[0] - x, -(p[1] - z)))));
+  const rim = new T.Mesh(new T.ShapeGeometry(rimShape, 8), M(0xb8ad93, { roughness: 1 })); rim.rotation.x = -Math.PI / 2; rim.position.set(x, 0.04, z); S.add(rim);
+  const ob = app.addPoly(pts); mesh.userData.poly = pts; mesh.userData.ob = ob;
+  if (r > 60) LAKE_PTS.push(...pts);
   return mesh;
 }
 
@@ -440,7 +446,7 @@ function buildTrain() {
   const cars = [];
   for (let i = 0; i < 6; i++) { const c = new T.Group(); const body = new T.Mesh(new T.BoxGeometry(2.6, 2.8, i === 0 ? 9 : 8), M(i === 0 ? 0x38f0ff : 0xffffff, { metalness: 0.5, roughness: 0.3 })); body.position.y = 1.9; c.add(body); const strip = new T.Mesh(new T.BoxGeometry(2.7, 0.5, i === 0 ? 9 : 8), glow(PINK, 0.9)); strip.position.y = 1.2; c.add(strip); const win = new T.Mesh(new T.BoxGeometry(2.7, 0.9, (i === 0 ? 9 : 8) - 1), M(0x0b1a3a, { metalness: 0.8, roughness: 0.1 })); win.position.y = 2.6; c.add(win); if (i === 0) { const nose = new T.Mesh(new T.ConeGeometry(1.5, 3, 12), M(0x38f0ff, { metalness: 0.5 })); nose.rotation.x = Math.PI / 2; nose.position.set(0, 1.9, 6); c.add(nose); } train.add(c); cars.push(c); }
   let u = 0; const gap = 9 / (2 * Math.PI * R);
-  app.addInteractable(sx, sz + 7, 5, '🚄 Ride the World Loop Express', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = 0.01; a.toast('Next stop: everywhere. One full loop of the property. 🚄', 3500); a.ride = { pos: () => { const an = (u - gap) * Math.PI * 2; return new T.Vector3(C.x + Math.cos(an) * R, 1.6, C.z + Math.sin(an) * R); }, until: t0 + 1 / 0.011, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; aa.player.position.set(sx, 0, sz + 8); aa.toast('Thanks for riding the World Loop Express.', 3000); } }; });
+  app.addInteractable(sx, sz + 7, 5, '🚄 Ride the World Loop Express', (a) => { if (a.ride) return; const t0 = a.t; const prev = a.targetDist; a.targetDist = Math.max(prev > 0.6 ? prev : 7, 7); a.toast('Next stop: everywhere. Tap 👀 to switch between the window seat and the outside view. 🚄', 4000); let said = -1; const lines = ['🏬 The mall, on your left.', '🎢 Coaster country: The Chiller, Aurora Loop, Mall Blaster.', '✈️ World VR Airport. That plane is real. Sort of.', '🏖️ Beach Cove and the World Zoo out past the wing.', '🔭 The observatory on the hill.', '🌊 Crystal Lake and the boat dock.', '🌼 The Old World Market. Handmade everything.', '🚉 Pulling back into the station.']; a.ride = { pos: () => { const an = (u - gap) * Math.PI * 2; const idx = Math.floor(((a.t - t0) * 0.011) * lines.length); if (idx !== said && lines[idx]) { said = idx; a.toast(lines[idx], 4000); } return new T.Vector3(C.x + Math.cos(an) * R, 1.6, C.z + Math.sin(an) * R); }, until: t0 + 1 / 0.011, done: (aa) => { aa.targetDist = prev > 0.6 ? prev : 5; aa.player.position.set(sx, 0, sz + 8); aa.toast('Thanks for riding the World Loop Express.', 3000); } }; });
   app.onUpdate((dt) => { u = (u + dt * 0.011) % 1; cars.forEach((c, i) => { const a = (u - i * gap) * Math.PI * 2; c.position.set(C.x + Math.cos(a) * R, 0.35, C.z + Math.sin(a) * R); c.rotation.y = -a; }); });
 }
 
@@ -546,8 +552,9 @@ function buildAmusement() {
 
 /* ---------- lake, ships, ponds, ducks ---------- */
 function buildWater() {
-  water(LAKE.x, LAKE.z, LAKE.r, 0.05, 0x1f7fbf, 0x0b3f6e);
-  for (const p of PONDS) water(p.x, p.z, p.r, 0.05, 0x3aa2d8, 0x145b8a);
+  const lakeMesh = water(LAKE.x, LAKE.z, LAKE.r, 0.05, 0x1f7fbf, 0x0b3f6e, 1.3);
+  PONDS.forEach((p, i) => water(p.x, p.z, p.r, 0.05, 0x3aa2d8, 0x145b8a, 3 + i * 2));
+  buildBoats(lakeMesh);
   // dock
   const dock = new T.Mesh(new T.BoxGeometry(4, 0.5, 26), M(0x8a5a2b)); dock.position.set(LAKE.x + LAKE.r - 4, 0.3, LAKE.z + 10); S.add(dock);
   for (let i = 0; i < 5; i++) { for (const sx of [-1, 1]) { const p = new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 2, 6), M(0x5a3d22)); p.position.set(LAKE.x + LAKE.r - 4 + sx * 1.9, 0.3, LAKE.z - 2 + i * 6); S.add(p); } }
@@ -564,7 +571,7 @@ function buildWater() {
   const nameTex = makeTextTexture('WORLD VR CRUISES', { w: 1024, h: 160, bg: 'rgba(0,0,0,0)', fg: '#0b1a3a', border: null, glow: false, font: 'bold 96px Poppins, Segoe UI, Arial' });
   for (const sx of [-1, 1]) { const nm = new T.Mesh(new T.PlaneGeometry(14, 2.2), new T.MeshBasicMaterial({ map: nameTex, transparent: true })); nm.position.set(sx * 4.06, 2.6, 10); nm.rotation.y = sx * Math.PI / 2; ship.add(nm); }
   S.add(ship);
-  let su = 0; app.onUpdate((dt, t) => { su += dt * 0.02; const a = su, r = LAKE.r - 30; ship.position.set(LAKE.x + Math.cos(a) * r, -0.2 + Math.sin(t * 0.7) * 0.15, LAKE.z + Math.sin(a) * r); ship.rotation.y = -a; ship.rotation.z = Math.sin(t * 0.5) * 0.015; });
+  let su = 0; app.onUpdate((dt, t) => { su += dt * 0.02; const a = su, r = LAKE.r - 42; ship.position.set(LAKE.x + Math.cos(a) * r, -0.2 + Math.sin(t * 0.7) * 0.15, LAKE.z + Math.sin(a) * r); ship.rotation.y = -a; ship.rotation.z = Math.sin(t * 0.5) * 0.015; });
   // sailboats
   for (let i = 0; i < 4; i++) { const b = new T.Group(); const h = new T.Mesh(new T.BoxGeometry(1.6, 0.8, 4.5), M([0xffffff, PINK, GOLD, MINT][i])); h.position.y = 0.3; b.add(h); const mast = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 5, 6), M(0x5a3d22)); mast.position.y = 3; b.add(mast); const sail = new T.Mesh(new T.PlaneGeometry(2.4, 4), M(0xffffff, { side: T.DoubleSide })); sail.position.set(0.6, 3.2, 0); sail.rotation.y = Math.PI / 2; b.add(sail); S.add(b); const a0 = rand(0, 6.28), rr = rand(20, LAKE.r - 12), sp = rand(0.03, 0.06); app.onUpdate((dt, t) => { const a = a0 + t * sp; b.position.set(LAKE.x + Math.cos(a) * rr, -0.1 + Math.sin(t * 1.3 + i) * 0.12, LAKE.z + Math.sin(a) * rr); b.rotation.y = -a; b.rotation.z = Math.sin(t + i) * 0.08; }); }
   // viking boat at the market dock (south of lake)
@@ -793,8 +800,8 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
-  buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildZoo(); buildKiosks(); buildHorizonCity(); buildModelShowroom(); a.preloadSky('/images/high-end-retail-store-360-4096x2048'); a.preloadSky('/images/realistic-night-sky-moon-stars-360'); a.preloadSky('/images/tropical-beach-360-panorama');
+  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🏖️ Beach & zoo', fn: () => { a.walkTarget = new T.Vector3(40, 0, -380); a.toast('Long walk. Grab a cart, or take the train. The beach is at the far edge of the island. 🏖️'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
+  buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildZoo(); buildKiosks(); buildHorizonCity(); buildModelShowroom(); buildCoins(); buildCartGame(); buildSkyLife(); a.preloadSky('/images/high-end-retail-store-360-4096x2048'); a.preloadSky('/images/realistic-night-sky-moon-stars-360'); a.preloadSky('/images/tropical-beach-360-panorama');
   a.setMap((g, xy) => {
     const box = (x, z, w, d, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(cx - w * 0.5 * 0.55, cz - d * 0.5 * 0.55, w * 0.55, d * 0.55); g.globalAlpha = 1; if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
     const circ = (x, z, r, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.beginPath(); g.arc(cx, cz, r * 0.55, 0, Math.PI * 2); g.fill(); if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
@@ -803,7 +810,7 @@ app.start(async (a) => {
     circ(-230, 20, 95, '#1f7fbf', 'Crystal Lake'); circ(-90, -150, 22, '#1f7fbf'); circ(70, -170, 18, '#1f7fbf');
     circ(0, 0, 62, '#38f0ff', 'THE MALL'); box(0, 122, 20, 20, '#b08cff', 'Teleport'); box(210, 20, 190, 220, '#ff4f79', 'Park · Coasters'); circ(300, 40, 16, '#ffd23f', 'Wheel'); box(-120, 180, 120, 90, '#8a5a2b', 'Old World Market'); box(20, -200, 150, 100, '#7cff6b', 'Kids Zone'); box(300, -300, 120, 100, '#9fd3ff', 'Airport'); circ(40, -470, 85, '#f2dc9a', 'Beach Cove'); circ(-250, -470, 70, '#3f7a3a', 'World Zoo'); circ(-330, -330, 30, '#e9eef7', 'Observatory'); circ(-70, 230, 12, '#ff8a3d', 'Balloon'); box(60, 200, 40, 16, '#ffd23f', 'Train');
     g.fillStyle = '#fff'; g.font = 'bold 22px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('World VR Mall · the floating island', 16, 30);
-  }, { scale: 0.5, cx: 0, cz: 0 });
+  }, { scale: 0.5, cx: 0, cz: 0, camY: 400, title: 'World VR Mall · the island', labels: [[0, 0, 'THE MALL', '#38f0ff'], [0, 122, 'Teleport'], [-230, 20, 'Crystal Lake'], [210, 20, 'Park & coasters'], [300, 40, 'Sky Wheel'], [-120, 180, 'Old World Market'], [20, -200, 'Kids Zone'], [300, -300, 'Airport'], [-330, -330, 'Observatory'], [-70, 230, 'Balloon'], [40, -470, 'Beach Cove'], [-250, -470, 'World Zoo'], [70, 150, 'Model Showroom'], [-40, 60, 'Rain Cloud'], [128, 100, 'Gondola'], [60, 200, 'Train'], [-40, 120, 'Wall of Fame']] });
   const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go);
     introSweep(a, [[-160, 90, 260], [-60, 44, 200], [10, 16, 165], [8, 4.5, 158]], [0, 26, 0], 11, () => { a.player.position.set(6, 0, 150); a.yaw = 0.04; a.pitch = -0.06; a.avatar.rotation.y = Math.PI; a.targetDist = 7; a.dist = 7; a.toast('That is the mall. Walk toward it. 🚶', 3500); }); }, 150);
 });
@@ -915,6 +922,59 @@ function buildModelShowroom() {
   const sg = makeSign(['MODEL SHOWROOM', '360° photo-real room · the premium upgrade'], { width: 11, height: 3.6, postHeight: 2.6, bg: '#0b1a3a', accent: '#ffd23f', border: '#ffd23f', small: 'walk in · your products, your room · $499/mo' }); sg.position.set(sx - 18, 0, sz + 6); sg.rotation.y = 0.9; S.add(sg);
   app.addHotspot(sg, { title: '360° Showroom upgrade', html: '<p>Step inside. That is a photo-real showroom wrapped all the way around you, with display pedestals for your products. Every tenant can have one built for their brand: launch price $499/mo, 24-month term. Custom branded worlds from $1,000/mo.</p>', actions: [{ label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }] });
   let inside = false; app.onUpdate(() => { const p = app.player.position; const now = dist(p.x, p.z, sx, sz) < R - 1; if (now !== inside) { inside = now; app.setSky(now ? '/images/high-end-retail-store-360-4096x2048' : ((app.opts.autoNight && isNightNowLocal()) ? app.opts.nightSky : app.opts.sky)); if (now) app.toast('✨ This is the 360° Showroom. Look around: every wall is real.', 3500); } });
+}
+
+/* ----- boats you actually steer: pick one at the dock, drive it around the lake, it cannot leave the water ----- */
+function buildBoats(lakeMesh) {
+  const dockX = LAKE.x + LAKE.r - 4, dockZ = LAKE.z + 10; const kinds = [['🚤 Speedboat', 0xff4f79, 3.2], ['🛶 Canoe', 0xd9a441, 1.6], ['⛵ Sailboat', 0xffffff, 2.2], ['🦢 Swan boat', 0xfff5f8, 1.4]];
+  const boats = kinds.map(([label, col, speed], i) => { const g = new T.Group(); const hull = new T.Mesh(new T.CapsuleGeometry(0.9, 2.6, 4, 10), M(col, { roughness: 0.4, metalness: 0.2 })); hull.rotation.x = Math.PI / 2; hull.scale.set(1, 0.6, 1); hull.position.y = 0.35; g.add(hull); const deck = new T.Mesh(new T.BoxGeometry(1.4, 0.15, 2.6), M(0x8a5a2b)); deck.position.y = 0.6; g.add(deck); if (i === 2) { const mast = new T.Mesh(new T.CylinderGeometry(0.04, 0.04, 3.5, 6), M(0xdddddd)); mast.position.set(0, 2.3, 0); g.add(mast); const sail = new T.Mesh(new T.PlaneGeometry(1.6, 2.6), M(0xffffff, { side: T.DoubleSide })); sail.position.set(0.8, 2.4, 0); g.add(sail); } if (i === 3) { const neck = new T.Mesh(new T.CylinderGeometry(0.12, 0.2, 1.4, 8), M(0xffffff)); neck.position.set(0, 1.2, 1.4); neck.rotation.x = -0.3; g.add(neck); const head = new T.Mesh(new T.SphereGeometry(0.25, 10, 8), M(0xffffff)); head.position.set(0, 1.95, 1.6); g.add(head); const beak = new T.Mesh(new T.ConeGeometry(0.08, 0.3, 6), M(0xff8a3d)); beak.rotation.x = Math.PI / 2; beak.position.set(0, 1.9, 1.95); g.add(beak); } if (i === 0) { const ws = new T.Mesh(new T.BoxGeometry(1.2, 0.5, 0.06), glass); ws.position.set(0, 1.0, 0.7); g.add(ws); } g.position.set(dockX - 3.5, 0, dockZ - 8 + i * 5); g.rotation.y = Math.PI / 2; S.add(g); return { g, label, speed }; });
+  const poly = lakeMesh.userData.poly; const keep = app.addPoly(poly, { keepIn: true }); keep.off = true;
+  boats.forEach(b => { const it = { label: b.label + ' · take it out', fn: (a) => { if (a.vehicle) return; lakeMesh.userData.ob.off = true; keep.off = false; a.interactables = a.interactables.filter(i => i !== it); a.player.position.set(b.g.position.x, 0, b.g.position.z); a.driveCart(b.g, { speed: b.speed, seatY: 0.75, roofY: 9, label: b.label + '. Drag to steer, joystick to go. The lake is yours. 🌊', park: () => { lakeMesh.userData.ob.off = false; keep.off = true; a.player.position.set(dockX + 2, 0, dockZ); a.addInteractable(it.x, it.z, 3, it.label, it.fn); } }); }, x: b.g.position.x + 2.5, z: b.g.position.z }; app.addInteractable(it.x, it.z, 3, it.label, it.fn); });
+  const bs = makeSign(['BOAT DOCK', 'speedboat · canoe · sailboat · swan boat'], { width: 8, height: 2.8, postHeight: 1.6, bg: '#07123a', accent: '#38f0ff', border: '#38f0ff' }); bs.position.set(dockX + 6, 0, dockZ + 16); bs.rotation.y = -1.2; S.add(bs);
+  app.onUpdate((dt, t) => { boats.forEach((b, i) => { if (app.vehicle && app.vehicle.m === b.g) { b.g.position.y = 0.05 + Math.sin(t * 3) * 0.05; b.g.rotation.z = Math.sin(t * 2) * 0.04; } else b.g.position.y = Math.sin(t * 1.5 + i) * 0.04; }); });
+}
+
+/* ----- coins, the rain cloud, and the wall of fame ----- */
+function buildCoins() {
+  const spots = [[20, 130], [-30, 140], [60, 100], [-70, 60], [130, 20], [200, 60], [280, -20], [-120, 30], [-200, 100], [-100, 180], [40, -120], [-60, -160], [150, -150], [300, -280], [-330, -300], [-250, -420], [40, -430], [250, 120], [0, 60], [-150, -80], [100, 200], [-300, 60], [180, -60], [60, -300], [-40, -260]];
+  spots.forEach(([x, z]) => app.addCoin(x, groundY(x, z) + 1.2, z));
+  // rain cloud: a dark cloud parked over the lawn, rain lines, and a shower of coins beneath it every minute
+  const cx = -40, cz = 60; const cm = new T.SpriteMaterial({ map: cloudTexture(), transparent: true, opacity: 0.95, depthWrite: false, color: 0x55607a });
+  for (let i = 0; i < 6; i++) { const cl = new T.Sprite(cm); cl.position.set(cx + rand(-8, 8), 16 + rand(-1, 1), cz + rand(-5, 5)); cl.scale.set(rand(14, 22), rand(7, 10), 1); S.add(cl); }
+  const N = 160; const rp = new Float32Array(N * 6); for (let i = 0; i < N; i++) { const x = cx + rand(-9, 9), z = cz + rand(-6, 6), y = rand(0, 16); rp.set([x, y, z, x, y - 0.8, z], i * 6); }
+  const rg = new T.BufferGeometry(); rg.setAttribute('position', new T.BufferAttribute(rp, 3)); const rain = new T.LineSegments(rg, new T.LineBasicMaterial({ color: 0x9fd3ff, transparent: true, opacity: 0.6 })); S.add(rain);
+  const lightning = new T.PointLight(0xffffff, 0, 60); lightning.position.set(cx, 14, cz); S.add(lightning);
+  app.onUpdate((dt, t) => { const a = rg.attributes.position.array; for (let i = 0; i < N; i++) { a[i * 6 + 1] -= dt * 14; a[i * 6 + 4] -= dt * 14; if (a[i * 6 + 1] < 0) { a[i * 6 + 1] += 16; a[i * 6 + 4] += 16; } } rg.attributes.position.needsUpdate = true; lightning.intensity = Math.random() < 0.004 ? 30 : lightning.intensity * 0.6; });
+  let last = -100; app.onUpdate(() => { if (app.t - last > 60) { last = app.t; for (let i = 0; i < 5; i++) app.addCoin(cx + rand(-8, 8), 1.2, cz + rand(-5, 5)); const p = app.player.position; if (dist(p.x, p.z, cx, cz) < 40) app.toast('🌧️ The rain cloud just dropped coins!', 2500); } });
+  const rs = makeSign(['RAIN CLOUD', 'it rains coins every minute · collect them all'], { width: 9, height: 3, postHeight: 1.8, bg: '#07123a', accent: '#ffd23f', border: '#ffd23f', small: '🪙 tap the coin button for the Wall of Fame' }); rs.position.set(cx + 14, 0, cz + 8); rs.rotation.y = -0.6; S.add(rs);
+  app.addHotspot(rs, { fn: (a) => a.wallOfFame() });
+  // wall of fame: a big board by the entrance that shows the top scores
+  const board = new T.Mesh(new T.PlaneGeometry(10, 5), new T.MeshBasicMaterial({ map: fameTexture(app), transparent: true })); board.position.set(-40, 4.5, 120); board.rotation.y = 0.9; S.add(board); const bb2 = new T.Mesh(new T.BoxGeometry(10.4, 5.4, 0.3), M(0x1e2a4a, { metalness: 0.6 })); bb2.position.copy(board.position); bb2.position.x -= 0.2; bb2.rotation.y = 0.9; S.add(bb2);
+  app.addHotspot(board, { fn: (a) => { a.wallOfFame(); } }); app.addInteractable(-38, 116, 5, '🏆 Wall of Fame', (a) => a.wallOfFame());
+  let seen = ''; app.onUpdate(() => { const s = JSON.stringify(app._load('wvm_fame', [])); if (s !== seen) { seen = s; board.material.map = fameTexture(app); board.material.needsUpdate = true; } });
+}
+function fameTexture(a) { const best = a._load('wvm_fame', []).slice(0, 6); const lines = ['🏆 WALL OF FAME', ...(best.length ? best.map((r, i) => `${i + 1}. ${r.n} — ${r.c} coins`) : ['collect coins · post your score'])]; return makeTextTexture(lines, { w: 1400, h: 700, bg: '#0b1a3a', fg: '#fff', accent: '#ffd23f', font: 'bold 72px Poppins, Segoe UI, Arial', border: '#ffd23f', radius: 30 }); }
+
+/* ----- pick-up items + a giant cart you push around the plaza ----- */
+function buildCartGame() {
+  const items = [['🍎', 'Apple', 30, 140], ['🧸', 'Teddy bear', -20, 150], ['🎈', 'Balloon', 50, 120], ['🍩', 'Donut', -50, 130], ['👟', 'Sneakers', 10, 175], ['📚', 'Book', -10, 110], ['🌻', 'Sunflower', 80, 160], ['🎸', 'Guitar', -80, 150]];
+  items.forEach(([icon, name, x, z]) => app.addPickup(x, 1.2, z, { icon, name, from: 'the plaza', eat: ['🍎', '🍩'].includes(icon) }));
+  const cart = new T.Group(); const metal = M(0xbfc9d9, { metalness: 0.85, roughness: 0.25 }); const basket = new T.Mesh(new T.BoxGeometry(3, 2.2, 4), metal); basket.position.y = 2.4; cart.add(basket); for (let i = 0; i < 6; i++) { const b = new T.Mesh(new T.BoxGeometry(3.05, 0.06, 0.06), M(0x1e2a4a)); b.position.set(0, 1.4 + i * 0.4, 2.02); cart.add(b); const b2 = b.clone(); b2.position.z = -2.02; cart.add(b2); } const handle = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 3.4, 8), M(0xff4f79)); handle.rotation.z = Math.PI / 2; handle.position.set(0, 4.2, -2.6); cart.add(handle); const wheels = []; for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const w = new T.Mesh(new T.CylinderGeometry(0.5, 0.5, 0.3, 14), M(0x111111)); w.rotation.z = Math.PI / 2; w.position.set(sx * 1.4, 0.5, sz * 1.6); cart.add(w); wheels.push(w); } for (const sx of [-1, 1]) { const e2 = new T.Mesh(new T.SphereGeometry(0.35, 12, 10), M(0xffffff)); e2.position.set(sx * 0.7, 3.2, 2.05); cart.add(e2); const p = new T.Mesh(new T.SphereGeometry(0.16, 8, 6), M(0x111111)); p.position.set(sx * 0.7, 3.2, 2.36); cart.add(p); } cart.position.set(30, 0, 155); S.add(cart); cart.userData.mapHide = false;
+  app.addBall(cart, 2.6, { x1: -110, z1: 100, x2: 110, z2: 200 }); const contents = [];
+  const ballRef = app.balls[app.balls.length - 1]; app.onUpdate((dt) => { const sp = Math.hypot(ballRef.v.x || 0, ballRef.v.z || 0); for (const w of wheels) w.rotation.x += dt * 2 * sp; });
+  const cs = makeSign(['THE BIG CART', 'walk into it to push · pick things up · tap the cart to load it'], { width: 10, height: 3, postHeight: 1.8, bg: '#07123a', accent: '#7cff6b', border: '#7cff6b' }); cs.position.set(60, 0, 190); cs.rotation.y = -0.5; S.add(cs);
+  app.addHotspot(cart, { fn: (a) => { if (!a.bag.length) { a.toast('Your bag is empty. Pick things up around the plaza first. 🎒', 2500); return; } const it = a.bag.pop(); a._save('wvm_bag', a.bag); a._renderBag(); const sp = makeSprite(it.icon, { scale: 1.6, bg: 'rgba(255,255,255,0.9)', accent: '#7cff6b' }); sp.position.set(rand(-0.9, 0.9), 3.6 + contents.length * 0.15, rand(-1.2, 1.2)); cart.add(sp); contents.push(sp); a.toast(`${it.icon} ${it.name} in the cart. ${contents.length} item${contents.length === 1 ? '' : 's'} loaded.`, 2200); a.buzz(20); } });
+}
+
+/* ----- living sky: bird flocks by day, fireflies and fireworks by night ----- */
+function buildSkyLife() {
+  const birds = []; const bm = M(0x1a1a2a); for (let f = 0; f < 3; f++) { const cx = rand(-300, 300), cz = rand(-300, 200); for (let i = 0; i < 9; i++) { const b = new T.Group(); for (const sx of [-1, 1]) { const w = new T.Mesh(new T.PlaneGeometry(1.2, 0.35), bm); w.position.x = sx * 0.6; b.add(w); b.userData['w' + (sx > 0 ? 'R' : 'L')] = w; } b.userData.o = rand(0, 6.28); b.userData.f = f; b.userData.cx = cx; b.userData.cz = cz; b.userData.r = rand(30, 70); b.userData.h = rand(40, 80); S.add(b); birds.push(b); } }
+  app.onUpdate((dt, t) => { for (const b of birds) { const u = b.userData; const a = t * 0.25 + u.o; b.position.set(u.cx + Math.cos(a) * u.r + Math.sin(t + u.o) * 3, u.h + Math.sin(t * 0.7 + u.o) * 4, u.cz + Math.sin(a) * u.r); b.rotation.y = -a; const fl = Math.sin(t * 9 + u.o) * 0.6; u.wL.rotation.z = fl; u.wR.rotation.z = -fl; } });
+  const night = () => app.isNight;
+  const ff = []; const fm = new T.SpriteMaterial({ color: 0xccff66, transparent: true, opacity: 0.9, depthWrite: false }); for (let i = 0; i < 60; i++) { const s = new T.Sprite(fm); s.scale.set(0.35, 0.35, 1); s.userData.o = rand(0, 6.28); s.userData.x = LAKE.x + rand(-140, 140); s.userData.z = LAKE.z + rand(-140, 140); S.add(s); ff.push(s); }
+  app.onUpdate((dt, t) => { const on = night(); for (const s of ff) { s.visible = on; if (!on) continue; const u = s.userData; s.position.set(u.x + Math.sin(t * 0.6 + u.o) * 3, 1.2 + Math.sin(t * 1.3 + u.o) * 0.8, u.z + Math.cos(t * 0.5 + u.o) * 3); s.material.opacity = 0.4 + Math.sin(t * 4 + u.o) * 0.5; } });
+  const sparks = []; const sm = new T.SpriteMaterial({ color: 0xffffff, transparent: true, depthWrite: false }); for (let i = 0; i < 90; i++) { const s = new T.Sprite(sm.clone()); s.scale.set(1.2, 1.2, 1); s.visible = false; S.add(s); sparks.push(s); }
+  let nextFw = 6; app.onUpdate((dt, t) => { if (!night()) return; if (t > nextFw) { nextFw = t + rand(5, 9); const ox = rand(-80, 80), oy = rand(70, 110), oz = rand(-60, 40); const col = pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xffffff]); sparks.forEach(s => { s.visible = true; s.material.color.set(col); s.position.set(ox, oy, oz); const th = rand(0, 6.28), ph = rand(0, 3.14); s.userData.v = new T.Vector3(Math.sin(ph) * Math.cos(th), Math.cos(ph), Math.sin(ph) * Math.sin(th)).multiplyScalar(rand(14, 22)); s.userData.t0 = t; }); const p = app.player.position; if (dist(p.x, p.z, ox, oz) < 200) app.buzz(15); } sparks.forEach(s => { if (!s.visible) return; const k = t - s.userData.t0; s.userData.v.y -= dt * 9; s.position.addScaledVector(s.userData.v, dt); s.material.opacity = Math.max(0, 1 - k / 2.4); if (k > 2.5) s.visible = false; }); });
 }
 
 /* ----- intro sweep: slow camera flight, avatar hidden, then reveal the whole body in third person ----- */

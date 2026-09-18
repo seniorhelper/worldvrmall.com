@@ -78,8 +78,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=12';
-import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=12';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=13';
+import { buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=13';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const T = THREE;
@@ -1010,6 +1010,7 @@ function buildMainStreet() {
 
 function buildExpansion(a) {
   buildLobbyWow();
+  [[20, 60], [-20, 60], [60, 20], [-60, -20], [130, 10], [-130, -10], [10, -130], [90, -90], [-90, -90], [-90, 90], [90, 90], [180, 12], [-180, -12], [12, -180], [0, -300], [40, -440], [200, -40], [-200, 40], [60, -60], [-60, 60], [0, 96], [110, -110], [-110, 110], [150, -20], [-150, 20], [20, -200], [-20, -250], [0, -600]].forEach(([x, z]) => a.addCoin(x, 1.2, z));
   a.addZone('mainstreet', new T.Vector3(MAINST.x, 0, MAINST.z), 300, buildMainStreet);
   a.addPortal(-76, -76, new T.Vector3(MAINST.x - 140, 0, MAINST.z + 60), { label: 'Main Street & Directory 🏙️', color: 0x38f0ff, yaw: -Math.PI / 2 });
   plantTrees([[-30, 30], [30, 30], [-30, -30], [30, -30], [-60, 70], [60, 70], [-100, 0], [100, 0]]);
@@ -1056,7 +1057,7 @@ app.start(async (a) => {
     box(40, -40, 14, 14, '#1e2a4a', '🛗'); box(-12, -30, 14, 14, '#1e2a4a', '🪜');
     box(0, -300, 70, 160, '#ffb37a', 'Grand Concourse →'); box(76, -76, 10, 10, '#ffd23f', '🌍'); box(-76, -76, 10, 10, '#38f0ff', '🏙️'); box(204, 0, 10, 10, '#ffd23f', '🏮'); box(-204, 0, 10, 10, '#7cff6b', '👽'); box(0, -62, 10, 10, '#38f0ff', '🤖');
     g.fillStyle = '#fff'; g.font = 'bold 20px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('Inside the mall · portals: 🏮 Chinatown 👽 Alien Quarter 🤖 Future Wing · 🛗🪜 Upper Level', 12, 28);
-  }, { scale: 0.55, cx: 0, cz: -40 });
+  }, { scale: 0.55, cx: 0, cz: -40, camY: 17.5, bg: 0x0b1a3a, title: 'Inside the mall · ground floor', labels: [[0, 0, 'Atrium'], [0, 80, 'Lobby'], [-132, 0, 'Americas Wing', '#38f0ff'], [132, 0, 'Europe Wing', '#ffd23f'], [0, -132, 'Asia · Africa · Islands', '#ff4f79'], [100, -100, 'Food Court'], [-100, -100, 'Kids Zone'], [-100, 100, 'Gardens'], [100, 100, 'Sky Wheel'], [40, -40, 'Elevator ⬆️'], [0, -230, 'Grand Concourse →'], [204, 0, '🏮 Chinatown'], [-204, 0, '👽 Alien Quarter'], [0, -62, '🤖 Future Wing'], [76, -76, '🌍 World Village'], [-76, -76, '🏙️ Main Street'], [0, 108, 'EXIT']] });
   renderDirectory();
   a.onUpdate((dt) => { for (const m of shaderMats) m.uniforms.t.value += dt; });
   a.onUpdate(() => { const p = a.player.position; let w = 'Grand Lobby'; if (LEVEL.cur === 1) w = 'Upper Level'; else if (p.x > 500 && p.z < -500) w = 'World Village'; else if (p.x < -500 && p.z < -500) w = 'Main Street & Directory'; else if (p.z < -230) w = 'Grand Concourse · Sunset Promenade'; else if (p.x > 500) w = 'Chinatown'; else if (p.x < -500) w = 'Alien Quarter'; else if (p.z > 500) w = 'Future Wing'; else if (p.z < 48 && Math.abs(p.x) < 48 && p.z > -48) w = 'The Atrium'; else if (p.x < -48 && Math.abs(p.z) < 32) w = 'Americas Wing'; else if (p.x > 48 && Math.abs(p.z) < 32) w = 'Europe Wing'; else if (p.z < -48 && Math.abs(p.x) < 32) w = 'Asia · Africa · Islands'; else if (p.x > 48 && p.z < -48) w = 'Global Food Court'; else if (p.x < -48 && p.z < -48) w = "Kids' Discovery Zone"; else if (p.x < -48 && p.z > 48) w = 'Butterfly Garden'; else if (p.x > 48 && p.z > 48) w = 'Sky Wheel'; const el = a.hud.querySelector('.wvm-where'); const txt = 'Inside the Mall · ' + w; if (el.textContent !== txt) el.textContent = txt; });

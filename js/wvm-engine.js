@@ -356,6 +356,32 @@ export function makeBobble(kind = 'cat', opts = {}) {
 }
 
 /* Build any character from a CHARACTERS entry + saved avatar options. Returns a Promise for GLB kinds. */
+function addExtras(g, av) {
+  const y = (g.userData.headY || 2) - 0.25;
+  if (av.cape) { const c = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.3, 4, 6), M(av.capeColor || 0xb51a1a, { side: THREE.DoubleSide })); c.position.set(0, 1.35, -0.32); c.rotation.x = 0.18; g.add(c); g.userData.cape = c; }
+  if (av.wings) { for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.6), new THREE.MeshStandardMaterial({ color: pick([0xb08cff, 0x38f0ff, 0xff4fd8]), transparent: true, opacity: 0.8, side: THREE.DoubleSide, emissive: 0x333333 })); w.position.set(sx * 0.5, 1.3, -0.3); w.rotation.y = sx * 0.6; g.add(w); g.userData['wing' + (sx > 0 ? 'R' : 'L')] = w; } }
+  if (av.crown) { const cr = new THREE.Group(); cr.position.y = y + 0.22; const band = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.12, 12, 1, true), new THREE.MeshStandardMaterial({ color: 0xffd23f, metalness: 0.9, roughness: 0.2, side: THREE.DoubleSide })); cr.add(band); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const pt = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 4), band.material); pt.position.set(Math.cos(a) * 0.24, 0.12, Math.sin(a) * 0.24); cr.add(pt); const gem = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), M(pick([0xff4f79, 0x38f0ff, 0x7cff6b]), { emissive: 0x222222 })); gem.position.set(Math.cos(a) * 0.25, 0.02, Math.sin(a) * 0.25); cr.add(gem); } g.add(cr); }
+  if (av.backpack) { const bp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.5, 0.22), M(av.shirt ? 0x1e2a4a : 0x2b8a3e)); bp.position.set(0, 1.2, -0.36); g.add(bp); for (const sx of [-1, 1]) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.04), M(0x111111)); st.position.set(sx * 0.14, 1.3, -0.24); g.add(st); } }
+  if (av.skateboard) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.04, 0.9), M(0xff4f79)); b.position.set(0.05, 0.03, 0); g.add(b); for (const sz of [-0.3, 0.3]) for (const sx of [-0.1, 0.1]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 8), M(0xffffff)); w.rotation.z = Math.PI / 2; w.position.set(0.05 + sx, 0.04, sz); g.add(w); } g.userData.skate = true; }
+  return g;
+}
+export function makePet(kind) {
+  const g = new THREE.Group(); const col = { dog: 0xc8934a, cat: 0x8a8a8a, dragon: 0x3ddc84, duck: 0xffd23f, robopup: 0xbfc9d9, unicorn: 0xffffff }[kind] || 0xc8934a; const m = M(col, { roughness: 0.8, metalness: kind === 'robopup' ? 0.7 : 0 });
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.34, 4, 8), m); body.rotation.z = Math.PI / 2; body.position.y = 0.32; g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), m); head.position.set(0, 0.42, 0.3); g.add(head);
+  for (const sx of [-1, 1]) { const e2 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), M(0x111111)); e2.position.set(sx * 0.06, 0.47, 0.44); g.add(e2); }
+  const legs = []; for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.22, 6), m); l.position.set(sx * 0.1, 0.12, sz * 0.14); g.add(l); legs.push(l); }
+  const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, 0.3, 6), m); tail.position.set(0, 0.42, -0.32); tail.rotation.x = 0.9; g.add(tail);
+  if (kind === 'dog') { for (const sx of [-1, 1]) { const ear = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.04), M(0x8a5a2b)); ear.position.set(sx * 0.14, 0.44, 0.28); g.add(ear); } }
+  if (kind === 'cat') { for (const sx of [-1, 1]) { const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.1, 4), m); ear.position.set(sx * 0.1, 0.56, 0.28); g.add(ear); } }
+  if (kind === 'dragon') { for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.25), M(0x1a8a4a, { side: THREE.DoubleSide })); w.position.set(sx * 0.28, 0.45, 0); w.rotation.y = sx * 0.5; g.add(w); g.userData['wing' + (sx > 0 ? 'R' : 'L')] = w; } for (let i = 0; i < 4; i++) { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.08, 4), M(0xffd23f)); sp.position.set(0, 0.5, 0.15 - i * 0.12); g.add(sp); } }
+  if (kind === 'duck') { const beak = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 6), M(0xff8a3d)); beak.rotation.x = Math.PI / 2; beak.position.set(0, 0.4, 0.48); g.add(beak); }
+  if (kind === 'robopup') { const ant = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), new THREE.MeshStandardMaterial({ color: 0xff4f79, emissive: 0xff4f79, emissiveIntensity: 2 })); ant.position.set(0, 0.62, 0.3); g.add(ant); }
+  if (kind === 'unicorn') { const horn = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.18, 6), new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0xffd23f, emissiveIntensity: 0.6 })); horn.position.set(0, 0.62, 0.33); horn.rotation.x = -0.3; g.add(horn); const mane = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.3), rainbowMaterial()); mane.position.set(0, 0.5, 0.05); g.add(mane); }
+  g.userData.legs = legs; g.userData.tail = tail; g.traverse(o => { if (o.isMesh) o.castShadow = true; }); return g;
+}
+export function animatePet(p, t, speed) { const u = p.userData; const s = Math.sin(t * 10) * 0.5 * speed; u.legs.forEach((l, i) => { l.rotation.x = s * (i % 2 ? 1 : -1); }); u.tail.rotation.z = Math.sin(t * 6) * 0.5; if (u.wingL) { u.wingL.rotation.z = Math.sin(t * 8) * 0.5; u.wingR.rotation.z = -Math.sin(t * 8) * 0.5; } }
+
 export function buildCharacter(ch, av = {}, faceTex = null) {
   const common = { shirt: av.shirt, pants: av.pants, skin: av.skin, hair: av.hair, hairStyle: av.hairStyle, hat: !!av.hat, sunglasses: !!av.sunglasses, headphones: !!av.headphones, bag: false, glasses: false, beard: false, dress: !!av.dress, scale: 1 };
   Object.keys(common).forEach(k => common[k] === undefined && delete common[k]);
@@ -405,14 +431,14 @@ export function loadRiggedPerson(url, opts = {}) {
     if (opts.faceTex) {
       let headBone = null; model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name)) headBone = o; });
       let headMesh = null; model.traverse(o => { if (!headMesh && o.isMesh && /head/i.test(o.name)) headMesh = o; });
-      if (headBone) {
+      {
         model.updateMatrixWorld(true); const box = new THREE.Box3(); if (headMesh) { headMesh.geometry.computeBoundingBox(); box.copy(headMesh.geometry.boundingBox).applyMatrix4(headMesh.matrixWorld); } else { box.setFromCenterAndSize(new THREE.Vector3(0, 1.62, 0), new THREE.Vector3(0.3, 0.3, 0.3)); }
         const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
         const hr = 0.125 * ((opts.height || 1.8) / 1.8);
         const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
         const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.42), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
         if (headMesh) headMesh.visible = false;
-        g.add(plate); g.userData.faceHead = plate; g.userData.headBone = headBone; g.userData.headOffset = new THREE.Vector3(0, hr * 0.55, 0.02);
+        g.add(plate); g.userData.faceHead = plate; g.userData.headBone = headBone; g.userData.headOffset = new THREE.Vector3(0, hr * 0.55, 0.02); if (!headBone) plate.position.set(0, (opts.height || 1.8) - hr * 0.55, 0.02);
         g.userData.face = plate.userData.cap;
       }
     }
@@ -451,6 +477,7 @@ export function animatePerson(p, t, speed = 1) {
     for (const k of Object.keys(A)) { const a = A[k]; if (!a) continue; const target = k === want ? 1 : 0; a.setEffectiveWeight(lerp(a.getEffectiveWeight(), target, 0.12)); if (k === 'walk' || k === 'run') a.setEffectiveTimeScale(clamp(speed, 0.6, 1.8)); }
     return;
   }
+  if (u.cape) u.cape.rotation.x = 0.18 + Math.min(1, speed) * 0.5 + Math.sin(t * 6) * 0.05 * Math.min(1, speed); if (u.wingL) { u.wingL.rotation.y = 0.6 + Math.sin(t * 9) * 0.4; u.wingR.rotation.y = -0.6 - Math.sin(t * 9) * 0.4; }
   if (u.rolls) { for (const w of u.wheels) w.rotation.x += speed * 0.25; const wob = Math.sin((t + u.phase) * 12) * 0.03 * Math.min(1, speed); p.rotation.z = wob; if (u.browL) { u.browL.rotation.z = -0.35 + Math.sin(t * 1.5) * 0.25; u.browR.rotation.z = 0.35 - Math.sin(t * 1.5) * 0.25; } return; }
   if (u.hover) { p.position.y += 0; const bob = Math.sin((t + u.phase) * 2.2) * 0.06; if (u.model) u.model.position.y = bob; else p.children.forEach(c => { c.position.y = (c.userData.baseY ?? (c.userData.baseY = c.position.y)) + bob; }); for (const r of (u.rotors || [])) r.rotation.y += 0.6 + speed * 0.3; return; }
   const Lm = u.limbs; if (!Lm) return;
@@ -559,6 +586,8 @@ export class WVM {
     // shopping list + face from storage
     this.list = this._load('wvm_list', []);
     this._renderList();
+    this.bag = this._load('wvm_bag', []); this._renderBag(); this.coins = this._load('wvm_coins', 0); this.coinBadge.textContent = this.coins;
+    const savedPet = (this._load('wvm_avatar', {}) || {}).pet; if (savedPet && savedPet !== 'none') setTimeout(() => this.setPet(savedPet), 500);
     // shadow camera follows the player so shadows stay sharp where you are
     this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; this.sun.position.set(p.x - 120, 140, p.z - 160); this.sun.target.position.set(p.x, 0, p.z); this.sun.target.updateMatrixWorld(); });
   }
@@ -603,7 +632,7 @@ export class WVM {
     const placeholder = makePerson(Object.assign({ bag: false, faceTex, age: 'adult', scale: 1, glasses: false, beard: false, dress: false, hairStyle: 'short', hair: 0x4a2e15, skin: 0xe0ac7e, shirt: 0x38f0ff, pants: 0x1e2a4a, hat: false }, saved));
     this._setAvatar(placeholder);
     const gen = this._avatarGen = (this._avatarGen || 0) + 1;
-    buildCharacter(ch, saved, faceTex).then(av => { if (gen !== this._avatarGen) return; this._setAvatar(av); });
+    buildCharacter(ch, saved, faceTex).then(av => { if (gen !== this._avatarGen) return; addExtras(av, saved); this._setAvatar(av); });
   }
   _setAvatar(av) {
     if (this.avatar) { this.player.remove(this.avatar); if (this.vehicle) sitPerson(av, true); }
@@ -621,7 +650,10 @@ export class WVM {
   onUpdate(fn) { this.updaters.push(fn); return fn; }
   addObstacle(x, z, r) { this.obstacles.push({ x, z, r }); }
   addBox(x, z, hw, hd) { this.obstacles.push({ x, z, hw, hd }); }
-  _blocked(nx, nz) { for (const ob of this.obstacles) { if (ob.level !== undefined && ob.level !== (this.level || 0)) continue; if (ob.hw !== undefined) { if (Math.abs(nx - ob.x) < ob.hw && Math.abs(nz - ob.z) < ob.hd) return true; } else { const dx = nx - ob.x, dz = nz - ob.z; if (dx * dx + dz * dz < ob.r * ob.r) return true; } } return false; }
+  /* polygon obstacle: pts = [[x,z],...]; blocks INSIDE the polygon (a lake), or outside it when opts.keepIn (a boat) */
+  addPoly(pts, opts = {}) { const ob = { poly: pts, keepIn: !!opts.keepIn, level: opts.level }; this.obstacles.push(ob); return ob; }
+  static inPoly(pts, x, z) { let inside = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const xi = pts[i][0], zi = pts[i][1], xj = pts[j][0], zj = pts[j][1]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside; } return inside; }
+  _blocked(nx, nz) { for (const ob of this.obstacles) { if (ob.level !== undefined && ob.level !== (this.level || 0)) continue; if (ob.poly) { if (ob.off) continue; const inn = WVM.inPoly(ob.poly, nx, nz); if (ob.keepIn ? !inn : inn) return true; continue; } if (ob.hw !== undefined) { if (Math.abs(nx - ob.x) < ob.hw && Math.abs(nz - ob.z) < ob.hd) return true; } else { const dx = nx - ob.x, dz = nz - ob.z; if (dx * dx + dz * dz < ob.r * ob.r) return true; } } return false; }
   addHotspot(obj, data) { obj.traverse(c => { c.userData.hotspot = data; }); this.hotspots.push(obj); return obj; }
   addZone(name, center, radius, build) { this.zones.push({ name, center, radius, build, built: false }); }
   addTrigger(x, z, r, fn) { (this.triggers = this.triggers || []).push({ x, z, r, fn, fired: false }); }
@@ -1034,12 +1066,15 @@ export class WVM {
           <button class="wvm-ico" id="wvm-map" title="Map (M)">🗺️</button>
           <button class="wvm-ico" id="wvm-full" title="Full screen">⛶</button>
           <button class="wvm-ico" id="wvm-list" title="My shopping list (L)">🛍️<span>0</span></button>
+          <button class="wvm-ico" id="wvm-bag" title="My bag">🎒<span>0</span></button>
+          <button class="wvm-ico" id="wvm-coins" title="Coins · Wall of Fame">🪙<span>0</span></button>
           <button class="wvm-ico" id="wvm-help" title="Controls">❔</button>
         </div>
       </div>
       <div id="wvm-toast"></div>
       <button id="wvm-act"></button>
       <button id="wvm-turbo" title="Turbo (T)">🔥 TURBO</button>
+      <div id="wvm-bagpanel" class="wvm-panel"><div class="wvm-panel-head"><b>🎒 My Bag</b><button class="wvm-x">✕</button></div><div class="wvm-bag-body wvm-list-body"></div></div>
       <div id="wvm-listpanel" class="wvm-panel"><div class="wvm-panel-head"><b>🛍️ My Shopping List</b><button class="wvm-x">✕</button></div><div class="wvm-list-body"></div></div>
       <div id="wvm-radiopanel" class="wvm-panel"><div class="wvm-panel-head"><b>📻 Mall Radio</b><button class="wvm-x">✕</button></div><div class="wvm-radio-body"></div></div>
       <div id="wvm-pop" class="wvm-modal"><div class="wvm-card"><h3></h3><div class="wvm-pop-body"></div><div class="wvm-pop-actions"></div></div></div>
@@ -1072,7 +1107,8 @@ export class WVM {
     stage.appendChild(hud);
     this.toastEl = hud.querySelector('#wvm-toast'); this.actBtn = hud.querySelector('#wvm-act'); this.actBtn.onclick = () => { if (this._act) this._act.fn(this); }; this.listPanel = hud.querySelector('#wvm-listpanel'); this.listBtn = hud.querySelector('#wvm-list');
     this.turboBtn = hud.querySelector('#wvm-turbo'); this.turboBtn.onclick = () => this.turbo(); this.turboBtn.addEventListener('touchstart', e => { e.preventDefault(); this.turbo(); }, { passive: false });
-    this.radioPanel = hud.querySelector('#wvm-radiopanel');
+    this.radioPanel = hud.querySelector('#wvm-radiopanel'); this.bagPanel = hud.querySelector('#wvm-bagpanel'); this.bagBtn = hud.querySelector('#wvm-bag'); this.coinBtn = hud.querySelector('#wvm-coins'); this.coinBadge = this.coinBtn.querySelector('span');
+    this.bagBtn.onclick = () => this.toggleBag(); this.bagPanel.querySelector('.wvm-x').onclick = () => this.toggleBag(false); this.coinBtn.onclick = () => this.wallOfFame();
     this.pop = hud.querySelector('#wvm-pop'); this.fade = hud.querySelector('#wvm-fade'); this.loader = hud.querySelector('#wvm-loader');
     this.bar = hud.querySelector('.wvm-bar'); this.loadMsg = hud.querySelector('.wvm-loadmsg'); this.selfieEl = hud.querySelector('#wvm-selfie');
     hud.querySelector('#wvm-view').onclick = () => this.toggleView();
@@ -1093,21 +1129,65 @@ export class WVM {
         <li>The joystick can be dragged anywhere on the screen (grab the ⋮⋮ handle) and switched to a D-pad with ⟲.</li>
       </ul>`);
     this.pop.addEventListener('click', e => { if (e.target === this.pop) this.closePopup(); });
-    this._buildSelfie(); this._buildRadio(); this._dragPanel(this.radioPanel); this._dragPanel(this.listPanel);
+    this._buildSelfie(); this._buildRadio(); this._dragPanel(this.radioPanel); this._dragPanel(this.listPanel); this._dragPanel(this.bagPanel);
+  }
+  /* ----- coins: spinning collectibles, a counter, and a Wall of Fame ----- */
+  addCoin(x, y, z, opts = {}) {
+    const g = new THREE.Group(); g.position.set(x, y, z);
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.1, 24), new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0xffa500, emissiveIntensity: 0.8, metalness: 0.9, roughness: 0.2 })); c.rotation.x = Math.PI / 2; g.add(c);
+    const star = makeSprite('★', { scale: 0.9, bg: 'rgba(0,0,0,0)', fg: '#fff', accent: '#ffd23f' }); star.position.z = 0.07; g.add(star);
+    const light = new THREE.PointLight(0xffd23f, 0.4, 4); if (!isMobile()) g.add(light);
+    this.scene.add(g); const coin = { g, x, z, y, level: opts.level, taken: false }; (this.coinsList = this.coinsList || []).push(coin);
+    if (!this._coinUpd) { this._coinUpd = true; this.onUpdate((dt, t) => { const p = this.player.position; for (const k of this.coinsList) { if (k.taken) continue; k.g.rotation.y += dt * 3; k.g.position.y = k.y + Math.sin(t * 3 + k.x) * 0.15; if (k.level !== undefined && k.level !== (this.level || 0)) continue; const dx = p.x - k.x, dz = p.z - k.z; if (dx * dx + dz * dz < 2.2 && Math.abs(p.y - k.y) < 3) { k.taken = true; this.scene.remove(k.g); this.coins = (this.coins || 0) + 1; this._save('wvm_coins', this.coins); this.coinBadge.textContent = this.coins; this.coinBtn.classList.add('bump'); setTimeout(() => this.coinBtn.classList.remove('bump'), 400); this.buzz(20); this.toast(`🪙 ${this.coins} coin${this.coins === 1 ? '' : 's'}` + (this.coins % 10 === 0 ? ' · check the Wall of Fame!' : ''), 1200); } } }); }
+    return g;
+  }
+  wallOfFame() {
+    const best = this._load('wvm_fame', []); const mine = this.coins || 0; const id = 'wf' + Math.floor(Math.random() * 1e6);
+    const rows = best.slice(0, 10).map((r, i) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} <b>${esc(r.n)}</b></span><b style="color:#ffd23f">${r.c} 🪙</b></div>`).join('') || '<p class="muted">Nobody yet. Be first.</p>';
+    this.popup('🏆 Wall of Fame', `<p>You have <b style="color:#ffd23f">${mine}</b> coins. Coins hide all over the world and the mall; the rain cloud drops extra ones.</p>${rows}<div style="display:flex;gap:8px;margin-top:12px"><input id="${id}" maxlength="12" placeholder="Your name" style="flex:1;padding:10px;border-radius:10px;border:1px solid #ffd23f;background:#050b1c;color:#fff;font:inherit"></div>`, [{ label: '📝 Post my score', keep: true, fn: () => { const n = (document.getElementById(id).value || '').trim(); if (!n) { this.toast('Type a name first'); return; } const list = this._load('wvm_fame', []).filter(r => r.n !== n); list.push({ n, c: mine }); list.sort((a, b) => b.c - a.c); this._save('wvm_fame', list.slice(0, 10)); this.wallOfFame(); } }]);
+  }
+  /* ----- bag: pick things up, carry them, drop them in a cart ----- */
+  addPickup(x, y, z, item) {
+    const s = makeSprite(item.icon + ' ' + item.name, { scale: 2.4, bg: 'rgba(255,255,255,0.95)', fg: '#111', accent: '#7cff6b' }); s.position.set(x, y, z); this.scene.add(s);
+    const it = { x, z, r: 2.2, label: '🖐️ Pick up ' + item.name, fn: (a) => { a.bag.push(item); a._save('wvm_bag', a.bag); a._renderBag(); a.scene.remove(s); a.interactables = a.interactables.filter(i => i !== it); a.toast(item.icon + ' ' + item.name + ' is in your bag 🎒', 2000); a.buzz(20); } }; this.addInteractable(it.x, it.z, it.r, it.label, it.fn);
+    this.onUpdate((dt, t) => { s.position.y = y + Math.sin(t * 2 + x) * 0.15; }); return s;
+  }
+  _renderBag() { const b = this.bagPanel.querySelector('.wvm-bag-body'); this.bagBtn.querySelector('span').textContent = this.bag.length; if (!this.bag.length) { b.innerHTML = '<p class="muted">Empty. Things you pick up around the world go here. Drop them in a cart, or eat the snacks.</p>'; return; } b.innerHTML = ''; this.bag.forEach((it, i) => { const row = document.createElement('div'); row.className = 'wvm-list-row'; row.innerHTML = `<div><b>${esc(it.icon + ' ' + it.name)}</b><small>${esc(it.from || '')}</small></div>`; const use = document.createElement('button'); use.className = 'wvm-btn small'; use.textContent = it.eat ? '😋 Eat' : '📦 Drop'; use.onclick = () => { this.bag.splice(i, 1); this._save('wvm_bag', this.bag); this._renderBag(); this.toast(it.eat ? 'Mmm. ' + it.icon : 'Dropped ' + it.name); }; row.append(use); b.appendChild(row); }); }
+  toggleBag(force) { const on = force ?? !this.bagPanel.classList.contains('on'); this.bagPanel.classList.toggle('on', on); if (on) { this.listPanel.classList.remove('on'); this.radioPanel.classList.remove('on'); } }
+  /* ----- pet: a companion that follows you ----- */
+  setPet(kind) {
+    if (this.pet) { this.scene.remove(this.pet); this.pet = null; }
+    const av = this._load('wvm_avatar', {}) || {}; av.pet = kind; this._save('wvm_avatar', av);
+    if (!kind || kind === 'none') return;
+    const g = makePet(kind); g.position.copy(this.player.position); this.scene.add(g); this.pet = g;
+    if (!this._petUpd) { this._petUpd = true; this.onUpdate((dt, t) => { const p = this.pet; if (!p) return; const tgt = this.player.position.clone().add(new THREE.Vector3(-Math.sin(this.avatar.rotation.y + 2.4) * 1.6, 0, -Math.cos(this.avatar.rotation.y + 2.4) * 1.6)); const d = tgt.clone().sub(p.position); d.y = 0; const L = d.length(); if (L > 0.3) { p.position.addScaledVector(d.normalize(), Math.min(L, dt * (L > 6 ? 12 : 4))); p.rotation.y = lerpAngle(p.rotation.y, Math.atan2(d.x, d.z), 0.2); p.userData.moving = true; } else p.userData.moving = false; p.position.y = this.player.position.y; animatePet(p, t, p.userData.moving ? 1 : 0); }); }
   }
   /* Map: the page calls setMap(drawFn, {scale, cx, cz}) once. drawFn(ctx, toXY) paints the world; the engine adds you. */
   setMap(drawFn, opts = {}) { this.mapDraw = drawFn; this.mapOpts = Object.assign({ scale: 0.5, cx: 0, cz: 0, size: 720 }, opts); }
   showMap() {
     if (!this.mapDraw) { this.toast('No map for this area yet'); return; }
-    const o = this.mapOpts, S = o.size; const c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
-    const toXY = (x, z) => [S / 2 + (x - o.cx) * o.scale, S / 2 + (z - o.cz) * o.scale];
-    g.fillStyle = '#071233'; g.fillRect(0, 0, S, S); this.mapDraw(g, toXY);
+    const o = this.mapOpts, S = isMobile() ? Math.min(o.size, 640) : o.size; const c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
+    const scale = o.scale * (S / o.size); const toXY = (x, z) => [S / 2 + (x - o.cx) * scale, S / 2 + (z - o.cz) * scale];
+    g.fillStyle = '#071233'; g.fillRect(0, 0, S, S);
+    // a real photo of the world from straight above: render the scene with an orthographic camera into a texture, then draw it
+    let real = false;
+    try {
+      const half = S / (2 * scale); const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.5, o.camY ? o.camY + 50 : 1500); cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
+      const rt = new THREE.WebGLRenderTarget(S, S); const fog = this.scene.fog, bg = this.scene.background; this.scene.fog = null; this.scene.background = new THREE.Color(o.bg || 0x0f2a4a);
+      const hidden = []; this.scene.traverse(obj => { if (obj.userData.mapHide && obj.visible) { obj.visible = false; hidden.push(obj); } });
+      this.renderer.setRenderTarget(rt); this.renderer.render(this.scene, cam); this.renderer.setRenderTarget(null);
+      const px = new Uint8Array(S * S * 4); this.renderer.readRenderTargetPixels(rt, 0, 0, S, S, px); rt.dispose(); this.scene.fog = fog; this.scene.background = bg; hidden.forEach(h => h.visible = true);
+      const img = g.createImageData(S, S); for (let y = 0; y < S; y++) { const src = (S - 1 - y) * S * 4, dst = y * S * 4; img.data.set(px.subarray(src, src + S * 4), dst); } g.putImageData(img, 0, 0); real = true;
+      const grid = g.createLinearGradient(0, 0, 0, S); grid.addColorStop(0, 'rgba(5,11,28,0.35)'); grid.addColorStop(0.5, 'rgba(5,11,28,0)'); grid.addColorStop(1, 'rgba(5,11,28,0.35)'); g.fillStyle = grid; g.fillRect(0, 0, S, S);
+    } catch (err) { console.warn('map render fell back to schematic', err); }
+    if (!real) this.mapDraw(g, toXY);
+    for (const [lx, lz, txt, col] of (o.labels || [])) { const [px2, py2] = toXY(lx, lz); g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; const w = g.measureText(txt).width + 14; g.fillStyle = 'rgba(5,11,28,0.8)'; g.beginPath(); g.roundRect(px2 - w / 2, py2 - 12, w, 22, 8); g.fill(); g.fillStyle = col || '#fff'; g.fillText(txt, px2, py2 + 4); }
     const p = this.player.position; const [px, py] = toXY(p.x, p.z); g.fillStyle = '#ff4f79'; g.beginPath(); g.arc(px, py, 9, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.stroke();
     const d = -this.yaw; g.beginPath(); g.moveTo(px, py); g.lineTo(px + Math.sin(d) * 26, py - Math.cos(d) * 26); g.strokeStyle = '#ff4f79'; g.lineWidth = 4; g.stroke();
-    g.fillStyle = '#fff'; g.font = 'bold 20px Poppins, Segoe UI, Arial'; g.fillText('● you', px + 14, py + 6);
+    g.fillStyle = '#fff'; g.font = 'bold 20px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('● you', px + 14, py + 6); if (o.title) { g.font = 'bold 22px Poppins, Segoe UI, Arial'; g.fillStyle = 'rgba(5,11,28,0.8)'; g.fillRect(0, 0, S, 36); g.fillStyle = '#fff'; g.fillText(o.title, 12, 26); }
     this.popup('🗺️ Map', '', []); const body = this.pop.querySelector('.wvm-pop-body'); c.style.cssText = 'width:100%;border-radius:12px;background:#071233'; body.appendChild(c);
     const hint = document.createElement('p'); hint.className = 'muted'; hint.textContent = 'Tap anywhere on the map to walk there.'; body.appendChild(hint);
-    c.onclick = (ev) => { const r = c.getBoundingClientRect(); const mx = (ev.clientX - r.left) / r.width * S, my = (ev.clientY - r.top) / r.height * S; const wx = (mx - S / 2) / o.scale + o.cx, wz = (my - S / 2) / o.scale + o.cz; this.closePopup(); this.walkTo(wx, wz); this.toast('Walking there… 🚶', 2000); };
+    c.onclick = (ev) => { const r = c.getBoundingClientRect(); const mx = (ev.clientX - r.left) / r.width * S, my = (ev.clientY - r.top) / r.height * S; const wx = (mx - S / 2) / scale + o.cx, wz = (my - S / 2) / scale + o.cz; this.closePopup(); this.walkTo(wx, wz); this.toast('Walking there… 🚶', 2000); };
   }
   _dragPanel(panel) {
     const head = panel.querySelector('.wvm-panel-head'); let dr = false, ox = 0, oy = 0; head.style.cursor = 'grab'; head.title = 'Drag me anywhere';
@@ -1139,13 +1219,14 @@ export class WVM {
       Colors: [['shirt', 'Outfit', [['Sky', 0x38f0ff], ['Coral', 0xff4f79], ['Sun', 0xffd23f], ['Mint', 0x7cff6b], ['Violet', 0xb08cff], ['Orange', 0xff8a3d], ['White', 0xffffff], ['Navy', 0x1e2a4a], ['Black', 0x111111]]], ['pants', 'Pants', [['navy', 0x1e2a4a], ['black', 0x2b2b2b], ['purple', 0x4a3b8c], ['denim', 0x3a6ea5], ['khaki', 0x6b4f2a], ['wine', 0x8a1c3a], ['olive', 0x556b2f]]]],
       Skin: [['skin', 'Skin', [['light', 0xffdbac], ['fair', 0xf1c9a5], ['tan', 0xe0ac7e], ['olive', 0xc68642], ['brown', 0x8d5524], ['deep', 0x5c3a1e]]]],
       Hair: [['hair', 'Hair color', HAIR_COLORS], ['hairStyle', 'Hair style', [['short', 'short'], ['long', 'long'], ['ponytail', 'ponytail'], ['curly', 'curly'], ['bun', 'bun'], ['mohawk', 'mohawk'], ['spiky', 'spiky'], ['bald', 'bald']]]],
-      Extras: [['toggles', '', [['🕶️ Sunglasses', 'sunglasses'], ['🎧 Headphones', 'headphones'], ['🧢 Hat', 'hat'], ['👗 Dress', 'dress']]]],
+      Extras: [['toggles', '', [['🕶️ Sunglasses', 'sunglasses'], ['🎧 Headphones', 'headphones'], ['🧢 Hat', 'hat'], ['👗 Dress', 'dress'], ['🦸 Cape', 'cape'], ['🦋 Wings', 'wings'], ['👑 Crown', 'crown'], ['🎒 Backpack', 'backpack'], ['🛹 Skateboard', 'skateboard']]]],
+      Pet: [['pet', 'Companion', [['none', 'none'], ['🐶 Dog', 'dog'], ['🐱 Cat', 'cat'], ['🐉 Dragon', 'dragon'], ['🦆 Duck', 'duck'], ['🤖 Robo-pup', 'robopup'], ['🦄 Mini unicorn', 'unicorn']]]],
     };
     let tab = 'Colors';
     const renderTabs = () => { tabs.innerHTML = ''; for (const k of Object.keys(groups)) { const b = document.createElement('button'); b.className = 'wvm-tab' + (k === tab ? ' on' : ''); b.textContent = k; b.onclick = () => { tab = k; renderTabs(); renderLooks(); }; tabs.appendChild(b); } };
     const renderLooks = () => {
       looks.innerHTML = ''; const a = get(); const ch = CHARACTERS.find(c => c.id === (a.character || 'classic')) || CHARACTERS[0];
-      const cannot = { Hair: ch.kind !== 'classic' && ch.kind !== 'glb', Skin: !['classic', 'glb'].includes(ch.kind) };
+      const cannot = { Hair: ch.kind !== 'classic' && ch.kind !== 'glb' && ch.kind !== 'cart', Skin: !['classic', 'glb'].includes(ch.kind) };
       if (cannot[tab]) { looks.innerHTML = `<p class="muted">${ch.name} doesn't use ${tab.toLowerCase()} options. Colors and Extras still apply.</p>`; return; }
       for (const [key, label, entries] of groups[tab]) {
         const wrap = document.createElement('div'); wrap.className = 'wvm-lookrow'; if (label) { const lb = document.createElement('span'); lb.className = 'wvm-looklabel'; lb.textContent = label; wrap.appendChild(lb); }
@@ -1154,6 +1235,7 @@ export class WVM {
           if (key === 'toggles') { b.className = 'wvm-look txt' + (a[val] ? ' on' : ''); b.textContent = name; b.onclick = () => { set({ [val]: !a[val] }); renderLooks(); }; }
           else if (typeof val === 'number') { b.className = 'wvm-look' + (a[key] === val ? ' on' : ''); b.style.background = '#' + val.toString(16).padStart(6, '0'); b.onclick = () => { set({ [key]: val }); renderLooks(); }; }
           else if (val === 'rainbow') { b.className = 'wvm-look rainbow' + (a[key] === val ? ' on' : ''); b.onclick = () => { set({ [key]: val }); renderLooks(); }; }
+          else if (key === 'pet') { b.className = 'wvm-look txt' + ((a.pet || 'none') === val ? ' on' : ''); b.textContent = name; b.onclick = () => { this.setPet(val); renderLooks(); }; }
           else { b.className = 'wvm-look txt' + (a[key] === val ? ' on' : ''); b.textContent = name; b.onclick = () => { set({ [key]: val }); renderLooks(); }; }
           wrap.appendChild(b);
         }
@@ -1179,7 +1261,7 @@ export class WVM {
       // soft edge so the face blends into the skin of the head
       g.save(); g.globalCompositeOperation = 'destination-in'; const gr = g.createRadialGradient(W / 2, H * 0.5, H * 0.32, W / 2, H * 0.5, H * 0.5); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.85, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore();
       try { localStorage.setItem('wvm_face', cv.toDataURL('image/png')); } catch (e) { }
-      const ok = !!localStorage.getItem('wvm_face'); const sv = this._load('wvm_avatar', {}) || {}; const chNow = CHARACTERS.find(c => c.id === (sv.character || 'classic')); if (chNow && !chNow.face) { sv.character = 'classic'; this._save('wvm_avatar', sv); this.toast('Switched to Classic so your face fits 🙂', 2500); } this._buildAvatar(); this.toast(ok ? 'Looking good! That\'s you now ✨' : '⚠️ Could not save the selfie on this device.', 3000);
+      const ok = !!localStorage.getItem('wvm_face'); if (!ok) { try { localStorage.setItem('wvm_face', cv.toDataURL('image/jpeg', 0.85)); } catch (e2) { } } const ok2 = !!localStorage.getItem('wvm_face'); const sv = this._load('wvm_avatar', {}) || {}; const chNow = CHARACTERS.find(c => c.id === (sv.character || 'classic')); if (chNow && !chNow.face) { sv.character = 'classic'; this._save('wvm_avatar', sv); this.toast('Switched to Classic so your face fits 🙂', 2500); } this._buildAvatar(); this.toast(ok2 ? 'Looking good! That\'s you now ✨ (tap Let\'s go)' : '⚠️ Could not save the selfie on this device. Try a normal (non-private) browser window.', 4000); el.classList.add('snapped');
     };
     el.querySelector('#wvm-cam-clear').onclick = () => { localStorage.removeItem('wvm_face'); this._buildAvatar(); this.toast('Cartoon face restored'); };
     el.querySelector('#wvm-selfie-done').onclick = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; el.classList.remove('cam'); } el.classList.remove('on'); this.paused = false; document.body.classList.remove('wvm-modal-open'); localStorage.setItem('wvm_seen', '1'); };
@@ -1231,7 +1313,7 @@ export class WVM {
       .wvm-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0} .wvm-tab{background:transparent;border:1px solid rgba(124,248,255,.35);color:#cfe9ff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit} .wvm-tab.on{background:#38f0ff;color:#04122a;border-color:#38f0ff}
       .wvm-looks{margin:8px 0} .wvm-lookrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0} .wvm-looklabel{font-size:12px;color:#9fd3ff;width:100%}
       .wvm-look{min-width:36px;height:36px;border-radius:18px;border:3px solid transparent;cursor:pointer;font-size:13px;font-weight:700;background:#0b1a3a;color:#fff;padding:0 10px;font-family:inherit} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.txt{border-radius:999px} .wvm-look.rainbow{background:linear-gradient(135deg,#ff4f79,#ff8a3d,#ffd23f,#7cff6b,#38f0ff,#b08cff)}
-      .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0;position:relative} .wvm-cam video{width:0;height:0;border-radius:16px;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:180px;height:180px} .wvm-cam canvas{width:96px;height:120px;border-radius:48px 48px 40px 40px/50px 50px 60px 60px;background:#0b1a3a} .wvm-cam-hint{font-size:12px;color:#9fd3ff;display:none} #wvm-selfie.cam .wvm-cam-hint{display:block}
+      .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0;position:relative} .wvm-cam video{width:0;height:0;border-radius:16px;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:180px;height:180px} .wvm-cam canvas{width:96px;height:120px;border-radius:48px 48px 40px 40px/50px 50px 60px 60px;background:#0b1a3a;transition:.3s} #wvm-selfie.snapped canvas{width:160px;height:200px;box-shadow:0 0 0 4px #7cff6b} .wvm-cam-hint{font-size:12px;color:#9fd3ff;display:none} #wvm-selfie.cam .wvm-cam-hint{display:block}
       .wvm-privacy{font-size:13px;background:rgba(124,248,255,.1);border:1px solid rgba(124,248,255,.35);border-radius:10px;padding:8px 10px}
       #wvm-fade{position:absolute;inset:0;background:#38f0ff;color:#04122a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:.5s}
       #wvm-fade.on{opacity:1;pointer-events:auto}
