@@ -142,7 +142,7 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile } from '/js/wvm-engine.js?v=10';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=11';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -694,6 +694,9 @@ function buildAirport() {
 /* ---------- billboards for the family of sites + hot-air balloon ---------- */
 function buildAds() {
   const bb = (x, z, rot, lines, col, url, title, html) => { const s = makeSign(lines, { width: 16, height: 6, postHeight: 7, bg: '#07123a', accent: col, border: col }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); app.addHotspot(s, { title, html, actions: [{ label: 'Visit ' + url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: url, newTab: true, primary: true }] }); };
+  bb(-150, -110, 1.2, ['bestsnorkelingbelize.com', 'reef tours · San Pedro, Belize'], '#38b6ff', 'https://bestsnorkelingbelize.com/', 'Best Snorkeling Belize', '<p>The reef is right there. Tours, spot finder, marine life, best time to go. Belize done right.</p>');
+  bb(240, -180, -2.2, ['ADVANCE ASPHALT SERVICES', 'Denver metro & Colorado · (720) 787-8699'], '#ff8a3d', 'https://asphaltcontractorsdenver.com/', 'Advance Asphalt Services · Golden, CO', '<p>Family-owned, BBB A+. Driveways, parking lots, roads, patios, sidewalks, seal coating. Colorado only.</p>');
+  bb(-200, 250, 0.6, ['RAISED IN A BARN FURNITURE', 'reclaimed barnwood · handcrafted in Colorado · free shipping'], '#d9a441', 'https://rusticbarnwoodfurniture.com/', 'Raised In a Barn Furniture', '<p>Reclaimed barnwood furniture built to last generations. Beds, dressers, tables, vanities, doors. Free shipping to the lower 48.</p>');
   bb(150, 130, 0.9, ['THE CHILLER', 'world-famous VR roller coaster · ride it'], '#38f0ff', 'https://worldvrmall.com/', 'The Chiller 🎢', '<p>The coaster this place is famous for. You just want to chill after you ride it. The green ring at the start of the track is where you get on.</p>');
   bb(-40, 150, -0.5, ['denver-webdesign.com', 'custom-coded websites from $99/mo'], '#7cff6b', 'https://denver-webdesign.com/', 'Websites from $99/mo', '<p>Hand-coded, fast, search-optimized, leased month to month. Built by the team that built this world.</p>');
   bb(128, 150, 0.6, ['advertisingforcontractors.com', 'more calls for plumbers · painters · remodelers'], '#ff8a3d', 'https://advertisingforcontractors.com/', 'Advertising For Contractors', '<p>Marketing built for plumbers, painters, remodelers, and every trade.</p>');
@@ -790,8 +793,8 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  a.onFirstSteps(12, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 900); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🏬 Enter the mall', href: '/mall/', primary: true }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
-  buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildZoo(); a.preloadSky('/images/realistic-night-sky-moon-stars-360'); a.preloadSky('/images/tropical-beach-360-panorama');
+  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
+  buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildZoo(); buildKiosks(); buildHorizonCity(); buildModelShowroom(); a.preloadSky('/images/high-end-retail-store-360-4096x2048'); a.preloadSky('/images/realistic-night-sky-moon-stars-360'); a.preloadSky('/images/tropical-beach-360-panorama');
   a.setMap((g, xy) => {
     const box = (x, z, w, d, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(cx - w * 0.5 * 0.55, cz - d * 0.5 * 0.55, w * 0.55, d * 0.55); g.globalAlpha = 1; if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
     const circ = (x, z, r, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.beginPath(); g.arc(cx, cz, r * 0.55, 0, Math.PI * 2); g.fill(); if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
@@ -802,7 +805,7 @@ app.start(async (a) => {
     g.fillStyle = '#fff'; g.font = 'bold 22px Poppins, Segoe UI, Arial'; g.textAlign = 'left'; g.fillText('World VR Mall · the floating island', 16, 30);
   }, { scale: 0.5, cx: 0, cz: 0 });
   const go = setInterval(() => { if (!a.loader.classList.contains('off')) return; clearInterval(go);
-    introSweep(a, [[-160, 90, 260], [-60, 40, 190], [10, 14, 150], [30, 5, 132]], [0, 30, 0], 11, () => { if (!localStorage.getItem('wvm_seen')) a.openSelfie(); }); }, 150);
+    introSweep(a, [[-160, 90, 260], [-60, 44, 200], [10, 16, 165], [8, 4.5, 158]], [0, 26, 0], 11, () => { a.player.position.set(6, 0, 150); a.yaw = 0.04; a.pitch = -0.06; a.avatar.rotation.y = Math.PI; a.targetDist = 7; a.dist = 7; a.toast('That is the mall. Walk toward it. 🚶', 3500); }); }, 150);
 });
 
 /* ----- Beach Cove: sand, palms, chairs, a pier at the edge of the island; walk in and the sky becomes the tropical beach ----- */
@@ -853,6 +856,65 @@ function buildZoo() {
   const keeper = makePerson({ shirt: 0x3f7a3a, pants: 0x6b4f2a, hat: true, bag: false }); app.addNPC(keeper, [new T.Vector3(zx + 22, 0, zz), new T.Vector3(zx, 0, zz + 22), new T.Vector3(zx - 22, 0, zz), new T.Vector3(zx, 0, zz - 22)], { pause: 3, speed: 1 }); const kt = makeSprite('zookeeper · ask me', { scale: 3, bg: 'rgba(30,58,30,0.9)', accent: '#7cff6b' }); kt.position.y = 2.4; keeper.add(kt);
   app.addHotspot(keeper, { fn: (a) => a.popup('Zookeeper 🧑‍🌾', `<p>“${esc(pick(['The lions get fed at 3. They know. They always know.', 'Penguins are the only ones who never complain about the weather.', 'The elephant remembers every visitor. Wave.', 'Monkeys stole my keys twice this week.']))}”</p>`) });
   for (let i = 0; i < 6; i++) app.addNPC(makePerson({ age: i % 2 ? 'kid' : 'adult' }), [new T.Vector3(zx + Math.cos(i) * 22, 0, zz + Math.sin(i) * 22), new T.Vector3(zx + Math.cos(i + 2) * 22, 0, zz + Math.sin(i + 2) * 22)], { pause: 4, speed: 0.9 });
+}
+
+/* ----- kiosks: small branded booths around the grounds. Tap = menu popup; the food ones let you order and eat ----- */
+function kiosk(x, z, rot, k) {
+  const g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = rot; S.add(g); const col = new T.Color(k.color);
+  const base = new T.Mesh(new T.BoxGeometry(4.4, 1.1, 1.6), M(col.getHex(), { roughness: 0.4 })); base.position.y = 0.55; g.add(base);
+  const top = new T.Mesh(new T.BoxGeometry(4.6, 0.12, 1.8), M(0xffffff)); top.position.y = 1.16; g.add(top);
+  for (const sx of [-1, 1]) { const post = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 3.2, 6), M(0x9aa7c7, { metalness: 0.8 })); post.position.set(sx * 2.1, 1.6, -0.7); g.add(post); }
+  const awn = new T.Mesh(new T.BoxGeometry(5, 0.1, 2.4), M(col.getHex())); awn.position.set(0, 3.2, 0); awn.rotation.x = 0.12; g.add(awn);
+  for (let i = 0; i < 6; i++) { const st = new T.Mesh(new T.BoxGeometry(0.8, 0.12, 2.4), M(0xffffff)); st.position.set(-2.1 + i * 0.84, 3.21, 0); st.rotation.x = 0.12; if (i % 2) g.add(st); }
+  const sign = new T.Mesh(new T.PlaneGeometry(4.6, 1.3), new T.MeshBasicMaterial({ map: makeTextTexture(k.lines, { w: 1400, h: 400, bg: k.bg || '#0b1a3a', fg: '#fff', accent: k.color, border: k.color, font: 'bold 96px Poppins, Segoe UI, Arial', radius: 30 }), transparent: true })); sign.position.set(0, 4.1, 0); g.add(sign); const sign2 = sign.clone(); sign2.rotation.y = Math.PI; sign2.position.z = -0.01; g.add(sign2);
+  if (k.emoji) { const sp = makeSprite(k.emoji, { scale: 3.5, bg: 'rgba(255,255,255,0.95)', accent: k.color }); sp.position.set(0, 5.4, 0); g.add(sp); app.onUpdate((dt, t) => { sp.position.y = 5.4 + Math.sin(t * 2 + x) * 0.15; }); }
+  const clerk = makePerson({ shirt: col.getHex(), bag: false, hat: !!k.hat }); clerk.position.set(0, 0, -0.9); g.add(clerk);
+  app.addObstacle(x, z, 2.6);
+  const items = k.items || []; const eat = (a, it) => { const sp = makeSprite(it, { scale: 4.5, bg: 'rgba(255,255,255,0.95)', fg: '#111', accent: k.color }); sp.position.set(0, 2.6, 0); a.avatar.add(sp); a.toast(pick(['Mmm. 😋', 'That hits the spot.', 'Chef\'s kiss. 👨‍🍳', 'Ten out of ten. Would eat again.']), 2500); setTimeout(() => a.avatar.remove(sp), 9000); };
+  const open = (a) => a.popup(k.title, `<p>${esc(k.about || '')}</p>${k.phone ? '<p><b>' + esc(k.phone) + '</b></p>' : ''}`, [...items.map(it => ({ label: it, fn: () => eat(a, it) })), ...(k.url ? [{ label: 'Visit ' + k.url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: k.url, newTab: true, primary: true }] : [])]);
+  app.addHotspot(g, { fn: open }); app.addInteractable(x + Math.sin(rot) * 2.5, z + Math.cos(rot) * 2.5, 4, k.button || ('🛍️ ' + k.title), open);
+  return g;
+}
+function buildKiosks() {
+  const NUEVE = { title: 'Nueve Años · Jacó, Costa Rica', color: '#ff4f79', bg: '#1a3a6a', lines: ['NUEVE AÑOS', 'ceviche · granizados · smoothies'], emoji: '🥤🍤', about: 'Nine years of ceviche, shaved ice and the best smoothies in Jacó, made fresh at the mirador de las Letras. Sabores que te enamoran.', items: ['🍤 Ceviche de camarón', '🧊 Granizado churchill', '🥤 Batido de fresa', '🥥 Pipa fría', '🍹 Fresco natural'], url: 'https://vivirencostarica.com/', button: '🥤 Order a smoothie' };
+  const SUGAR = { title: 'Sugar Shack · San Pedro, Belize', color: '#ff69b4', bg: '#fff5f8', lines: ['SUGAR SHACK', '100% artisan ice cream · made from scratch'], emoji: '🍦', about: 'Small batch, big flavor, made with love in San Pedro. Kids cones 5.5 BZD.', items: ['🍦 Vanilla bean cone', '🍫 Chocolate double scoop', '🍓 Strawberry sundae', '🍨 Mint chip cup', '🍧 Coconut sorbet'], url: 'https://bestsnorkelingbelize.com/', button: '🍦 Get ice cream' };
+  kiosk(140, 40, 0.3, NUEVE); kiosk(-60, 120, 2.6, NUEVE); kiosk(190, 90, -0.6, SUGAR); kiosk(-150, 190, 1.4, SUGAR);
+  kiosk(-120, -30, 0.9, { title: 'Caribbean Breeze Tours · Belize Fishing Charter', color: '#ff7a3d', bg: '#0b2a4a', lines: ['SAN PEDRO FISHING CHARTER', 'reef · flats · deep sea · 604-5568'], emoji: '🎣', about: '15+ years off Ambergris Caye. Bonefish, permit, tarpon, mahi, snapper, tuna. Small groups, local captains, a cooler that comes back full.', phone: '604-5568', url: 'https://belizefishingcharter.com/caribbean-breeze-tours/', button: '🎣 Book a charter' });
+  kiosk(120, -170, 2.9, { title: 'Best Snorkeling Belize', color: '#38b6ff', bg: '#062a44', lines: ['BEST SNORKELING BELIZE', 'reef tours · spot finder · marine life'], emoji: '🤿', about: 'The Belize Barrier Reef, done right: top tours, where to go, what you will see, and the best time to come.', url: 'https://bestsnorkelingbelize.com/', button: '🤿 Plan a reef day' });
+  kiosk(60, -200, 0, { title: 'Advance Asphalt Services · Golden, CO', color: '#ff8a3d', bg: '#1a1a1a', lines: ['ADVANCE ASPHALT', 'driveways · parking lots · patios · (720) 787-8699'], emoji: '🛣️', about: 'Family-owned, BBB A+ rated. Asphalt and concrete: driveways, parking lots, roads, patios, sidewalks, seal coating. Denver metro and surrounding Colorado only.', phone: '(720) 787-8699', url: 'https://asphaltcontractorsdenver.com/', button: '🛣️ Free estimate' });
+  kiosk(-90, 210, 2.2, { title: 'Raised In a Barn Furniture', color: '#d9a441', bg: '#3a2410', lines: ['RAISED IN A BARN', 'reclaimed barnwood furniture · made in Colorado'], emoji: '🪵', about: 'Handcrafted reclaimed barnwood beds, dressers, tables, vanities and doors. Free shipping to the lower 48. Custom orders, any size, any finish.', phone: '(970) 518-2883', url: 'https://rusticbarnwoodfurniture.com/', button: '🪵 See the furniture' });
+  kiosk(BEACH.x - 40, BEACH.z + 30, 0.4, { title: 'Big Wave Dave Surf Co · Honolulu', color: '#ffd23f', bg: '#0b3a2a', lines: ['BIG WAVE DAVE SURF CO', 'learn · surf · live · the Hawaiian way'], emoji: '🏄', about: 'Oahu surf school and equipment rentals. Expert local instructors, all ages and skill levels, top-quality boards. 808-386-4872.', phone: '808-386-4872', url: 'https://surflessonhonolulu.com/', button: '🏄 Book a lesson' });
+  // small signs
+  const small = (x, z, rot, lines, col, url) => { const s = makeSign(lines, { width: 6, height: 2.4, postHeight: 1.6, bg: '#07123a', accent: col, border: col }); s.position.set(x, 0, z); s.rotation.y = rot; S.add(s); app.addHotspot(s, { title: lines[0], html: '<p>' + esc(lines[1]) + '</p>', actions: [{ label: 'Visit ' + url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: url, newTab: true, primary: true }] }); };
+  small(-40, -90, 0.7, ['Advance Asphalt Services', 'Colorado driveways & parking lots · (720) 787-8699'], '#ff8a3d', 'https://asphaltcontractorsdenver.com/');
+  small(220, 200, -1.0, ['Advance Asphalt Services', 'concrete patios & seal coating · Denver metro'], '#ff8a3d', 'https://asphaltcontractorsdenver.com/');
+  small(-260, 120, 1.6, ['Raised In a Barn Furniture', 'reclaimed barnwood · rusticbarnwoodfurniture.com'], '#d9a441', 'https://rusticbarnwoodfurniture.com/');
+  small(90, 230, 3.0, ['Raised In a Barn Furniture', 'beds · dressers · tables · free shipping'], '#d9a441', 'https://rusticbarnwoodfurniture.com/');
+  small(-300, -60, 1.2, ['Belize Fishing Charter', 'Caribbean Breeze Tours · 604-5568'], '#ff7a3d', 'https://belizefishingcharter.com/caribbean-breeze-tours/');
+}
+
+/* ----- horizon city: the mall goes on forever. Buildings recede past the island edge, shrinking into the sunset haze, clouds beneath ----- */
+function buildHorizonCity() {
+  const g = new T.Group(); S.add(g); const glassM = new T.MeshPhysicalMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.55, roughness: 0.1, metalness: 0.3 });
+  const cols = [0xe9f1ff, 0xdfe6f5, 0xcfe0ff, 0xf2b5d4, 0x9ad0ff];
+  const rings = isMobile() ? 3 : 6;
+  for (let ring = 0; ring < rings; ring++) {
+    const R = 700 + ring * 140; const n = 14 + ring * 4; const sc = 1 - ring * 0.13;
+    for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2 + ring * 0.2; const w = rand(30, 60) * sc, h = rand(40, 120) * sc, d = rand(30, 60) * sc; const b = new T.Mesh(new T.BoxGeometry(w, h, d), M(pick(cols), { roughness: 0.4, metalness: 0.2 })); b.position.set(Math.cos(a) * R, h / 2 - 30 * ring, Math.sin(a) * R); b.rotation.y = -a; g.add(b); const dome = new T.Mesh(new T.SphereGeometry(w * 0.35, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), glassM); dome.position.set(b.position.x, h - 30 * ring, b.position.z); g.add(dome); if (i % 3 === 0) { const sp = new T.Mesh(new T.ConeGeometry(2 * sc, 30 * sc, 6), glow(pick([NEON, PINK, GOLD]), 1.2)); sp.position.set(b.position.x, h + 15 * sc - 30 * ring, b.position.z); g.add(sp); } const pad = new T.Mesh(new T.CylinderGeometry(w * 1.1, w * 1.2, 6 * sc, 12), M(0x4a3626, { roughness: 1 })); pad.position.set(b.position.x, -3 - 30 * ring, b.position.z); g.add(pad); }
+    const cm = new T.SpriteMaterial({ map: cloudTexture(), transparent: true, opacity: 0.8, depthWrite: false }); for (let i = 0; i < 10 + ring * 4; i++) { const cl = new T.Sprite(cm); const a = rand(0, 6.28); cl.position.set(Math.cos(a) * (R + rand(-60, 60)), -40 - 30 * ring + rand(-30, 20), Math.sin(a) * (R + rand(-60, 60))); cl.scale.set(rand(160, 320) * sc, rand(70, 140) * sc, 1); g.add(cl); }
+  }
+}
+
+/* ----- model showroom: a glass pavilion by the entrance; step inside and you are standing in the photo-real 360 showroom ----- */
+function buildModelShowroom() {
+  const sx = 70, sz = 150, R = 14; const g = new T.Group(); g.position.set(sx, 0, sz); S.add(g);
+  const floor = new T.Mesh(new T.CircleGeometry(R, 32), M(0xf0f2f5, { roughness: 0.15, metalness: 0.1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.08; g.add(floor);
+  const wall = new T.Mesh(new T.CylinderGeometry(R, R, 7, 32, 1, true, 0.5, Math.PI * 2 - 1.0), new T.MeshPhysicalMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.3, roughness: 0.05, side: T.DoubleSide, depthWrite: false })); wall.position.y = 3.5; g.add(wall);
+  const roof = new T.Mesh(new T.ConeGeometry(R + 1, 3, 32), M(0xdfe6f5, { metalness: 0.5, roughness: 0.3 })); roof.position.y = 8.5; g.add(roof); const ring = new T.Mesh(new T.TorusGeometry(R, 0.25, 8, 48), glow(GOLD, 1.3)); ring.rotation.x = Math.PI / 2; ring.position.y = 7; g.add(ring);
+  for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + 0.3; const px = Math.cos(a) * 8, pz = Math.sin(a) * 8; const ped = new T.Mesh(new T.CylinderGeometry(0.6, 0.7, 1.1, 20), M(0xffffff, { roughness: 0.2 })); ped.position.set(px, 0.55, pz); g.add(ped); const glass = new T.Mesh(new T.BoxGeometry(1.1, 1.1, 1.1), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, roughness: 0.02 })); glass.position.set(px, 1.7, pz); g.add(glass); const item = new T.Mesh(pick([new T.TorusKnotGeometry(0.28, 0.1, 64, 10), new T.OctahedronGeometry(0.4, 0), new T.IcosahedronGeometry(0.4, 1), new T.CylinderGeometry(0.25, 0.32, 0.6, 24)]), new T.MeshStandardMaterial({ color: pick([0xffd23f, 0xe9eef7, 0xff4f79, 0x38f0ff]), metalness: 0.85, roughness: 0.15 })); item.position.set(px, 1.7, pz); g.add(item); app.onUpdate((dt) => { item.rotation.y += dt * 0.6; }); app.addObstacle(sx + px, sz + pz, 0.9); }
+  const sg = makeSign(['MODEL SHOWROOM', '360° photo-real room · the premium upgrade'], { width: 11, height: 3.6, postHeight: 2.6, bg: '#0b1a3a', accent: '#ffd23f', border: '#ffd23f', small: 'walk in · your products, your room · $499/mo' }); sg.position.set(sx - 18, 0, sz + 6); sg.rotation.y = 0.9; S.add(sg);
+  app.addHotspot(sg, { title: '360° Showroom upgrade', html: '<p>Step inside. That is a photo-real showroom wrapped all the way around you, with display pedestals for your products. Every tenant can have one built for their brand: launch price $499/mo, 24-month term. Custom branded worlds from $1,000/mo.</p>', actions: [{ label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }] });
+  let inside = false; app.onUpdate(() => { const p = app.player.position; const now = dist(p.x, p.z, sx, sz) < R - 1; if (now !== inside) { inside = now; app.setSky(now ? '/images/high-end-retail-store-360-4096x2048' : ((app.opts.autoNight && isNightNowLocal()) ? app.opts.nightSky : app.opts.sky)); if (now) app.toast('✨ This is the 360° Showroom. Look around: every wall is real.', 3500); } });
 }
 
 /* ----- intro sweep: slow camera flight, avatar hidden, then reveal the whole body in third person ----- */

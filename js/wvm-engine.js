@@ -152,6 +152,7 @@ export const CHARACTERS = [
   { id: 'alien', name: 'Alien', icon: '👽', desc: 'Friendly visitor', kind: 'alien', face: false },
   { id: 'robot', name: 'Robot', icon: '🤖', desc: 'Beep boop', kind: 'robot', face: false },
   { id: 'drone', name: 'Drone', icon: '🛸', desc: 'Hovers. No legs required', kind: 'drone', face: false },
+  { id: 'cart', name: 'Shopping Cart', icon: '🛒', desc: 'Eyebrows, spiky hair, rolling wheels', kind: 'cart', face: true },
   { id: 'cat', name: 'Cat Head', icon: '🐱', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'cat', face: false },
   { id: 'unicorn', name: 'Unicorn', icon: '🦄', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'unicorn', face: false },
   { id: 'bear', name: 'Bear', icon: '🐻', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'bear', face: false },
@@ -176,9 +177,10 @@ export function makeFaceHead(faceTex, skin, radius = 0.24) {
   const head = new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 16), M(skin)); head.castShadow = true; g.add(head);
   if (faceTex) {
     // the selfie oval as a gently curved plate on the front of the head: always visible, no z-fighting, no hiding inside hair
-    const geo = new THREE.SphereGeometry(radius * 1.55, 20, 16, Math.PI / 2 - 0.62, 1.24, Math.PI * 0.28, Math.PI * 0.44);
-    const cap = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide }));
-    cap.position.set(0, 0, -radius * 0.45); cap.scale.set(0.95, 1.15, 1); g.add(cap); g.userData.cap = cap;
+    // the photo is the front of the head itself: a slightly larger front shell so nothing shows around the oval but skin
+    const geo = new THREE.SphereGeometry(radius * 1.08, 24, 18, Math.PI / 2 - 1.05, 2.1, Math.PI * 0.12, Math.PI * 0.72);
+    const cap = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: faceTex, transparent: true, alphaTest: 0.25, side: THREE.FrontSide }));
+    cap.position.set(0, -radius * 0.02, radius * 0.02); cap.scale.set(1, 1.04, 1); g.add(cap); g.userData.cap = cap;
   }
   g.userData.head = head;
   return g;
@@ -231,7 +233,7 @@ export function makePerson(opts = {}) {
   if (o.sunglasses) addSunglasses(face, 0.04, 0.215);
   // hair
   if (o.hairStyle !== 'bald') {
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.255, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairM); cap.position.y = 1.74; cap.castShadow = true; g.add(cap);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.255, 16, 12, 0, Math.PI * 2, 0, o.faceTex ? Math.PI * 0.42 : Math.PI * 0.55), hairM); cap.position.y = 1.74; cap.castShadow = true; g.add(cap);
     if (o.hairStyle === 'long') { const back = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.4, 4, 10), hairM); back.position.set(0, 1.45, -0.12); back.scale.set(1, 1, 0.55); g.add(back); }
     if (o.hairStyle === 'ponytail') { const pt = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.35, 4, 8), hairM); pt.position.set(0, 1.5, -0.26); pt.rotation.x = 0.35; g.add(pt); g.userData.ponytail = pt; }
     if (o.hairStyle === 'bun') { const bn = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), hairM); bn.position.set(0, 1.9, -0.18); g.add(bn); }
@@ -311,6 +313,26 @@ export function makeDrone(opts = {}) {
   return g;
 }
 
+/* ---- The Shopping Cart: a living cart with eyes, eyebrows, spiky hair and wheels that actually roll. ---- */
+export function makeCartChar(opts = {}) {
+  const o = Object.assign({ color: 0xbfc9d9, hair: 0xff4fd8, faceTex: null, scale: 1 }, opts);
+  const g = new THREE.Group(); const metal = M(o.color, { metalness: 0.85, roughness: 0.25 }); const dark = M(0x1e2a4a, { metalness: 0.6 });
+  const basket = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 1.2), metal); basket.position.set(0, 0.95, 0); basket.castShadow = true; g.add(basket);
+  for (let i = 0; i < 5; i++) { const bar = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.03, 0.03), dark); bar.position.set(0, 0.62 + i * 0.16, 0.61); g.add(bar); const bar2 = bar.clone(); bar2.position.z = -0.61; g.add(bar2); }
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.0, 8), M(0xff4f79)); handle.rotation.z = Math.PI / 2; handle.position.set(0, 1.45, -0.72); g.add(handle);
+  for (const sx of [-1, 1]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.55, 6), dark); post.position.set(sx * 0.42, 1.2, -0.7); post.rotation.x = 0.25; g.add(post); }
+  const wheels = []; for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 12), M(0x111111)); w.rotation.z = Math.PI / 2; w.position.set(sx * 0.42, 0.16, sz * 0.5); g.add(w); const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.1, 8), M(0xdddddd, { metalness: 0.9 })); hub.rotation.z = Math.PI / 2; hub.position.copy(w.position); g.add(hub); wheels.push(w, hub); }
+  // the face lives on the front of the basket
+  const face = new THREE.Group(); face.position.set(0, 1.05, 0.62); g.add(face);
+  if (o.faceTex) { const fh = makeFaceHead(o.faceTex, 0xe0ac7e, 0.22); fh.userData.head.visible = false; fh.position.z = -0.08; face.add(fh); g.userData.face = fh.userData.cap; }
+  else { for (const sx of [-1, 1]) { const e2 = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), M(0xffffff, { roughness: 0.2 })); e2.position.set(sx * 0.2, 0.05, 0.02); face.add(e2); const p = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), M(0x111111)); p.position.set(sx * 0.2, 0.05, 0.11); face.add(p); } const smile = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 6, 14, Math.PI), M(0xb03a4a)); smile.position.set(0, -0.14, 0.03); smile.rotation.z = Math.PI; face.add(smile); }
+  for (const sx of [-1, 1]) { const br = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.05, 0.04), M(0x1a1a1a)); br.position.set(sx * 0.2, 0.24, 0.03); br.rotation.z = sx * -0.35; face.add(br); g.userData['brow' + (sx > 0 ? 'R' : 'L')] = br; }
+  const hairM2 = hairMat(o.hair); for (let i = 0; i < 9; i++) { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.34, 6), hairM2); const x = -0.36 + i * 0.09; sp.position.set(x, 1.4, 0.2 - Math.abs(x) * 0.6); sp.rotation.z = -x * 0.9; sp.rotation.x = -0.25; g.add(sp); }
+  for (let i = 0; i < 4; i++) { const item = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.22), M(pick([0xff4f79, 0xffd23f, 0x7cff6b, 0x38f0ff]))); item.position.set(-0.25 + i * 0.17, 1.35, -0.25 + (i % 2) * 0.3); item.rotation.y = i; g.add(item); }
+  g.scale.setScalar(o.scale); g.userData.wheels = wheels; g.userData.kind = 'cart'; g.userData.phase = Math.random() * 10; g.userData.headY = 1.75 * o.scale; g.userData.rolls = true;
+  return g;
+}
+
 /* ---- Bobbleheads: a Classic body with a giant animal head that wobbles. ---- */
 export function makeBobble(kind = 'cat', opts = {}) {
   const base = makePerson(Object.assign({ hairStyle: 'bald', faceTex: null, bag: false, hat: false, beard: false, glasses: false }, opts));
@@ -342,6 +364,7 @@ export function buildCharacter(ch, av = {}, faceTex = null) {
   if (ch.kind === 'robot') return Promise.resolve(makeRobot({ accent: av.shirt || 0x38f0ff }));
   if (ch.kind === 'drone') return Promise.resolve(makeDrone({ accent: av.shirt || 0x38f0ff }));
   if (ch.kind === 'bobble') return Promise.resolve(makeBobble(ch.bobble, Object.assign({}, common)));
+  if (ch.kind === 'cart') return Promise.resolve(makeCartChar({ color: av.shirt || 0xbfc9d9, hair: av.hair || 0xff4fd8, faceTex: ch.face ? faceTex : null }));
   if (ch.kind === 'glb') return loadRiggedPerson(ch.model, Object.assign({ faceTex: ch.face ? faceTex : null }, common)).catch(err => { console.error('rigged character failed, using Classic', err); if (window.WVM_APP) WVM_APP.toast('⚠️ 3D character could not load (' + (err && err.message ? err.message : err) + '). Using Classic.', 6000); return makePerson(Object.assign({ age: 'adult', faceTex: faceTex, hairStyle: 'short' }, common)); });
   return Promise.resolve(makePerson(common));
 }
@@ -387,7 +410,7 @@ export function loadRiggedPerson(url, opts = {}) {
         const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
         const hr = 0.125 * ((opts.height || 1.8) / 1.8);
         const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
-        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
+        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.42), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
         if (headMesh) headMesh.visible = false;
         g.add(plate); g.userData.faceHead = plate; g.userData.headBone = headBone; g.userData.headOffset = new THREE.Vector3(0, hr * 0.55, 0.02);
         g.userData.face = plate.userData.cap;
@@ -428,6 +451,7 @@ export function animatePerson(p, t, speed = 1) {
     for (const k of Object.keys(A)) { const a = A[k]; if (!a) continue; const target = k === want ? 1 : 0; a.setEffectiveWeight(lerp(a.getEffectiveWeight(), target, 0.12)); if (k === 'walk' || k === 'run') a.setEffectiveTimeScale(clamp(speed, 0.6, 1.8)); }
     return;
   }
+  if (u.rolls) { for (const w of u.wheels) w.rotation.x += speed * 0.25; const wob = Math.sin((t + u.phase) * 12) * 0.03 * Math.min(1, speed); p.rotation.z = wob; if (u.browL) { u.browL.rotation.z = -0.35 + Math.sin(t * 1.5) * 0.25; u.browR.rotation.z = 0.35 - Math.sin(t * 1.5) * 0.25; } return; }
   if (u.hover) { p.position.y += 0; const bob = Math.sin((t + u.phase) * 2.2) * 0.06; if (u.model) u.model.position.y = bob; else p.children.forEach(c => { c.position.y = (c.userData.baseY ?? (c.userData.baseY = c.position.y)) + bob; }); for (const r of (u.rotors || [])) r.rotation.y += 0.6 + speed * 0.3; return; }
   const Lm = u.limbs; if (!Lm) return;
   if (u.pose === 'sit') { if (u.bobble) u.bobble.rotation.z = Math.sin((t + u.phase) * 3.5) * 0.08; return; }
@@ -1008,6 +1032,7 @@ export class WVM {
           <button class="wvm-ico" id="wvm-me" title="Your character & selfie">🧑</button>
           <button class="wvm-ico" id="wvm-radio" title="Radio">📻</button>
           <button class="wvm-ico" id="wvm-map" title="Map (M)">🗺️</button>
+          <button class="wvm-ico" id="wvm-full" title="Full screen">⛶</button>
           <button class="wvm-ico" id="wvm-list" title="My shopping list (L)">🛍️<span>0</span></button>
           <button class="wvm-ico" id="wvm-help" title="Controls">❔</button>
         </div>
@@ -1054,6 +1079,7 @@ export class WVM {
     hud.querySelector('#wvm-list').onclick = () => this.toggleList();
     hud.querySelector('#wvm-radio').onclick = () => this.toggleRadio();
     hud.querySelector('#wvm-map').onclick = () => this.showMap();
+    hud.querySelector('#wvm-full').onclick = () => { const d = document; if (d.fullscreenElement) { d.exitFullscreen(); } else { (d.documentElement.requestFullscreen || d.documentElement.webkitRequestFullscreen || (() => this.toast('Full screen is not available in this browser'))).call(d.documentElement); window.scrollTo(0, 0); } };
     this.listPanel.querySelector('.wvm-x').onclick = () => this.toggleList(false);
     this.radioPanel.querySelector('.wvm-x').onclick = () => this.toggleRadio(false);
     hud.querySelector('#wvm-me').onclick = () => this.openSelfie();

@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=10';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=11';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -272,8 +272,9 @@ export function buildStore(app, store, opts = {}) {
     if (big) { aisleSign(-(W - 6) / 2, -3, store.aisles?.[0] || 'SHOWER PANS'); aisleSign(0, -3, store.aisles?.[1] || 'FULL PACKAGES'); aisleSign((W - 6) / 2, -3, store.aisles?.[2] || 'DESIGNER SYSTEMS'); }
     const cats = ['pan', 'package', 'service']; const ordered = products.slice().sort((a, b) => cats.indexOf(a.cat || 'pan') - cats.indexOf(b.cat || 'pan'));
     ordered.forEach((p, i) => { const sl = slots[i]; if (!sl) return; used.add(i); addCard(p, i, sl, sl.wall ? 1.1 : 0.95); });
+    if (/shower|bath|tub/i.test((store.tag || '') + ' ' + store.name)) {
     const unit = new T.Group(); unit.position.set(hw - 3.2, 0, -D + 3.6); const pan = sh(new T.Mesh(new T.BoxGeometry(2.4, 0.15, 2.0), M(0xffffff, { roughness: 0.2 }))); pan.position.y = 0.08; unit.add(pan); const wall1 = sh(new T.Mesh(new T.BoxGeometry(2.4, 2.2, 0.1), M(0xe4ecff, { roughness: 0.3 }))); wall1.position.set(0, 1.2, -1); unit.add(wall1); const wall2 = sh(new T.Mesh(new T.BoxGeometry(0.1, 2.2, 2), wall1.material)); wall2.position.set(-1.2, 1.2, 0); unit.add(wall2); const gl = new T.Mesh(new T.BoxGeometry(0.05, 2.1, 2), glassM); gl.position.set(1.2, 1.2, 0); unit.add(gl); const head = new T.Mesh(new T.CylinderGeometry(0.12, 0.12, 0.04, 12), M(0xdddddd, { metalness: 0.9 })); head.position.set(0, 2.1, -0.6); unit.add(head); const bar = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 0.8, 8), head.material); bar.rotation.z = Math.PI / 2; bar.position.set(-1.1, 1.1, 0.3); unit.add(bar); g.add(unit); box(hw - 3.2, -D + 3.6, 1.4, 1.2);
-    app.addHotspot(unit, { title: 'Display unit', html: '<p>A barrier-free shower: zero-threshold pan, wall panels, grab bar, glass. This is the kind of thing that makes a bathroom safe to age in.</p>', actions: [{ label: store.cta || 'See all showers', href: store.url, newTab: true, primary: true }] });
+    app.addHotspot(unit, { title: 'Display unit', html: '<p>A barrier-free shower: zero-threshold pan, wall panels, grab bar, glass. This is the kind of thing that makes a bathroom safe to age in.</p>', actions: [{ label: store.cta || 'See all showers', href: store.url, newTab: true, primary: true }] }); }
   } else if (layout === 'boutique') {
     for (const sx of [-1, 1]) { for (let k = 0; k < 2; k++) { const z = -3 - k * 4; const rack = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 3, 6), M(0xdddddd, { metalness: 0.9 })); rack.rotation.x = Math.PI / 2; rack.position.set(sx * (hw - 1.6), 1.7, z); g.add(rack); for (const lx of [-1, 1]) { const leg = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 1.7, 6), rack.material); leg.position.set(sx * (hw - 1.6), 0.85, z + lx * 1.4); g.add(leg); } for (let h = 0; h < 6; h++) { const shirt = sh(new T.Mesh(new T.BoxGeometry(0.5, 0.7, 0.06), M(pick([hex(colors.trim).getHex(), 0xffffff, 0x1e2a4a, 0xf2b5d4, 0xffd23f, 0x2b8a3e])))); shirt.position.set(sx * (hw - 1.6), 1.3, z - 1.2 + h * 0.45); g.add(shirt); const hanger = new T.Mesh(new T.TorusGeometry(0.06, 0.01, 4, 8), rack.material); hanger.position.set(sx * (hw - 1.6), 1.68, z - 1.2 + h * 0.45); g.add(hanger); } box(sx * (hw - 1.6), z, 0.4, 1.6); } }
     const table = sh(new T.Mesh(new T.CylinderGeometry(1.6, 1.6, 0.1, 24), woodM)); table.position.set(0, 0.9, -D / 2 - 1); g.add(table); const tl = new T.Mesh(new T.CylinderGeometry(0.15, 0.3, 0.9, 10), woodM); tl.position.set(0, 0.45, -D / 2 - 1); g.add(tl); box(0, -D / 2 - 1, 1.7, 1.7);
@@ -408,7 +409,7 @@ export function buildStore(app, store, opts = {}) {
   return g;
 }
 
-export function wingName(w) { return ({ lobby: 'Grand Lobby', americas: 'Americas Wing', europe: 'Europe Wing', asia: 'Asia & Islands Wing', food: 'Global Food Court', kids: "Kids' Discovery Zone", market: 'Old World Market', chinatown: 'Chinatown', alien: 'Alien Quarter', upper: 'Upper Level', arcade: 'Game Room', future: 'Future Wing' })[w] || 'Mall'; }
+export function wingName(w) { return ({ lobby: 'Grand Lobby', americas: 'Americas Wing', europe: 'Europe Wing', asia: 'Asia & Islands Wing', food: 'Global Food Court', kids: "Kids' Discovery Zone", market: 'Old World Market', chinatown: 'Chinatown', alien: 'Alien Quarter', upper: 'Upper Level', arcade: 'Game Room', future: 'Future Wing', village: 'World Village' })[w] || 'Mall'; }
 
 /* ---------- product popup (v3): blurred store behind, product floats big, BUY on the tenant's domain, heart-save ---------- */
 let popCSS = false;
