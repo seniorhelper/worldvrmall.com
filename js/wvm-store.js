@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=19';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=21';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -456,7 +456,7 @@ export function showProduct(app, store, p) {
   const html = `<div class="wvm-prod">${img}
     <div><div class="wvm-prod-brand">${esc(store.name)}${store.city ? ' · ' + esc(store.city) : ''}</div><div class="wvm-prod-name">${esc(p.title)}</div><div class="wvm-prod-price">${esc(p.price || '')}</div></div>
     <div class="wvm-prod-desc">${esc(p.desc || '')}</div>
-    ${demo ? '<p class="muted">This is a demo store showing what a storefront looks like. A real brand could be here tomorrow.</p>' : `<a class="wvm-prod-buy" href="${esc(p.url)}" target="_blank" rel="noopener">BUY on ${esc(domain)} →</a><div class="wvm-prod-row"><span class="muted">Checkout happens on the brand's own site.</span><button class="wvm-heart${saved ? ' on' : ''}" id="${id}-h">${saved ? '♥ Saved' : '♡ Save to my list'}</button></div>`}
+    ${demo ? '<p class="muted">This is a demo store showing what a storefront looks like. A real brand could be here tomorrow.</p>' : `<a class="wvm-prod-buy" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(store.buyLabel || ('BUY on ' + domain + ' →'))}</a><div class="wvm-prod-row"><span class="muted">${store.buyLabel ? 'This goes straight to the business.' : "Checkout happens on the brand's own site."}</span><button class="wvm-heart${saved ? ' on' : ''}" id="${id}-h">${saved ? '♥ Saved' : '♡ Save to my list'}</button></div>`}
   </div>`;
   app.popup(p.title, html, demo ? [{ label: '🏬 Put my brand here', href: '/lease/', primary: true }] : []);
   const im = document.getElementById(id); if (im) { if (im.complete && im.naturalWidth) floatImage(im); else { im.onload = () => floatImage(im); im.onerror = () => { im.removeAttribute('crossorigin'); im.classList.add('plate'); im.src = p.img; im.onerror = null; }; } }

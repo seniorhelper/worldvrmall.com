@@ -142,8 +142,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=19';
-import { initBot } from '/js/wvm-bot.js?v=19';
+import { WVM, THREE, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=21';
+import { initBot } from '/js/wvm-bot.js?v=21';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -166,7 +166,7 @@ const groundY = (x, z) => {
 const app = new WVM({
   worldName: 'Outside World · Welcome', page: 'index',
   spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 520,
-  fog: 0xbfdcf2, fogNear: 140, fogFar: 760, showSelfieOnFirstVisit: false, spriteFar: 75, maxDist: 1500, camFar: 7000, onTravel: (pl, ap) => { ROOF.on = false; ap.level = 0; },
+  fog: 0xbfdcf2, fogNear: 140, fogFar: 760, showSelfieOnFirstVisit: false, spriteFar: 75, cullDist: 800, maxDist: 1500, camFar: 7000, onTravel: (pl, ap) => { ROOF.on = false; ap.level = 0; },
 });
 window.WVM_APP = app; // debug handle
 const S = app.scene, T = THREE;
@@ -233,11 +233,11 @@ const waterMats = [];
 function lakeOutline(x, z, r, seed = 1) { const pts = []; for (let i = 0; i < 72; i++) { const a = i / 72 * Math.PI * 2; const k = 1 + 0.22 * Math.sin(3 * a + seed) + 0.12 * Math.cos(5 * a + seed * 2.1) + 0.07 * Math.sin(9 * a + seed * 0.7) - 0.16 * Math.max(0, Math.cos(a - seed) - 0.85) * 4; pts.push([x + Math.cos(a) * r * k, z + Math.sin(a) * r * k]); } return pts; }
 const LAKE_PTS = []; 
 function water(x, z, r, y = 0.05, col, deep, seed = 1) {
-  const m = waterMaterial(col, deep); waterMats.push(m);
+  y = Math.max(y, 0.22); const m = waterMaterial(col, deep); m.polygonOffset = true; m.polygonOffsetFactor = -4; m.polygonOffsetUnits = -4; waterMats.push(m);
   const pts = lakeOutline(x, z, r, seed); const shape = new T.Shape(pts.map(p => new T.Vector2(p[0] - x, -(p[1] - z))));
   const mesh = new T.Mesh(new T.ShapeGeometry(shape, 8), m); mesh.rotation.x = -Math.PI / 2; mesh.position.set(x, y, z); S.add(mesh);
   const rimShape = new T.Shape(lakeOutline(x, z, r + 2.6, seed).map(p => new T.Vector2(p[0] - x, -(p[1] - z)))); rimShape.holes.push(new T.Path(lakeOutline(x, z, r - 0.4, seed).map(p => new T.Vector2(p[0] - x, -(p[1] - z)))));
-  const rim = new T.Mesh(new T.ShapeGeometry(rimShape, 8), M(0xb8ad93, { roughness: 1 })); rim.rotation.x = -Math.PI / 2; rim.position.set(x, 0.04, z); S.add(rim);
+  const rim = new T.Mesh(new T.ShapeGeometry(rimShape, 8), M(0xb8ad93, { roughness: 1 })); rim.rotation.x = -Math.PI / 2; rim.position.set(x, 0.12, z); rim.material.polygonOffset = true; rim.material.polygonOffsetFactor = -2; rim.material.polygonOffsetUnits = -2; S.add(rim);
   const ob = app.addPoly(pts); mesh.userData.poly = pts; mesh.userData.ob = ob;
   if (r > 60) LAKE_PTS.push(...pts);
   return mesh;
@@ -529,7 +529,7 @@ function coaster(name, pts, color, opts = {}) {
 /* what happens when a coaster pulls back in: stay on for the scenic loop, take the gondola, or hop off */
 function afterRide(a, name) {
   a.popup(`${name} · that was a ride 🎢`, '<p>Legs wobbly? Good. What now?</p>', [
-    { label: '🚡 Gondola to Crystal Lake', fn: () => { a.walkTarget = new T.Vector3(GOND.a.x + 4, 0, GOND.a.z + 4); a.toast('Gondola station is just past the park gate. Green button to board.', 4000); } },
+    { label: '🚡 Gondola to Crystal Lake', fn: () => { a.walkTo(GOND.a.x + 4, GOND.a.z + 4); a.toast('Gondola station is just past the park gate. Green button to board.', 4000); } },
     { label: '🌄 Slow scenic loop over the park', fn: () => scenicLoop(a) },
     { label: '🎢 Ride it again', fn: () => { if (RIDES[name]) setTimeout(() => RIDES[name].choose(a), 300); } },
     { label: '🚶 Hop off', fn: () => a.toast('The Sky Wheel and carousel are right there. 🎡', 3000) },
@@ -840,7 +840,7 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 Amusement park', fn: () => { a.walkTarget = new T.Vector3(118, 0, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTarget = new T.Vector3(-66, 0, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🏖️ Beach & zoo', fn: () => { a.walkTarget = new T.Vector3(40, 0, -380); a.toast('Long walk. Grab a cart, or take the train. The beach is at the far edge of the island. 🏖️'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
+  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 Amusement park', fn: () => { a.walkTo(118, 100); a.toast('Walking to the park gate…'); } }, { label: '🎈 Balloon & observatory', fn: () => { a.walkTo(-66, 226); a.toast('Heading to the balloon. The observatory is out past the lake.'); } }, { label: '🏖️ Beach & zoo', fn: () => { a.walkTo(40, -380); a.toast('Long walk. Grab a cart, or take the train. The beach is at the far edge of the island. 🏖️'); } }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
   buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildZoo(); buildKiosks(); buildHorizonCity(); buildModelShowroom(); buildCoins(); buildCartGame(); buildSkyLife(); buildPeaceCity(); registerPlaces(a); a.preloadSky('/images/high-end-retail-store-360-4096x2048'); a.preloadSky('/images/realistic-night-sky-moon-stars-360'); a.preloadSky('/images/tropical-beach-360-panorama');
   a.setMap((g, xy) => {
     const box = (x, z, w, d, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(cx - w * 0.5 * 0.55, cz - d * 0.5 * 0.55, w * 0.55, d * 0.55); g.globalAlpha = 1; if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
@@ -855,7 +855,7 @@ app.start(async (a) => {
     if (a.arrival.ride && RIDES['The Chiller']) { a.player.position.set(150, 0, 66); setTimeout(() => RIDES['The Chiller'].choose(a), 600); return; }
     if (a.arrival.to) return;
     // arrival: you drop out of the sky, see the peace-sign city on its clouds above the Earth, and land in front of the mall
-    const f0 = [S.fog.near, S.fog.far]; const fogFn = () => { if (!a._intro) { S.fog.near = f0[0]; S.fog.far = f0[1]; a._farMode = undefined; a.updaters = a.updaters.filter(u => u !== fogFn); return; } const y = a.rig.position.y; S.fog.near = f0[0] + y * 5; S.fog.far = f0[1] + y * 9; };
+    const f0 = [S.fog.near, S.fog.far]; a.setFar(true); const fogFn = () => { if (!a._intro) { a.setFar(a.dist > 30); S.fog.near = f0[0]; S.fog.far = f0[1]; a._farMode = undefined; a.updaters = a.updaters.filter(u => u !== fogFn); return; } const y = a.rig.position.y; S.fog.near = f0[0] + y * 5; S.fog.far = f0[1] + y * 9; };
     introSweep(a, [[0, 2300, 700], [0, 1500, 640], [0, 800, 520], [-40, 330, 400], [-30, 150, 300], [10, 20, 172], [8, 4.5, 158]], [0, 40, 0], 17, () => { a.player.position.set(6, 0, 150); a.yaw = 0.04; a.pitch = -0.06; a.avatar.rotation.y = Math.PI; a.targetDist = 7; a.dist = 7; a.say('Touchdown. The mall is straight ahead. ✌️', 4); }); a.updaters.push(fogFn); }, 150);
   a.addPortal(34, 104, new T.Vector3(150, 0, 66), { label: '🎢 The Chiller', color: 0x38f0ff });
   a.addBoost(78, 100, Math.PI / 2, 56, 4); a.addBoost(-78, 100, -Math.PI / 2, 56, 4);
@@ -926,15 +926,15 @@ function kiosk(x, z, rot, k) {
   const clerk = makePerson({ shirt: col.getHex(), bag: false, hat: !!k.hat }); clerk.position.set(0, 0, -0.9); g.add(clerk);
   app.addObstacle(x, z, 2.6);
   const items = k.items || []; const eat = (a, it) => { const sp = makeSprite(it, { scale: 4.5, bg: 'rgba(255,255,255,0.95)', fg: '#111', accent: k.color }); sp.position.set(0, 2.6, 0); a.avatar.add(sp); a.toast(pick(['Mmm. 😋', 'That hits the spot.', 'Chef\'s kiss. 👨‍🍳', 'Ten out of ten. Would eat again.']), 2500); setTimeout(() => a.avatar.remove(sp), 9000); };
-  const open = (a) => a.popup(k.title, `<p>${esc(k.about || '')}</p>${k.phone ? '<p><b>' + esc(k.phone) + '</b></p>' : ''}`, [...items.map(it => ({ label: it, fn: () => eat(a, it) })), ...(k.url ? [{ label: 'Visit ' + k.url.replace(/^https?:\/\//, '').replace(/\/$/, ''), href: k.url, newTab: true, primary: true }] : [])]);
+  const open = (a) => a.popup(k.title, `<p>${esc(k.about || '')}</p>${k.phone ? '<p><b>' + esc(k.phone) + '</b></p>' : ''}`, [...items.map(it => ({ label: it, fn: () => eat(a, it) })), ...(k.url ? [{ label: /google\.com\/maps/.test(k.url) ? '📍 Directions' : /instagram/.test(k.url) ? '📸 Instagram' : 'Visit ' + k.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, ''), href: k.url, newTab: true, primary: true }] : [])]);
   app.addHotspot(g, { fn: open }); app.addInteractable(x + Math.sin(rot) * 2.5, z + Math.cos(rot) * 2.5, 4, k.button || ('🛍️ ' + k.title), open);
   return g;
 }
 function buildKiosks() {
-  const NUEVE = { title: 'Nueve Años · Jacó, Costa Rica', color: '#ff4f79', bg: '#1a3a6a', lines: ['NUEVE AÑOS', 'ceviche · granizados · smoothies'], emoji: '🥤🍤', about: 'Nine years of ceviche, shaved ice and the best smoothies in Jacó, made fresh at the mirador de las Letras. Sabores que te enamoran.', items: ['🍤 Ceviche de camarón', '🧊 Granizado churchill', '🥤 Batido de fresa', '🥥 Pipa fría', '🍹 Fresco natural'], url: 'https://vivirencostarica.com/', button: '🥤 Order a smoothie' };
-  const SUGAR = { title: 'Sugar Shack · San Pedro, Belize', color: '#ff69b4', bg: '#fff5f8', lines: ['SUGAR SHACK', '100% artisan ice cream · made from scratch'], emoji: '🍦', about: 'Small batch, big flavor, made with love in San Pedro. Kids cones 5.5 BZD.', items: ['🍦 Vanilla bean cone', '🍫 Chocolate double scoop', '🍓 Strawberry sundae', '🍨 Mint chip cup', '🍧 Coconut sorbet'], url: 'https://bestsnorkelingbelize.com/', button: '🍦 Get ice cream' };
+  const NUEVE = { title: 'Nueve Años · Jacó, Costa Rica', color: '#ff4f79', bg: '#1a3a6a', lines: ['NUEVE AÑOS', 'ceviche · granizados · smoothies'], emoji: '🥤🍤', about: 'Nine years of ceviche, shaved ice and the best smoothies in Jacó, made fresh at the mirador de las Letras. Sabores que te enamoran.', items: ['🍤 Ceviche de camarón', '🧊 Granizado churchill', '🥤 Batido de fresa', '🥥 Pipa fría', '🍹 Fresco natural'], url: 'https://www.google.com/maps/search/?api=1&query=Mirador+de+las+Letras+Jaco+Costa+Rica', button: '🥤 Order a smoothie' };
+  const SUGAR = { title: 'Sugar Shack · San Pedro, Belize', color: '#ff69b4', bg: '#fff5f8', lines: ['SUGAR SHACK', '100% artisan ice cream · made from scratch'], emoji: '🍦', about: 'Small batch, big flavor, made with love in San Pedro. Kids cones 5.5 BZD.', items: ['🍦 Vanilla bean cone', '🍫 Chocolate double scoop', '🍓 Strawberry sundae', '🍨 Mint chip cup', '🍧 Coconut sorbet'], phone: '+501 603-7616', url: 'https://www.instagram.com/sugarshacksanpedro/', button: '🍦 Get ice cream' };
   kiosk(140, 40, 0.3, NUEVE); kiosk(-60, 120, 2.6, NUEVE); kiosk(190, 90, -0.6, SUGAR); kiosk(-150, 190, 1.4, SUGAR);
-  kiosk(-120, -30, 0.9, { title: 'Caribbean Breeze Tours · Belize Fishing Charter', color: '#ff7a3d', bg: '#0b2a4a', lines: ['SAN PEDRO FISHING CHARTER', 'reef · flats · deep sea · 604-5568'], emoji: '🎣', about: '15+ years off Ambergris Caye. Bonefish, permit, tarpon, mahi, snapper, tuna. Small groups, local captains, a cooler that comes back full.', phone: '604-5568', url: 'https://belizefishingcharter.com/caribbean-breeze-tours/', button: '🎣 Book a charter' });
+  kiosk(-120, -30, 0.9, { title: 'Caribbean Breeze Tours · Belize Fishing Charter', color: '#ff7a3d', bg: '#0b2a4a', lines: ['SAN PEDRO FISHING CHARTER', 'reef · flats · deep sea · 604-5568'], emoji: '🎣', about: '15+ years off Ambergris Caye. Bonefish, permit, tarpon, mahi, snapper, tuna. Small groups, local captains, a cooler that comes back full.', phone: '604-5568', url: 'https://caribbeanbreezetours.com/', button: '🎣 Book a charter' });
   kiosk(120, -170, 2.9, { title: 'Best Snorkeling Belize', color: '#38b6ff', bg: '#062a44', lines: ['BEST SNORKELING BELIZE', 'reef tours · spot finder · marine life'], emoji: '🤿', about: 'The Belize Barrier Reef, done right: top tours, where to go, what you will see, and the best time to come.', url: 'https://bestsnorkelingbelize.com/', button: '🤿 Plan a reef day' });
   kiosk(60, -200, 0, { title: 'Advance Asphalt Services · Golden, CO', color: '#ff8a3d', bg: '#1a1a1a', lines: ['ADVANCE ASPHALT', 'driveways · parking lots · patios · (720) 787-8699'], emoji: '🛣️', about: 'Family-owned, BBB A+ rated. Asphalt and concrete: driveways, parking lots, roads, patios, sidewalks, seal coating. Denver metro and surrounding Colorado only.', phone: '(720) 787-8699', url: 'https://asphaltcontractorsdenver.com/', button: '🛣️ Free estimate' });
   kiosk(-90, 210, 2.2, { title: 'Raised In a Barn Furniture', color: '#d9a441', bg: '#3a2410', lines: ['RAISED IN A BARN', 'reclaimed barnwood furniture · made in Colorado'], emoji: '🪵', about: 'Handcrafted reclaimed barnwood beds, dressers, tables, vanities and doors. Free shipping to the lower 48. Custom orders, any size, any finish.', phone: '(970) 518-2883', url: 'https://rusticbarnwoodfurniture.com/', button: '🪵 See the furniture' });
@@ -945,7 +945,7 @@ function buildKiosks() {
   small(220, 200, -1.0, ['Advance Asphalt Services', 'concrete patios & seal coating · Denver metro'], '#ff8a3d', 'https://asphaltcontractorsdenver.com/');
   small(-260, 120, 1.6, ['Raised In a Barn Furniture', 'reclaimed barnwood · rusticbarnwoodfurniture.com'], '#d9a441', 'https://rusticbarnwoodfurniture.com/');
   small(90, 230, 3.0, ['Raised In a Barn Furniture', 'beds · dressers · tables · free shipping'], '#d9a441', 'https://rusticbarnwoodfurniture.com/');
-  small(-300, -60, 1.2, ['Belize Fishing Charter', 'Caribbean Breeze Tours · 604-5568'], '#ff7a3d', 'https://belizefishingcharter.com/caribbean-breeze-tours/');
+  small(-300, -60, 1.2, ['Belize Fishing Charter', 'Caribbean Breeze Tours · 604-5568'], '#ff7a3d', 'https://caribbeanbreezetours.com/');
 }
 
 /* ----- horizon city: the mall goes on forever. Buildings recede past the island edge, shrinking into the sunset haze, clouds beneath ----- */

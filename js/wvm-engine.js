@@ -544,7 +544,7 @@ export class WVM {
 
     const scene = this.scene = new THREE.Scene();
     scene.fog = new THREE.Fog(o.fog, o.fogNear, o.fogFar);
-    const camera = this.camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, this.opts.camFar || 2400);
+    const camera = this.camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.3, 2400);
     this.rig = new THREE.Group(); this.rig.add(camera); scene.add(this.rig);
     this.baseFov = 70;
 
@@ -692,7 +692,9 @@ export class WVM {
     this.addTrigger(x, z, 1.5, go); this.addHotspot(g, { fn: (a) => a.walkTo(x, z) });
     return g;
   }
-  walkTo(x, z) { this.walkTarget = new THREE.Vector3(x, this.opts.groundY(x, z), z); this._marker(this.walkTarget); }
+  walkTo(x, z) { const p = this.player.position; this._marker(new THREE.Vector3(x, this.opts.groundY(x, z), z)); if (this.ride || this.vehicle) return; const d = Math.hypot(x - p.x, z - p.z);
+    if (d < 420 && !this._sight(p.x, p.z, x, z)) { const path = this.findPath(p.x, p.z, x, z, 12000); if (path) { this._route = { pl: { x, z, name: 'there', silent: true }, path, i: 0, chk: this.t, cx: p.x, cz: p.z, tries: 0 }; this.walkTarget = null; return; } }
+    this._route = null; this.walkTarget = new THREE.Vector3(x, this.opts.groundY(x, z), z); this._wchk = { t: this.t, x: p.x, z: p.z }; }
   /* A ball you can kick by walking into it. bounds = {x1,z1,x2,z2} it stays inside. */
   addBall(mesh, radius, bounds) { (this.balls = this.balls || []).push({ m: mesh, r: radius, v: new THREE.Vector3(), b: bounds }); }
   _updateBalls(dt) {
@@ -784,7 +786,7 @@ export class WVM {
     this.pop.querySelector('h3').textContent = title;
     this.pop.querySelector('.wvm-pop-body').innerHTML = html;
     const ab = this.pop.querySelector('.wvm-pop-actions'); ab.innerHTML = '';
-    for (const a of actions) { const b = document.createElement('button'); b.className = 'wvm-btn' + (a.primary ? ' primary' : ''); b.textContent = a.label; b.onclick = () => { if (a.href) { if (a.newTab) window.open(a.href, '_blank', 'noopener'); else this.go(a.href, a.label); } else if (a.fn) a.fn(); if (!a.keep) this.closePopup(); }; ab.appendChild(b); }
+    for (const a of actions) { const b = document.createElement('button'); b.className = 'wvm-btn' + (a.primary ? ' primary' : ''); b.textContent = a.label; b.onclick = () => { if (a.href) { if (/^(tel|sms|mailto):/i.test(a.href)) location.href = a.href; else if (a.newTab || /^https?:/i.test(a.href) && !a.href.includes(location.host)) window.open(a.href, '_blank', 'noopener'); else this.go(a.href, a.label); } else if (a.fn) a.fn(); if (!a.keep) this.closePopup(); }; ab.appendChild(b); }
     const close = document.createElement('button'); close.className = 'wvm-btn ghost'; close.textContent = 'Close'; close.onclick = () => this.closePopup(); ab.appendChild(close);
     this.pop.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open');
   }
@@ -880,7 +882,7 @@ export class WVM {
     this.fade.classList.add('on'); this.fade.textContent = '✨ ' + pl.name;
     setTimeout(() => { if (this.opts.onTravel) this.opts.onTravel(pl, this); const [tx, tz] = this._snap(pl.x, pl.z); this.player.position.set(tx, this.opts.groundY(tx, tz), tz); if (pl.yaw !== undefined) { this.yaw = pl.yaw; this.avatar.rotation.y = pl.yaw + Math.PI; } setTimeout(() => { this.fade.classList.remove('on'); this._arrived(pl); }, 260); }, 380);
   }
-  _arrived(pl) { this._route = null; this.walkTarget = null; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
+  _arrived(pl) { this._route = null; this.walkTarget = null; if (pl.silent) return; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
     if (this._bubble) { this.player.remove(this._bubble); this._bubble.material.map.dispose(); this._bubble.material.dispose(); this._bubble = null; }
@@ -914,7 +916,7 @@ export class WVM {
     const w = r.path[r.i]; const last = r.i === r.path.length - 1;
     if (Math.hypot(w[0] - p.x, w[1] - p.z) < (last ? 1.4 : 1.8)) { r.i++; if (r.i >= r.path.length) { this._arrived(r.pl); return; } }
     const n = r.path[Math.min(r.i, r.path.length - 1)]; this.walkTarget = new THREE.Vector3(n[0], p.y, n[1]);
-    if (this.t - r.chk > 1.6) { const moved = Math.hypot(p.x - r.cx, p.z - r.cz); r.chk = this.t; r.cx = p.x; r.cz = p.z; if (moved < 0.5 && !this.paused) { r.tries++; const np = r.tries < 2 ? this.findPath(p.x, p.z, r.pl.x, r.pl.z) : null; if (np) { r.path = np; r.i = 0; } else { this.toast('Shortcut! Transporting you the rest of the way. ✨', 2400); this.travel(r.pl, 'port'); } } }
+    if (this.t - r.chk > 1.6) { const moved = Math.hypot(p.x - r.cx, p.z - r.cz); r.chk = this.t; r.cx = p.x; r.cz = p.z; if (moved < 0.5 && !this.paused) { r.tries++; const np = r.tries < 2 ? this.findPath(p.x, p.z, r.pl.x, r.pl.z) : null; if (np) { r.path = np; r.i = 0; } else if (r.pl.silent) { this._route = null; this.walkTarget = null; } else { this.toast('Shortcut! Transporting you the rest of the way. ✨', 2400); this.travel(r.pl, 'port'); } } }
   }
   setSpeed(i) { const S = WVM.SPEEDS; this.speedIdx = ((i % S.length) + S.length) % S.length; this.speedMul = S[this.speedIdx][1]; this._save('wvm_speed', this.speedIdx); const b = this.hud.querySelector('#wvm-speed'); if (b) { b.textContent = S[this.speedIdx][0]; b.title = 'Speed: ' + S[this.speedIdx][2]; } }
   /* Neon boost strip: step on it and you shoot forward for a couple of seconds. */
@@ -1001,6 +1003,25 @@ export class WVM {
   /* ?to=<place id> in the address (from search, the map, or the helper bot on another page) */
   _deepLink() { let to = null, ride = null; try { const q = new URLSearchParams(location.search); to = q.get('to'); ride = q.get('ride'); } catch (e) { } this.arrival = { to, ride }; if (!to) return; const pl = this.places.find(p => p.id === to); if (!pl || pl.url) return; if (pl.fn) { setTimeout(() => pl.fn(this), 1400); return; } if (this.opts.onTravel) this.opts.onTravel(pl, this); const [tx, tz] = this._snap(pl.x, pl.z); this.player.position.set(tx, this.opts.groundY(tx, tz), tz); if (pl.yaw !== undefined) { this.yaw = pl.yaw; this.avatar.rotation.y = pl.yaw + Math.PI; } this.arrival.placed = pl; setTimeout(() => this._arrived(pl), 2600); }
 
+  /* ----- v20 speed governor -----
+     1) Auto quality: watches real frame time. If the machine is struggling it steps down on its own (glow pass off, then render resolution down in small steps, then shadows refreshed less often) and steps back up when there is headroom. Fast machines never notice it.
+     2) Distance culling: whole objects farther away than you can see (past the fog, or in another sealed hall hundreds of meters off) are skipped entirely, checked twice a second.
+     3) Shadows are re-drawn every other frame (every 4th at the lowest level) instead of every frame. */
+  _perf(dt) {
+    const Q = this._q || (this._q = { lvl: 0, acc: 0, n: 0, hold: 0, base: this.renderer.getPixelRatio(), f: 0, cullT: 0, list: null, listT: -99 }); Q.f++;
+    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (Q.f % (Q.lvl >= 4 ? 4 : 2) === 0) this.renderer.shadowMap.needsUpdate = true; }
+    const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
+    if (Q.n >= 90) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl++; Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 3; this._applyQ(Q); } }
+    if (this.t - Q.cullT > 0.5) { Q.cullT = this.t; this._cull(Q); }
+  }
+  _applyQ(Q) { const ratios = [1, 1, 0.85, 0.72, 0.62, 0.55]; this._noBloom = Q.lvl >= 1; const pr = Math.max(0.6, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
+  _cull(Q) {
+    if (this.t - Q.listT > 4) { Q.listT = this.t; Q.budget = 0; const L = []; const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.isPoints || o.frustumCulled === false) continue; let c = o.userData._cs; if (!c) { if ((Q.budget = (Q.budget || 0) + 1) > 250) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); c = o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { continue; } } if (c.r > 260) continue; L.push(o); } Q.list = L; }
+    if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900);
+    for (const o of Q.list) { const c = o.userData._cs; const dx = o.position.x + c.ox - P.x, dz = o.position.z + c.oz - P.z; const far = !wide && Math.sqrt(dx * dx + dz * dz) - c.r > lim; if (far) { if (o.visible && !o.userData._culled) { o.visible = false; o.userData._culled = true; } } else if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
+  }
+  _uncullAll() { const Q = this._q; if (Q && Q.list) for (const o of Q.list) if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
+
   /* ----- frame ----- */
   _frame() {
     const dt = Math.min(0.05, this.clock.getDelta()); this.t += dt;
@@ -1011,7 +1032,8 @@ export class WVM {
     if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30; for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set(!wide && dx * dx + dz * dz > f * f ? 1 : 0); } }
     if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
-    if (this.composer && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
+    this._perf(dt);
+    if (this.composer && !this._noBloom && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
   }
 
   _movePlayer(dt) {
@@ -1028,7 +1050,8 @@ export class WVM {
     speed *= this.speedMul * (this._boost > 0 ? 2.6 : 1) * (this._route ? 1.3 : 1);
     if (mv.lengthSq() > 1) mv.normalize();
     if (this._route) { if (mv.lengthSq() > 0.04) { this._route = null; this.walkTarget = null; this.toast('Okay, you have the controls. 🎮', 1500); } else if (!this.locked) this._followRoute(); }
-    // tap-to-walk
+    // tap-to-walk (a plain walk target that stops making progress is dropped, so nobody moonwalks into a wall)
+    if (this.walkTarget && !this._route) { const w = this._wchk || (this._wchk = { t: this.t, x: p.position.x, z: p.position.z }); if (this.t - w.t > 1.2) { if (Math.hypot(p.position.x - w.x, p.position.z - w.z) < 0.4) { this.walkTarget = null; this._wchk = null; } else { w.t = this.t; w.x = p.position.x; w.z = p.position.z; } } } else if (!this.walkTarget) this._wchk = null;
     if (this.walkTarget && mv.lengthSq() < 0.01) {
       const d = new THREE.Vector2(this.walkTarget.x - p.position.x, this.walkTarget.z - p.position.z);
       if (d.length() < 0.6) { this.walkTarget = null; } else {
@@ -1081,12 +1104,13 @@ export class WVM {
       const camPos = eye.clone().add(off);
       const gy = this.opts.groundY(camPos.x, camPos.z) + 0.4; if (camPos.y < gy) camPos.y = gy;
       // zoomed way out = world view: push the fog back so the whole map stays visible
-      const far = this.dist > 30; if (far !== this._farMode) { this._farMode = far; this.scene.fog.near = far ? this.opts.fogFar * 2 : this.opts.fogNear; this.scene.fog.far = far ? this.opts.fogFar * 6 : this.opts.fogFar; }
+      const far = this.dist > 30; if (far !== this._farMode) { this._farMode = far; this.setFar(far); this.scene.fog.near = far ? this.opts.fogFar * 2 : this.opts.fogNear; this.scene.fog.far = far ? this.opts.fogFar * 6 : this.opts.fogFar; }
       this.rig.position.copy(camPos); this.rig.rotation.set(0, 0, 0); this.camera.position.set(0, 0, 0);
       this.rig.updateMatrixWorld(); this.camera.lookAt(eye);
     }
   }
 
+  setFar(on) { const f = on ? (this.opts.camFar || 2400) : 2400; if (this.camera.far !== f) { this.camera.far = f; this.camera.updateProjectionMatrix(); } }
   _occlusion(eye, dir, dist) {
     if (this.t - (this._occT || 0) > 0.25) { this._occT = this.t; let lim = Infinity;
       if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); if (!this._occList || this.t - (this._occListT || -9) > 3) { this._occListT = this.t; const L = []; const P = this.player.position; const v = new THREE.Vector3(); this.scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
@@ -1346,18 +1370,18 @@ export class WVM {
      labels that never stack (they thin out when zoomed out and fill in as you zoom), and a tappable list of every attraction beside it. */
   showMap() {
     if (!this.mapDraw) { this.toast('No map for this area yet'); return; }
-    const o = this.mapOpts, mob = isMobile(); const RES = mob ? 1024 : 2048; const half = o.half || (o.size / (2 * o.scale)); const tilt = o.tilt || 0, cosT = Math.cos(tilt); const k = RES / (2 * half);
+    const o = this.mapOpts, mob = isMobile(); const RES = mob ? 1536 : 2048; const half = o.half || (o.size / (2 * o.scale)); const tilt = o.tilt || 0, cosT = Math.cos(tilt); const k = RES / (2 * half);
     const base = document.createElement('canvas'); base.width = base.height = RES; const bg = base.getContext('2d'); bg.fillStyle = '#071233'; bg.fillRect(0, 0, RES, RES);
     const toBase = (x, z) => [RES / 2 + (x - o.cx) * k, RES / 2 + (z - o.cz) * k * cosT]; const fromBase = (px, py) => [(px - RES / 2) / k + o.cx, (py - RES / 2) / (k * cosT) + o.cz];
-    let real = false;
+    let real = false; this._uncullAll();
     try { const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.5, 9000); if (tilt) { const D = 3000; cam.position.set(o.cx, D * Math.cos(tilt), o.cz + D * Math.sin(tilt)); cam.up.set(0, 1, 0); } else { cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.far = (o.camY || 900) + 80; } cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
       const rt = new THREE.WebGLRenderTarget(RES, RES); const fog = this.scene.fog, bgd = this.scene.background; this.scene.fog = null; this.scene.background = new THREE.Color(o.bg || 0x0f2a4a); const hidden = []; this.scene.traverse(ob => { if ((ob.userData.mapHide || ob.isSprite) && ob.visible) { ob.visible = false; hidden.push(ob); } });
       this.renderer.setRenderTarget(rt); this.renderer.render(this.scene, cam); this.renderer.setRenderTarget(null); const px = new Uint8Array(RES * RES * 4); this.renderer.readRenderTargetPixels(rt, 0, 0, RES, RES, px); rt.dispose(); this.scene.fog = fog; this.scene.background = bgd; hidden.forEach(h => h.visible = true);
-      const img = bg.createImageData(RES, RES); for (let y = 0; y < RES; y++) { const src = (RES - 1 - y) * RES * 4; img.data.set(px.subarray(src, src + RES * 4), y * RES * 4); } bg.putImageData(img, 0, 0); real = true; } catch (err) { console.warn('map snapshot failed, drawing the schematic', err); }
+      const lut = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) lut[v] = Math.min(255, Math.pow(v / 255, 1 / 2.2) * 255 * 1.08 + 10); const img = bg.createImageData(RES, RES), D = img.data; for (let y = 0; y < RES; y++) { const src = (RES - 1 - y) * RES * 4, dst = y * RES * 4; for (let q = 0; q < RES * 4; q += 4) { D[dst + q] = lut[px[src + q]]; D[dst + q + 1] = lut[px[src + q + 1]]; D[dst + q + 2] = lut[px[src + q + 2]]; D[dst + q + 3] = 255; } } bg.putImageData(img, 0, 0); real = true; } catch (err) { console.warn('map snapshot failed, drawing the schematic', err); }
     if (!real) { bg.save(); this.mapDraw(bg, (x, z) => toBase(x, z)); bg.restore(); }
     // far-away halls that are not built until you visit get a tile so the map is never empty
     for (const pl of this.places) { if (!pl.tile || pl.x === undefined) continue; const [tx, ty] = toBase(pl.x, pl.z); const w = pl.tile[0] * k, h = pl.tile[1] * k * cosT; bg.fillStyle = pl.tile[2] || 'rgba(56,240,255,0.25)'; bg.strokeStyle = 'rgba(255,255,255,0.8)'; bg.lineWidth = 3; bg.beginPath(); bg.roundRect(tx - w / 2, ty - h / 2, w, h, 18); bg.fill(); bg.stroke(); }
-    const wrap = document.createElement('div'); wrap.id = 'wvm-bigmap'; wrap.innerHTML = '<div class="wvm-bm-head"><b>🗺️ ' + esc(o.title || 'Map') + '</b><span class="muted">pinch or scroll to zoom · drag to move · tap a pin</span><div><button class="wvm-btn small" data-z="1">＋</button><button class="wvm-btn small" data-z="-1">－</button><button class="wvm-btn small" data-z="0">⤢ Fit</button><button class="wvm-btn small" data-me="1">📍 Me</button><button class="wvm-x">✕</button></div></div><div class="wvm-bm-body"><canvas></canvas><div class="wvm-bm-list"></div></div>'; this.hud.appendChild(wrap); this.paused = true; document.body.classList.add('wvm-modal-open');
+    const wrap = document.createElement('div'); wrap.id = 'wvm-bigmap'; wrap.innerHTML = '<div class="wvm-bm-head"><b>🗺️ ' + esc(o.title || 'Map') + '</b><span class="muted">pinch or scroll to zoom · drag to move · tap a pin</span><div><button class="wvm-btn small" data-z="1">＋</button><button class="wvm-btn small" data-z="-1">－</button><button class="wvm-btn small" data-z="0">⤢ Fit</button><button class="wvm-btn small" data-me="1">📍 Me</button><button class="wvm-btn small wvm-bm-toggle" data-list="1">📋 Places</button><button class="wvm-x">✕</button></div></div><div class="wvm-bm-body"><canvas></canvas><div class="wvm-bm-list"></div></div>'; this.hud.appendChild(wrap); this.paused = true; document.body.classList.add('wvm-modal-open');
     const cv = wrap.querySelector('canvas'), g = cv.getContext('2d'), list = wrap.querySelector('.wvm-bm-list'); let vw = 0, vh = 0, zoom = 1, ox = 0, oy = 0, fit = 1; const dpr = Math.min(2, window.devicePixelRatio || 1);
     const close = () => { wrap.remove(); this.paused = false; document.body.classList.remove('wvm-modal-open'); removeEventListener('resize', size); }; wrap.querySelector('.wvm-x').onclick = close;
     const lv = this.level || 0; const here = this.places.filter(p => p.x !== undefined && !p.url && p.pin !== false && (p.level || 0) === lv && (!p.fn || p.tile)); const sorted = here.slice().sort((a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || (a.rank || 0) - (b.rank || 0));
@@ -1370,10 +1394,10 @@ export class WVM {
         if (hit) { if (boxes.some(b => Math.abs(b[6] - x) < 9 && Math.abs(b[7] - y) < 9)) continue; g.beginPath(); g.arc(x, y, 5, 0, 6.28); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#ff4f79'; g.stroke(); boxes.push([x - 8, y - 8, 16, 16, pl, true, x, y]); continue; }
         g.fillStyle = pl.top ? 'rgba(255,255,255,0.96)' : 'rgba(8,20,50,0.88)'; g.strokeStyle = pl.top ? '#ff4f79' : 'rgba(124,248,255,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(rect[0], rect[1], bw, bh, 13); g.fill(); g.stroke(); g.textAlign = 'center'; g.font = '15px Segoe UI Emoji, Apple Color Emoji, Arial'; g.fillStyle = '#000'; g.fillText(pl.icon || '📍', x, y + 1); g.textAlign = 'left'; g.font = 'bold ' + (pl.top ? 13 : 12) + 'px Poppins, Segoe UI, Arial'; g.fillStyle = pl.top ? '#0b1a3a' : '#fff'; g.fillText(label, x + 14, y + 1); boxes.push([rect[0], rect[1], bw, bh, pl, false, x, y]); }
       g.beginPath(); g.arc(ux, uy, 9, 0, 6.28); g.fillStyle = '#2f6bff'; g.fill(); g.lineWidth = 3; g.strokeStyle = '#fff'; g.stroke(); const d = -this.yaw; g.beginPath(); g.moveTo(ux, uy); g.lineTo(ux + Math.sin(d) * 24, uy - Math.cos(d) * 24 * cosT); g.strokeStyle = '#2f6bff'; g.lineWidth = 4; g.stroke(); g.font = 'bold 12px Poppins, Arial'; g.fillStyle = '#fff'; g.textAlign = 'left'; g.fillText('YOU', ux + 12, uy - 12); };
-    const size = () => { const r = cv.parentElement.getBoundingClientRect(); const lw = list.getBoundingClientRect(); const side = r.width > 760; vw = Math.max(200, side ? r.width - lw.width : r.width); vh = Math.max(200, side ? r.height : r.height - lw.height); cv.style.width = vw + 'px'; cv.style.height = vh + 'px'; cv.width = vw * dpr; cv.height = vh * dpr; fit = Math.min(vw, vh) / RES; clampView(); draw(); };
+    const size = () => { const r = cv.parentElement.getBoundingClientRect(); const lw = list.getBoundingClientRect(); const side = r.width > 760; vw = Math.max(200, side ? r.width - lw.width : r.width); vh = Math.max(200, r.height); cv.style.width = vw + 'px'; cv.style.height = vh + 'px'; cv.width = vw * dpr; cv.height = vh * dpr; fit = (side ? Math.min(vw, vh) : Math.max(vw, vh)) / RES; clampView(); draw(); };
     const zoomAt = (f, cx, cy) => { const s0 = fit * zoom; zoom = clamp(zoom * f, 1, 9); const s1 = fit * zoom; ox = cx - (cx - ox) * s1 / s0; oy = cy - (cy - oy) * s1 / s0; clampView(); draw(); };
     const focus = (x, z, zm) => { zoom = Math.max(zoom, zm); const s = fit * zoom, [bx, by] = toBase(x, z); ox = vw / 2 - bx * s; oy = vh / 2 - by * s; clampView(); draw(); };
-    wrap.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const z = +b.dataset.z; if (!z) { zoom = 1; clampView(); draw(); } else zoomAt(z > 0 ? 1.6 : 1 / 1.6, vw / 2, vh / 2); }); wrap.querySelector('[data-me]').onclick = () => focus(this.player.position.x, this.player.position.z, 3);
+    wrap.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const z = +b.dataset.z; if (!z) { zoom = 1; clampView(); draw(); } else zoomAt(z > 0 ? 1.6 : 1 / 1.6, vw / 2, vh / 2); }); wrap.querySelector('[data-me]').onclick = () => focus(this.player.position.x, this.player.position.z, 3); wrap.querySelector('[data-list]').onclick = () => { wrap.classList.toggle('list-open'); size(); };
     cv.addEventListener('wheel', e => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
     const ptrs = new Map(); let moved = 0, pd = 0; cv.style.touchAction = 'none';
     cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; if (ptrs.size === 2) { const v = [...ptrs.values()]; pd = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]); } });
@@ -1383,7 +1407,7 @@ export class WVM {
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => ptrs.delete(e.pointerId));
     // the list: every attraction, grouped, always tappable no matter how crowded the picture is
     const groups = {}; for (const p of this.places) { if (p.id && p.id[0] === '_') continue; const c = p.cat || 'Places'; (groups[c] = groups[c] || []).push(p); } const order = Object.keys(groups).sort((a, b) => (/Store|Space/.test(a) ? 1 : 0) - (/Store|Space/.test(b) ? 1 : 0) || a.localeCompare(b));
-    for (const c of order) { const items = groups[c].slice().sort((a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || (a.rank || 0) - (b.rank || 0) || a.name.localeCompare(b.name)); if (/Space available/.test(c)) continue; const h = document.createElement('div'); h.className = 'wvm-bm-cat'; h.textContent = c + ' (' + items.length + ')'; list.appendChild(h); for (const p of items) { const b = document.createElement('button'); b.className = 'wvm-place'; b.innerHTML = '<span>' + (p.icon || '📍') + '</span><b>' + esc(p.name) + '</b><small>' + (p.url ? 'other area · transports you' : p.fn && !p.tile ? 'tap to go' : 'tap to find on the map') + '</small>'; b.onclick = () => { if (p.url || p.x === undefined || (p.fn && !p.tile) || (p.level || 0) !== lv) { close(); setTimeout(() => this.travel(p), 60); return; } focus(p.x, p.z, 4); b.ondblclick = null; if (b.dataset.armed) { close(); setTimeout(() => this.travel(p), 60); } else { list.querySelectorAll('[data-armed]').forEach(q => { delete q.dataset.armed; q.querySelector('small').textContent = 'tap to find on the map'; }); b.dataset.armed = '1'; b.querySelector('small').textContent = '✅ shown on map · tap again to GO'; } }; list.appendChild(b); } }
+    for (const c of order) { const items = groups[c].slice().sort((a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || (a.rank || 0) - (b.rank || 0) || a.name.localeCompare(b.name)); if (/Space available/.test(c)) continue; const h = document.createElement('div'); h.className = 'wvm-bm-cat'; h.textContent = c + ' (' + items.length + ')'; list.appendChild(h); for (const p of items) { const b = document.createElement('button'); b.className = 'wvm-place'; b.innerHTML = '<span>' + (p.icon || '📍') + '</span><b>' + esc(p.name) + '</b><small>' + (p.url ? 'other area · transports you' : p.fn && !p.tile ? 'tap to go' : 'tap to find on the map') + '</small>'; b.onclick = () => { if (p.url || p.x === undefined || (p.fn && !p.tile) || (p.level || 0) !== lv || wrap.classList.contains('list-open')) { close(); setTimeout(() => this.travel(p), 60); return; } focus(p.x, p.z, 4); b.ondblclick = null; if (b.dataset.armed) { close(); setTimeout(() => this.travel(p), 60); } else { list.querySelectorAll('[data-armed]').forEach(q => { delete q.dataset.armed; q.querySelector('small').textContent = 'tap to find on the map'; }); b.dataset.armed = '1'; b.querySelector('small').textContent = '✅ shown on map · tap again to GO'; } }; list.appendChild(b); } }
     addEventListener('resize', size); requestAnimationFrame(() => { size(); if (o.start) focus(o.start[0], o.start[1], o.start[2] || 1); });
   }
   _dragPanel(panel) {
@@ -1487,10 +1511,11 @@ export class WVM {
       #wvm-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
       .wvm-panel{position:absolute;top:58px;right:10px;width:min(360px,92vw);max-height:70vh;overflow:auto;background:rgba(8,20,50,.95);border:1px solid rgba(124,248,255,.4);border-radius:16px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.5)}
       .wvm-panel.on{display:block}
-      #wvm-bigmap{position:absolute;inset:0;z-index:30;background:#050b1c;display:flex;flex-direction:column;pointer-events:auto;color:#fff}
+      #wvm-bigmap{position:fixed;inset:0;height:100dvh;z-index:60;background:#050b1c;display:flex;flex-direction:column;pointer-events:auto;color:#fff}
       .wvm-bm-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(8,20,50,.98);border-bottom:1px solid rgba(124,248,255,.35)} .wvm-bm-head .muted{font-size:12px} .wvm-bm-head div{display:flex;gap:6px;align-items:center}
       .wvm-bm-body{flex:1;min-height:0;display:flex} .wvm-bm-body canvas{display:block;cursor:grab;flex:none} .wvm-bm-list{width:300px;overflow:auto;padding:8px;background:rgba(8,20,50,.96);border-left:1px solid rgba(124,248,255,.3)} .wvm-bm-cat{font:800 12px Poppins,Segoe UI,Arial;letter-spacing:.06em;text-transform:uppercase;color:#7cf8ff;margin:10px 2px 6px}
-      @media (max-width:760px){.wvm-bm-body{flex-direction:column}.wvm-bm-list{width:auto;height:34vh;border-left:0;border-top:1px solid rgba(124,248,255,.3)}.wvm-bm-head .muted{display:none}}
+      .wvm-bm-toggle{display:none}
+      @media (max-width:760px){.wvm-bm-body{position:relative;display:block}.wvm-bm-head .muted{display:none}.wvm-bm-head{padding:6px 8px}.wvm-bm-head b{font-size:13px}.wvm-bm-toggle{display:inline-block;background:#7cff6b;color:#04122a}.wvm-bm-list{position:absolute;left:0;right:0;bottom:0;width:auto;height:62%;border-left:0;border-top:2px solid #7cff6b;border-radius:16px 16px 0 0;transform:translateY(102%);transition:transform .25s;z-index:2}#wvm-bigmap.list-open .wvm-bm-list{transform:none}.wvm-bm-list .wvm-place{padding:12px 10px;font-size:15px}}
       #wvm-searchpanel{left:50%;right:auto;transform:translateX(-50%);width:min(440px,94vw)} #wvm-searchpanel input{display:block;width:calc(100% - 20px);margin:0 10px 8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(124,248,255,.6);background:#fff;color:#0b1a3a;font:600 16px Poppins,Segoe UI,Arial;outline:none}
       .wvm-place{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:8px;width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(124,248,255,.22);border-radius:12px;color:#fff;padding:8px 10px;margin:0 0 6px;cursor:pointer;font:inherit} .wvm-place:hover,.wvm-place:focus{background:rgba(56,240,255,.18)} .wvm-place span{grid-row:1/3;font-size:22px;align-self:center;text-align:center} .wvm-place small{color:#9fc4e8;font-size:12px}
       .wvm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .wvm-chip{background:rgba(56,240,255,.14);border:1px solid rgba(124,248,255,.45);color:#fff;border-radius:99px;padding:6px 11px;font:600 13px Poppins,Segoe UI,Arial;cursor:pointer}
