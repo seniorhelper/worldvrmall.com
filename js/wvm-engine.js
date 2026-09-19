@@ -924,7 +924,7 @@ export class WVM {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(wid, len), new THREE.MeshStandardMaterial({ map: t, emissive: 0x38f0ff, emissiveMap: t, emissiveIntensity: 1.6, roughness: 0.4, polygonOffset: true, polygonOffsetFactor: -2 })); m.rotation.x = -Math.PI / 2; m.rotation.z = rot; m.position.set(x, y, z); m.userData.noShadow = true; this.scene.add(m);
     const b = { x, z, c: Math.cos(rot), s: Math.sin(rot), hl: len / 2, hw: wid / 2, t, on: false }; this.boosts.push(b); return m;
   }
-  _updateBoosts(dt) { const p = this.player.position; for (const b of this.boosts) { b.t.offset.y += dt * 2.2; const dx = p.x - b.x, dz = p.z - b.z; const along = dx * b.s + dz * b.c, across = dx * b.c - dz * b.s; const on = Math.abs(along) < b.hl && Math.abs(across) < b.hw && !this.ride && (this.level || 0) === 0; if (on && !b.on) { this.toast('⚡ BOOST!', 900); this.buzz(30); } b.on = on; if (on) this._boost = 2.2; } if (this._boost > 0) this._boost -= dt; }
+  _updateBoosts(dt) { const p = this.player.position; for (const b of this.boosts) { b.t.offset.y -= dt * 2.2; const dx = p.x - b.x, dz = p.z - b.z; const along = dx * b.s + dz * b.c, across = dx * b.c - dz * b.s; const on = Math.abs(along) < b.hl && Math.abs(across) < b.hw && !this.ride && (this.level || 0) === 0; if (on && !b.on) { this.toast('⚡ BOOST!', 900); this.buzz(30); } b.on = on; if (on) this._boost = 2.2; } if (this._boost > 0) this._boost -= dt; }
   /* A sittable reclaimed-barnwood bench. opts.credit links the maker. */
   addBench(x, z, rot = 0, opts = {}) {
     const g = new THREE.Group(); g.position.set(x, opts.y || 0, z); g.rotation.y = rot; const wood = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.95 }); const tones = [0x6b4423, 0x7a5230, 0x5c3a1e, 0x8a6238];
@@ -945,12 +945,12 @@ export class WVM {
   }
   /* A dancing fountain: a tall center jet, a ring of arcing jets whose heights rise and fall in a slow wave, mist, and slow color lights. */
   addFountain(x, y, z, o = {}) {
-    const jets = o.jets || 16, ring = o.ring || 12, H = o.height || 20, C = o.center || 36, n = o.count || (isMobile() ? 420 : 1100); const g = new THREE.Group(); g.position.set(x, y, z); this.scene.add(g);
+    const jets = o.jets || 16, ring = o.ring || 12, H = o.height || 20, C = o.center || 36, n = o.count || (isMobile() ? 320 : 600); const g = new THREE.Group(); g.position.set(x, y, z); this.scene.add(g);
     if (o.basin) { const rim = new THREE.Mesh(new THREE.TorusGeometry(o.basin, 0.5, 10, 64), new THREE.MeshStandardMaterial({ color: 0xf4f8ff, roughness: 0.3, metalness: 0.3 })); rim.rotation.x = Math.PI / 2; rim.position.y = 0.45; g.add(rim); const pool = new THREE.Mesh(new THREE.CircleGeometry(o.basin, 48), new THREE.MeshStandardMaterial({ color: 0x2f9fe0, roughness: 0.08, metalness: 0.6, transparent: true, opacity: 0.85 })); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.35; g.add(pool); this.addObstacle(x, z, o.basin + 0.8); }
     const geo = new THREE.BufferGeometry(), a = new Float32Array(n * 3), ph = new Float32Array(n), jx = new Float32Array(n); for (let i = 0; i < n; i++) { ph[i] = Math.random(); jx[i] = (Math.random() - 0.5); } geo.setAttribute('position', new THREE.BufferAttribute(a, 3));
     const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xdff4ff, size: o.size || Math.max(0.35, C * 0.012), transparent: true, opacity: 0.85, depthWrite: false })); pts.frustumCulled = false; pts.userData.mapHide = true; g.add(pts);
     const lights = []; for (let k = 0; k < 6; k++) { const l = new THREE.Mesh(new THREE.SphereGeometry(Math.max(0.4, ring * 0.05), 10, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.6 })); const an = k / 6 * Math.PI * 2; l.position.set(Math.cos(an) * ring * 0.55, 0.5, Math.sin(an) * ring * 0.55); g.add(l); lights.push(l); }
-    this.onUpdate((dt, t) => { const P = this.player.position; if ((P.x - x) ** 2 + (P.z - z) ** 2 > 360000) return; const cH = C * (0.78 + 0.22 * Math.sin(t * 0.45));
+    this.onUpdate((dt, t) => { const P = this.player.position; const far2 = (P.x - x) ** 2 + (P.z - z) ** 2; pts.visible = far2 < 90000 || this.dist > 30; if (!pts.visible || (this._ff = !this._ff)) return; const cH = C * (0.78 + 0.22 * Math.sin(t * 0.45));
       for (let i = 0; i < n; i++) { const j = i % (jets + 3); const T = (t * 0.55 + ph[i]) % 1; if (j >= jets) { const sp = C * 0.05; a[i * 3] = jx[i] * sp * T * 2; a[i * 3 + 1] = cH * 4 * T * (1 - T) * (0.85 + jx[i] * 0.3); a[i * 3 + 2] = (ph[i] - 0.5) * sp * T * 2; } else { const an = j / jets * Math.PI * 2 + t * 0.05, hj = H * (0.55 + 0.45 * Math.sin(t * 0.7 + j * 0.7)), rr = ring * (1 - 0.82 * T); a[i * 3] = Math.cos(an) * rr + jx[i] * 0.5; a[i * 3 + 1] = hj * 4 * T * (1 - T); a[i * 3 + 2] = Math.sin(an) * rr + jx[i] * 0.5; } }
       geo.attributes.position.needsUpdate = true; lights.forEach((l, k) => { l.material.emissive.setHSL((t * 0.025 + k / 6) % 1, 0.9, 0.55); l.material.color.copy(l.material.emissive); }); });
     return g;
@@ -1008,7 +1008,7 @@ export class WVM {
     this._updateCamera(dt);
     this._updateNPCs(dt);
     this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length) this._updateBoosts(dt);
-    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30; for (const sp of SPRITES) { if (!sp.parent) continue; sp.getWorldPosition(v); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set(!wide && dx * dx + dz * dz > f * f ? 1 : 0); } }
+    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30; for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set(!wide && dx * dx + dz * dz > f * f ? 1 : 0); } }
     if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     if (this.composer && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
@@ -1088,8 +1088,9 @@ export class WVM {
   }
 
   _occlusion(eye, dir, dist) {
-    if (this.t - (this._occT || 0) > (isMobile() ? 0.2 : 0.1)) { this._occT = this.t; let lim = Infinity;
-      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); let hits = []; try { hits = rc.intersectObjects(this.scene.children, true); } catch (e) { }
+    if (this.t - (this._occT || 0) > 0.25) { this._occT = this.t; let lim = Infinity;
+      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); if (!this._occList || this.t - (this._occListT || -9) > 3) { this._occListT = this.t; const L = []; const P = this.player.position; const v = new THREE.Vector3(); this.scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
+        let hits = []; try { hits = rc.intersectObjects(this._occList, false); } catch (e) { }
         for (const h of hits) { const o = h.object; if (!o.isMesh || o.isSprite || h.distance < 0.8) continue; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) continue; let pa = o, skip = false; const veh = this.vehicle && this.vehicle.m; while (pa) { if (pa === this.player || pa === veh || !pa.visible) { skip = true; break; } pa = pa.parent; } if (skip) continue; lim = h.distance - 0.5; break; } }
       this._occLim = lim; }
     const want = Math.min(dist, this._occLim === undefined ? Infinity : this._occLim); this._occK = lerp(this._occK === undefined ? dist : this._occK, want, want < (this._occK || dist) ? 0.35 : 0.08); return Math.max(1.4, Math.min(dist, this._occK));

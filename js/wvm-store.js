@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=17';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=19';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -241,12 +241,14 @@ export function buildStore(app, store, opts = {}) {
   }
 
   const aboutActions = [{ label: store.cta || 'Visit website', href: store.url, newTab: !!(store.url && store.url.startsWith('http')), primary: true }, ...(store.lead ? [{ label: '✉️ Get in touch', fn: () => leadForm(app, store, store.leadIntro), keep: true }] : [])];
-  const shelfM = M(0xdfe6f5, { metalness: 0.3, roughness: 0.4 }), lipM = new T.MeshStandardMaterial({ color: trim, emissive: trim, emissiveIntensity: 0.9 });
+  const LOOK = hashStr(store.slug || store.name || 'x') % 4; // 0 steel · 1 warm wood · 2 black gallery · 3 frosted glass
+  const shelfM = [M(0xdfe6f5, { metalness: 0.3, roughness: 0.4 }), M(0x9a6a3a, { roughness: 0.85 }), M(0x15171c, { metalness: 0.5, roughness: 0.35 }), new T.MeshPhysicalMaterial({ color: 0xe8f6ff, transparent: true, opacity: 0.55, roughness: 0.15, metalness: 0.1 })][LOOK], frameM = [M(0xffffff, { roughness: 0.3 }), M(0x6b4423, { roughness: 0.9 }), M(0x111111, { roughness: 0.4, metalness: 0.4 }), M(0xd9b45a, { roughness: 0.3, metalness: 0.8 })][LOOK], lipM = new T.MeshStandardMaterial({ color: trim, emissive: trim, emissiveIntensity: 0.9 });
   const woodM = M(0x8a5a2b, { roughness: 0.9 }), darkM = M(0x1e2a4a, { metalness: 0.6, roughness: 0.3 });
   const slots = []; const used = new Set();
   const addCard = (p, i, s, scale = 1) => {
     const card = new T.Group(); card.position.set(s.x, s.y, s.z); card.rotation.y = s.rotY; card.scale.setScalar(scale);
-    const frame = sh(new T.Mesh(new T.BoxGeometry(1.7, 1.7, 0.12), M(0xffffff, { roughness: 0.3 }))); card.add(frame);
+    const frame = sh(new T.Mesh(LOOK === 2 ? new T.BoxGeometry(1.95, 1.95, 0.08) : LOOK === 1 ? new T.BoxGeometry(1.86, 1.86, 0.2) : new T.BoxGeometry(1.7, 1.7, 0.12), frameM)); card.add(frame);
+    if (LOOK === 2) { const spot = new T.Mesh(new T.ConeGeometry(0.9, 1.5, 16, 1, true), new T.MeshBasicMaterial({ color: 0xfff2c9, transparent: true, opacity: 0.12, side: T.DoubleSide, depthWrite: false })); spot.position.set(0, 1.55, 0.5); card.add(spot); } else if (LOOK === 3) { const halo = new T.Mesh(new T.BoxGeometry(1.84, 1.84, 0.04), new T.MeshStandardMaterial({ color: trim, emissive: trim, emissiveIntensity: 1.1 })); halo.position.z = -0.05; card.add(halo); } else if (LOOK === 1) { for (const sx of [-1, 1]) { const br = new T.Mesh(new T.BoxGeometry(0.08, 0.5, 0.4), frameM); br.position.set(sx * 0.8, -1.12, -0.05); card.add(br); } }
     const face = new T.Mesh(new T.PlaneGeometry(1.55, 1.55), new T.MeshBasicMaterial({ map: cardTexture(p, colors) })); face.position.z = 0.07; card.add(face);
     if (p.img) { imgLoader.load(p.img, (tex) => { tex.colorSpace = T.SRGBColorSpace; face.material.map = tex; face.material.needsUpdate = true; const cap = new T.Mesh(new T.PlaneGeometry(1.55, 0.36), new T.MeshBasicMaterial({ map: priceTag(p.price || '', colors.trim), transparent: true })); cap.position.set(0, -0.62, 0.08); card.add(cap); }, undefined, () => { }); }
     const ring = new T.Mesh(new T.RingGeometry(1.0, 1.08, 32), new T.MeshBasicMaterial({ color: trim, transparent: true, opacity: 0.35, side: T.DoubleSide })); ring.position.z = 0.05; card.add(ring);
