@@ -1,5 +1,5 @@
 /* ============================================================
-   World VR Mall — shared engine  (worldvrmall.com)   v6 (V14 "Peace")
+   World VR Mall — shared engine  (worldvrmall.com)   v7 (smooth pass)
    One engine, every page: outside world, mall, park, stores.
    Three.js r160 (ES modules via import map in each page).
    Runs on phone, laptop, and WebXR headsets from one URL.
@@ -29,7 +29,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 export { THREE };
-export const WVM_VERSION = '6';
+export const WVM_VERSION = '7';
 export const LANG = (typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en').slice(0, 2).toLowerCase();
 /* Pick a language variant: value may be a string/array or an object keyed by language code. */
 export function L(v) { if (v && typeof v === 'object' && !Array.isArray(v)) return v[LANG] || v.en || Object.values(v)[0]; return v; }
@@ -313,7 +313,6 @@ export function makeDrone(opts = {}) {
   const eye = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), M(0x0a0a1a, { roughness: 0.1, metalness: 0.4 })); eye.position.set(0, 1.42, 0.34); g.add(eye); const iris = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), glow); iris.position.set(0, 1.42, 0.42); g.add(iris);
   const rotors = [];
   for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4; const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.06), m); arm.position.set(Math.cos(a) * 0.35, 1.45, Math.sin(a) * 0.35); arm.rotation.y = -a; g.add(arm); const rot = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.01, 0.05), M(0xdddddd, { transparent: true, opacity: 0.7 })); rot.position.set(Math.cos(a) * 0.6, 1.5, Math.sin(a) * 0.6); g.add(rot); rotors.push(rot); const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.06, 8), m); hub.position.copy(rot.position); hub.position.y -= 0.03; g.add(hub); }
-  const light = new THREE.PointLight(o.accent, 0.6, 4); light.position.y = 1.2; g.add(light);
   g.scale.setScalar(o.scale); g.userData.rotors = rotors; g.userData.phase = Math.random() * 10; g.userData.kind = 'drone'; g.userData.headY = 1.7 * o.scale; g.userData.hover = true;
   return g;
 }
@@ -467,6 +466,91 @@ function cloneSkinned(source) {
 function parallelTraverse(a, b, cb) { cb(a, b); for (let i = 0; i < a.children.length; i++) parallelTraverse(a.children[i], b.children[i], cb); }
 
 /* Two-mesh rider for coaster cars (cheap). */
+/* ------------------------------------------------------------
+   Planet Earth (v7): one shared, code-drawn equirectangular map with real continent outlines,
+   biomes (forest, desert, tundra, ice), mountain ranges, shallow seas and a separate cloud layer.
+   makeEarth(radius) → a globe Group.  earthDiscTexture() → the planet seen from orbit (for the view below the island).
+------------------------------------------------------------ */
+const EARTH_LAND = [
+  [[-168,66],[-156,71],[-140,70],[-125,70],[-110,68],[-95,72],[-82,73],[-78,68],[-65,60],[-56,52],[-66,45],[-70,42],[-75,37],[-81,31],[-80,25],[-84,30],[-90,29],[-97,26],[-97,20],[-91,18],[-87,21],[-88,16],[-83,10],[-78,8],[-80,8],[-85,11],[-92,15],[-97,16],[-105,20],[-110,24],[-113,30],[-117,33],[-122,37],[-124,43],[-124,48],[-130,54],[-140,59],[-150,60],[-158,57],[-165,55],[-162,60],[-166,63]],
+  [[-52,60],[-44,60],[-38,65],[-22,70],[-20,76],[-30,82],[-55,82],[-68,78],[-60,72],[-54,66]],
+  [[-78,8],[-72,12],[-62,10],[-52,5],[-50,0],[-38,-4],[-35,-8],[-39,-15],[-41,-22],[-48,-26],[-53,-33],[-58,-38],[-65,-42],[-67,-50],[-69,-54],[-74,-52],[-75,-45],[-72,-35],[-71,-25],[-70,-18],[-76,-13],[-81,-5],[-80,0]],
+  [[-17,15],[-16,21],[-10,29],[-6,35],[3,37],[10,37],[11,33],[20,32],[25,31],[32,31],[35,28],[37,21],[43,12],[51,12],[48,5],[42,-2],[40,-10],[40,-16],[35,-22],[32,-28],[27,-34],[20,-35],[17,-30],[14,-22],[12,-15],[13,-8],[9,-1],[9,4],[5,5],[-4,5],[-8,4],[-13,8],[-17,12]],
+  [[-9,37],[-9,43],[-1,44],[-4,48],[2,51],[8,54],[14,54],[21,55],[22,58],[28,60],[30,66],[44,68],[60,69],[68,72],[80,73],[100,77],[113,74],[130,71],[150,70],[170,69],[180,68],[178,64],[172,61],[163,58],[156,51],[160,60],[155,59],[143,59],[135,55],[141,52],[140,46],[133,43],[128,40],[127,35],[125,38],[122,40],[118,38],[121,35],[122,30],[118,24],[110,21],[108,17],[109,12],[105,9],[100,13],[99,8],[103,2],[101,3],[98,8],[98,16],[94,17],[91,22],[86,20],[80,15],[80,10],[77,8],[73,16],[72,21],[67,24],[61,25],[57,26],[56,24],[59,22],[55,17],[45,13],[43,15],[39,21],[35,28],[34,31],[36,36],[30,36],[27,37],[26,40],[29,41],[40,41],[41,43],[37,45],[33,45],[30,46],[28,42],[24,40],[23,37],[20,40],[19,42],[14,45],[12,44],[18,40],[16,38],[15,40],[12,42],[9,44],[3,43],[0,39],[-2,37],[-5,36]],
+  [[5,58],[8,58],[12,56],[14,56],[17,59],[18,63],[22,66],[25,66],[24,64],[21,61],[23,60],[29,60],[30,66],[41,67],[40,64],[33,65],[32,70],[25,71],[15,69],[10,64],[5,62]],
+  [[-5,50],[1,51],[1,53],[-2,56],[-2,58],[-5,58],[-6,56],[-3,54],[-5,52]], [[-10,52],[-6,52],[-6,55],[-8,55],[-10,54]], [[-24,65],[-22,66],[-15,66],[-14,65],[-18,63],[-22,64]],
+  [[130,31],[132,34],[136,34],[140,35],[142,39],[141,41],[145,44],[142,45],[140,42],[139,38],[136,36],[132,35],[130,33]],
+  [[114,-22],[114,-34],[118,-35],[124,-33],[131,-31],[135,-35],[139,-36],[144,-38],[150,-37],[153,-28],[149,-21],[146,-19],[145,-15],[142,-11],[141,-17],[136,-12],[131,-12],[129,-15],[125,-14],[122,-18]],
+  [[173,-35],[178,-38],[175,-41],[172,-43],[171,-46],[167,-46],[170,-42],[173,-40]],
+  [[95,5],[98,4],[104,-2],[106,-6],[102,-4],[98,1]], [[109,1],[113,4],[117,7],[119,5],[117,1],[116,-4],[111,-3]], [[106,-6],[110,-7],[114,-8],[110,-8]], [[131,-1],[135,-3],[141,-3],[147,-6],[150,-10],[144,-8],[138,-8],[133,-4]], [[120,18],[122,18],[124,13],[126,8],[124,6],[122,10],[120,14]], [[119,1],[125,1],[122,-1],[123,-5],[120,-5]],
+  [[44,-16],[49,-12],[50,-16],[47,-25],[44,-24],[43,-20]], [[-85,22],[-80,23],[-75,20],[-78,20],[-84,21]], [[-74,19],[-69,19],[-68,18],[-72,18]], [[80,9],[82,7],[81,6],[80,7]], [[120,25],[122,25],[121,22]],
+];
+const EARTH_DESERT = [[10, 23, 27, 8, '#d9b77a'], [48, 23, 9, 8, '#d6b275'], [85, 41, 26, 6, '#c9ad7a'], [133, -25, 11, 6, '#c98f5a'], [-110, 31, 8, 7, '#cfae78'], [20, -23, 6, 5, '#caa66c'], [-69, -23, 2.5, 8, '#c9a874'], [62, 31, 7, 5, '#cdb07c'], [-68, -44, 3, 7, '#b9a874']];
+const EARTH_RANGES = [[[-72,8],[-77,-5],[-70,-18],[-70,-33],[-72,-48]], [[-150,62],[-130,56],[-122,48],[-112,42],[-106,36],[-104,26]], [[70,36],[78,33],[86,28],[96,28],[102,30]], [[6,45],[10,47],[15,47]], [[40,42],[47,41]], [[-5,32],[5,35]], [[36,8],[38,0],[34,-8]], [[58,65],[60,55]], [[146,-20],[150,-32]], [[88,48],[98,50]]];
+let _earthCv = null, _earthTex = null, _cloudTex = null;
+export function earthCanvas() {
+  if (_earthCv) return _earthCv;
+  const W = isMobile() ? 1024 : 2048, H = W / 2; const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  let seed = 20260921; const rn = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const X = (lon) => (lon + 180) / 360 * W, Y = (lat) => (90 - lat) / 180 * H;
+  // ocean: deep blue, lighter toward the tropics
+  const og = g.createLinearGradient(0, 0, 0, H); og.addColorStop(0, '#0a2a55'); og.addColorStop(0.3, '#0b3f7d'); og.addColorStop(0.5, '#0e5697'); og.addColorStop(0.7, '#0b3f7d'); og.addColorStop(1, '#0a2a55'); g.fillStyle = og; g.fillRect(0, 0, W, H);
+  const trace = (poly) => { g.beginPath(); const n = poly.length; const mx = (i) => [(X(poly[i % n][0]) + X(poly[(i + 1) % n][0])) / 2, (Y(poly[i % n][1]) + Y(poly[(i + 1) % n][1])) / 2]; const m0 = mx(0); g.moveTo(m0[0], m0[1]); for (let i = 1; i <= n; i++) { const p = poly[i % n], m = mx(i); g.quadraticCurveTo(X(p[0]), Y(p[1]), m[0], m[1]); } g.closePath(); };
+  // shallow seas: a soft turquoise halo around every coast
+  g.save(); g.shadowColor = 'rgba(64,190,215,0.85)'; g.shadowBlur = W / 90; g.fillStyle = 'rgba(64,190,215,0.55)'; for (const p of EARTH_LAND) { trace(p); g.fill(); } g.restore();
+  // land, clipped: latitude biomes, deserts, forests, mountains, grain
+  g.save(); g.beginPath(); for (const poly of EARTH_LAND) { const n = poly.length; const mx = (i) => [(X(poly[i % n][0]) + X(poly[(i + 1) % n][0])) / 2, (Y(poly[i % n][1]) + Y(poly[(i + 1) % n][1])) / 2]; const m0 = mx(0); g.moveTo(m0[0], m0[1]); for (let i = 1; i <= n; i++) { const p = poly[i % n], m = mx(i); g.quadraticCurveTo(X(p[0]), Y(p[1]), m[0], m[1]); } g.closePath(); } g.clip();
+  const lg = g.createLinearGradient(0, 0, 0, H); const stops = [[0, '#f4f7fb'], [0.1, '#e6ebee'], [0.17, '#8d9a7c'], [0.24, '#4f7a48'], [0.33, '#5f8a48'], [0.4, '#86934f'], [0.47, '#3f7d3a'], [0.53, '#2f7436'], [0.62, '#7d8f4a'], [0.72, '#5d8446'], [0.8, '#8a957a'], [0.86, '#eef2f6'], [1, '#ffffff']]; for (const [k, col] of stops) lg.addColorStop(k, col); g.fillStyle = lg; g.fillRect(0, 0, W, H);
+  for (const [lon, lat, rx, ry, col] of EARTH_DESERT) { const gx = X(lon), gy = Y(lat), R = rx / 360 * W; g.save(); g.translate(gx, gy); g.scale(1, (ry / 180 * H) / R); const rg = g.createRadialGradient(0, 0, R * 0.25, 0, 0, R); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(210,180,120,0)'); g.fillStyle = rg; g.beginPath(); g.arc(0, 0, R, 0, 6.2832); g.fill(); g.restore(); }
+  // rainforests: Amazon, Congo, SE Asia
+  for (const [lon, lat, rx, ry] of [[-62, -4, 13, 9], [21, 0, 9, 6], [103, 3, 12, 8], [-88, 15, 5, 4], [142, -5, 6, 3]]) { const gx = X(lon), gy = Y(lat), R = rx / 360 * W; g.save(); g.translate(gx, gy); g.scale(1, (ry / 180 * H) / R); const rg = g.createRadialGradient(0, 0, R * 0.2, 0, 0, R); rg.addColorStop(0, 'rgba(24,92,40,0.95)'); rg.addColorStop(1, 'rgba(24,92,40,0)'); g.fillStyle = rg; g.beginPath(); g.arc(0, 0, R, 0, 6.2832); g.fill(); g.restore(); }
+  // grain: thousands of tiny patches so the land never looks flat
+  for (let i = 0; i < (W > 1024 ? 9000 : 3500); i++) { const x = rn() * W, y = rn() * H; const s = 1 + rn() * (W / 400); g.fillStyle = rn() < 0.5 ? 'rgba(20,50,20,0.10)' : 'rgba(235,225,180,0.09)'; g.fillRect(x, y, s * 2, s); }
+  // mountain ranges: a dark ridge with a snow line
+  g.lineCap = 'round'; g.lineJoin = 'round'; for (const r of EARTH_RANGES) { g.shadowColor = 'rgba(80,62,40,0.5)'; g.shadowBlur = W / 160; for (const [lw, col] of [[W / 120, 'rgba(118,98,72,0.38)'], [W / 260, 'rgba(96,78,56,0.45)'], [W / 700, 'rgba(244,247,250,0.55)']]) { g.beginPath(); r.forEach((p, i) => { const x = X(p[0]) + (i ? (rn() - 0.5) * 3 : 0), y = Y(p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.lineWidth = lw; g.strokeStyle = col; g.stroke(); } } g.shadowBlur = 0;
+  // Greenland ice sheet
+  g.fillStyle = 'rgba(248,251,255,0.92)'; g.beginPath(); g.ellipse(X(-41), Y(73), W * 0.028, H * 0.055, 0, 0, 6.2832); g.fill();
+  g.restore();
+  // Antarctica + Arctic sea ice, ragged edges
+  g.fillStyle = '#f6f9fd'; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += W / 96) g.lineTo(x, Y(-70 - Math.sin(x / W * 25) * 3 - rn() * 3)); g.lineTo(W, H); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(240,246,252,0.9)'; g.beginPath(); g.moveTo(0, 0); for (let x = 0; x <= W; x += W / 96) g.lineTo(x, Y(83 + Math.sin(x / W * 19) * 3 + rn() * 2)); g.lineTo(W, 0); g.closePath(); g.fill();
+  _earthCv = c; return c;
+}
+export function earthTexture() { if (_earthTex) return _earthTex; const t = new THREE.CanvasTexture(earthCanvas()); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4; _earthTex = t; return t; }
+export function cloudTexture() {
+  if (_cloudTex) return _cloudTex; const W = isMobile() ? 512 : 1024, H = W / 2; const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); let seed = 99173; const rn = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const puff = (x, y, r, a) => { const rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,255,255,' + a + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.fillRect(x - r, y - r, r * 2, r * 2); };
+  for (let k = 0; k < 46; k++) { const band = [0.2, 0.34, 0.5, 0.66, 0.8][k % 5]; let x = rn() * W, y = (band + (rn() - 0.5) * 0.14) * H; const n = 8 + rn() * 18, dir = (rn() - 0.5) * 0.5; for (let i = 0; i < n; i++) { const r = W * (0.008 + rn() * 0.02); puff(x, y, r, 0.35 + rn() * 0.4); if (x < r) puff(x + W, y, r, 0.4); if (x > W - r) puff(x - W, y, r, 0.4); x = (x + W * 0.012 + W) % W; y += dir * W * 0.006 + (rn() - 0.5) * W * 0.006; } }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; _cloudTex = t; return t;
+}
+/* A globe: surface + drifting clouds + a thin blue atmosphere. It lights itself a little, so it never reads as a dark ball from below.
+   userData.spin(dt) turns it; clouds drift a touch faster than the ground. */
+export function makeEarth(radius = 5, o = {}) {
+  const seg = o.segments || (isMobile() ? 32 : 48); const g = new THREE.Group(); const tex = earthTexture();
+  const surf = new THREE.Mesh(new THREE.SphereGeometry(radius, seg, Math.round(seg * 0.66)), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.78, metalness: 0.05, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: o.glow ?? 0.42, fog: o.fog ?? true })); surf.userData.noShadow = true; g.add(surf);
+  let clouds = null; if (o.clouds !== false) { clouds = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.018, seg, Math.round(seg * 0.66)), new THREE.MeshStandardMaterial({ map: cloudTexture(), transparent: true, opacity: 0.9, depthWrite: false, roughness: 1, emissive: 0xffffff, emissiveMap: cloudTexture(), emissiveIntensity: 0.25, fog: o.fog ?? true })); clouds.userData.noShadow = true; clouds.userData.noOcclude = true; g.add(clouds); }
+  const atmo = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.06, seg, Math.round(seg * 0.66)), new THREE.MeshBasicMaterial({ color: 0x6fc3ff, transparent: true, opacity: 0.16, side: THREE.BackSide, depthWrite: false, fog: o.fog ?? true })); atmo.userData.noShadow = true; atmo.userData.noOcclude = true; g.add(atmo);
+  g.rotation.z = o.tilt ?? 0.41; g.userData.surface = surf; g.userData.spin = (dt, k = 1) => { surf.rotation.y += dt * 0.06 * k; if (clouds) clouds.rotation.y += dt * 0.085 * k; };
+  return g;
+}
+/* The planet seen from orbit, projected onto a flat disc texture (for the Earth far below the floating island). */
+export function earthDiscTexture(size = isMobile() ? 512 : 1024, lat0 = 24, lon0 = -48) {
+  const src = earthCanvas(); const sw = src.width, sh = src.height; const sd = src.getContext('2d').getImageData(0, 0, sw, sh).data;
+  const cl = cloudTexture().image; const cw = cl.width, chh = cl.height; const cd = cl.getContext('2d').getImageData(0, 0, cw, chh).data;
+  const c = document.createElement('canvas'); c.width = c.height = size; const g = c.getContext('2d'); const img = g.createImageData(size, size), D = img.data;
+  const la = lat0 * Math.PI / 180, lo = lon0 * Math.PI / 180, sl = Math.sin(la), clat = Math.cos(la); const sky = [191, 220, 242];
+  for (let py = 0; py < size; py++) for (let px = 0; px < size; px++) {
+    const u = (px + 0.5) / size * 2 - 1, v = 1 - (py + 0.5) / size * 2; const r2 = u * u + v * v; const i = (py * size + px) * 4;
+    if (r2 >= 1) { D[i] = sky[0]; D[i + 1] = sky[1]; D[i + 2] = sky[2]; D[i + 3] = 255; continue; }
+    const z = Math.sqrt(1 - r2); const y2 = v * clat + z * sl, z2 = -v * sl + z * clat; const lat = Math.asin(clamp(y2, -1, 1)), lon = lo + Math.atan2(u, z2);
+    let sx = Math.floor(((lon / (Math.PI * 2) + 0.5) % 1 + 1) % 1 * sw), sy = Math.min(sh - 1, Math.floor((0.5 - lat / Math.PI) * sh)); const si = (sy * sw + sx) * 4;
+    const cx = Math.floor(sx / sw * cw), cy = Math.min(chh - 1, Math.floor(sy / sh * chh)); const ca = cd[(cy * cw + cx) * 4 + 3] / 255 * 0.5;
+    const limb = Math.pow(1 - z, 2.2); // haze toward the rim
+    for (let k = 0; k < 3; k++) { let val = sd[si + k] * (0.78 + 0.3 * z); val = val * (1 - ca) + 255 * ca; D[i + k] = val * (1 - limb) + sky[k] * limb; } D[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+
 export function makeRider(color) {
   const g = new THREE.Group();
   const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.3, 3, 6), new THREE.MeshStandardMaterial({ color: color || pick([0xff4f79, 0x38f0ff, 0xffd23f, 0x7cff6b, 0xb08cff]) })); b.position.y = 0.35; g.add(b);
@@ -538,7 +622,7 @@ export class WVM {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = o.exposure;
     if (o.shadows) { renderer.shadowMap.enabled = true; renderer.shadowMap.type = isMobile() ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap; }
-    renderer.xr.enabled = true;
+    renderer.xr.enabled = true; renderer.localClippingEnabled = true;
     renderer.domElement.id = 'wvm-canvas';
     this.stage.appendChild(renderer.domElement);
 
@@ -620,8 +704,9 @@ export class WVM {
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
     this.scene.background = tex;
     if (this.opts.envFromSky) {
-      const pm = new THREE.PMREMGenerator(this.renderer); const env = pm.fromEquirectangular(tex).texture; pm.dispose();
-      if (this.scene.environment) this.scene.environment.dispose(); this.scene.environment = env;
+      const envs = this._envCache || (this._envCache = new Map()); let env = envs.get(tex);
+      if (!env) { const pm = this._pmrem || (this._pmrem = new THREE.PMREMGenerator(this.renderer)); env = pm.fromEquirectangular(tex).texture; envs.set(tex, env); }
+      this.scene.environment = env;
     }
     const night = opts.night ?? /night|stars|moon/i.test(this.skyUrl || '');
     this.sun.intensity = night ? 0.45 : 1.9; this.sun.color.set(night ? 0x9fb8ff : 0xfff1d6); this.hemi.intensity = night ? 0.35 : 0.75; this.fill.intensity = night ? 0.15 : 0.3;
@@ -644,8 +729,9 @@ export class WVM {
   }
   _setAvatar(av) {
     if (this.avatar) { this.player.remove(this.avatar); if (this.vehicle) sitPerson(av, true); }
-    this.avatar = av; av.visible = this.dist > 0.5; this.player.add(av);
+    this.avatar = av; av.visible = this.dist > 0.5; this.player.add(av); try { if (localStorage.getItem('wvm_crown')) this._crown(av); } catch (e) { }
     if (this.vehicle) { sitPerson(av, true); av.position.y = this.vehicle.seatY || 0.5; }
+    if (this._clip) { this._clip.av = null; if (this.ride) sitPerson(av, true); }
   }
 
   _resize() {
@@ -657,11 +743,13 @@ export class WVM {
   /* ----- public API for pages ----- */
   onUpdate(fn) { this.updaters.push(fn); return fn; }
   addObstacle(x, z, r) { this.obstacles.push({ x, z, r }); }
+  /* an obstacle that moves (a train car): update ob.x / ob.z every frame. Path-finding ignores it; walking is blocked. */
+  addMovingObstacle(r) { const ob = { x: 1e9, z: 1e9, r, moving: true }; this.obstacles.push(ob); return ob; }
   addBox(x, z, hw, hd) { this.obstacles.push({ x, z, hw, hd }); }
   /* polygon obstacle: pts = [[x,z],...]; blocks INSIDE the polygon (a lake), or outside it when opts.keepIn (a boat) */
   addPoly(pts, opts = {}) { const ob = { poly: pts, keepIn: !!opts.keepIn, level: opts.level }; this.obstacles.push(ob); return ob; }
   static inPoly(pts, x, z) { let inside = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const xi = pts[i][0], zi = pts[i][1], xj = pts[j][0], zj = pts[j][1]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside; } return inside; }
-  _blocked(nx, nz) { const lv = this.level || 0; for (const ob of this.obstacles) { if ((ob.level === undefined ? 0 : ob.level) !== lv) continue; if (ob.poly) { if (ob.off) continue; const inn = WVM.inPoly(ob.poly, nx, nz); if (ob.keepIn ? !inn : inn) return true; continue; } if (ob.hw !== undefined) { if (Math.abs(nx - ob.x) < ob.hw && Math.abs(nz - ob.z) < ob.hd) return true; } else { const dx = nx - ob.x, dz = nz - ob.z; if (dx * dx + dz * dz < ob.r * ob.r) return true; } } return false; }
+  _blocked(nx, nz) { const lv = this.level || 0; for (const ob of this.obstacles) { if ((ob.level === undefined ? 0 : ob.level) !== lv) continue; if (ob.moving) { if (ob.off || this._ignoreMoving) continue; const dx = nx - ob.x, dz = nz - ob.z, d2 = dx * dx + dz * dz; if (d2 < ob.r * ob.r) { const P = this.player.position, ex = P.x - ob.x, ez = P.z - ob.z; if (d2 <= ex * ex + ez * ez) return true; } continue; } if (ob.poly) { if (ob.off) continue; const inn = WVM.inPoly(ob.poly, nx, nz); if (ob.keepIn ? !inn : inn) return true; continue; } if (ob.hw !== undefined) { if (Math.abs(nx - ob.x) < ob.hw && Math.abs(nz - ob.z) < ob.hd) return true; } else { const dx = nx - ob.x, dz = nz - ob.z; if (dx * dx + dz * dz < ob.r * ob.r) return true; } } return false; }
   addHotspot(obj, data) { obj.traverse(c => { c.userData.hotspot = data; }); this.hotspots.push(obj); return obj; }
   addZone(name, center, radius, build) { this.zones.push({ name, center, radius, build, built: false }); }
   addTrigger(x, z, r, fn) { (this.triggers = this.triggers || []).push({ x, z, r, fn, fired: false }); }
@@ -693,7 +781,8 @@ export class WVM {
     return g;
   }
   walkTo(x, z) { const p = this.player.position; this._marker(new THREE.Vector3(x, this.opts.groundY(x, z), z)); if (this.ride || this.vehicle) return; const d = Math.hypot(x - p.x, z - p.z);
-    if (d < 420 && !this._sight(p.x, p.z, x, z)) { const path = this.findPath(p.x, p.z, x, z, 12000); if (path) { this._route = { pl: { x, z, name: 'there', silent: true }, path, i: 0, chk: this.t, cx: p.x, cz: p.z, tries: 0 }; this.walkTarget = null; return; } }
+    if (d >= 420) { this.travel({ id: '_far', name: 'that spot', icon: '📍', x, z, keys: '', say: 'Here we are. 📍' }); return; }
+    if (!this._sight(p.x, p.z, x, z)) { const path = this.findPath(p.x, p.z, x, z, 12000); if (path) { this._route = { pl: { x, z, name: 'there', silent: true }, path, i: 0, chk: this.t, cx: p.x, cz: p.z, tries: 0 }; this.walkTarget = null; return; } if (d > 25) { this.travel({ id: '_far', name: 'that spot', icon: '📍', x, z, keys: '', say: 'Here we are. 📍' }); return; } }
     this._route = null; this.walkTarget = new THREE.Vector3(x, this.opts.groundY(x, z), z); this._wchk = { t: this.t, x: p.x, z: p.z }; }
   /* A ball you can kick by walking into it. bounds = {x1,z1,x2,z2} it stays inside. */
   addBall(mesh, radius, bounds) { (this.balls = this.balls || []).push({ m: mesh, r: radius, v: new THREE.Vector3(), b: bounds }); }
@@ -718,9 +807,9 @@ export class WVM {
     const seatY = opts.seatY ?? 0.5, roofY = opts.roofY ?? 2.1;
     const v = this.vehicle = { m: cart, speed: opts.speed || 2.6, seatY, roofY, park: opts.park, turbo: 0 };
     const av = this.avatar; sitPerson(av, true); av.position.y = seatY;
-    const headTop = seatY + (av.userData.headY || 2) * 0.8; const fit = roofY - 0.12; if (headTop > fit) { v.avScale = av.scale.x; av.scale.setScalar(av.scale.x * fit / headTop); }
+    this.seatClip(cart, opts.clipY ?? (seatY + 0.3), { roofY });
     this.toast(opts.label || '🚗 Vroom. Hit TURBO for flames. Tap the button to hop out.', 3200);
-    const it = { x: 0, z: 0, r: 1e9, label: '🚪 Hop out of the cart', fn: (a) => { const v = a.vehicle; a.vehicle = null; sitPerson(a.avatar, false); a.avatar.position.y = 0; if (v.avScale) a.avatar.scale.setScalar(v.avScale); a.interactables = a.interactables.filter(i => i !== it); v.m.position.copy(a.player.position); v.m.position.x += 2; v.m.rotation.y = a.avatar.rotation.y; if (v.flames) { v.m.remove(v.flames); } a.turboBtn.classList.remove('on'); if (v.park) v.park(v); } }; (this.interactables = this.interactables || []).push(it);
+    const it = { x: 0, z: 0, r: 1e9, label: '🚪 Hop out of the cart', fn: (a) => { const v = a.vehicle; a.vehicle = null; sitPerson(a.avatar, false); a.seatClear(); a.interactables = a.interactables.filter(i => i !== it); v.m.position.copy(a.player.position); v.m.position.x += 2; v.m.rotation.y = a.avatar.rotation.y; if (v.flames) { v.m.remove(v.flames); } a.turboBtn.classList.remove('on'); if (v.park) v.park(v); } }; (this.interactables = this.interactables || []).push(it);
     // flames: a cone of sprites out the back, shown while turbo is held
     const flames = v.flames = new THREE.Group(); flames.visible = false; flames.position.set(0, 0.45, -1.3); cart.add(flames);
     const fm = (c) => new THREE.SpriteMaterial({ map: this._flameTex(), color: c, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -728,6 +817,34 @@ export class WVM {
     this.onUpdate((dt, t) => { if (!this.vehicle || this.vehicle !== v) return; const on = v.turbo > 0; flames.visible = on; if (on) { for (const s of flames.children) { const k = (t * 6 + s.userData.i * 0.37) % 1; s.position.set(Math.sin(s.userData.i * 2.1 + t * 9) * 0.25 * k, k * 0.3, -k * 2.4); const sc = 0.5 + k * 1.2; s.scale.set(sc, sc, 1); s.material.opacity = 1 - k; } } });
     this.turboBtn.classList.add('on');
   }
+  /* Seated riders (v7): everything below the seat line of a vehicle is clipped away and the hips are dropped onto the seat,
+     so a tall character sits IN the cart / coaster car / basket / cabin instead of standing through it. Heads always clear the roof.
+     obj = the vehicle, y = seat line in the vehicle's own space. o.roofY (vehicle space), o.tilt (lean and roll with the vehicle). */
+  seatClip(obj, y = 0.6, o = {}) { this._clip = { obj, y, roofY: o.roofY, tilt: !!o.tilt, stand: !!o.stand, level: !!o.level, z: o.z || 0, x: o.x || 0, av: null, plane: this._clipPlane || (this._clipPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)), pt: new THREE.Vector3(), n: new THREE.Vector3() }; this.renderer.localClippingEnabled = true; this._seatUpdate(); }
+  seatClear() { const c = this._clip; this._clip = null; if (!c) return; const av = this.avatar; this._clipMats(av, null); av.position.set(0, 0, 0); if (c.tilt) av.rotation.set(0, av.rotation.y || 0, 0); }
+  _clipMats(av, plane) { av.traverse(o => { const m = o.material; if (!m) return; if (!o.userData._cm) { o.material = Array.isArray(m) ? m.map(q => q.clone()) : m.clone(); o.userData._cm = true; } for (const q of [].concat(o.material)) { q.clippingPlanes = plane ? [plane] : null; q.needsUpdate = true; } }); }
+  _seatUpdate() {
+    const c = this._clip; if (!c) return; const av = this.avatar, u = av.userData; if (!c.obj.parent && c.obj !== this.scene) { this.seatClear(); return; }
+    const odd = u.hover || u.rolls; // drones and the shopping-cart character ride as they are
+    if (c.av !== av) { c.av = av; this._clipMats(av, odd ? null : c.plane); }
+    c.obj.updateWorldMatrix(true, false); c.pt.set(c.x, c.y, c.z).applyMatrix4(c.obj.matrixWorld); c.n.set(0, 1, 0); if (!c.level) c.n.transformDirection(c.obj.matrixWorld); c.plane.setFromNormalAndCoplanarPoint(c.n, c.pt);
+    const H = u.headY || 2; let drop = c.stand ? 0.12 : H * 0.5; if (c.roofY !== undefined) drop = Math.max(drop, H - (c.roofY - c.y) * (c.obj.scale.y || 1) + 0.12); if (odd) drop = 0;
+    const P = this.player.position; if (c.tilt) { av.position.set(c.pt.x - c.n.x * drop - P.x, c.pt.y - c.n.y * drop - P.y, c.pt.z - c.n.z * drop - P.z); av.quaternion.copy(c.obj.quaternion); } else av.position.set(0, c.pt.y - drop - P.y, 0);
+  }
+  /* ----- the Secret Hunt (v7): ten hidden things across the whole world. Found ones are kept in this browser. ----- */
+  static get SECRETS() { return [
+    ['duck', '🦆', 'The Golden Duck', 'Not every duck on the ponds is a duck-colored duck.'], ['cord', '🚂', 'The Whistle Cord', 'Something dangles at the train platform. Cords are for pulling.'], ['bottle', '🍾', 'Message in a Bottle', 'Walk the beach pier all the way to the very end.'], ['balloon', '🎈', 'The Lonely Red Balloon', 'It got away from the park and drifted up to where people watch the stars.'], ['modes', '🎢', 'Triple Chiller', 'Ride The Chiller three different ways.'],
+    ['tile', '🎵', 'The Musical Tile', 'One tile in the Atrium is not like the others. Step on it.'], ['button', '🔴', 'The Big Red Button', 'Chinatown. It says do not press. You know what to do.'], ['lever', '🌈', 'The Lever by the Falls', 'In the waterfall lounge, something mossy wants pulling.'], ['simon', '🕹️', 'The Unmarked Cabinet', 'Upstairs, in the Game Room, one machine has no sign. Beat level 3.'], ['door', '🐭', 'The Tiny Door', 'Upstairs, down low, near the games. Knock.']]; }
+  secretsFound() { return this._load('wvm_secrets', []) || []; }
+  secret(id, title, html) {
+    const S = WVM.SECRETS, found = this.secretsFound(), meta = S.find(s => s[0] === id) || [id, '🔎', title || id]; const isNew = !found.includes(id); if (isNew) { found.push(id); this._save('wvm_secrets', found); this.coins = (this.coins || 0) + 10; this._save('wvm_coins', this.coins); if (this.coinBadge) this.coinBadge.textContent = this.coins; }
+    const n = found.filter(f => S.some(s => s[0] === f)).length; this.celebrate(meta[1]); this.buzz(80);
+    const all = n >= S.length; if (all && !localStorage.getItem('wvm_crown')) { try { localStorage.setItem('wvm_crown', '1'); } catch (e) { } this._crown(this.avatar); }
+    this.popup(meta[1] + ' Secret found: ' + (title || meta[2]), (html || '') + '<p><b>' + n + ' of ' + S.length + '</b> secrets found' + (isNew ? ' · +10 coins 🪙' : ' (you already had this one)') + '.</p>' + (all ? '<p style="font-size:18px">👑 <b>All ten.</b> You are a Master Explorer. Your character now wears the gold Explorer\'s Crown everywhere in World VR Mall.</p>' : ''), [{ label: '🔎 Secret Hunt list', fn: () => setTimeout(() => this.showSecrets(), 80) }]);
+  }
+  showSecrets() { const found = this.secretsFound(); const rows = WVM.SECRETS.map(s => { const ok = found.includes(s[0]); return '<div style="display:flex;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.12)"><span style="font-size:24px;filter:' + (ok ? 'none' : 'grayscale(1) opacity(.45)') + '">' + s[1] + '</span><div><b>' + (ok ? esc(s[2]) + ' ✅' : '???') + '</b><br><small class="muted">' + esc(s[3]) + '</small></div></div>'; }).join(''); const n = found.filter(f => WVM.SECRETS.some(s => s[0] === f)).length; this.popup('🔎 The Secret Hunt · ' + n + ' / ' + WVM.SECRETS.length, '<p>Ten things are hidden around World VR Mall: five outside, five inside. Each is worth 10 coins. Find all ten for the 👑 Explorer\'s Crown.</p>' + rows, []); }
+  celebrate(emoji = '🎉') { if (!document.getElementById('wvm-cele-css')) { const st = document.createElement('style'); st.id = 'wvm-cele-css'; st.textContent = '@keyframes wvmCele{0%{transform:translate(-50%,-50%) scale(.2) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.25) rotate(var(--r));opacity:0}}.wvm-cele{position:fixed;left:50%;top:46%;font-size:34px;pointer-events:none;z-index:99999;animation:wvmCele 1.7s cubic-bezier(.2,.7,.3,1) forwards}@media (prefers-reduced-motion:reduce){.wvm-cele{display:none}}'; document.head.appendChild(st); } const set = [emoji, '✨', '🎉', '⭐', emoji, '🪙']; for (let i = 0; i < 22; i++) { const d = document.createElement('div'); d.className = 'wvm-cele'; d.textContent = set[i % set.length]; const an = i / 22 * Math.PI * 2, r = 120 + Math.random() * 200; d.style.setProperty('--dx', Math.cos(an) * r + 'px'); d.style.setProperty('--dy', Math.sin(an) * r + 'px'); d.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); d.style.animationDelay = (Math.random() * 0.15) + 's'; document.body.appendChild(d); setTimeout(() => d.remove(), 2100); } }
+  _crown(av) { if (!av || av.userData.crown || av.userData.hover) return; const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({ color: 0xffd23f, metalness: 1, roughness: 0.15, emissive: 0x6a4a00, emissiveIntensity: 0.6 }); const band = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.18, 0.1, 16, 1, true), m); m.side = THREE.DoubleSide; g.add(band); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const sp = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.16, 6), m); sp.position.set(Math.cos(a) * 0.19, 0.12, Math.sin(a) * 0.19); g.add(sp); } const s = (av.userData.headY || 2) / 2; g.scale.setScalar(Math.max(0.8, s) / (av.scale.y || 1)); g.position.y = ((av.userData.headY || 2) + 0.02) / (av.scale.y || 1); av.add(g); av.userData.crown = g; }
   _flameTex() { if (this._ft) return this._ft; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,220,120,0.9)'); gr.addColorStop(1, 'rgba(255,80,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); this._ft = new THREE.CanvasTexture(c); return this._ft; }
   /* Ride anything. pathFn(t01) → Vector3 for progress 0..1; the avatar (and optional vehicle mesh) follows.
      opts: duration (s), loop, vehicle (mesh that moves too), seat (Vector3 offset inside the vehicle), yaw ('path' faces travel direction),
@@ -735,12 +852,12 @@ export class WVM {
   startRide(pathFn, opts = {}) {
     if (this.ride) return () => {};
     const dur = opts.duration || 40, t0 = this.t; const veh = opts.vehicle; const seat = opts.seat || new THREE.Vector3(0, 0, 0);
-    const av = this.avatar; if (opts.sit !== false) sitPerson(av, true);
+    const av = this.avatar; if (opts.sit !== false) sitPerson(av, true); if (opts.clip) this.seatClip(opts.clip.obj, opts.clip.y, opts.clip);
     const pitch0 = this.pitch; if (opts.lookUp) this.pitch = -0.6;
     const self = this; let last = pathFn(0);
     this.ride = { pos: (t) => { let k = (t - t0) / dur; if (opts.loop) k %= 1; else k = Math.min(1, k); const p = pathFn(k); if (veh) { veh.position.copy(p); if (opts.yaw === 'path') { veh.rotation.y = Math.atan2(p.x - last.x, p.z - last.z); } } last = p.clone(); const out = p.clone().add(seat); if (veh && opts.yaw === 'path') out.copy(p).add(seat.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), veh.rotation.y)); return out; }, yaw: undefined, until: opts.loop ? undefined : t0 + dur, done: () => stop(true) };
     const it = { x: 0, z: 0, r: 1e9, label: opts.exitLabel || '🛑 End the ride', fn: () => stop(false) }; (this.interactables = this.interactables || []).push(it);
-    let finished = false; function stop(natural) { if (finished) return; finished = true; self.ride = null; self._act = null; sitPerson(av, false); self.pitch = pitch0; self.interactables = self.interactables.filter(i => i !== it); if (opts.exit) self.player.position.copy(opts.exit); if (opts.onEnd) opts.onEnd(natural); self.toast(natural ? (opts.endToast || 'What a ride! 🎉') : 'Hopped off.'); }
+    let finished = false; function stop(natural) { if (finished) return; finished = true; self.ride = null; self._act = null; sitPerson(self.avatar, false); self.seatClear(); self.pitch = pitch0; self.interactables = self.interactables.filter(i => i !== it); if (opts.exit) self.player.position.copy(opts.exit); if (opts.onEnd) opts.onEnd(natural); self.toast(natural ? (opts.endToast || 'What a ride! 🎉') : 'Hopped off.'); }
     if (opts.toast !== false) this.toast(opts.toast || '🎢 Hang on!', 2500);
     return () => stop(false);
   }
@@ -835,13 +952,23 @@ export class WVM {
       this.fixBackwards(); this._deepLink();
       if (this.opts.shadows) this.enableShadows(this.scene);
       this._progress(0.9);
-      setTimeout(done, 900);
+      return this._warm().then(() => setTimeout(done, 500));
     }).catch(err => { console.error(err); clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Build error: <code style="font-size:12px;color:#c00">' + esc(err && err.message ? err.message : String(err)) + '</code><br><small>' + esc((err && err.stack ? err.stack.split('\n')[1] : '') || '') + '</small><br>Screenshot this and send it to Zach.'; });
     addEventListener('error', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Script error: <code style="font-size:12px;color:#c00">' + esc(ev.message || '') + '</code><br><small>' + esc((ev.filename || '').split('/').pop() + ':' + ev.lineno) + '</small>'; } });
     addEventListener('unhandledrejection', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Load error: <code style="font-size:12px;color:#c00">' + esc(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)) + '</code>'; } });
     this.renderer.setAnimationLoop(() => this._frame());
   }
 
+  async _warm() {
+    try { this._cullPrep(); } catch (e) { console.warn(e); }
+    if (isMobile() || this.opts.warm === false) return;
+    try {
+      this.loadMsg.textContent = 'Polishing every window…';
+      if (this.renderer.compileAsync) await Promise.race([this.renderer.compileAsync(this.scene, this.camera), new Promise(r => setTimeout(r, 7000))]);
+      const seen = new Set(); this.scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'alphaMap']) { const tx = m && m[k]; if (tx && tx.isTexture && !tx.isVideoTexture && tx.image && tx.image.complete !== false && (tx.image.width || 0) > 0) seen.add(tx); } });
+      let n = 0; const t0 = performance.now(); for (const tx of seen) { if (n > 500 || performance.now() - t0 > 6000) break; try { this.renderer.initTexture(tx); } catch (e) { } if (++n % 16 === 0) { this._progress(0.9 + 0.09 * n / Math.max(1, seen.size)); await new Promise(r => setTimeout(r, 0)); } }
+    } catch (e) { console.warn('warm-up skipped', e); }
+  }
   /* Turn on shadows for everything already in the scene (pages built for v4 never set the flags).
      Flat planes receive, solid meshes cast + receive, sprites and see-through things are skipped. */
   enableShadows(root) {
@@ -871,17 +998,18 @@ export class WVM {
       const d = local ? Math.hypot(pl.x - pos.x, pl.z - pos.z) : 0; const canWalk = local && pl.walk !== false && (pl.level || 0) === (this.level || 0) && !this.ride && !this.vehicle && d > 3 && d < 420;
       const secs = Math.round(d / (this.opts.walkSpeed * this.speedMul * 1.3)); const acts = [];
       if (canWalk) acts.push({ label: '🚶 Walk me there (' + (secs < 90 ? secs + ' sec' : Math.round(secs / 60) + ' min') + ')', fn: () => this.travel(pl, 'walk') });
-      acts.push({ label: '✨ Transport me there now', fn: () => this.travel(pl, 'port'), primary: true });
+      acts.push({ label: '⚡ Instant · transport me there now', fn: () => this.travel(pl, 'port'), primary: true });
       this.popup((pl.icon || '📍') + ' ' + pl.name, (pl.desc ? '<p>' + esc(pl.desc) + '</p>' : '') + (canWalk ? '<p class="muted">Walking follows a real route around the walls. You can grab the controls any time to stop.</p>' : ''), acts); return;
     }
     this.closeSearch();
-    if (mode === 'walk') { const path = this.findPath(pos.x, pos.z, pl.x, pl.z); if (path) { this._route = { pl, path, i: 0, chk: this.t, cx: pos.x, cz: pos.z, tries: 0 }; this.walkTarget = null; this.toast('🚶 On our way to ' + pl.name + '…', 2600); return; } this.toast('No clear walking route from here, so we are transporting you. ✨', 2600); }
+    if (mode === 'walk') { const path = this.findPath(pos.x, pos.z, pl.x, pl.z); if (path) { this._route = { pl, path, i: 0, chk: this.t, cx: pos.x, cz: pos.z, tries: 0 }; this.walkTarget = null; this.toast('🚶 On our way to ' + pl.name + '… tap ⚡ any time to skip the walk.', 3200); this._skipBtn(pl); return; } this.toast('No clear walking route from here, so we are transporting you. ✨', 2600); }
     this._route = null; this.walkTarget = null;
     if (pl.fn) { pl.fn(this); return; }
     if (pl.url) { this.go(pl.url, '✨ ' + pl.name); return; }
     this.fade.classList.add('on'); this.fade.textContent = '✨ ' + pl.name;
     setTimeout(() => { if (this.opts.onTravel) this.opts.onTravel(pl, this); const [tx, tz] = this._snap(pl.x, pl.z); this.player.position.set(tx, this.opts.groundY(tx, tz), tz); if (pl.yaw !== undefined) { this.yaw = pl.yaw; this.avatar.rotation.y = pl.yaw + Math.PI; } setTimeout(() => { this.fade.classList.remove('on'); this._arrived(pl); }, 260); }, 380);
   }
+  _skipBtn(pl) { this.interactables = (this.interactables || []).filter(i => !i._skip); const it = { x: 0, z: 0, r: 1e7, _skip: true, label: '⚡ Skip the walk · transport me', fn: (a) => { a.interactables = a.interactables.filter(i => i !== it); a.travel(pl, 'port'); } }; this.interactables.push(it); const un = this.onUpdate(() => { if (this._route && this._route.pl === pl) return; this.interactables = this.interactables.filter(i => i !== it); this.updaters = this.updaters.filter(u => u !== un); }); }
   _arrived(pl) { this._route = null; this.walkTarget = null; if (pl.silent) return; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
@@ -890,7 +1018,7 @@ export class WVM {
     const fn = () => { if (this._bubble !== s) { this.updaters = this.updaters.filter(u => u !== fn); return; } const k = this.t - t0; s.material.opacity = k > secs - 0.6 ? Math.max(0, (secs - k) / 0.6) : 1; if (k > secs) { this.player.remove(s); s.material.map.dispose(); s.material.dispose(); this._bubble = null; this.updaters = this.updaters.filter(u => u !== fn); } }; this.onUpdate(fn); this.toast(text, secs * 1000);
   }
   /* A* over the same collision test the visitor walks against, so a found path is a walkable path. */
-  _clear(x, z) { const r = 0.9; return !(this._blocked(x, z) || this._blocked(x + r, z) || this._blocked(x - r, z) || this._blocked(x, z + r) || this._blocked(x, z - r)); }
+  _clear(x, z) { const r = 0.9; this._ignoreMoving = true; const v = !(this._blocked(x, z) || this._blocked(x + r, z) || this._blocked(x - r, z) || this._blocked(x, z + r) || this._blocked(x, z - r)); this._ignoreMoving = false; return v; }
   _sight(ax, az, bx, bz) { const d = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.ceil(d / 1.2)); for (let i = 1; i <= n; i++) { const k = i / n; if (!this._clear(ax + (bx - ax) * k, az + (bz - az) * k)) return false; } return true; }
   findPath(sx, sz, gx, gz, cap = isMobile() ? 22000 : 45000) {
     const C = 2.5, OFF = 4096, B = this.opts.bounds || 600; const key = (i, j) => (i + OFF) * 8192 + (j + OFF); const cache = new Map();
@@ -916,7 +1044,7 @@ export class WVM {
     const w = r.path[r.i]; const last = r.i === r.path.length - 1;
     if (Math.hypot(w[0] - p.x, w[1] - p.z) < (last ? 1.4 : 1.8)) { r.i++; if (r.i >= r.path.length) { this._arrived(r.pl); return; } }
     const n = r.path[Math.min(r.i, r.path.length - 1)]; this.walkTarget = new THREE.Vector3(n[0], p.y, n[1]);
-    if (this.t - r.chk > 1.6) { const moved = Math.hypot(p.x - r.cx, p.z - r.cz); r.chk = this.t; r.cx = p.x; r.cz = p.z; if (moved < 0.5 && !this.paused) { r.tries++; const np = r.tries < 2 ? this.findPath(p.x, p.z, r.pl.x, r.pl.z) : null; if (np) { r.path = np; r.i = 0; } else if (r.pl.silent) { this._route = null; this.walkTarget = null; } else { this.toast('Shortcut! Transporting you the rest of the way. ✨', 2400); this.travel(r.pl, 'port'); } } }
+    if (this.t - r.chk > 1.1) { const moved = Math.hypot(p.x - r.cx, p.z - r.cz); r.chk = this.t; r.cx = p.x; r.cz = p.z; if (moved < 0.5 && !this.paused) { r.tries++; const np = r.tries < 2 ? this.findPath(p.x, p.z, r.pl.x, r.pl.z) : null; if (np) { r.path = np; r.i = 0; } else if (r.pl.silent) { this._route = null; this.walkTarget = null; } else { this.toast('Shortcut! Transporting you the rest of the way. ✨', 2400); this.travel(r.pl, 'port'); } } }
   }
   setSpeed(i) { const S = WVM.SPEEDS; this.speedIdx = ((i % S.length) + S.length) % S.length; this.speedMul = S[this.speedIdx][1]; this._save('wvm_speed', this.speedIdx); const b = this.hud.querySelector('#wvm-speed'); if (b) { b.textContent = S[this.speedIdx][0]; b.title = 'Speed: ' + S[this.speedIdx][2]; } }
   /* Neon boost strip: step on it and you shoot forward for a couple of seconds. */
@@ -1009,31 +1137,35 @@ export class WVM {
      3) Shadows are re-drawn every other frame (every 4th at the lowest level) instead of every frame. */
   _perf(dt) {
     const Q = this._q || (this._q = { lvl: 0, acc: 0, n: 0, hold: 0, base: this.renderer.getPixelRatio(), f: 0, cullT: 0, list: null, listT: -99 }); Q.f++;
-    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (Q.f % (Q.lvl >= 4 ? 4 : 2) === 0) this.renderer.shadowMap.needsUpdate = true; }
+    if (Q.f === 1 && !isMobile()) { Q.lvl = 1; this._noBloom = true; }
+    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % (Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 3 : 2) === 0) this.renderer.shadowMap.needsUpdate = true; }
     const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
-    if (Q.n >= 90) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl++; Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 3; this._applyQ(Q); } }
-    if (this.t - Q.cullT > 0.5) { Q.cullT = this.t; this._cull(Q); }
+    if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
+    if (this.t - Q.cullT > (this._intro ? 0.15 : 0.5)) { Q.cullT = this.t; this._cull(Q); }
   }
   _applyQ(Q) { const ratios = [1, 1, 0.85, 0.72, 0.62, 0.55]; this._noBloom = Q.lvl >= 1; const pr = Math.max(0.6, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
   _cull(Q) {
     if (this.t - Q.listT > 4) { Q.listT = this.t; Q.budget = 0; const L = []; const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.isPoints || o.frustumCulled === false) continue; let c = o.userData._cs; if (!c) { if ((Q.budget = (Q.budget || 0) + 1) > 250) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); c = o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { continue; } } if (c.r > 260) continue; L.push(o); } Q.list = L; }
-    if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900);
-    for (const o of Q.list) { const c = o.userData._cs; const dx = o.position.x + c.ox - P.x, dz = o.position.z + c.oz - P.z; const far = !wide && Math.sqrt(dx * dx + dz * dz) - c.r > lim; if (far) { if (o.visible && !o.userData._culled) { o.visible = false; o.userData._culled = true; } } else if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
+    if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900); const camY = this.rig.position.y - P.y; const lod = wide && camY > 50 ? Math.min(40, camY * 0.0125) : 0;
+    for (const o of Q.list) { const c = o.userData._cs; const dx = o.position.x + c.ox - P.x, dz = o.position.z + c.oz - P.z; const far = (!wide && Math.sqrt(dx * dx + dz * dz) - c.r > lim) || (lod > 0 && c.r < lod && !o.userData.keepLOD); if (far) { if (o.visible && !o.userData._culled) { o.visible = false; o.userData._culled = true; } } else if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
   }
+  /* measure every top-level object once, up front, so culling and air-LOD work from the very first frame */
+  _cullPrep() { const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.userData._cs) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { } } if (this._q) this._q.listT = -99; }
   _uncullAll() { const Q = this._q; if (Q && Q.list) for (const o of Q.list) if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
 
   /* ----- frame ----- */
   _frame() {
     const dt = Math.min(0.05, this.clock.getDelta()); this.t += dt;
     if (!this.paused) this._movePlayer(dt);
+    if (this._clip) this._seatUpdate();
     this._updateCamera(dt);
     this._updateNPCs(dt);
     this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length) this._updateBoosts(dt);
-    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30; for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set(!wide && dx * dx + dz * dz > f * f ? 1 : 0); } }
+    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro; const high = wide && this.rig.position.y - P.y > 80; for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? 1 : 0); } }
     if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     this._perf(dt);
-    if (this.composer && !this._noBloom && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
+    if (this.composer && !this._noBloom && !this._intro && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
   }
 
   _movePlayer(dt) {
@@ -1250,7 +1382,7 @@ export class WVM {
     const hud = this.hud = document.createElement('div'); hud.id = 'wvm-hud';
     hud.innerHTML = `
       <div class="wvm-top">
-        <a class="wvm-brand" href="/" title="World VR Mall home"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall"></a>
+        <a class="wvm-brand" href="/" title="World VR Mall home"><img class="wvm-logo-full" src="/images/world-vr-mall-logo-600.png" alt="World VR Mall"><img class="wvm-logo-mini" src="/images/world-vr-mall-favicon-192.png" alt="World VR Mall"></a>
         <div class="wvm-where">${esc(this.opts.worldName)}</div>
         <div class="wvm-tools">
           <button class="wvm-ico" id="wvm-find" title="Search: find any store or place (F)">🔍</button>
@@ -1291,7 +1423,7 @@ export class WVM {
       </div></div>
       <div id="wvm-fade"></div>
       <div id="wvm-loader"><div class="wvm-tele">
-        <img src="/images/world-vr-mall-logo.png" alt="World VR Mall">
+        <img src="/images/world-vr-mall-logo-600.png" alt="World VR Mall">
         <div class="wvm-machine">
           <div class="wvm-ring wvm-ring-top"></div>
           <div class="wvm-beam"><div class="wvm-beamcol"></div><div class="wvm-beam-lines"></div>
@@ -1338,8 +1470,7 @@ export class WVM {
     const g = new THREE.Group(); g.position.set(x, y, z);
     const c = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.1, 24), new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0xffa500, emissiveIntensity: 0.8, metalness: 0.9, roughness: 0.2 })); c.rotation.x = Math.PI / 2; g.add(c);
     const star = makeSprite('★', { scale: 0.9, bg: 'rgba(0,0,0,0)', fg: '#fff', accent: '#ffd23f' }); star.position.z = 0.07; g.add(star);
-    const light = new THREE.PointLight(0xffd23f, 0.4, 4); if (!isMobile()) g.add(light);
-    this.scene.add(g); const coin = { g, x, z, y, level: opts.level, taken: false }; (this.coinsList = this.coinsList || []).push(coin);
+        this.scene.add(g); const coin = { g, x, z, y, level: opts.level, taken: false }; (this.coinsList = this.coinsList || []).push(coin);
     if (!this._coinUpd) { this._coinUpd = true; this.onUpdate((dt, t) => { const p = this.player.position; for (const k of this.coinsList) { if (k.taken) continue; k.g.rotation.y += dt * 3; k.g.position.y = k.y + Math.sin(t * 3 + k.x) * 0.15; if (k.level !== undefined && k.level !== (this.level || 0)) continue; const dx = p.x - k.x, dz = p.z - k.z; if (dx * dx + dz * dz < 2.2 && Math.abs(p.y - k.y) < 3) { k.taken = true; this.scene.remove(k.g); this.coins = (this.coins || 0) + 1; this._save('wvm_coins', this.coins); this.coinBadge.textContent = this.coins; this.coinBtn.classList.add('bump'); setTimeout(() => this.coinBtn.classList.remove('bump'), 400); this.buzz(20); this.toast(`🪙 ${this.coins} coin${this.coins === 1 ? '' : 's'}` + (this.coins % 10 === 0 ? ' · check the Wall of Fame!' : ''), 1200); } } }); }
     return g;
   }
@@ -1373,11 +1504,11 @@ export class WVM {
     const o = this.mapOpts, mob = isMobile(); const RES = mob ? 1536 : 2048; const half = o.half || (o.size / (2 * o.scale)); const tilt = o.tilt || 0, cosT = Math.cos(tilt); const k = RES / (2 * half);
     const base = document.createElement('canvas'); base.width = base.height = RES; const bg = base.getContext('2d'); bg.fillStyle = '#071233'; bg.fillRect(0, 0, RES, RES);
     const toBase = (x, z) => [RES / 2 + (x - o.cx) * k, RES / 2 + (z - o.cz) * k * cosT]; const fromBase = (px, py) => [(px - RES / 2) / k + o.cx, (py - RES / 2) / (k * cosT) + o.cz];
-    let real = false; this._uncullAll();
-    try { const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.5, 9000); if (tilt) { const D = 3000; cam.position.set(o.cx, D * Math.cos(tilt), o.cz + D * Math.sin(tilt)); cam.up.set(0, 1, 0); } else { cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.far = (o.camY || 900) + 80; } cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
+    let real = false; const ck = 'L' + (this.level || 0), mc = this._mapCache || (this._mapCache = {}); if (mc[ck] && this.t - mc[ck].t < 120 && mc[ck].c.width === RES) { bg.drawImage(mc[ck].c, 0, 0); real = true; } this._uncullAll();
+    if (!real) try { const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.5, 9000); if (tilt) { const D = 3000; cam.position.set(o.cx, D * Math.cos(tilt), o.cz + D * Math.sin(tilt)); cam.up.set(0, 1, 0); } else { cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.far = (o.camY || 900) + 80; } cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
       const rt = new THREE.WebGLRenderTarget(RES, RES); const fog = this.scene.fog, bgd = this.scene.background; this.scene.fog = null; this.scene.background = new THREE.Color(o.bg || 0x0f2a4a); const hidden = []; this.scene.traverse(ob => { if ((ob.userData.mapHide || ob.isSprite) && ob.visible) { ob.visible = false; hidden.push(ob); } });
       this.renderer.setRenderTarget(rt); this.renderer.render(this.scene, cam); this.renderer.setRenderTarget(null); const px = new Uint8Array(RES * RES * 4); this.renderer.readRenderTargetPixels(rt, 0, 0, RES, RES, px); rt.dispose(); this.scene.fog = fog; this.scene.background = bgd; hidden.forEach(h => h.visible = true);
-      const lut = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) lut[v] = Math.min(255, Math.pow(v / 255, 1 / 2.2) * 255 * 1.08 + 10); const img = bg.createImageData(RES, RES), D = img.data; for (let y = 0; y < RES; y++) { const src = (RES - 1 - y) * RES * 4, dst = y * RES * 4; for (let q = 0; q < RES * 4; q += 4) { D[dst + q] = lut[px[src + q]]; D[dst + q + 1] = lut[px[src + q + 1]]; D[dst + q + 2] = lut[px[src + q + 2]]; D[dst + q + 3] = 255; } } bg.putImageData(img, 0, 0); real = true; } catch (err) { console.warn('map snapshot failed, drawing the schematic', err); }
+      const lut = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) lut[v] = Math.min(255, Math.pow(v / 255, 1 / 2.2) * 255 * 1.08 + 10); const img = bg.createImageData(RES, RES), D = img.data; for (let y = 0; y < RES; y++) { const src = (RES - 1 - y) * RES * 4, dst = y * RES * 4; for (let q = 0; q < RES * 4; q += 4) { D[dst + q] = lut[px[src + q]]; D[dst + q + 1] = lut[px[src + q + 1]]; D[dst + q + 2] = lut[px[src + q + 2]]; D[dst + q + 3] = 255; } } bg.putImageData(img, 0, 0); real = true; const c2 = document.createElement('canvas'); c2.width = c2.height = RES; c2.getContext('2d').drawImage(base, 0, 0); mc[ck] = { c: c2, t: this.t }; } catch (err) { console.warn('map snapshot failed, drawing the schematic', err); }
     if (!real) { bg.save(); this.mapDraw(bg, (x, z) => toBase(x, z)); bg.restore(); }
     // far-away halls that are not built until you visit get a tile so the map is never empty
     for (const pl of this.places) { if (!pl.tile || pl.x === undefined) continue; const [tx, ty] = toBase(pl.x, pl.z); const w = pl.tile[0] * k, h = pl.tile[1] * k * cosT; bg.fillStyle = pl.tile[2] || 'rgba(56,240,255,0.25)'; bg.strokeStyle = 'rgba(255,255,255,0.8)'; bg.lineWidth = 3; bg.beginPath(); bg.roundRect(tx - w / 2, ty - h / 2, w, h, 18); bg.fill(); bg.stroke(); }
@@ -1503,6 +1634,8 @@ export class WVM {
       .wvm-brand img{height:34px;display:block;background:#fff;padding:3px 8px;border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.5)}
       .wvm-where{font-weight:700;font-size:13px;letter-spacing:.5px;text-shadow:0 1px 4px #000;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .wvm-tools{display:flex;gap:6px}
+.wvm-brand .wvm-logo-mini{display:none}
+@media (max-width:680px){.wvm-top{align-items:flex-start;gap:6px;padding:6px 6px}.wvm-brand .wvm-logo-full{display:none}.wvm-brand .wvm-logo-mini{display:block;height:38px;padding:2px 3px}.wvm-where{display:none}.wvm-tools{flex:1;flex-wrap:wrap;justify-content:flex-end;gap:5px}.wvm-ico{width:36px;height:36px;font-size:16px;border-radius:10px}}
       .wvm-ico{position:relative;width:40px;height:40px;border-radius:12px;border:1px solid rgba(124,248,255,.35);background:rgba(8,20,50,.7);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
       .wvm-ico span{position:absolute;top:-6px;right:-6px;background:#ff4f79;color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:1px 6px;min-width:12px}
       .wvm-ico.bump{transform:scale(1.2)}

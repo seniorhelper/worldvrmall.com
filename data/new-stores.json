@@ -3,7 +3,7 @@
     "slug": "roof-solutions",
     "name": "Roof Solutions",
     "flag": "🏠",
-    "city": "Charlotte & Raleigh-Durham, NC",
+    "city": "Atlanta, GA",
     "tag": "Roofing",
     "wing": "americas",
     "layout": "agency",
@@ -11,31 +11,144 @@
     "back": "ad",
     "neon": "ROOF SOLUTIONS",
     "url": "https://roofsolutionsnc.com",
-    "cta": "Get a free roof estimate",
-    "phone": "704-668-0707",
+    "cta": "roofsolutionsnc.com · get a free roof estimate",
     "lead": true,
-    "leadIntro": "Tell Roof Solutions about your roof (leak, storm damage, replacement, new build) and a real roofer calls you back. Charlotte: 704 668 0707 · Raleigh-Durham: 919 343 4630.",
-    "about": "Family-owned for 40 years. Industrial, commercial and residential roofing across Charlotte and the Triangle. Repairs, replacements, storm damage, metal, TPO, shingles, and preventive maintenance.",
-    "serpQuery": "commercial roofing contractor charlotte nc",
-    "serp": [["roofsolutionsnc.com", "Roof Solutions — Charlotte & Raleigh Roofing, 40 Years Family-Owned", "Industrial, commercial and residential roofing. Free estimates, storm damage experts, licensed and insured."], ["roofsolutionsnc.com › commercial", "Commercial & Industrial Roofing | TPO, Metal, Flat Roofs", "Warehouses, plants, offices and retail. Maintenance plans that stop leaks before they start."], ["roofsolutionsnc.com › residential", "Residential Roof Replacement & Repair", "Shingle, metal and storm-damage roofing with insurance-claim help."]],
-    "whiteboard": ["ROOF SOLUTIONS", "✓ Free inspection", "✓ Storm-damage claims", "✓ 40 yrs family-owned", "Charlotte 704-668-0707", "Raleigh 919-343-4630"],
-    "colors": { "wall": "#1c2a3a", "floor": "#2b3a4a", "trim": "#f4a300" },
-    "logo": { "text": "ROOF SOLUTIONS", "sub": "Charlotte · Raleigh-Durham · 40 years family-owned", "icon": "🏠", "bg": "#1c2a3a", "fg": "#ffffff", "accent": "#f4a300" },
-    "ads": [
-      { "lines": ["STORM DAMAGE?", "We handle the", "insurance claim"], "bg": "#ffffff", "accent": "#f4a300", "title": "Storm damage roofing", "about": "Hail, wind, fallen limbs. Roof Solutions inspects for free, documents everything, and works with your insurer.", "cta": "Free storm inspection", "url": "https://roofsolutionsnc.com" },
-      { "lines": ["COMMERCIAL ROOFS", "TPO · Metal · Flat", "Maintenance plans"], "bg": "#1c2a3a", "fg": "#ffffff", "accent": "#f4a300", "title": "Commercial & industrial roofing", "about": "Warehouses, plants, offices and retail across the Carolinas. Preventive maintenance that stops leaks before they start.", "cta": "Talk to a commercial roofer", "url": "https://roofsolutionsnc.com" }
+    "leadIntro": "Tell Roof Solutions about your roof (leak, storm damage, replacement, new build) and a real roofer gets back to you.",
+    "about": "Family-owned for 40 years. Industrial, commercial and residential roofing for the Atlanta, Georgia metro. Repairs, replacements, storm restoration, metal, TPO, shingles, coatings and preventive maintenance.",
+    "serpQuery": "commercial roofing contractor atlanta ga",
+    "serp": [
+      [
+        "roofsolutionsnc.com",
+        "Roof Solutions | Industrial, Commercial & Residential Roofing",
+        "Family-owned for 40 years. Free estimates, storm restoration, licensed and insured."
+      ],
+      [
+        "roofsolutionsnc.com › commercial",
+        "Commercial & Industrial Roofing | TPO, Metal, Flat Roofs",
+        "Warehouses, plants, offices and retail. Maintenance plans that stop leaks before they start."
+      ],
+      [
+        "roofsolutionsnc.com › residential",
+        "Residential Roof Replacement & Repair",
+        "Shingle, metal and storm-damage roofing with insurance-claim help."
+      ]
     ],
-    "posters": [["FREE", "ROOF INSPECTION"], ["LICENSED", "& INSURED"]],
+    "whiteboard": [
+      "ROOF SOLUTIONS",
+      "✓ Free inspection",
+      "✓ Storm restoration",
+      "✓ 40 yrs family-owned",
+      "Industrial · Commercial · Residential",
+      "Atlanta, Georgia"
+    ],
+    "colors": {
+      "wall": "#f1f2f4",
+      "floor": "#3a3d42",
+      "trim": "#c8102e"
+    },
+    "logo": {
+      "draw": "roof",
+      "text": "ROOF SOLUTIONS",
+      "sub": "Industrial · Commercial · Residential · Atlanta, GA",
+      "icon": "🏠",
+      "bg": "#f4f5f7",
+      "fg": "#4a4d52",
+      "accent": "#c8102e"
+    },
+    "ads": [
+      {
+        "lines": [
+          "STORM DAMAGE?",
+          "We handle the",
+          "insurance claim"
+        ],
+        "bg": "#ffffff",
+        "accent": "#f4a300",
+        "title": "Storm damage roofing",
+        "about": "Hail, wind, fallen limbs. Roof Solutions inspects for free, documents everything, and works with your insurer.",
+        "cta": "Free storm inspection",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "lines": [
+          "COMMERCIAL ROOFS",
+          "TPO · Metal · Flat",
+          "Maintenance plans"
+        ],
+        "bg": "#1c2a3a",
+        "fg": "#ffffff",
+        "accent": "#f4a300",
+        "title": "Commercial & industrial roofing",
+        "about": "Warehouses, plants, offices and retail across the Atlanta metro. Preventive maintenance that stops leaks before they start.",
+        "cta": "Talk to a commercial roofer",
+        "url": "https://roofsolutionsnc.com"
+      }
+    ],
+    "posters": [
+      [
+        "FREE",
+        "ROOF INSPECTION"
+      ],
+      [
+        "LICENSED",
+        "& INSURED"
+      ]
+    ],
     "pitchLine": "Free estimates · Storm damage · 40 years",
-    "clerk": { "name": "Mike", "shirt": "#f4a300", "lines": ["Roof leaking, or just tired? Either way, the estimate's free.", "Forty years, family-owned. We've seen every roof Charlotte can throw at us.", "Storm came through? Don't sign with the first door-knocker. Call us, we handle the insurance side too.", "Commercial, industrial, residential. Flat, metal, shingle. Yep, that one too."] },
-    "greeting": "Welcome to Roof Solutions! Charlotte or Raleigh-Durham, we've got you covered. Literally.",
+    "clerk": {
+      "name": "Mike",
+      "shirt": "#f4a300",
+      "lines": [
+        "Roof leaking, or just tired? Either way, the estimate's free.",
+        "Forty years, family-owned. We've seen every roof a Georgia summer can throw at us.",
+        "Storm came through? Don't sign with the first door-knocker. Call us, we handle the insurance side too.",
+        "Commercial, industrial, residential. Flat, metal, shingle. Yep, that one too."
+      ]
+    },
+    "greeting": "Welcome to Roof Solutions! Atlanta's industrial, commercial and residential roofers. Look around, then ask for a free estimate.",
     "products": [
-      { "title": "Free Roof Inspection", "icon": "🔎", "price": "Free", "desc": "A roofer looks at the whole roof, photographs problems, and gives you a written estimate. No obligation.", "url": "https://roofsolutionsnc.com" },
-      { "title": "Roof Replacement", "icon": "🏠", "price": "Free quote", "desc": "Architectural shingles, metal, or TPO. Tear-off, decking repair, underlayment, flashing, cleanup. Warrantied.", "url": "https://roofsolutionsnc.com" },
-      { "title": "Storm & Hail Repair", "icon": "⛈️", "price": "Insurance-assisted", "desc": "Emergency tarping, full documentation, and claim help so the repair costs you the deductible, not the roof.", "url": "https://roofsolutionsnc.com" },
-      { "title": "Commercial / Industrial Roofing", "icon": "🏭", "price": "Free site visit", "desc": "TPO, EPDM, modified bitumen, standing-seam metal. Plants, warehouses, offices and retail.", "url": "https://roofsolutionsnc.com" },
-      { "title": "Roof Maintenance Plan", "icon": "🗓️", "price": "Annual plans", "desc": "Scheduled inspections, sealing and gutter checks that add years to a commercial roof.", "url": "https://roofsolutionsnc.com" },
-      { "title": "Gutters & Downspouts", "icon": "🌧️", "price": "Free quote", "desc": "Seamless gutters sized for Carolina downpours, with guards that keep the leaves out.", "url": "https://roofsolutionsnc.com" }
+      {
+        "title": "Free Roof Inspection",
+        "icon": "🔎",
+        "price": "Free",
+        "desc": "A roofer looks at the whole roof, photographs problems, and gives you a written estimate. No obligation.",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "title": "Roof Replacement",
+        "icon": "🏠",
+        "price": "Free quote",
+        "desc": "Architectural shingles, metal, or TPO. Tear-off, decking repair, underlayment, flashing, cleanup. Warrantied.",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "title": "Storm & Hail Repair",
+        "icon": "⛈️",
+        "price": "Insurance-assisted",
+        "desc": "Emergency tarping, full documentation, and claim help so the repair costs you the deductible, not the roof.",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "title": "Commercial / Industrial Roofing",
+        "icon": "🏭",
+        "price": "Free site visit",
+        "desc": "TPO, EPDM, modified bitumen, standing-seam metal. Plants, warehouses, offices and retail.",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "title": "Roof Maintenance Plan",
+        "icon": "🗓️",
+        "price": "Annual plans",
+        "desc": "Scheduled inspections, sealing and gutter checks that add years to a commercial roof.",
+        "url": "https://roofsolutionsnc.com"
+      },
+      {
+        "title": "Gutters & Downspouts",
+        "icon": "🌧️",
+        "price": "Free quote",
+        "desc": "Seamless gutters sized for Georgia downpours, with guards that keep the leaves out.",
+        "url": "https://roofsolutionsnc.com"
+      }
     ]
   },
   {
@@ -56,38 +169,158 @@
     "about": "Braces and Invisalign for kids, teens and adults in Brighton, Colorado. Free consultations, flexible payment plans, and the famous Smile Games that make visits something kids actually look forward to.",
     "mascotTitle": "Say hi to Molar 🦷",
     "mascotLine": "Brush twice, floss once, and wear your retainer. Do that and Dr. Rex and I are basically best friends.",
-    "colors": { "wall": "#123a5a", "floor": "#eef3fb", "trim": "#38f0ff" },
-    "logo": { "text": "DR. REX JOHNSON", "sub": "Orthodontics · Brighton, CO · Braces & Invisalign", "icon": "😁", "bg": "#123a5a", "fg": "#ffffff", "accent": "#38f0ff" },
-    "posters": [["FREE", "CONSULTATION"], ["SMILE GAMES", "Kids win prizes"]],
+    "colors": {
+      "wall": "#123a5a",
+      "floor": "#eef3fb",
+      "trim": "#38f0ff"
+    },
+    "logo": {
+      "text": "DR. REX JOHNSON",
+      "sub": "Orthodontics · Brighton, CO · Braces & Invisalign",
+      "icon": "😁",
+      "bg": "#123a5a",
+      "fg": "#ffffff",
+      "accent": "#38f0ff"
+    },
+    "posters": [
+      [
+        "FREE",
+        "CONSULTATION"
+      ],
+      [
+        "SMILE GAMES",
+        "Kids win prizes"
+      ]
+    ],
     "pitchLine": "Braces · Invisalign · Free consult",
-    "clerk": { "name": "Jen", "shirt": "#38f0ff", "lines": ["First visit's free. We'll look, we'll talk, nobody gets a bill.", "Kids, teens, adults. Braces or Invisalign, whichever fits your life.", "Ask about the Smile Games. Points for brushing, prizes for showing up. Yes, really.", "Payment plans that fit a family budget. We'd rather fix the smile than argue about money."] },
+    "clerk": {
+      "name": "Jen",
+      "shirt": "#38f0ff",
+      "lines": [
+        "First visit's free. We'll look, we'll talk, nobody gets a bill.",
+        "Kids, teens, adults. Braces or Invisalign, whichever fits your life.",
+        "Ask about the Smile Games. Points for brushing, prizes for showing up. Yes, really.",
+        "Payment plans that fit a family budget. We'd rather fix the smile than argue about money."
+      ]
+    },
     "greeting": "Welcome to Dr. Rex Johnson Orthodontics! Come meet Molar and check out the Smile Games.",
     "products": [
-      { "title": "Free Consultation", "icon": "🩺", "price": "Free", "desc": "Exam, photos and a plan for the smile. No cost, no pressure.", "url": "https://brightonorthodontist.com" },
-      { "title": "Braces (Kids & Teens)", "icon": "😬", "price": "Payment plans", "desc": "Modern metal or clear brackets, color bands the kids pick themselves.", "url": "https://brightonorthodontist.com" },
-      { "title": "Invisalign", "icon": "✨", "price": "Payment plans", "desc": "Clear aligners for teens and adults. Nearly invisible, removable for meals and photos.", "url": "https://brightonorthodontist.com" },
-      { "title": "Adult Orthodontics", "icon": "😊", "price": "Free consult", "desc": "It's never too late. Discreet options that fit a working life.", "url": "https://brightonorthodontist.com" },
-      { "title": "Smile Games", "icon": "🏆", "price": "Free for patients", "desc": "Earn points for brushing, on-time visits and good checkups. Trade them for prizes.", "url": "https://brightonorthodontist.com" },
-      { "title": "Retainers", "icon": "🦷", "price": "Ask us", "desc": "Keep the new smile exactly where it is. Replacements and check-ins.", "url": "https://brightonorthodontist.com" }
+      {
+        "title": "Free Consultation",
+        "icon": "🩺",
+        "price": "Free",
+        "desc": "Exam, photos and a plan for the smile. No cost, no pressure.",
+        "url": "https://brightonorthodontist.com"
+      },
+      {
+        "title": "Braces (Kids & Teens)",
+        "icon": "😬",
+        "price": "Payment plans",
+        "desc": "Modern metal or clear brackets, color bands the kids pick themselves.",
+        "url": "https://brightonorthodontist.com"
+      },
+      {
+        "title": "Invisalign",
+        "icon": "✨",
+        "price": "Payment plans",
+        "desc": "Clear aligners for teens and adults. Nearly invisible, removable for meals and photos.",
+        "url": "https://brightonorthodontist.com"
+      },
+      {
+        "title": "Adult Orthodontics",
+        "icon": "😊",
+        "price": "Free consult",
+        "desc": "It's never too late. Discreet options that fit a working life.",
+        "url": "https://brightonorthodontist.com"
+      },
+      {
+        "title": "Smile Games",
+        "icon": "🏆",
+        "price": "Free for patients",
+        "desc": "Earn points for brushing, on-time visits and good checkups. Trade them for prizes.",
+        "url": "https://brightonorthodontist.com"
+      },
+      {
+        "title": "Retainers",
+        "icon": "🦷",
+        "price": "Ask us",
+        "desc": "Keep the new smile exactly where it is. Replacements and check-ins.",
+        "url": "https://brightonorthodontist.com"
+      }
     ]
   },
   {
     "slug": "rewind",
-    "name": "Rewind",
-    "flag": "⏪",
-    "city": "TBD",
-    "tag": "Shop",
+    "name": "Rewind Med Spa",
+    "flag": "✨",
+    "city": "Colorado",
+    "tag": "Med Spa",
     "wing": "americas",
-    "layout": "boutique",
-    "back": "mural",
+    "layout": "clinic",
+    "back": "art",
     "neon": "REWIND",
-    "url": "",
-    "cta": "Visit Rewind",
-    "about": "Rewind — details coming. Zach: send me the website, city, what they sell, phone, and I'll finish this one in two minutes.",
-    "colors": { "wall": "#2a1a4a", "floor": "#1e1436", "trim": "#ff4fd8" },
-    "logo": { "text": "REWIND", "sub": "Coming soon", "icon": "⏪", "bg": "#2a1a4a", "fg": "#ffffff", "accent": "#ff4fd8" },
-    "clerk": { "name": "Sam", "shirt": "#ff4fd8", "lines": ["Rewind is moving in. Grand opening soon.", "Come back in a day or two, the shelves are on the truck."] },
-    "greeting": "Welcome to Rewind! We're still unpacking. Look around anyway.",
-    "products": []
+    "url": "https://rewindthehandsoftime.com/",
+    "cta": "Book online · rewindthehandsoftime.com",
+    "phone": "303-222-0081",
+    "about": "Rewind Med Spa. Rewinding the hands of time: aesthetic services and wellness services under one roof. Pricing is on the booking link, and you can book an appointment online or call 303-222-0081.",
+    "colors": {
+      "wall": "#e4e4e2",
+      "floor": "#f6f4ee",
+      "trim": "#e0b400"
+    },
+    "logo": {
+      "draw": "rewind",
+      "text": "Rewind",
+      "sub": "MED SPA",
+      "icon": "✨",
+      "bg": "#e2e2e0",
+      "fg": "#e0b400",
+      "accent": "#e0b400"
+    },
+    "posters": [
+      [
+        "REWINDING",
+        "the hands of time"
+      ],
+      [
+        "BOOK ONLINE",
+        "303-222-0081"
+      ]
+    ],
+    "pitchLine": "Aesthetic services · Wellness services · Book online",
+    "clerk": {
+      "name": "Ava",
+      "shirt": "#e0b400",
+      "lines": [
+        "Welcome to Rewind Med Spa. Rewinding the hands of time is what we do.",
+        "Aesthetic services on one side, wellness services on the other. The website has the full menu.",
+        "Pricing is on the booking link, so there are no surprises.",
+        "Book online any time, or call 303-222-0081."
+      ]
+    },
+    "greeting": "Welcome to Rewind Med Spa. Unlock your true potential.",
+    "products": [
+      {
+        "title": "Aesthetic Services",
+        "icon": "✨",
+        "price": "See menu",
+        "desc": "The full aesthetic services menu is on the Rewind Med Spa website.",
+        "url": "https://rewindthehandsoftime.com/"
+      },
+      {
+        "title": "Wellness Services",
+        "icon": "🌿",
+        "price": "See menu",
+        "desc": "Wellness services to help you feel as good as you look. Details on the website.",
+        "url": "https://rewindthehandsoftime.com/"
+      },
+      {
+        "title": "Book an Appointment",
+        "icon": "📅",
+        "price": "Pricing on booking link",
+        "desc": "Book online in a couple of minutes, or call 303-222-0081.",
+        "url": "https://rewindthehandsoftime.com/"
+      }
+    ]
   }
 ]
