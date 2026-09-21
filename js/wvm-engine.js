@@ -63,7 +63,12 @@ export const SKIES = {
 export const isNightNow = () => { const h = new Date().getHours(); return h >= 18 || h < 6; };
 
 /* A canvas-text texture for signs, banners, price tags, labels. */
+const _ttCache = new Map();
 export function makeTextTexture(lines, opts = {}) {
+  let _ck = null; try { _ck = JSON.stringify([lines, opts]); } catch (err) { } if (_ck && _ck.length < 600 && _ttCache.has(_ck)) return _ttCache.get(_ck);
+  const _tex = _makeTextTexture(lines, opts); if (_ck && _ck.length < 600) _ttCache.set(_ck, _tex); return _tex;
+}
+function _makeTextTexture(lines, opts = {}) {
   const {
     w = 1024, h = 512, bg = '#0b1a3a', fg = '#ffffff', accent = '#38f0ff',
     font = 'bold 72px Poppins, Segoe UI, Arial, sans-serif', pad = 40, radius = 40,
@@ -534,7 +539,7 @@ export function makeEarth(radius = 5, o = {}) {
   return g;
 }
 /* The planet seen from orbit, projected onto a flat disc texture (for the Earth far below the floating island). */
-export function earthDiscTexture(size = isMobile() ? 512 : 1024, lat0 = 24, lon0 = -48) {
+export function earthDiscTexture(size = isMobile() ? 512 : 768, lat0 = 24, lon0 = -48) {
   const src = earthCanvas(); const sw = src.width, sh = src.height; const sd = src.getContext('2d').getImageData(0, 0, sw, sh).data;
   const cl = cloudTexture().image; const cw = cl.width, chh = cl.height; const cd = cl.getContext('2d').getImageData(0, 0, cw, chh).data;
   const c = document.createElement('canvas'); c.width = c.height = size; const g = c.getContext('2d'); const img = g.createImageData(size, size), D = img.data;
@@ -681,7 +686,6 @@ export class WVM {
     this.bag = this._load('wvm_bag', []); this._renderBag(); this.coins = this._load('wvm_coins', 0); this.coinBadge.textContent = this.coins;
     const savedPet = (this._load('wvm_avatar', {}) || {}).pet; if (savedPet && savedPet !== 'none') setTimeout(() => this.setPet(savedPet), 500);
     if (!o.shadows) { const c = document.createElement('canvas'); c.width = c.height = 64; const q = c.getContext('2d'); const gr = q.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(0,0,0,0.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = gr; q.fillRect(0, 0, 64, 64); const blob = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })); blob.rotation.x = -Math.PI / 2; blob.renderOrder = 1; blob.userData.noCull = true; scene.add(blob); this.onUpdate(() => { const p = this.player.position; blob.visible = !this.ride && this.dist > 0.6 && !(this._sw && this._sw.on); blob.position.set(p.x, p.y + 0.05, p.z); const s = this.vehicle ? 2.2 : 1; blob.scale.set(s, s, 1); }); }
-    { const vg = document.createElement('div'); vg.id = 'wvm-vignette'; vg.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 58%,rgba(6,12,34,.30) 100%)'; this.stage.appendChild(vg); }
     // shadow camera follows the player so shadows stay sharp where you are
     this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; const tx = (o.shadowRange * 2) / o.shadowSize * 4; const sx = Math.round(p.x / tx) * tx, sz = Math.round(p.z / tx) * tx; this.sun.position.set(sx - 120, 140 + p.y, sz - 160); this.sun.target.position.set(sx, p.y, sz); this.sun.target.updateMatrixWorld(); });
   }
@@ -938,7 +942,7 @@ export class WVM {
     this.pop.querySelector('h3').textContent = title;
     this.pop.querySelector('.wvm-pop-body').innerHTML = html;
     const ab = this.pop.querySelector('.wvm-pop-actions'); ab.innerHTML = '';
-    for (const a of actions) { const b = document.createElement('button'); b.className = 'wvm-btn' + (a.primary ? ' primary' : ''); b.textContent = a.label; b.onclick = () => { if (a.href) { if (/^(tel|sms|mailto):/i.test(a.href)) location.href = a.href; else if (a.newTab || /^https?:/i.test(a.href) && !a.href.includes(location.host)) window.open(a.href, '_blank', 'noopener'); else this.go(a.href, a.label); } else if (a.fn) a.fn(); if (!a.keep) this.closePopup(); }; ab.appendChild(b); }
+    for (const a of actions) { const b = document.createElement('button'); b.className = 'wvm-btn' + (a.primary ? ' primary' : ''); b.textContent = a.label; b.onclick = () => { if (!a.keep) this.closePopup(); if (a.href) { if (/^(tel|sms|mailto):/i.test(a.href)) location.href = a.href; else if (a.newTab || /^https?:/i.test(a.href) && !a.href.includes(location.host)) window.open(a.href, '_blank', 'noopener'); else this.go(a.href, a.label); } else if (a.fn) a.fn(); }; ab.appendChild(b); }
     const close = document.createElement('button'); close.className = 'wvm-btn ghost'; close.textContent = 'Close'; close.onclick = () => this.closePopup(); ab.appendChild(close);
     this.pop.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open');
   }
@@ -981,13 +985,13 @@ export class WVM {
     this._progress(0.08);
     const done = () => {
       clearInterval(tick); this._progress(1); this.loader.classList.add('beam');
-      setTimeout(() => { this.loader.classList.add('off'); this._maybeSelfie(); }, 650);
+      setTimeout(() => { this.loader.classList.add('off'); this._maybeSelfie(); }, 380);
     };
     Promise.resolve(buildFn(this)).then(() => {
       this.fixBackwards(); this._deepLink();
       if (this.opts.shadows) this.enableShadows(this.scene);
       this._progress(0.9);
-      return this._warm().then(() => setTimeout(done, 500));
+      return this._warm().then(() => setTimeout(done, 80));
     }).catch(err => { console.error(err); clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Build error: <code style="font-size:12px;color:#c00">' + esc(err && err.message ? err.message : String(err)) + '</code><br><small>' + esc((err && err.stack ? err.stack.split('\n')[1] : '') || '') + '</small><br>Screenshot this and send it to Zach.'; });
     addEventListener('error', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Script error: <code style="font-size:12px;color:#c00">' + esc(ev.message || '') + '</code><br><small>' + esc((ev.filename || '').split('/').pop() + ':' + ev.lineno) + '</small>'; } });
     addEventListener('unhandledrejection', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Load error: <code style="font-size:12px;color:#c00">' + esc(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)) + '</code>'; } });
@@ -999,9 +1003,9 @@ export class WVM {
     if (isMobile() || this.opts.warm === false) return;
     try {
       this.loadMsg.textContent = 'Polishing every window…';
-      if (this.renderer.compileAsync) await Promise.race([this.renderer.compileAsync(this.scene, this.camera), new Promise(r => setTimeout(r, 7000))]);
+      if (this.renderer.compileAsync) await Promise.race([this.renderer.compileAsync(this.scene, this.camera), new Promise(r => setTimeout(r, 2200))]);
       const seen = new Set(); this.scene.traverse(o => { for (const m of [].concat(o.material || [])) for (const k of ['map', 'emissiveMap', 'alphaMap']) { const tx = m && m[k]; if (tx && tx.isTexture && !tx.isVideoTexture && tx.image && tx.image.complete !== false && (tx.image.width || 0) > 0) seen.add(tx); } });
-      let n = 0; const t0 = performance.now(); for (const tx of seen) { if (n > 500 || performance.now() - t0 > 6000) break; try { this.renderer.initTexture(tx); } catch (e) { } if (++n % 16 === 0) { this._progress(0.9 + 0.09 * n / Math.max(1, seen.size)); await new Promise(r => setTimeout(r, 0)); } }
+      let n = 0; const t0 = performance.now(); for (const tx of seen) { if (n > 160 || performance.now() - t0 > 1200) break; try { this.renderer.initTexture(tx); } catch (e) { } if (++n % 16 === 0) { this._progress(0.9 + 0.09 * n / Math.max(1, seen.size)); await new Promise(r => setTimeout(r, 0)); } }
     } catch (e) { console.warn('warm-up skipped', e); }
   }
   /* Turn on shadows for everything already in the scene (pages built for v4 never set the flags).
@@ -1182,7 +1186,7 @@ export class WVM {
     if (Q.f === 1 && !isMobile()) { Q.lvl = 1; this._noBloom = true; }
     if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % (Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) === 0) this.renderer.shadowMap.needsUpdate = true; }
     const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
-    if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
+    if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && !this._holdQ && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
     if (this.t - Q.cullT > (this._intro ? 0.15 : 0.5)) { Q.cullT = this.t; this._cull(Q); }
   }
   _applyQ(Q) { const ratios = [1, 1, 0.85, 0.72, 0.62, 0.55]; this._noBloom = Q.lvl >= 1; const pr = Math.max(0.6, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
@@ -1261,7 +1265,7 @@ export class WVM {
     if (this.renderer.xr.isPresenting) { this.rig.position.copy(this.player.position); this.rig.rotation.y = this.yaw; return; }
     this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6;
-    this.avatar.visible = !first;
+    this.avatar.visible = !first && !this._intro;
     const p = this.player.position;
     const eye = new THREE.Vector3(p.x, p.y + 1.65, p.z);
     if (first) {
@@ -1282,7 +1286,7 @@ export class WVM {
       // zoomed way out = world view: push the fog back so the whole map stays visible
       const far = this.dist > 30; if (far !== this._farMode) { this._farMode = far; this.setFar(far); if (!this._air) { this.scene.fog.near = far ? this.opts.fogFar * 2 : this.opts.fogNear; this.scene.fog.far = far ? this.opts.fogFar * 6 : this.opts.fogFar; } }
       this.rig.position.copy(camPos); this.rig.rotation.set(0, 0, 0); this.camera.position.set(0, 0, 0);
-      this.rig.updateMatrixWorld(); this.camera.lookAt(eye);
+      this.rig.updateMatrixWorld(); this.camera.lookAt(eye); if (this.roll) this.camera.rotateZ(this.roll);
     }
   }
 
@@ -1545,26 +1549,33 @@ export class WVM {
   setMap(drawFn, opts = {}) { this.mapDraw = drawFn; this.mapOpts = Object.assign({ scale: 0.5, cx: 0, cz: 0, size: 720 }, opts); }
   /* v15 world map: full screen, pinch/scroll to zoom, drag to pan, a tilted 3D snapshot of the real world (buildings stand up, nothing is flat),
      labels that never stack (they thin out when zoomed out and fill in as you zoom), and a tappable list of every attraction beside it. */
+  _mapSnap(o, half, tilt, rect, W, H) {
+    try { const R = rect || { l: -half, r: half, t: half, b: -half }; const cam = new THREE.OrthographicCamera(R.l, R.r, R.t, R.b, 0.5, 9000); if (tilt) { const D = 3000; cam.position.set(o.cx, D * Math.cos(tilt), o.cz + D * Math.sin(tilt)); cam.up.set(0, 1, 0); } else { cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.far = (o.camY || 900) + 80; } cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
+      const rt = new THREE.WebGLRenderTarget(W, H); const fog = this.scene.fog, bgd = this.scene.background; this.scene.fog = null; this.scene.background = new THREE.Color(o.bg || 0x0f2a4a); const hidden = []; this.scene.traverse(ob => { if ((ob.userData.mapHide || ob.isSprite) && ob.visible) { ob.visible = false; hidden.push(ob); } });
+      this.renderer.setRenderTarget(rt); this.renderer.render(this.scene, cam); this.renderer.setRenderTarget(null); const px = new Uint8Array(W * H * 4); this.renderer.readRenderTargetPixels(rt, 0, 0, W, H, px); rt.dispose(); this.scene.fog = fog; this.scene.background = bgd; hidden.forEach(h => h.visible = true);
+      const c = document.createElement('canvas'); c.width = W; c.height = H; const g2 = c.getContext('2d'); const lut = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) lut[v] = Math.min(255, Math.pow(v / 255, 1 / 2.2) * 255 * 1.12 + 14); const img = g2.createImageData(W, H), D = img.data; for (let y = 0; y < H; y++) { const src = (H - 1 - y) * W * 4, dst = y * W * 4; for (let q = 0; q < W * 4; q += 4) { D[dst + q] = lut[px[src + q]]; D[dst + q + 1] = lut[px[src + q + 1]]; D[dst + q + 2] = lut[px[src + q + 2]]; D[dst + q + 3] = 255; } } g2.putImageData(img, 0, 0); return c;
+    } catch (err) { console.warn('map snapshot failed', err); return null; }
+  }
   showMap() {
     if (!this.mapDraw) { this.toast('No map for this area yet'); return; }
     const o = this.mapOpts, mob = isMobile(); const RES = mob ? 1536 : 2048; const half = o.half || (o.size / (2 * o.scale)); const tilt = o.tilt || 0, cosT = Math.cos(tilt); const k = RES / (2 * half);
     const base = document.createElement('canvas'); base.width = base.height = RES; const bg = base.getContext('2d'); bg.fillStyle = '#071233'; bg.fillRect(0, 0, RES, RES);
     const toBase = (x, z) => [RES / 2 + (x - o.cx) * k, RES / 2 + (z - o.cz) * k * cosT]; const fromBase = (px, py) => [(px - RES / 2) / k + o.cx, (py - RES / 2) / (k * cosT) + o.cz];
     let real = false; const ck = 'L' + (this.level || 0), mc = this._mapCache || (this._mapCache = {}); if (mc[ck] && this.t - mc[ck].t < 120 && mc[ck].c.width === RES) { bg.drawImage(mc[ck].c, 0, 0); real = true; } this._uncullAll();
-    if (!real) try { const cam = new THREE.OrthographicCamera(-half, half, half, -half, 0.5, 9000); if (tilt) { const D = 3000; cam.position.set(o.cx, D * Math.cos(tilt), o.cz + D * Math.sin(tilt)); cam.up.set(0, 1, 0); } else { cam.position.set(o.cx, o.camY || 900, o.cz); cam.up.set(0, 0, -1); cam.far = (o.camY || 900) + 80; } cam.lookAt(o.cx, 0, o.cz); cam.updateProjectionMatrix();
-      const rt = new THREE.WebGLRenderTarget(RES, RES); const fog = this.scene.fog, bgd = this.scene.background; this.scene.fog = null; this.scene.background = new THREE.Color(o.bg || 0x0f2a4a); const hidden = []; this.scene.traverse(ob => { if ((ob.userData.mapHide || ob.isSprite) && ob.visible) { ob.visible = false; hidden.push(ob); } });
-      this.renderer.setRenderTarget(rt); this.renderer.render(this.scene, cam); this.renderer.setRenderTarget(null); const px = new Uint8Array(RES * RES * 4); this.renderer.readRenderTargetPixels(rt, 0, 0, RES, RES, px); rt.dispose(); this.scene.fog = fog; this.scene.background = bgd; hidden.forEach(h => h.visible = true);
-      const lut = new Uint8ClampedArray(256); for (let v = 0; v < 256; v++) lut[v] = Math.min(255, Math.pow(v / 255, 1 / 2.2) * 255 * 1.08 + 10); const img = bg.createImageData(RES, RES), D = img.data; for (let y = 0; y < RES; y++) { const src = (RES - 1 - y) * RES * 4, dst = y * RES * 4; for (let q = 0; q < RES * 4; q += 4) { D[dst + q] = lut[px[src + q]]; D[dst + q + 1] = lut[px[src + q + 1]]; D[dst + q + 2] = lut[px[src + q + 2]]; D[dst + q + 3] = 255; } } bg.putImageData(img, 0, 0); real = true; const c2 = document.createElement('canvas'); c2.width = c2.height = RES; c2.getContext('2d').drawImage(base, 0, 0); mc[ck] = { c: c2, t: this.t }; } catch (err) { console.warn('map snapshot failed, drawing the schematic', err); }
+    if (!real) { const c0 = this._mapSnap(o, half, tilt, null, RES, RES); if (c0) { bg.drawImage(c0, 0, 0); real = true; mc[ck] = { c: c0, t: this.t }; } }
     if (!real) { bg.save(); this.mapDraw(bg, (x, z) => toBase(x, z)); bg.restore(); }
-    // far-away halls that are not built until you visit get a tile so the map is never empty
-    for (const pl of this.places) { if (!pl.tile || pl.x === undefined) continue; const [tx, ty] = toBase(pl.x, pl.z); const w = pl.tile[0] * k, h = pl.tile[1] * k * cosT; bg.fillStyle = pl.tile[2] || 'rgba(56,240,255,0.25)'; bg.strokeStyle = 'rgba(255,255,255,0.8)'; bg.lineWidth = 3; bg.beginPath(); bg.roundRect(tx - w / 2, ty - h / 2, w, h, 18); bg.fill(); bg.stroke(); }
-    const wrap = document.createElement('div'); wrap.id = 'wvm-bigmap'; wrap.innerHTML = '<div class="wvm-bm-head"><b>🗺️ ' + esc(o.title || 'Map') + '</b><span class="muted">pinch or scroll to zoom · drag to move · tap a pin</span><div><button class="wvm-btn small" data-z="1">＋</button><button class="wvm-btn small" data-z="-1">－</button><button class="wvm-btn small" data-z="0">⤢ Fit</button><button class="wvm-btn small" data-me="1">📍 Me</button><button class="wvm-btn small wvm-bm-toggle" data-list="1">📋 Places</button><button class="wvm-x">✕</button></div></div><div class="wvm-bm-body"><canvas></canvas><div class="wvm-bm-list"></div></div>'; this.hud.appendChild(wrap); this.paused = true; document.body.classList.add('wvm-modal-open');
+    const tiles = this.places.filter(pl => pl.tile && pl.x !== undefined && (pl.level || 0) === (this.level || 0));
+    const wrap = document.createElement('div'); wrap.id = 'wvm-bigmap'; wrap.innerHTML = '<div class="wvm-bm-head"><b>🗺️ ' + esc(o.title || 'Map') + '</b><span class="muted">pinch or scroll to zoom · drag to move · tap a pin</span><div><button class="wvm-btn small" data-z="1">＋</button><button class="wvm-btn small" data-z="-1">－</button><button class="wvm-btn small" data-z="0">⤢ Fit</button><button class="wvm-btn small" data-me="1">📍 Me</button><button class="wvm-btn small wvm-bm-toggle" data-list="1">📋 Places</button><button class="wvm-x">✕</button></div></div><div class="wvm-bm-chips"></div><div class="wvm-bm-body"><canvas></canvas><div class="wvm-bm-list"></div><div class="wvm-bm-go"></div></div>'; this.hud.appendChild(wrap); this.paused = true; document.body.classList.add('wvm-modal-open');
     const cv = wrap.querySelector('canvas'), g = cv.getContext('2d'), list = wrap.querySelector('.wvm-bm-list'); let vw = 0, vh = 0, zoom = 1, ox = 0, oy = 0, fit = 1; const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const close = () => { wrap.remove(); this.paused = false; document.body.classList.remove('wvm-modal-open'); removeEventListener('resize', size); }; wrap.querySelector('.wvm-x').onclick = close;
+    const close = () => { clearInterval(pulse); clearTimeout(hiT); wrap.remove(); this.paused = false; document.body.classList.remove('wvm-modal-open'); removeEventListener('resize', size); }; wrap.querySelector('.wvm-x').onclick = close;
     const lv = this.level || 0; const here = this.places.filter(p => p.x !== undefined && !p.url && p.pin !== false && (p.level || 0) === lv && (!p.fn || p.tile)); const sorted = here.slice().sort((a, b) => (b.top ? 1 : 0) - (a.top ? 1 : 0) || (a.rank || 0) - (b.rank || 0));
     const clampView = () => { const s = fit * zoom, W = RES * s; ox = W <= vw ? (vw - W) / 2 : Math.min(0, Math.max(vw - W, ox)); oy = W <= vh ? (vh - W) / 2 : Math.min(0, Math.max(vh - W, oy)); };
-    let boxes = [];
-    const draw = () => { const s = fit * zoom; g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#050b1c'; g.fillRect(0, 0, vw, vh); g.imageSmoothingEnabled = true; g.drawImage(base, ox, oy, RES * s, RES * s); boxes = []; g.textBaseline = 'middle';
+    let boxes = [], hi = null, hiT = 0, picked = null, pulse = 0;
+    const sharpen = () => { clearTimeout(hiT); hiT = setTimeout(() => { if (!document.body.contains(wrap) || zoom < 2.2) { if (hi && zoom < 2.2) { hi = null; draw(); } return; } const s = fit * zoom; const x0 = clamp(-ox / s, 0, RES), y0 = clamp(-oy / s, 0, RES), x1 = clamp((vw - ox) / s, 0, RES), y1 = clamp((vh - oy) / s, 0, RES); if (x1 - x0 < 4 || y1 - y0 < 4) return; const W = Math.min(mob ? 1024 : 1792, Math.round(vw * dpr)), H = Math.max(64, Math.round(W * (y1 - y0) / (x1 - x0))); const c = this._mapSnap(o, half, tilt, { l: (x0 - RES / 2) / k, r: (x1 - RES / 2) / k, t: -(y0 - RES / 2) / k, b: -(y1 - RES / 2) / k }, W, Math.min(2048, H)); if (c) { hi = { c, x0, y0, x1, y1 }; draw(); } }, 320); };
+    const goBar = wrap.querySelector('.wvm-bm-go'); const pick1 = (pl) => { picked = pl; goBar.innerHTML = '<span style="font-size:20px">' + (pl.icon || '📍') + '</span><b>' + esc(pl.name.split(' · ')[0]) + '</b><button class="wvm-btn primary small">Go ➜</button><button class="wvm-btn small" data-c="1">✕</button>'; goBar.classList.add('on'); goBar.querySelector('.primary').onclick = () => { close(); setTimeout(() => this.travel(pl), 60); }; goBar.querySelector('[data-c]').onclick = () => { picked = null; goBar.classList.remove('on'); clearInterval(pulse); draw(); }; clearInterval(pulse); pulse = setInterval(() => { if (!document.body.contains(wrap)) { clearInterval(pulse); return; } draw(); }, 60); };
+    const draw = () => { const s = fit * zoom; g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#050b1c'; g.fillRect(0, 0, vw, vh); g.imageSmoothingEnabled = true; g.drawImage(base, ox, oy, RES * s, RES * s); if (hi) g.drawImage(hi.c, ox + hi.x0 * s, oy + hi.y0 * s, (hi.x1 - hi.x0) * s, (hi.y1 - hi.y0) * s); boxes = []; g.textBaseline = 'middle';
+      for (const pl of tiles) { const [tx, ty] = toBase(pl.x, pl.z); const w = pl.tile[0] * k * s, h = pl.tile[1] * k * cosT * s, X = ox + tx * s, Y = oy + ty * s; if (X + w / 2 < 0 || Y + h / 2 < 0 || X - w / 2 > vw || Y - h / 2 > vh) continue; g.fillStyle = pl.tile[2] || 'rgba(56,240,255,0.25)'; g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = 2; g.beginPath(); g.roundRect(X - w / 2, Y - h / 2, w, h, Math.min(14, w / 6)); g.fill(); g.stroke(); if (w > 70) { g.font = 'bold ' + Math.max(11, Math.min(20, w / 11)) + 'px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,0.92)'; g.fillText((pl.icon || '') + ' ' + pl.name.split(' · ')[0], X, Y + h / 2 - 14); } }
+      if (picked && picked.x !== undefined) { const [bx, by] = toBase(picked.x, picked.z); const X = ox + bx * s, Y = oy + by * s, q = (performance.now() / 900) % 1; g.beginPath(); g.arc(X, Y, 16 + q * 14, 0, 6.28); g.strokeStyle = 'rgba(124,255,107,' + (1 - q) + ')'; g.lineWidth = 4; g.stroke(); g.beginPath(); g.arc(X, Y, 15, 0, 6.28); g.strokeStyle = '#7cff6b'; g.lineWidth = 3; g.stroke(); }
       const P = this.player.position, [mx, my] = toBase(P.x, P.z); const ux = ox + mx * s, uy = oy + my * s; 
       for (const pl of sorted) { const [bx, by] = toBase(pl.x, pl.z); const x = ox + bx * s, y = oy + by * s; if (x < -20 || y < -20 || x > vw + 20 || y > vh + 20) continue; const label = (pl.name.split(' · ')[0]); g.font = 'bold ' + (pl.top ? 13 : 12) + 'px Poppins, Segoe UI, Arial'; const tw = g.measureText(label).width; const bw = tw + 38, bh = 26; const rect = [x - 14, y - bh / 2, bw, bh];
         const hit = boxes.some(b => rect[0] < b[0] + b[2] + 4 && rect[0] + rect[2] + 4 > b[0] && rect[1] < b[1] + b[3] + 3 && rect[1] + rect[3] + 3 > b[1]);
@@ -1572,15 +1583,17 @@ export class WVM {
         g.fillStyle = pl.top ? 'rgba(255,255,255,0.96)' : 'rgba(8,20,50,0.88)'; g.strokeStyle = pl.top ? '#ff4f79' : 'rgba(124,248,255,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(rect[0], rect[1], bw, bh, 13); g.fill(); g.stroke(); g.textAlign = 'center'; g.font = '15px Segoe UI Emoji, Apple Color Emoji, Arial'; g.fillStyle = '#000'; g.fillText(pl.icon || '📍', x, y + 1); g.textAlign = 'left'; g.font = 'bold ' + (pl.top ? 13 : 12) + 'px Poppins, Segoe UI, Arial'; g.fillStyle = pl.top ? '#0b1a3a' : '#fff'; g.fillText(label, x + 14, y + 1); boxes.push([rect[0], rect[1], bw, bh, pl, false, x, y]); }
       g.beginPath(); g.arc(ux, uy, 9, 0, 6.28); g.fillStyle = '#2f6bff'; g.fill(); g.lineWidth = 3; g.strokeStyle = '#fff'; g.stroke(); const d = -this.yaw; g.beginPath(); g.moveTo(ux, uy); g.lineTo(ux + Math.sin(d) * 24, uy - Math.cos(d) * 24 * cosT); g.strokeStyle = '#2f6bff'; g.lineWidth = 4; g.stroke(); g.font = 'bold 12px Poppins, Arial'; g.fillStyle = '#fff'; g.textAlign = 'left'; g.fillText('YOU', ux + 12, uy - 12); };
     const size = () => { const r = cv.parentElement.getBoundingClientRect(); const lw = list.getBoundingClientRect(); const side = r.width > 760; vw = Math.max(200, side ? r.width - lw.width : r.width); vh = Math.max(200, r.height); cv.style.width = vw + 'px'; cv.style.height = vh + 'px'; cv.width = vw * dpr; cv.height = vh * dpr; fit = (side ? Math.min(vw, vh) : Math.max(vw, vh)) / RES; clampView(); draw(); };
-    const zoomAt = (f, cx, cy) => { const s0 = fit * zoom; zoom = clamp(zoom * f, 1, 9); const s1 = fit * zoom; ox = cx - (cx - ox) * s1 / s0; oy = cy - (cy - oy) * s1 / s0; clampView(); draw(); };
-    const focus = (x, z, zm) => { zoom = Math.max(zoom, zm); const s = fit * zoom, [bx, by] = toBase(x, z); ox = vw / 2 - bx * s; oy = vh / 2 - by * s; clampView(); draw(); };
+    const zoomAt = (f, cx, cy) => { sharpen(); const s0 = fit * zoom; zoom = clamp(zoom * f, 1, 18); const s1 = fit * zoom; ox = cx - (cx - ox) * s1 / s0; oy = cy - (cy - oy) * s1 / s0; clampView(); draw(); };
+    const focus = (x, z, zm) => { sharpen(); zoom = Math.max(zoom, zm); const s = fit * zoom, [bx, by] = toBase(x, z); ox = vw / 2 - bx * s; oy = vh / 2 - by * s; clampView(); draw(); };
     wrap.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const z = +b.dataset.z; if (!z) { zoom = 1; clampView(); draw(); } else zoomAt(z > 0 ? 1.6 : 1 / 1.6, vw / 2, vh / 2); }); wrap.querySelector('[data-me]').onclick = () => focus(this.player.position.x, this.player.position.z, 3); wrap.querySelector('[data-list]').onclick = () => { wrap.classList.toggle('list-open'); size(); };
+    cv.addEventListener('dblclick', e => { const r = cv.getBoundingClientRect(); zoomAt(2, e.clientX - r.left, e.clientY - r.top); });
+    const chips = wrap.querySelector('.wvm-bm-chips'); const chipList = this.places.filter(p => p.top && !(p.id && p.id[0] === '_')).sort((a, b) => (a.url ? 1 : 0) - (b.url ? 1 : 0)); for (const p of chipList) { const b = document.createElement('button'); b.textContent = (p.icon || '📍') + ' ' + p.name.split(' · ')[0]; b.onclick = () => { chips.querySelectorAll('.on').forEach(q => q.classList.remove('on')); b.classList.add('on'); if (p.x !== undefined && !p.url && (p.level || 0) === lv && (!p.fn || p.tile)) { focus(p.x, p.z, p.tile ? 3 : 5); pick1(p); } else { close(); setTimeout(() => this.travel(p), 60); } }; chips.appendChild(b); }
     cv.addEventListener('wheel', e => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
     const ptrs = new Map(); let moved = 0, pd = 0; cv.style.touchAction = 'none';
     cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; if (ptrs.size === 2) { const v = [...ptrs.values()]; pd = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]); } });
-    cv.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; const p = ptrs.get(e.pointerId); const dx = e.clientX - p[0], dy = e.clientY - p[1]; ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size === 1) { ox += dx; oy += dy; moved += Math.abs(dx) + Math.abs(dy); clampView(); draw(); } else if (ptrs.size === 2) { const v = [...ptrs.values()]; const nd = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]); const r = cv.getBoundingClientRect(); if (pd > 0) zoomAt(nd / pd, (v[0][0] + v[1][0]) / 2 - r.left, (v[0][1] + v[1][1]) / 2 - r.top); pd = nd; moved += 10; } });
+    cv.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; const p = ptrs.get(e.pointerId); const dx = e.clientX - p[0], dy = e.clientY - p[1]; ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size === 1) { ox += dx; oy += dy; moved += Math.abs(dx) + Math.abs(dy); clampView(); draw(); sharpen(); } else if (ptrs.size === 2) { const v = [...ptrs.values()]; const nd = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]); const r = cv.getBoundingClientRect(); if (pd > 0) zoomAt(nd / pd, (v[0][0] + v[1][0]) / 2 - r.left, (v[0][1] + v[1][1]) / 2 - r.top); pd = nd; moved += 10; } });
     const up = (e) => { const had = ptrs.has(e.pointerId); ptrs.delete(e.pointerId); if (!had || ptrs.size || moved > 8) return; const r = cv.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; let best = null; for (const b of boxes) if (x >= b[0] - 4 && x <= b[0] + b[2] + 4 && y >= b[1] - 4 && y <= b[1] + b[3] + 4) { best = b; if (!b[5]) break; }
-      if (best && best[5] && zoom < 8) { zoomAt(2, x, y); return; } const s = fit * zoom; const pl = best ? best[4] : (() => { const [wx, wz] = fromBase((x - ox) / s, (y - oy) / s); return { id: '_spot', name: 'that spot on the map', icon: '📍', x: wx, z: wz, keys: '', say: 'Here we are. 📍' }; })(); close(); setTimeout(() => this.travel(pl), 60); };
+      if (best && best[5] && zoom < 16) { zoomAt(2, x, y); return; } const s = fit * zoom; if (best && best[4] && best[4].id !== '_spot') { pick1(best[4]); draw(); return; } const pl = best ? best[4] : (() => { const [wx, wz] = fromBase((x - ox) / s, (y - oy) / s); return { id: '_spot', name: 'that spot on the map', icon: '📍', x: wx, z: wz, keys: '', say: 'Here we are. 📍' }; })(); close(); setTimeout(() => this.travel(pl), 60); };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => ptrs.delete(e.pointerId));
     // the list: every attraction, grouped, always tappable no matter how crowded the picture is
     const groups = {}; for (const p of this.places) { if (p.id && p.id[0] === '_') continue; const c = p.cat || 'Places'; (groups[c] = groups[c] || []).push(p); } const order = Object.keys(groups).sort((a, b) => (/Store|Space/.test(a) ? 1 : 0) - (/Store|Space/.test(b) ? 1 : 0) || a.localeCompare(b));
@@ -1692,7 +1705,13 @@ export class WVM {
       .wvm-panel.on{display:block}
       #wvm-bigmap{position:fixed;inset:0;height:100dvh;z-index:60;background:#050b1c;display:flex;flex-direction:column;pointer-events:auto;color:#fff}
       .wvm-bm-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(8,20,50,.98);border-bottom:1px solid rgba(124,248,255,.35)} .wvm-bm-head .muted{font-size:12px} .wvm-bm-head div{display:flex;gap:6px;align-items:center}
-      .wvm-bm-body{flex:1;min-height:0;display:flex} .wvm-bm-body canvas{display:block;cursor:grab;flex:none} .wvm-bm-list{width:300px;overflow:auto;padding:8px;background:rgba(8,20,50,.96);border-left:1px solid rgba(124,248,255,.3)} .wvm-bm-cat{font:800 12px Poppins,Segoe UI,Arial;letter-spacing:.06em;text-transform:uppercase;color:#7cf8ff;margin:10px 2px 6px}
+      .wvm-bm-body{flex:1;min-height:0;display:flex;position:relative}
+.wvm-bm-chips{display:flex;gap:6px;overflow-x:auto;padding:6px 10px;background:rgba(5,11,28,.98);border-bottom:1px solid rgba(124,248,255,.2);-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.wvm-bm-chips button{flex:none;white-space:nowrap;border-radius:999px;border:1px solid rgba(124,248,255,.45);background:rgba(8,20,50,.9);color:#fff;font:600 12.5px Poppins,Segoe UI,Arial;padding:6px 11px;cursor:pointer}
+.wvm-bm-chips button.on{background:#7cff6b;color:#04122a;border-color:#7cff6b}
+.wvm-bm-go{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:none;gap:8px;align-items:center;background:rgba(8,20,50,.96);border:1px solid #7cff6b;border-radius:14px;padding:8px 10px;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:94%;z-index:3}
+.wvm-bm-go.on{display:flex}
+.wvm-bm-go b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .wvm-bm-body canvas{display:block;cursor:grab;flex:none} .wvm-bm-list{width:300px;overflow:auto;padding:8px;background:rgba(8,20,50,.96);border-left:1px solid rgba(124,248,255,.3)} .wvm-bm-cat{font:800 12px Poppins,Segoe UI,Arial;letter-spacing:.06em;text-transform:uppercase;color:#7cf8ff;margin:10px 2px 6px}
       .wvm-bm-toggle{display:none}
       @media (max-width:760px){.wvm-bm-body{position:relative;display:block}.wvm-bm-head .muted{display:none}.wvm-bm-head{padding:6px 8px}.wvm-bm-head b{font-size:13px}.wvm-bm-toggle{display:inline-block;background:#7cff6b;color:#04122a}.wvm-bm-list{position:absolute;left:0;right:0;bottom:0;width:auto;height:62%;border-left:0;border-top:2px solid #7cff6b;border-radius:16px 16px 0 0;transform:translateY(102%);transition:transform .25s;z-index:2}#wvm-bigmap.list-open .wvm-bm-list{transform:none}.wvm-bm-list .wvm-place{padding:12px 10px;font-size:15px}}
       #wvm-searchpanel{left:50%;right:auto;transform:translateX(-50%);width:min(440px,94vw)} #wvm-searchpanel input{display:block;width:calc(100% - 20px);margin:0 10px 8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(124,248,255,.6);background:#fff;color:#0b1a3a;font:600 16px Poppins,Segoe UI,Arial;outline:none}

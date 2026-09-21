@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google-site-verification" content="sAWrIWTYeeSXWfTjl35DNPCRSVv8T1GZrmc8RXdCTRo" />
 <title>World VR Mall | Walk Through a 3D Virtual Shopping Mall With Stores From All Over the World</title>
 <meta name="description" content="World VR Mall is a free 3D virtual shopping mall you walk through on your phone, laptop, or VR headset. Explore stores and brands from around the world, a huge park with roller coasters, a lake, an old-world market, and more. Get your brand a store today.">
 <link rel="canonical" href="https://worldvrmall.com/">
@@ -22,11 +23,28 @@
 <meta name="twitter:image" content="https://worldvrmall.com/images/vr-stores-hero-billboard.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="/images/sky.jpg">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
 </script>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/BufferGeometryUtils.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/VRButton.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/RenderPass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/OutputPass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/Pass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/MaskPass.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=34">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=34">
+<link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
 <script type="application/ld+json">
 {
  "@context":"https://schema.org",
@@ -68,13 +86,29 @@
   .brandrow a{color:#7cf8ff;text-decoration:none;font-weight:600}
   .hero-img{width:100%;border-radius:18px;border:1px solid rgba(124,248,255,.35);margin:10px 0 4px}
   body:not(.wvm) main{display:none}
-  #wvm-pop.slide .wvm-card{animation:wvmslide .85s cubic-bezier(.2,.9,.2,1);position:relative}
-  #wvm-pop.slide .wvm-card::after{content:"";position:absolute;left:-6%;right:-6%;bottom:-38px;height:70px;background:radial-gradient(ellipse at 30% 60%,rgba(255,255,255,.95),rgba(255,255,255,0) 60%),radial-gradient(ellipse at 60% 40%,rgba(255,255,255,.9),rgba(255,255,255,0) 60%),radial-gradient(ellipse at 85% 65%,rgba(255,255,255,.85),rgba(255,255,255,0) 60%);filter:blur(4px);pointer-events:none;animation:wvmcloud 6s ease-in-out infinite}
-  @keyframes wvmslide{from{transform:translateX(120vw) rotate(4deg);opacity:0}to{transform:none;opacity:1}} @keyframes wvmcloud{0%,100%{transform:translateX(0)}50%{transform:translateX(12px)}}
+  /* the welcome card rides in on a real cloud: puffy, shaded, bobbing, and it stays under the card the whole time */
+  #wvm-pop.cloud .wvm-card{position:relative;overflow:visible;max-height:none;padding-bottom:84px;margin-bottom:96px;background:linear-gradient(165deg,#12286a,#081540 70%);box-shadow:0 26px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.18) inset;animation:wvmfloat 6s ease-in-out infinite}
+  #wvm-pop.cloud.slide .wvm-card{animation:wvmslide 1.1s cubic-bezier(.16,.9,.22,1)}
+  #wvm-pop.cloud .wvm-pop-actions{max-height:38vh;overflow:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
+  #wvm-pop.cloud .wvm-pop-body{max-height:22vh;overflow:auto}
+  .wvm-cloudbed{display:none;position:absolute;left:-11%;right:-11%;bottom:-112px;height:170px;pointer-events:none;filter:drop-shadow(0 18px 22px rgba(10,30,80,.45))}
+  #wvm-pop.cloud .wvm-cloudbed{display:block}
+  .wvm-cloudbed svg{width:100%;height:100%;overflow:visible}
+  .wvm-cloudbed .pf{transform-box:fill-box;transform-origin:center;animation:wvmpuff 5.5s ease-in-out infinite}
+  .wvm-cloudbed .pf:nth-child(2n){animation-duration:7s;animation-delay:-2s}.wvm-cloudbed .pf:nth-child(3n){animation-duration:6.2s;animation-delay:-3.5s}
+  .wvm-cloudlet{display:none;position:absolute;width:150px;height:70px;pointer-events:none;opacity:.95;filter:drop-shadow(0 8px 10px rgba(10,30,80,.35))}
+  #wvm-pop.cloud .wvm-cloudlet{display:block}
+  .wvm-cloudlet.l{left:-104px;top:-48px;animation:wvmdrift 9s ease-in-out infinite}.wvm-cloudlet.r{right:-60px;top:34%;width:120px;animation:wvmdrift 11s ease-in-out infinite reverse}
+  @keyframes wvmslide{from{transform:translateX(120vw) translateY(-30px) rotate(3deg);opacity:0}70%{transform:translateX(-10px) translateY(4px) rotate(-.6deg);opacity:1}to{transform:none;opacity:1}}
+  @keyframes wvmfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes wvmpuff{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.045) translateY(-2px)}}
+  @keyframes wvmdrift{0%,100%{transform:translateX(0)}50%{transform:translateX(16px)}}
+  @media (max-width:680px){#wvm-pop.cloud .wvm-card{margin-bottom:84px;padding-bottom:72px}.wvm-cloudbed{left:-7%;right:-7%;bottom:-96px;height:140px}.wvm-cloudlet.l{left:-34px;top:-52px}#wvm-pop.cloud .wvm-cloudlet.r{display:none}.wvm-cloudlet.r{right:-24px}}
+  @media (prefers-reduced-motion:reduce){#wvm-pop.cloud .wvm-card,.wvm-cloudbed .pf,.wvm-cloudlet{animation:none}}
 </style>
 </head>
 <body>
-<div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:radial-gradient(circle at 50% 30%,#fff,#e9f4ff 55%,#cfe6ff);display:flex;align-items:center;justify-content:center"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
+<div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:#ffffff;display:flex;align-items:center;justify-content:center"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
 <div id="wvm-stage"></div>
 <button class="wvm-scrollhint" id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ About the mall</button>
 
@@ -142,8 +176,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=27';
-import { initBot } from '/js/wvm-bot.js?v=27';
+import { WVM, THREE, makeEarth, earthDiscTexture, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=34';
+import { initBot } from '/js/wvm-bot.js?v=34';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -922,7 +956,8 @@ app.start(async (a) => {
   // deep link straight to mall on #mall
   if (location.hash === '#mall') { a.go('/mall/'); return; }
   // arrival choice, right at the door
-  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); a.pop.classList.add('slide'); setTimeout(() => a.pop.classList.remove('slide'), 1200); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 The Chiller', fn: () => a.travel('chiller') }, { label: '🎠 Amusement park', fn: () => a.travel('park') }, { label: '🎡 Sky Wheel', fn: () => a.travel('wheel') }, { label: '🏖️ Beach Cove (360°)', fn: () => a.travel('beach') }, { label: '🦁 World Zoo', fn: () => a.travel('zoo') }, { label: '🏕️ Lakeside Wilds (360°)', fn: () => a.travel('wilds') }, { label: '🚁 Skyline flight', fn: () => a.travel('skytour') }, { label: '🎈 Balloon tour', fn: () => a.travel('balloon') }, { label: '🔭 Observatory', fn: () => a.travel('observatory') }, { label: '⛵ Lake Harmony boat', fn: () => a.travel('harmony') }, { label: '🧺 Old World Market', fn: () => a.travel('market') }, { label: '🛝 Kids Zone', fn: () => a.travel('kids') }, { label: '✈️ Airport', fn: () => a.travel('airport') }, { label: '🚆 Train', fn: () => a.travel('train') }, { label: '🌻 Sky Garden', fn: () => a.travel('garden') }, { label: '🏂 Snowboard Mount Peace', fn: () => a.travel('ski') }, { label: '🗺️ Open the full map', fn: () => a.showMap() }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
+  a.onFirstSteps(10, () => { const wait = setInterval(() => { if (a.selfieEl.classList.contains('on') || a.paused) return; clearInterval(wait); { const card = a.pop.querySelector('.wvm-card'); if (!card.querySelector('.wvm-cloudbed')) { const puffs = [[70, 96, 46], [140, 78, 58], [225, 66, 66], [315, 60, 72], [405, 70, 64], [485, 84, 54], [545, 100, 42], [110, 118, 44], [200, 122, 52], [300, 126, 56], [400, 122, 52], [490, 120, 42]]; const bed = document.createElement('div'); bed.className = 'wvm-cloudbed'; bed.innerHTML = '<svg viewBox="0 0 610 170" preserveAspectRatio="none" aria-hidden="true"><defs><radialGradient id="wvmcg" cx="38%" cy="28%" r="80%"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f3f8ff"/><stop offset="1" stop-color="#c4d8f6"/></radialGradient><linearGradient id="wvmcs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9cdee" stop-opacity="0"/><stop offset="1" stop-color="#8fa9d8" stop-opacity=".55"/></linearGradient></defs><ellipse cx="305" cy="150" rx="250" ry="16" fill="#0a1e50" opacity=".18"/>' + puffs.map(([cx, cy, r]) => '<circle class="pf" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="url(#wvmcg)"/>').join('') + '<rect x="60" y="96" width="490" height="60" rx="30" fill="url(#wvmcs)"/></svg>'; card.appendChild(bed); const let1 = '<svg viewBox="0 0 150 70" aria-hidden="true"><g fill="#ffffff"><circle cx="38" cy="44" r="22"/><circle cx="70" cy="32" r="28"/><circle cx="106" cy="42" r="22"/><rect x="30" y="44" width="90" height="22" rx="11"/></g></svg>'; for (const side of ['l', 'r']) { const c = document.createElement('div'); c.className = 'wvm-cloudlet ' + side; c.innerHTML = let1; card.appendChild(c); } const oc = a.closePopup.bind(a); a.closePopup = () => { a.pop.classList.remove('cloud', 'slide'); oc(); }; } }
+      a.pop.classList.add('slide', 'cloud'); setTimeout(() => a.pop.classList.remove('slide'), 1250); a.popup('Welcome to World VR Mall 🌍', '<p>That\'s the mall ahead with the green ENTER beacon. To your right: the park, three roller coasters, and the Sky Wheel. Behind you: the train. Left: the lake and the Old World Market. Where to?</p>', [{ label: '🤳 Create my character', fn: () => a.openSelfie(), primary: true }, { label: '🏬 Enter the mall', href: '/mall/' }, { label: '🎢 The Chiller', fn: () => a.travel('chiller') }, { label: '🎠 Amusement park', fn: () => a.travel('park') }, { label: '🎡 Sky Wheel', fn: () => a.travel('wheel') }, { label: '🏖️ Beach Cove (360°)', fn: () => a.travel('beach') }, { label: '🦁 World Zoo', fn: () => a.travel('zoo') }, { label: '🏕️ Lakeside Wilds (360°)', fn: () => a.travel('wilds') }, { label: '🚁 Skyline flight', fn: () => a.travel('skytour') }, { label: '🎈 Balloon tour', fn: () => a.travel('balloon') }, { label: '🔭 Observatory', fn: () => a.travel('observatory') }, { label: '⛵ Lake Harmony boat', fn: () => a.travel('harmony') }, { label: '🧺 Old World Market', fn: () => a.travel('market') }, { label: '🛝 Kids Zone', fn: () => a.travel('kids') }, { label: '✈️ Airport', fn: () => a.travel('airport') }, { label: '🚆 Train', fn: () => a.travel('train') }, { label: '🌻 Sky Garden', fn: () => a.travel('garden') }, { label: '🏂 Snowboard Mount Peace', fn: () => a.travel('ski') }, { label: '🗺️ Open the full map', fn: () => a.showMap() }, { label: '🌳 Explore outside', fn: () => a.toast('Tap anywhere to walk. Green rings are things to do. Pinch out to see the whole floating world.') }]); }, 200); });
   buildObservatory(); buildRealTrees(); buildMallExtras(); buildGondola(); buildBeach(); buildWilds(); buildZoo(); buildKiosks(); buildHorizonCity(); buildModelShowroom(); buildCoins(); buildCartGame(); buildSkyLife(); buildPeaceCity(); registerPlaces(a); setTimeout(() => { a.preloadSky('/images/realistic-night-sky-moon-stars-360'); setTimeout(() => a.preloadSky('/images/high-end-retail-store-360-4096x2048'), 6000); }, 16000);
   a.setMap((g, xy) => {
     const box = (x, z, w, d, col, label) => { const [cx, cz] = xy(x, z); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(cx - w * 0.5 * 0.55, cz - d * 0.5 * 0.55, w * 0.55, d * 0.55); g.globalAlpha = 1; if (label) { g.fillStyle = '#fff'; g.font = 'bold 15px Poppins, Segoe UI, Arial'; g.textAlign = 'center'; g.fillText(label, cx, cz + 5); } };
@@ -938,10 +973,11 @@ app.start(async (a) => {
     if (a.arrival.to) return;
     // arrival: you drop out of the sky, see the peace-sign city on its clouds above the Earth, and land in front of the mall
     const f0 = [S.fog.near, S.fog.far]; a.setFar(true); const fogFn = () => { if (!a._intro) { a.setFar(a.dist > 30); S.fog.near = f0[0]; S.fog.far = f0[1]; a._farMode = undefined; a.updaters = a.updaters.filter(u => u !== fogFn); return; } const y = a.rig.position.y; S.fog.near = f0[0] + y * 5; S.fog.far = f0[1] + y * 9; };
-    introSweep(a, [[0, 2300, 700], [0, 2050, 690], [0, 1100, 580], [-40, 380, 410], [-30, 150, 300], [10, 20, 172], [8, 4.5, 158]], [0, 40, 0], 9, () => { a.player.position.set(6, 0, 150); a.yaw = 0.04; a.pitch = -0.06; a.avatar.rotation.y = Math.PI; a.targetDist = 7; a.dist = 7; a.say('Touchdown. The mall is straight ahead. ✌️', 4); }); a.updaters.push(fogFn); }, 150);
+    introSweep(a, [[0, 2300, 700], [0, 2050, 690], [0, 1100, 580], [-40, 380, 410], [-30, 150, 300], [10, 20, 172], [8, 4.5, 158]], [0, 40, 0], 13, () => { a.player.position.set(6, 0, 150); a.yaw = 0.04; a.pitch = -0.06; a.avatar.rotation.y = Math.PI; a.targetDist = 7; a.dist = 7; a.say('Touchdown. The mall is straight ahead. ✌️', 4); }); a.updaters.push(fogFn); }, 150);
   a.addPortal(34, 104, new T.Vector3(150, 0, 66), { label: '🎢 The Chiller', color: 0x38f0ff });
   a.addBoost(78, 100, Math.PI / 2, 56, 4); a.addBoost(-78, 100, -Math.PI / 2, 56, 4);
   const RIB = 'https://rusticbarnwoodfurniture.com/'; for (const [bx, bz, br] of [[13, 116, Math.PI], [-13, 116, Math.PI], [96, 92, -Math.PI / 2], [-96, 92, Math.PI / 2]]) a.addBench(bx, bz, br, { url: RIB, credit: 'Raised In a Barn Furniture · reclaimed Colorado barnwood' });
+  { const posts = [[22, 146, '🦁 WORLD ZOO', 'six habitats · feed the animals', 'zoo', '#7cff6b', '#1e3a1e'], [-22, 146, '🏖️ BEACH COVE', 'walk on the real sand · swim', 'beach', '#fde047', '#0891b2'], [30, 132, '🏕️ LAKESIDE WILDS', 'campfire · pines · mountain lake', 'wilds', '#eaff7a', '#1e3a2a']]; for (const [px, pz, l1, l2, id, ac, bgc] of posts) { const [sx, sz] = a._snap(px, pz); const s = makeSign([l1, l2], { width: 6.4, height: 2.3, postHeight: 2.2, bg: bgc, accent: ac, border: ac, small: 'tap me · walk or instant' }); s.position.set(sx, 0, sz); s.rotation.y = Math.PI; S.add(s); a.addHotspot(s, { fn: (ap) => ap.travel(id) }); a.addInteractable(sx, sz + 2, 3, l1 + ' · take me there', (ap) => ap.travel(id)); } }
   buildSculptureWalk(a); buildSecretsOutside(a); buildSkyLoftDoor(a); PENT.enter = buildPenthouse(a); a.autoCollide();
   a.autoWeather(); initBot(a);
 });
@@ -1097,6 +1133,13 @@ function buildSecretsOutside(a) {
   { const bl = new T.Group(); const bm = new T.Mesh(new T.SphereGeometry(0.55, 14, 12), M(0xe11d2a, { roughness: 0.25, emissive: 0x5a0000, emissiveIntensity: 0.4 })); bm.scale.y = 1.2; bl.add(bm); const st = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 2.6, 4), M(0xffffff)); st.position.y = -1.9; bl.add(st); bl.position.set(-316, 3.6, -290); S.add(bl); let gone = false; app.onUpdate((dt, t) => { if (!gone) { bl.position.y = 3.6 + Math.sin(t * 1.1) * 0.25; bl.rotation.z = Math.sin(t * 0.8) * 0.08; } });
     a.addInteractable(-316, -288, 3.5, '🎈 Pop the red balloon', (ap) => { if (!gone) { gone = true; bl.visible = false; setTimeout(() => { gone = false; bl.visible = true; }, 60000); } ap.secret('balloon', 'The Lonely Red Balloon', '<p>POP. A tiny note falls out: "Look up." On a clear, dark night you can see about 2,500 stars with your bare eyes. The telescope next to you can see a few billion more.</p>'); }); }
 }
+function photoFloor(cx, cz, R, h, rotY) {
+  const RS = 40, TS = 96, pos = [], uv = [], idx = []; const co = Math.cos(rotY), si = Math.sin(rotY);
+  for (let r = 0; r <= RS; r++) { const d = 0.35 * Math.pow(R / 0.35, r / RS); const v = 0.5 - Math.atan(h / d) / Math.PI; for (let i = 0; i <= TS; i++) { const u = i / TS, xl = Math.cos(u * Math.PI * 2), zl = Math.sin(u * Math.PI * 2); pos.push((xl * co + zl * si) * d, 0, (-xl * si + zl * co) * d); uv.push(u, v); } }
+  for (let r = 0; r < RS; r++) for (let i = 0; i < TS; i++) { const a0 = r * (TS + 1) + i, b0 = a0 + TS + 1; idx.push(a0, a0 + 1, b0, b0, a0 + 1, b0 + 1); }
+  const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(new Float32Array(pos), 3)); geo.setAttribute('uv', new T.BufferAttribute(new Float32Array(uv), 2)); geo.setIndex(idx);
+  const m = new T.Mesh(geo, new T.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false, side: T.DoubleSide, polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 })); m.position.set(cx, 0.09, cz); m.visible = false; m.userData.noShadow = true; m.userData.noCull = true; m.userData.noOcclude = true; m.userData.mapHide = true; m.userData.noCollide = true; m.frustumCulled = false; S.add(m); return m;
+}
 /* ----- Beach Cove: sand, palms, chairs, a pier at the edge of the island; walk in and the sky becomes the tropical beach ----- */
 function buildBeach() {
   const { x: bx, z: bz, r } = BEACH; const g = new T.Group(); g.position.set(bx, 0, bz); S.add(g);
@@ -1113,19 +1156,19 @@ function buildBeach() {
   for (let i = 0; i < 5; i++) app.addNPC(makePerson({ dress: true, hat: true }), [new T.Vector3(bx + rand(-40, 40), 0, bz + rand(5, 40)), new T.Vector3(bx + rand(-40, 40), 0, bz + rand(5, 40))], { pause: 5, speed: 0.9 });
   app.addInteractable(bx + 20, bz - r * 0.4 - 20, 5, '🌅 Sit on the pier', (a) => { a.pitch = -0.02; a.toast(pick(['Waves. Palms. Not a single email. 🌴', 'The sun never sets here. Stay as long as you want.', 'Fun fact: this beach is 640 meters from the mall and 640,000 miles from your inbox.']), 4000); });
   // the 360° beach: step onto the sand and you are standing INSIDE the panorama (a photo dome around the whole cove), not just under a new sky
-  const domeGeo = new T.SphereGeometry(r + 46, 48, 32); domeGeo.scale(-1, 1, 1); const dome = new T.Mesh(domeGeo, new T.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false })); dome.position.set(bx, 1.2, bz); dome.rotation.y = -Math.PI / 2; dome.visible = false; dome.userData.noShadow = true; dome.userData.noCull = true; dome.userData.noOcclude = true; dome.userData.mapHide = true; S.add(dome);
+  const domeGeo = new T.SphereGeometry(r + 46, 48, 32); domeGeo.scale(-1, 1, 1); const dome = new T.Mesh(domeGeo, new T.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false })); dome.position.set(bx, 1.7, bz); dome.rotation.y = -Math.PI / 2; const pfloor = photoFloor(bx, bz, r + 46, 1.61, -Math.PI / 2); dome.visible = false; dome.userData.noShadow = true; dome.userData.noCull = true; dome.userData.noOcclude = true; dome.userData.mapHide = true; S.add(dome);
   const apron = new T.Mesh(new T.RingGeometry(r - 1, r + 46, 64), M(0xffffff, { map: sandTex, roughness: 1 })); apron.rotation.x = -Math.PI / 2; apron.position.set(bx, 0.05, bz); apron.visible = false; apron.userData.mapHide = true; apron.userData.noCull = true; S.add(apron);
-  let domeAsked = false; const askDome = () => { if (domeAsked) return; domeAsked = true; const ok = (tx) => { tx.colorSpace = T.SRGBColorSpace; tx.offset.y = 0.054; dome.material.map = tx; dome.material.needsUpdate = true; dome.userData.ready = true; }; new T.TextureLoader().load('/images/tropical-beach-360-panorama.avif', ok, undefined, () => new T.TextureLoader().load('/images/tropical-beach-360-panorama.jpg', ok, undefined, () => { })); };
-  app.addWater({ x: bx, z: bz - r * 0.55, r: r * 0.72 - 1, y: 0.1, except: [[bx + 17.4, bz - r * 0.4 - 23.5, bx + 22.6, bz - r * 0.4 + 23.5]] });
+  let domeAsked = false; const askDome = () => { if (domeAsked) return; domeAsked = true; const ok = (tx) => { tx.colorSpace = T.SRGBColorSpace; tx.offset.y = 0.054; pfloor.material.map = tx; pfloor.material.needsUpdate = true; dome.material.map = tx; dome.material.needsUpdate = true; dome.userData.ready = true; }; new T.TextureLoader().load('/images/tropical-beach-360-panorama.avif', ok, undefined, () => new T.TextureLoader().load('/images/tropical-beach-360-panorama.jpg', ok, undefined, () => { })); };
+  app.addWater({ x: bx, z: bz - 72, r: 63, y: 0.1, except: [[bx + 17.4, bz - r * 0.4 - 23.5, bx + 22.6, bz - r * 0.4 + 23.5]] });
   app.addInteractable(bx, bz + 18, 9, '🌴 Look around in full 360°', (a) => { a.targetDist = 0.01; a.pitch = 0; a.toast('Drag to look all the way around. That is the real panorama. Pinch or scroll out to get your character back. 🏖️', 5000); });
-  let inBeach = false; app.onUpdate(() => { const p = app.player.position; const d = dist(p.x, p.z, bx, bz); if (d < r + 170) askDome(); const now = d < r + 8; const showDome = now && dome.userData.ready && !app._intro && app.dist < 30 && !app.ride; if (dome.visible !== showDome) { dome.visible = showDome; apron.visible = showDome; DOMES.beach = showDome; if (DOMES.city) DOMES.city.visible = !(DOMES.beach || DOMES.wilds); } if (now !== inBeach) { inBeach = now; app.setSky(now ? '/images/tropical-beach-360-panorama' : ((app.opts.autoNight && isNightNowLocal()) ? app.opts.nightSky : app.opts.sky)); if (now) app.toast('🏖️ Welcome to Beach Cove. Look around: that is the ocean.', 3500); } });
+  let inBeach = false; app.onUpdate(() => { const p = app.player.position; const d = dist(p.x, p.z, bx, bz); if (d < r + 170) askDome(); const now = d < r + 8; const showDome = now && dome.userData.ready && !app._intro && app.dist < 30 && !app.ride; if (dome.visible !== showDome) { dome.visible = showDome; pfloor.visible = showDome; apron.visible = false; sand.visible = !showDome; shore.visible = !showDome; foam.visible = !showDome; DOMES.beach = showDome; if (DOMES.city) DOMES.city.visible = !(DOMES.beach || DOMES.wilds); } if (now !== inBeach) { inBeach = now; app.setSky(now ? '/images/tropical-beach-360-panorama' : ((app.opts.autoNight && isNightNowLocal()) ? app.opts.nightSky : app.opts.sky)); if (now) app.toast('🏖️ Welcome to Beach Cove. Look around: that is the ocean.', 3500); } });
 }
 /* ----- Lakeside Wilds: the far west edge of the island. Step in and you are standing inside the mountain-lake panorama: pines, boulders, a campfire, a dock, and a tarn you can swim ----- */
 function buildWilds() {
   const { x: cx, z: cz, r } = WILDS; const g = new T.Group(); g.position.set(cx, 0, cz); g.userData.noCull = true; S.add(g);
   const gt = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const q = c.getContext('2d'); q.fillStyle = '#5f7a4a'; q.fillRect(0, 0, 256, 256); for (let i = 0; i < 5000; i++) { q.fillStyle = `hsl(${70 + Math.random() * 50},${25 + Math.random() * 30}%,${28 + Math.random() * 26}%)`; q.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); } for (let i = 0; i < 260; i++) { q.fillStyle = `hsl(30,12%,${45 + Math.random() * 25}%)`; q.beginPath(); q.arc(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2.5, 0, 6.3); q.fill(); } const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(16, 16); t.colorSpace = T.SRGBColorSpace; return t; })();
   const floor = new T.Mesh(new T.CircleGeometry(r, 48), M(0xffffff, { map: gt, roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.06; floor.receiveShadow = true; g.add(floor);
-  water(cx - 30, cz - 4, 30, 0.24, 0x2a7f9a, 0x0b3a4a, 4.2);
+  const n0 = S.children.length; water(cx - 30, cz - 4, 30, 0.24, 0x2a7f9a, 0x0b3a4a, 4.2); const tarnMeshes = S.children.slice(n0);
   // pines (three shared cone sizes), boulders, fallen logs
   const trunkG = new T.CylinderGeometry(0.22, 0.34, 1, 7), coneG = new T.ConeGeometry(1, 1, 9), barkM = M(0x5a3d22, { roughness: 1 }), pineM = [M(0x1f5a36, { roughness: 1 }), M(0x2a6b3f, { roughness: 1 }), M(0x174a2c, { roughness: 1 })]; let sd = 11; const rn = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
   const pine = (px, pz, h) => { const t = new T.Mesh(trunkG, barkM); t.scale.y = h * 0.35; t.position.set(px, h * 0.175, pz); g.add(t); const m = pineM[Math.floor(rn() * 3)]; for (let k = 0; k < 3; k++) { const c = new T.Mesh(coneG, m); const s = (1 - k * 0.24) * h * 0.26; c.scale.set(s, h * 0.36, s); c.position.set(px, h * (0.42 + k * 0.22), pz); c.castShadow = true; g.add(c); } app.addObstacle(cx + px, cz + pz, 0.7); };
@@ -1146,10 +1189,10 @@ function buildWilds() {
   const sg = makeSign(['LAKESIDE WILDS', 'pines · boulders · a campfire · swim the tarn'], { width: 11, height: 3.4, postHeight: 2.2, bg: '#1e3a2a', accent: '#eaff7a', border: '#eaff7a', small: 'the quiet edge of the island' }); sg.position.set(cx + r - 6, 0, cz + 10); sg.rotation.y = -Math.PI / 2; S.add(sg);
   app.addHotspot(sg, { title: 'Lakeside Wilds 🏕️', html: '<p>The far west edge of the island, left wild on purpose. Walk in and the mountains and the lake wrap all the way around you. There is a fire going, a dock, and the water is for swimming.</p>' });
   // the 360° mountain-lake panorama as a photo dome around the whole clearing
-  const dg = new T.SphereGeometry(r + 40, 48, 32); dg.scale(-1, 1, 1); const dome = new T.Mesh(dg, new T.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false })); dome.position.set(cx, 1.2, cz); dome.rotation.y = 0; dome.visible = false; dome.userData.noShadow = true; dome.userData.noCull = true; dome.userData.noOcclude = true; dome.userData.mapHide = true; S.add(dome);
+  const dg = new T.SphereGeometry(r + 40, 48, 32); dg.scale(-1, 1, 1); const dome = new T.Mesh(dg, new T.MeshBasicMaterial({ color: 0xffffff, fog: false, toneMapped: false })); dome.position.set(cx, 1.7, cz); dome.rotation.y = 0; dome.visible = false; const pfloor = photoFloor(cx, cz, r + 40, 1.61, 0); dome.userData.noShadow = true; dome.userData.noCull = true; dome.userData.noOcclude = true; dome.userData.mapHide = true; S.add(dome);
   const apron = new T.Mesh(new T.RingGeometry(r - 1, r + 40, 64), M(0xffffff, { map: gt, roughness: 1 })); apron.rotation.x = -Math.PI / 2; apron.position.set(cx, 0.05, cz); apron.visible = false; apron.userData.mapHide = true; apron.userData.noCull = true; S.add(apron);
-  let asked = false, inside = false; const ask = () => { if (asked) return; asked = true; new T.TextureLoader().load('/images/lake-mountain-landscape-360-main.avif', (tx) => { tx.colorSpace = T.SRGBColorSpace; tx.offset.y = -0.11; dome.material.map = tx; dome.material.needsUpdate = true; dome.userData.ready = true; }, undefined, () => { }); };
-  app.onUpdate((dt, t) => { const p = app.player.position; const d = dist(p.x, p.z, cx, cz); if (d < r + 170) ask(); const now = d < r + 4; const show = now && dome.userData.ready && !app._intro && app.dist < 30 && !app.ride; if (dome.visible !== show) { dome.visible = show; apron.visible = show; DOMES.wilds = show; if (DOMES.city) DOMES.city.visible = !(DOMES.beach || DOMES.wilds); } if (now !== inside) { inside = now; if (now) app.toast('🏕️ Lakeside Wilds. Look around: mountains, all the way.', 3600); } if (d > r + 120) return;
+  let asked = false, inside = false; const ask = () => { if (asked) return; asked = true; new T.TextureLoader().load('/images/lake-mountain-landscape-360-main.avif', (tx) => { tx.colorSpace = T.SRGBColorSpace; tx.offset.y = -0.11; pfloor.material.map = tx; pfloor.material.needsUpdate = true; dome.material.map = tx; dome.material.needsUpdate = true; dome.userData.ready = true; }, undefined, () => { }); };
+  app.onUpdate((dt, t) => { const p = app.player.position; const d = dist(p.x, p.z, cx, cz); if (d < r + 170) ask(); const now = d < r + 4; const show = now && dome.userData.ready && !app._intro && app.dist < 30 && !app.ride; if (dome.visible !== show) { dome.visible = show; pfloor.visible = show; apron.visible = false; floor.visible = !show; tarnMeshes.forEach(q => { q.visible = !show; }); DOMES.wilds = show; if (DOMES.city) DOMES.city.visible = !(DOMES.beach || DOMES.wilds); } if (now !== inside) { inside = now; if (now) app.toast('🏕️ Lakeside Wilds. Look around: mountains, all the way.', 3600); } if (d > r + 120) return;
     flames.forEach((f, i) => { const k = 0.85 + Math.sin(t * (5 + i * 2.3) + i) * 0.16 + Math.sin(t * 11.7 + i * 3) * 0.07; f.scale.set(1 + Math.sin(t * 7 + i) * 0.08, k, 1 + Math.cos(t * 6 + i) * 0.08); f.position.y = 0.45 + f.userData.h * k / 2; });
     for (let i = 0; i < EN; i++) { es[i] = (es[i] + dt * (0.25 + (i % 5) * 0.06)) % 1; const k = es[i]; ep[i * 3] = fx + Math.sin(i * 2.4 + k * 5) * (0.2 + k * 0.9); ep[i * 3 + 1] = 0.8 + k * 5.5; ep[i * 3 + 2] = fz + Math.cos(i * 1.7 + k * 4) * (0.2 + k * 0.9); } eg.attributes.position.needsUpdate = true;
     for (let i = 0; i < FN; i++) { const f = fs[i]; fp[i * 3] = f[0] + Math.sin(t * 0.5 + f[3]) * 2.2; fp[i * 3 + 1] = f[1] + Math.sin(t * 0.8 + f[3] * 2) * 0.8; fp[i * 3 + 2] = f[2] + Math.cos(t * 0.4 + f[3]) * 2.2; } fg2.attributes.position.needsUpdate = true; flies.material.opacity = 0.55 + Math.sin(t * 1.3) * 0.35; canoe.position.y = 0.42 + Math.sin(t * 1.1) * 0.04; canoe.rotation.x = Math.sin(t * 0.8) * 0.05; });
@@ -1226,7 +1269,7 @@ function buildKiosks() {
 function buildHorizonCity() {
   const g = new T.Group(); g.userData.noCull = true; S.add(g); const mob = isMobile(); const spinners = [], hot = [];
   // ---- skins: pastel and neon facades with lit windows (eight shared materials for the whole skyline) ----
-  const skinTex = (base, win, lit) => { const c = document.createElement('canvas'); c.width = 128; c.height = 256; const q = c.getContext('2d'); const gr = q.createLinearGradient(0, 0, 128, 0); gr.addColorStop(0, base); gr.addColorStop(0.5, '#ffffff'); gr.addColorStop(0.52, base); gr.addColorStop(1, base); q.fillStyle = base; q.fillRect(0, 0, 128, 256); q.globalAlpha = 0.18; q.fillStyle = gr; q.fillRect(0, 0, 128, 256); q.globalAlpha = 1; for (let y = 6; y < 250; y += 12) for (let x = 6; x < 122; x += 12) { q.fillStyle = Math.random() < 0.34 ? lit : win; q.fillRect(x, y, 8, 7); } const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; return t; };
+  const skinTex = (base, win, lit) => { const c = document.createElement('canvas'); c.width = 128; c.height = 256; const q = c.getContext('2d'); const gr = q.createLinearGradient(0, 0, 128, 0); gr.addColorStop(0, base); gr.addColorStop(0.5, '#ffffff'); gr.addColorStop(0.52, base); gr.addColorStop(1, base); q.fillStyle = base; q.fillRect(0, 0, 128, 256); q.globalAlpha = 0.18; q.fillStyle = gr; q.fillRect(0, 0, 128, 256); q.globalAlpha = 1; for (let y = 6; y < 250; y += 12) for (let x = 6; x < 122; x += 12) { q.fillStyle = Math.random() < 0.34 ? lit : win; q.fillRect(x, y, 8, 7); } const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(3, 9); t.anisotropy = 4; return t; };
   const SK = [['#f9c6d9', '#7a4a66', '#fff3b0'], ['#bfe3ff', '#2f5f8a', '#fff7c2'], ['#c9f2d9', '#2f6a55', '#eaffb0'], ['#e3d4ff', '#4a3a8a', '#ffe9a8'], ['#ffe2b8', '#8a5a2a', '#ffffff'], ['#f4f8ff', '#33486a', '#ffe08a'], ['#1a2350', '#0b1230', '#38f0ff'], ['#2a1240', '#140a26', '#ff4fd8']].map(([b, w, l]) => { const t = skinTex(b, w, l); return new T.MeshStandardMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.22, roughness: 0.35, metalness: 0.35 }); });
   const GL = [NEON, PINK, GOLD, MINT, VIOLET, 0xff8a3d].map(c => glow(c, 1.7)); const glassM = new T.MeshPhysicalMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.5, roughness: 0.08, metalness: 0.35 }); const whiteM = M(0xf4f8ff, { metalness: 0.4, roughness: 0.3 }), goldM = M(0xffd23f, { metalness: 1, roughness: 0.18, emissive: 0x5a3c00, emissiveIntensity: 0.5 }), rockM = M(0x4a3626, { roughness: 1 });
   const padG = new T.CylinderGeometry(1.1, 1.25, 6, 12), rockG = new T.ConeGeometry(1.15, 3, 9);
@@ -1478,10 +1521,10 @@ function registerPlaces(a) {
 }
 
 function introSweep(a, pts, lookAt, secs, done) {
-  const curve = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(...p))); const L = new T.Vector3(...lookAt);
+  const curve = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(...p))); curve.arcLengthDivisions = 600; const L = new T.Vector3(...lookAt);
   const t0 = a.t; const prev = a.targetDist > 0.6 ? a.targetDist : 7; a.locked = true; a.avatar.visible = false;
   const skip = document.createElement('button'); skip.className = 'wvm-btn'; skip.textContent = 'Skip ▶'; skip.style.cssText = 'position:absolute;bottom:22px;right:16px;z-index:4'; a.hud.appendChild(skip);
-  const fn = () => { const k = clamp((a.t - t0) / secs, 0, 1); const e = k < 0.3 ? k * k * 0.55 : 0.0495 + (1 - 0.0495) * (0.5 - Math.cos((k - 0.3) / 0.7 * Math.PI) / 2); a.rig.position.copy(curve.getPoint(e)); a.rig.rotation.set(0, 0, 0); a.camera.position.set(0, 0, 0); a.rig.updateMatrixWorld(); a.camera.lookAt(L); if (k >= 1) end(); };
+  const fn = () => { const k = clamp((a.t - t0) / secs, 0, 1); const s0 = k * k * (3 - 2 * k), e = 0.12 * s0 + 0.88 * (1 - Math.pow(1 - k, 3.2)); a.rig.position.copy(curve.getPointAt(Math.min(1, e))); a.rig.rotation.set(0, 0, 0); a.camera.position.set(0, 0, 0); a.rig.updateMatrixWorld(); a.camera.lookAt(L); if (k >= 1) end(); };
   a._intro = fn; a.updaters.push(fn);
   const end = () => { if (!a._intro) return; a.updaters = a.updaters.filter(u => u !== fn); a._intro = null; skip.remove(); a.locked = false; a.avatar.visible = true; a.targetDist = prev; a.dist = prev; if (done) done(); };
   skip.onclick = end;
