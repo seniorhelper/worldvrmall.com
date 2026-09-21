@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=25';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=27';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -429,7 +429,7 @@ let popCSS = false;
 function ensurePopCSS() {
   if (popCSS) return; popCSS = true;
   const s = document.createElement('style'); s.textContent = `
-    body.wvm-product #wvm-pop{backdrop-filter:blur(10px) saturate(1.2);background:rgba(2,6,20,.55)}
+    body.wvm-product #wvm-pop{background-color:rgba(4,10,30,.55);background:rgba(2,6,20,.55)}
     .wvm-prod{display:grid;gap:12px}
     .wvm-prod-img{position:relative;display:flex;align-items:center;justify-content:center;min-height:200px;padding:6px}
     .wvm-prod-img::before{content:"";position:absolute;inset:8% 14%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,255,255,.55),rgba(255,255,255,0) 70%);filter:blur(6px)}

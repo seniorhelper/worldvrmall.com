@@ -683,7 +683,7 @@ export class WVM {
     if (!o.shadows) { const c = document.createElement('canvas'); c.width = c.height = 64; const q = c.getContext('2d'); const gr = q.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(0,0,0,0.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = gr; q.fillRect(0, 0, 64, 64); const blob = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })); blob.rotation.x = -Math.PI / 2; blob.renderOrder = 1; blob.userData.noCull = true; scene.add(blob); this.onUpdate(() => { const p = this.player.position; blob.visible = !this.ride && this.dist > 0.6 && !(this._sw && this._sw.on); blob.position.set(p.x, p.y + 0.05, p.z); const s = this.vehicle ? 2.2 : 1; blob.scale.set(s, s, 1); }); }
     { const vg = document.createElement('div'); vg.id = 'wvm-vignette'; vg.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 58%,rgba(6,12,34,.30) 100%)'; this.stage.appendChild(vg); }
     // shadow camera follows the player so shadows stay sharp where you are
-    this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; this.sun.position.set(p.x - 120, 140, p.z - 160); this.sun.target.position.set(p.x, 0, p.z); this.sun.target.updateMatrixWorld(); });
+    this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; const tx = (o.shadowRange * 2) / o.shadowSize * 4; const sx = Math.round(p.x / tx) * tx, sz = Math.round(p.z / tx) * tx; this.sun.position.set(sx - 120, 140 + p.y, sz - 160); this.sun.target.position.set(sx, p.y, sz); this.sun.target.updateMatrixWorld(); });
   }
 
   _vrBadge() { if (this.hud.querySelector('.wvm-vrbadge')) return; const b = document.createElement('div'); b.className = 'wvm-vrbadge'; b.textContent = '🥽 Works on VR headsets too'; b.title = 'Open this same address in a headset browser and an Enter VR button appears'; this.hud.appendChild(b); }
@@ -768,7 +768,7 @@ export class WVM {
   }
   /* open water with no shoreline obstacle (the beach surf): { x, z, r, y, except: [[x1, z1, x2, z2], ...] } */
   addWater(w) { (this.waters = this.waters || []).push(w); return w; }
-  _waterAt(x, z) { const lv = this.level || 0; if (lv) return null; for (const ob of this.obstacles) { if (ob.water === undefined || ob.keepIn || !ob.poly) continue; if (WVM.inPoly(ob.poly, x, z)) return ob.water; } for (const w of (this.waters || [])) { const dx = x - w.x, dz = z - w.z; if (dx * dx + dz * dz < w.r * w.r && !(w.except || []).some(b => x > b[0] && x < b[2] && z > b[1] && z < b[3])) return w.y; } return null; }
+  _waterAt(x, z) { const lv = this.level || 0; for (const w of (this.waters || [])) { if ((w.level || 0) !== lv || !w.poly) continue; if (WVM.inPoly(w.poly, x, z) && !(w.dry || []).some(d => WVM.inPoly(d, x, z))) return w.y; } if (lv) return null; for (const ob of this.obstacles) { if (ob.water === undefined || ob.keepIn || !ob.poly) continue; if (WVM.inPoly(ob.poly, x, z)) return ob.water; } for (const w of (this.waters || [])) { if (w.poly || w.level) continue; const dx = x - w.x, dz = z - w.z; if (dx * dx + dz * dz < w.r * w.r && !(w.except || []).some(b => x > b[0] && x < b[2] && z > b[1] && z < b[3])) return w.y; } return null; }
   _swim(dt) {
     const av = this.avatar, p = this.player.position; const wy = (this.ride || this.vehicle || this._clip) ? null : this._waterAt(p.x, p.z); const S = this._sw || (this._sw = { on: false, k: 0 });
     if (wy === null) { if (S.on) { S.on = false; this._clipMats(av, null); av.position.y = 0; av.rotation.x = 0; if (S.ring) S.ring.visible = false; } return; }
@@ -793,7 +793,7 @@ export class WVM {
   addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); }
   _updateInteractables() {
     if (!this.interactables) return; const p = this.player.position; let best = null, bd = 1e9;
-    for (const it of this.interactables) { if (it.level !== undefined && it.level !== (this.level || 0)) continue; const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
+    for (const it of this.interactables) { if (it.level !== undefined ? it.level !== (this.level || 0) : ((this.level || 0) >= 3 && it.r < 1e6)) continue; const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
     if (this.paused) best = null; else if (this.ride) best = this.interactables.find(i => i.r >= 1e8) || null; // during a ride only the ride's own stop button shows
     if (best !== this._act) { this._act = best; this.actBtn.textContent = best ? best.label : ''; this.actBtn.classList.toggle('on', !!best); }
   }
@@ -865,11 +865,11 @@ export class WVM {
     const H = u.headY || 2; let drop = c.stand ? 0.12 : H * 0.5; if (c.roofY !== undefined) drop = Math.max(drop, H - (c.roofY - c.y) * (c.obj.scale.y || 1) + 0.12); if (odd) drop = 0;
     const P = this.player.position; if (c.tilt) { av.position.set(c.pt.x - c.n.x * drop - P.x, c.pt.y - c.n.y * drop - P.y, c.pt.z - c.n.z * drop - P.z); av.quaternion.copy(c.obj.quaternion); } else av.position.set(0, c.pt.y - drop - P.y, 0);
   }
-  /* ----- the Secret Hunt (v7): thirteen hidden things across the whole world. Found ones are kept in this browser. ----- */
+  /* ----- the Secret Hunt (v7): fourteen hidden things across the whole world. Found ones are kept in this browser. ----- */
   static get SECRETS() { return [
     ['duck', '🦆', 'The Golden Duck', 'Not every duck on the ponds is a duck-colored duck.'], ['cord', '🚂', 'The Whistle Cord', 'Something dangles at the train platform. Cords are for pulling.'], ['bottle', '🍾', 'Message in a Bottle', 'Walk the beach pier all the way to the very end.'], ['balloon', '🎈', 'The Lonely Red Balloon', 'It got away from the park and drifted up to where people watch the stars.'], ['modes', '🎢', 'Triple Chiller', 'Ride The Chiller three different ways.'],
     ['tile', '🎵', 'The Musical Tile', 'One tile in the Atrium is not like the others. Step on it.'], ['button', '🔴', 'The Big Red Button', 'Chinatown. It says do not press. You know what to do.'], ['lever', '🌈', 'The Lever by the Falls', 'In the waterfall lounge, something mossy wants pulling.'], ['simon', '🕹️', 'The Unmarked Cabinet', 'Upstairs, in the Game Room, one machine has no sign. Beat level 3.'], ['door', '🐭', 'The Tiny Door', 'Upstairs, down low, near the games. Knock.'],
-    ['wink', '👁️', 'The Watchtower', 'Out on the skyline, one tower is looking right at you. Tap it.'], ['scholar', '🏙️', 'Skyline Scholar', 'Some towers on the horizon are copies of famous real ones. Tap five of them.'], ['loft', '🚪', 'The Sky Loft', 'The city wall around the island is not all wall. Somewhere out east, past the park, one tower has a front door. Go in and make yourself at home.']]; }
+    ['wink', '👁️', 'The Watchtower', 'Out on the skyline, one tower is looking right at you. Tap it.'], ['scholar', '🏙️', 'Skyline Scholar', 'Some towers on the horizon are copies of famous real ones. Tap five of them.'], ['loft', '🚪', 'The Sky Loft', 'The city wall around the island is not all wall. Somewhere out east, past the park, one tower has a front door. Find the design board inside and furnish a room.'], ['orbit', '🚀', 'The Orbit Deck', 'The penthouse has two elevators. One of them does not stop at the roof.']]; }
   secretsFound() { return this._load('wvm_secrets', []) || []; }
   secret(id, title, html) {
     const S = WVM.SECRETS, found = this.secretsFound(), meta = S.find(s => s[0] === id) || [id, '🔎', title || id]; const isNew = !found.includes(id); if (isNew) { found.push(id); this._save('wvm_secrets', found); this.coins = (this.coins || 0) + 10; this._save('wvm_coins', this.coins); if (this.coinBadge) this.coinBadge.textContent = this.coins; }
@@ -1180,7 +1180,7 @@ export class WVM {
   _perf(dt) {
     const Q = this._q || (this._q = { lvl: 0, acc: 0, n: 0, hold: 0, base: this.renderer.getPixelRatio(), f: 0, cullT: 0, list: null, listT: -99 }); Q.f++;
     if (Q.f === 1 && !isMobile()) { Q.lvl = 1; this._noBloom = true; }
-    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % (Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 3 : 2) === 0) this.renderer.shadowMap.needsUpdate = true; }
+    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % (Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) === 0) this.renderer.shadowMap.needsUpdate = true; }
     const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
     if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
     if (this.t - Q.cullT > (this._intro ? 0.15 : 0.5)) { Q.cullT = this.t; this._cull(Q); }
@@ -1188,7 +1188,7 @@ export class WVM {
   _applyQ(Q) { const ratios = [1, 1, 0.85, 0.72, 0.62, 0.55]; this._noBloom = Q.lvl >= 1; const pr = Math.max(0.6, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
   _cull(Q) {
     if (this.t - Q.listT > 4) { Q.listT = this.t; Q.budget = 0; const L = []; const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.isPoints || o.frustumCulled === false) continue; let c = o.userData._cs; if (!c) { if ((Q.budget = (Q.budget || 0) + 1) > 250) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); c = o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { continue; } } if (c.r > 260) continue; L.push(o); } Q.list = L; }
-    if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900); const camY = this.rig.position.y - P.y; const lod = wide && camY > 50 ? Math.min(40, camY * 0.0125) : 0;
+    if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride || !!this._air; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900); const camY = this._air ? this.rig.position.y : this.rig.position.y - P.y; const lod = wide && camY > 50 ? Math.min(40, camY * 0.0125) : 0;
     for (const o of Q.list) { const c = o.userData._cs; const dx = o.position.x + c.ox - P.x, dz = o.position.z + c.oz - P.z; const far = (!wide && Math.sqrt(dx * dx + dz * dz) - c.r > lim) || (lod > 0 && c.r < lod && !o.userData.keepLOD); if (far) { if (o.visible && !o.userData._culled) { o.visible = false; o.userData._culled = true; } } else if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
   }
   /* measure every top-level object once, up front, so culling and air-LOD work from the very first frame */
@@ -1197,15 +1197,15 @@ export class WVM {
 
   /* ----- frame ----- */
   _frame() {
-    const dt = Math.min(0.05, this.clock.getDelta()); this.t += dt;
-    if (!this.paused) this._movePlayer(dt);
+    const raw = this.clock.getDelta(); const dt = Math.min(0.05, raw); this.t += dt;
+    if (!this.paused) { const mdt = Math.min(0.1, raw), n = (this.ride || mdt <= 0.034) ? 1 : Math.ceil(mdt / 0.034); for (let i = 0; i < n; i++) this._movePlayer(this.ride ? dt : mdt / n); }
     if (this._clip) this._seatUpdate();
     if (!this.paused || this._sw) this._swim(dt);
     this._updateCamera(dt);
     this._updateNPCs(dt);
-    this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length) this._updateBoosts(dt);
-    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro; const high = wide && this.rig.position.y - P.y > 80; for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? 1 : 0); } }
-    if (this.triggers && !this.paused) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
+    this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length && (this.level || 0) < 3) this._updateBoosts(dt);
+    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro || !!this._air; const high = wide && (this._air || this.rig.position.y - P.y > 80); for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? 1 : 0); } }
+    if (this.triggers && !this.paused && (this.level || 0) < 3) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     this._perf(dt);
     if (this.composer && !this._noBloom && !this._intro && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
@@ -1243,13 +1243,14 @@ export class WVM {
       const step = fwd.multiplyScalar(mv.y).add(right.multiplyScalar(mv.x)).multiplyScalar(speed * dt);
       const nx = p.position.x + step.x, nz = p.position.z + step.z;
       const before = p.position.clone();
-      if (!this._blocked(nx, nz)) { p.position.x = nx; p.position.z = nz; }
-      else if (!this._blocked(nx, p.position.z)) { p.position.x = nx; }
-      else if (!this._blocked(p.position.x, nz)) { p.position.z = nz; }
-      const B = this.opts.bounds || 600; p.position.x = clamp(p.position.x, -B, B); p.position.z = clamp(p.position.z, -B, B); const BR = this.opts.boundR; if (BR && !this._inWorld(p.position.x, p.position.z)) { const rr = Math.hypot(p.position.x, p.position.z); if (rr > BR + 30) { p.position.x *= BR / rr; p.position.z *= BR / rr; if (this.t - (this._edgeT || -99) > 30) { this._edgeT = this.t; this.toast('🌤️ The edge of the island. From here it is clouds, skyline, and the Earth far below.', 3600); } } }
+      if (!this._blocked(nx, nz)) { p.position.x = nx; p.position.z = nz; this._slideT = 0; }
+      else { let done = false; const sgn = this._slideS || 1; this._slideT = (this._slideT || 0) + dt;
+        for (const ang of [0.4, 0.8, 1.2, 1.5]) { for (const s of [sgn, -sgn]) { const c = Math.cos(ang * s), sn = Math.sin(ang * s), k = Math.max(0.6, Math.cos(ang)); const sx = (step.x * c - step.z * sn) * k, sz = (step.x * sn + step.z * c) * k; if (!this._blocked(p.position.x + sx, p.position.z + sz)) { p.position.x += sx; p.position.z += sz; this._slideS = s; done = true; break; } } if (done) break; }
+        if (!done) { if (!this._blocked(nx, p.position.z)) p.position.x = nx; else if (!this._blocked(p.position.x, nz)) p.position.z = nz; } }
+      const B = this.opts.bounds || 600; p.position.x = clamp(p.position.x, -B, B); p.position.z = clamp(p.position.z, -B, B); const BR = this.opts.boundR; if (BR && !this.level && !this._inWorld(p.position.x, p.position.z)) { const rr = Math.hypot(p.position.x, p.position.z); if (rr > BR + 30) { p.position.x *= BR / rr; p.position.z *= BR / rr; if (this.t - (this._edgeT || -99) > 30) { this._edgeT = this.t; this.toast('🌤️ The edge of the island. From here it is clouds, skyline, and the Earth far below.', 3600); } } }
       this.walked += before.distanceTo(p.position);
       for (const h of this._stepHooks) { if (!h.done && this.walked >= h.meters) { h.done = true; try { h.fn(this); } catch (e) { console.error(e); } } }
-      const ang = Math.atan2(step.x, step.z); this.avatar.rotation.y = lerpAngle(this.avatar.rotation.y, ang, 0.25);
+      const ang = Math.atan2(step.x, step.z); this.avatar.rotation.y = lerpAngle(this.avatar.rotation.y, ang, 1 - Math.pow(0.75, dt * 60));
     }
     p.position.y = o.groundY(p.position.x, p.position.z);
     if (this.vehicle) { const v = this.vehicle.m; v.position.copy(p.position); v.rotation.y = this.avatar.rotation.y; if (this.vehicle.turbo > 0) this.vehicle.turbo -= dt; sitPerson(this.avatar, true); animatePerson(this.avatar, this.t, 0); return; }
@@ -1258,7 +1259,7 @@ export class WVM {
 
   _updateCamera(dt) {
     if (this.renderer.xr.isPresenting) { this.rig.position.copy(this.player.position); this.rig.rotation.y = this.yaw; return; }
-    this.dist = lerp(this.dist, this.targetDist, 0.15);
+    this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6;
     this.avatar.visible = !first;
     const p = this.player.position;
@@ -1279,16 +1280,16 @@ export class WVM {
       const camPos = eye.clone().add(off);
       const gy = this.opts.groundY(camPos.x, camPos.z) + 0.4; if (camPos.y < gy) camPos.y = gy;
       // zoomed way out = world view: push the fog back so the whole map stays visible
-      const far = this.dist > 30; if (far !== this._farMode) { this._farMode = far; this.setFar(far); this.scene.fog.near = far ? this.opts.fogFar * 2 : this.opts.fogNear; this.scene.fog.far = far ? this.opts.fogFar * 6 : this.opts.fogFar; }
+      const far = this.dist > 30; if (far !== this._farMode) { this._farMode = far; this.setFar(far); if (!this._air) { this.scene.fog.near = far ? this.opts.fogFar * 2 : this.opts.fogNear; this.scene.fog.far = far ? this.opts.fogFar * 6 : this.opts.fogFar; } }
       this.rig.position.copy(camPos); this.rig.rotation.set(0, 0, 0); this.camera.position.set(0, 0, 0);
       this.rig.updateMatrixWorld(); this.camera.lookAt(eye);
     }
   }
 
-  setFar(on) { const f = on ? (this.opts.camFar || 2400) : 2400; if (this.camera.far !== f) { this.camera.far = f; this.camera.updateProjectionMatrix(); } }
+  setFar(on) { const f = (on || this._air) ? (this.opts.camFar || 2400) : 2400; if (this.camera.far !== f) { this.camera.far = f; this.camera.updateProjectionMatrix(); } }
   _occlusion(eye, dir, dist) {
     if (this.t - (this._occT || 0) > 0.25) { this._occT = this.t; let lim = Infinity;
-      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); if (!this._occList || this.t - (this._occListT || -9) > 3) { this._occListT = this.t; const L = []; const P = this.player.position; const v = new THREE.Vector3(); this.scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
+      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); const P0 = this.player.position; if (!this._occList || this.t - (this._occListT || -9) > 12 || Math.hypot(P0.x - (this._occX || 0), P0.z - (this._occZ || 0)) > 14 || (this.level || 0) !== this._occLv) { this._occListT = this.t; this._occX = P0.x; this._occZ = P0.z; this._occLv = this.level || 0; const L = []; const P = this.player.position; const v = new THREE.Vector3(); const near = []; for (const top of this.scene.children) { const c = top.userData._cs; if (top === this.player || top === this.rig || top.isLight || top.visible === false) continue; if (c && c.r < 400) { const ddx = top.position.x + c.ox - P.x, ddz = top.position.z + c.oz - P.z; if (ddx * ddx + ddz * ddz > (c.r + 50) * (c.r + 50)) continue; } near.push(top); } for (const top of near) top.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
         let hits = []; try { hits = rc.intersectObjects(this._occList, false); } catch (e) { }
         for (const h of hits) { const o = h.object; if (!o.isMesh || o.isSprite || h.distance < 0.8) continue; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) continue; let pa = o, skip = false; const veh = this.vehicle && this.vehicle.m; while (pa) { if (pa === this.player || pa === veh || !pa.visible) { skip = true; break; } pa = pa.parent; } if (skip) continue; lim = h.distance - 0.5; break; } }
       this._occLim = lim; }
@@ -1296,15 +1297,17 @@ export class WVM {
   }
 
   _updateNPCs(dt) {
+    const PP = this.player.position, d = this._nv || (this._nv = new THREE.Vector3()), wideN = this.dist > 30 || !!this._intro || !!this._air;
     for (const n of this.npcs) {
-      const p = n.p;
-      if (n.wait > 0) { n.wait -= dt; animatePerson(p, this.t, 0); continue; }
+      const p = n.p; const fx = p.position.x - PP.x, fz = p.position.z - PP.z; const farN = fx * fx + fz * fz > 130 * 130 || wideN || (this.level || 0) >= 3;
+      if (n.wait > 0) { n.wait -= dt; if (!farN) animatePerson(p, this.t, 0); continue; }
       const tgt = n.path[(n.i + 1) % n.path.length];
-      const d = new THREE.Vector3().subVectors(tgt, p.position); d.y = 0;
+      d.subVectors(tgt, p.position); d.y = 0;
       const L = d.length();
       if (L < 0.3) { n.i = (n.i + 1) % n.path.length; if (!n.loop && n.i === n.path.length - 1) n.i = 0; n.wait = n.pause ? rand(0, n.pause) : 0; continue; }
       d.normalize(); p.position.addScaledVector(d, n.speed * dt);
       p.position.y = n.y !== undefined ? n.y : this.opts.groundY(p.position.x, p.position.z);
+      if (farN) continue;
       p.rotation.y = lerpAngle(p.rotation.y, Math.atan2(d.x, d.z), 0.15);
       animatePerson(p, this.t, n.speed / 1.6);
     }
@@ -1394,7 +1397,7 @@ export class WVM {
     grip.addEventListener('touchstart', e => { gs(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
     grip.addEventListener('touchmove', e => { gm(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false }); grip.addEventListener('touchend', ge);
     const stick = pad.querySelector('.wvm-stick'), knob = pad.querySelector('.wvm-knob'); let sid = null;
-    const sset = (x, y) => { const r = stick.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let dx = (x - cx) / (r.width / 2), dy = (y - cy) / (r.height / 2); const L = Math.hypot(dx, dy); if (L > 1) { dx /= L; dy /= L; } knob.style.transform = `translate(${dx * 34}px,${dy * 34}px)`; this.moveVec.set(dx, -dy); this.running = L > 0.92; this.walkTarget = null; };
+    const sset = (x, y) => { const r = stick.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; let dx = (x - cx) / (r.width / 2), dy = (y - cy) / (r.height / 2); const L = Math.hypot(dx, dy); if (L > 1) { dx /= L; dy /= L; } knob.style.transform = `translate(${dx * 34}px,${dy * 34}px)`; const Lc = Math.min(1, L); if (Lc < 0.14) this.moveVec.set(0, 0); else { const k = (0.6 + 0.4 * (Lc - 0.14) / 0.86) / Lc; this.moveVec.set(dx * k, -dy * k); } this.running = L > 0.92; this.walkTarget = null; if (this._route) { this._route = null; } };
     const sclr = () => { knob.style.transform = ''; this.moveVec.set(0, 0); this.running = false; sid = null; };
     stick.addEventListener('touchstart', e => { sid = e.changedTouches[0].identifier; sset(e.changedTouches[0].clientX, e.changedTouches[0].clientY); e.preventDefault(); }, { passive: false });
     stick.addEventListener('touchmove', e => { for (const t of e.changedTouches) if (t.identifier === sid) sset(t.clientX, t.clientY); e.preventDefault(); }, { passive: false });
@@ -1679,7 +1682,7 @@ export class WVM {
       .wvm-tools{display:flex;gap:6px}
 .wvm-brand .wvm-logo-mini{display:none}
 @media (max-width:680px){.wvm-top{align-items:flex-start;gap:6px;padding:6px 6px}.wvm-brand .wvm-logo-full{display:none}.wvm-brand .wvm-logo-mini{display:block;height:38px;padding:2px 3px}.wvm-where{display:none}.wvm-tools{flex:1;flex-wrap:wrap;justify-content:flex-end;gap:5px}.wvm-ico{width:36px;height:36px;font-size:16px;border-radius:10px}}
-      .wvm-ico{position:relative;width:40px;height:40px;border-radius:12px;border:1px solid rgba(124,248,255,.35);background:rgba(8,20,50,.7);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
+      .wvm-ico{position:relative;width:40px;height:40px;border-radius:12px;border:1px solid rgba(124,248,255,.35);background:rgba(8,20,50,.7);color:#fff;font-size:18px;cursor:pointer;}
       .wvm-ico span{position:absolute;top:-6px;right:-6px;background:#ff4f79;color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:1px 6px;min-width:12px}
       .wvm-ico.bump{transform:scale(1.2)}
       #wvm-vr{position:absolute!important;left:50%!important;transform:translateX(-50%);bottom:18px!important;background:#38f0ff!important;color:#04122a!important;border:0!important;border-radius:999px!important;font-weight:800!important;padding:10px 22px!important;font-family:inherit!important;opacity:1!important;width:auto!important;font-size:14px!important}
@@ -1704,7 +1707,7 @@ export class WVM {
       .wvm-list-foot{display:flex;gap:8px;padding-top:10px} .muted{color:#9fb3d9;font-size:13px}
       .wvm-btn{background:rgba(124,248,255,.15);border:1px solid #38f0ff;color:#fff;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;text-decoration:none;display:inline-block}
       .wvm-btn.primary{background:#38f0ff;color:#04122a} .wvm-btn.ghost{background:transparent;border-color:rgba(255,255,255,.3)} .wvm-btn.small{padding:6px 12px;font-size:12px}
-      .wvm-modal{position:absolute;inset:0;background:rgba(2,6,20,.6);display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
+      .wvm-modal{position:absolute;inset:0;background:rgba(2,6,20,.6);display:none;align-items:center;justify-content:center;padding:14px;}
       .wvm-modal.on{display:flex}
       .wvm-card{background:linear-gradient(160deg,#0d1f4d,#071233);border:1px solid rgba(124,248,255,.45);border-radius:20px;padding:20px 22px;width:min(560px,96vw);max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
       .wvm-card-wide{width:min(720px,96vw)}
