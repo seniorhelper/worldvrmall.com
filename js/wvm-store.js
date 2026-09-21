@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=34';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=37';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -161,6 +161,29 @@ export function leadForm(app, store, intro) {
     st.style.color = '#9fd3ff'; st.textContent = 'Sending…';
     fetch(url, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject(r)).then(() => { st.style.color = '#7cff6b'; st.textContent = 'Sent! Expect a call or email within one business day.'; }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. ' + (store.phone ? 'Please call ' + store.phone + '.' : 'Please use the website instead.'); });
   } }, ...(store.phone ? [{ label: '📞 ' + store.phone, href: 'tel:' + store.phone.replace(/[^\d+]/g, ''), newTab: true }] : [])]);
+}
+
+/* ---------- idea box: visitors pitch a coaster mode, a new world, a feature. Spam-protected like the lead form, and nothing sends without the no-compensation agreement ticked ---------- */
+export function ideaForm(app, kind = 'coaster') {
+  const t0 = Date.now(); const id = 'if' + Math.floor(Math.random() * 1e6); const K = kind === 'coaster' ? ['🎢 Design a ride mode for The Chiller', 'A theme, a twist, a whole new mode. If we love it, we code it into the ride.', 'Roller coaster idea'] : ['🌍 Pitch a new world or feature', 'A new land, a game, a room, a store type, anything. If we love it, we build it into World VR Mall.', 'World / feature idea'];
+  const html = `<p>${K[1]}</p><form id="${id}" novalidate>
+      <label ${lbl}>Your name *</label><input name="name" required autocomplete="name" ${inp}>
+      <label ${lbl}>Email * <span style="opacity:.7;font-weight:400">(so we can tell you if it gets built)</span></label><input name="email" type="email" required autocomplete="email" ${inp}>
+      <label ${lbl}>Name your idea</label><input name="idea_title" maxlength="80" ${inp}>
+      <label ${lbl}>Describe it *</label><textarea name="idea" maxlength="1500" ${inp.replace('padding:10px', 'min-height:96px;padding:10px')}></textarea>
+      <label style="display:flex;gap:9px;align-items:flex-start;margin-top:10px;font-size:13px;line-height:1.4;cursor:pointer"><input type="checkbox" name="agree" value="yes" style="width:20px;height:20px;margin-top:2px;flex:none"><span><b>I agree:</b> I am sharing this idea freely and it is my own. World VR Mall may use it, change it, or not use it at all, and I am <b>not owed any payment, credit, royalty or ownership</b>. I am 18 or older, or I have a parent's permission. <a href="/terms/#ideas" target="_blank" rel="noopener" style="color:#7cf8ff">Idea terms</a></span></label>
+      <div style="display:none"><input name="_honey" tabindex="-1" autocomplete="off"></div>
+      <input type="hidden" name="_subject" value="World VR Mall idea box — ${K[2]}"><input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false"><input type="hidden" name="idea_type" value="${K[2]}"><input type="hidden" name="agreement" value="Submitter ticked: shared freely, own idea, no payment/credit/royalty/ownership owed, 18+ or parent permission.">
+      <div id="${id}-st" style="margin-top:8px;font-weight:700;min-height:20px"></div></form>`;
+  app.popup(K[0], html, [{ label: '🚀 Send my idea', keep: true, primary: true, fn: () => {
+    const f = document.getElementById(id), st = document.getElementById(id + '-st'); if (!f) return; const bad = (m) => { st.style.color = '#ff4f79'; st.textContent = m; };
+    if (!f.name.value.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.value.trim())) return bad('Your name and a real email, please.');
+    if (f.idea.value.trim().length < 15) return bad('Tell us a little more about the idea (a sentence or two).');
+    if (!f.agree.checked) return bad('Please tick the agreement box. We cannot accept ideas without it.');
+    if (f._honey.value || Date.now() - t0 < 4000 || !humanInput) { st.style.color = '#9fd3ff'; st.textContent = 'One sec, then try again.'; return; }
+    if (f.dataset.sent) return; const url = atob(LF.a) + atob(LF.u) + String.fromCharCode(64) + atob(LF.d); st.style.color = '#9fd3ff'; st.textContent = 'Sending…';
+    fetch(url, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject(r)).then(() => { f.dataset.sent = '1'; st.style.color = '#7cff6b'; st.textContent = 'Got it! Thank you. If we build it, you will hear from us first.'; if (app.celebrate) app.celebrate('💡'); }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. Please try again in a minute.'; });
+  } }]);
 }
 
 /* ---------- the store ---------- */
