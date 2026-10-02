@@ -379,12 +379,15 @@ export function makeBobble(kind = 'cat', opts = {}) {
 }
 
 /* Build any character from a CHARACTERS entry + saved avatar options. Returns a Promise for GLB kinds. */
-function addExtras(g, av) {
+export function addExtras(g, av) {
   const y = (g.userData.headY || 2) - 0.25;
   if (av.cape) { const c = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.3, 4, 6), M(av.capeColor || 0xb51a1a, { side: THREE.DoubleSide })); c.position.set(0, 1.35, -0.32); c.rotation.x = 0.18; g.add(c); g.userData.cape = c; }
   if (av.wings) { for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.6), new THREE.MeshStandardMaterial({ color: pick([0xb08cff, 0x38f0ff, 0xff4fd8]), transparent: true, opacity: 0.8, side: THREE.DoubleSide, emissive: 0x333333 })); w.position.set(sx * 0.5, 1.3, -0.3); w.rotation.y = sx * 0.6; g.add(w); g.userData['wing' + (sx > 0 ? 'R' : 'L')] = w; } }
   if (av.crown) { const cr = new THREE.Group(); cr.position.y = y + 0.22; const band = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.12, 12, 1, true), new THREE.MeshStandardMaterial({ color: 0xffd23f, metalness: 0.9, roughness: 0.2, side: THREE.DoubleSide })); cr.add(band); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const pt = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 4), band.material); pt.position.set(Math.cos(a) * 0.24, 0.12, Math.sin(a) * 0.24); cr.add(pt); const gem = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), M(pick([0xff4f79, 0x38f0ff, 0x7cff6b]), { emissive: 0x222222 })); gem.position.set(Math.cos(a) * 0.25, 0.02, Math.sin(a) * 0.25); cr.add(gem); } g.add(cr); }
   if (av.backpack) { const bp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.5, 0.22), M(av.shirt ? 0x1e2a4a : 0x2b8a3e)); bp.position.set(0, 1.2, -0.36); g.add(bp); for (const sx of [-1, 1]) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.04), M(0x111111)); st.position.set(sx * 0.14, 1.3, -0.24); g.add(st); } }
+  if (av.bowtie) { const bt = new THREE.Group(); bt.position.set(0, y - 0.28, 0.17); for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.12, 4), M(av.shirt === 0xff4f79 ? 0x111111 : 0xff4f79)); w.rotation.z = sx * Math.PI / 2; w.position.x = sx * 0.06; bt.add(w); } g.add(bt); }
+  if (av.scarf) { const sc = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.06, 8, 18), M(0xff8a3d, { roughness: 0.95 })); sc.rotation.x = Math.PI / 2; sc.position.set(0, y - 0.3, 0.02); g.add(sc); const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.36, 0.05), sc.material); tail.position.set(0.1, y - 0.5, 0.16); g.add(tail); }
+  if (av.visor) { const vz = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 8, Math.PI / 2 - 0.9, 1.8, Math.PI * 0.36, Math.PI * 0.2), new THREE.MeshPhysicalMaterial({ color: 0x38f0ff, transparent: true, opacity: 0.55, metalness: 0.6, roughness: 0.05, emissive: 0x0a3a50 })); vz.position.set(0, y + 0.06, 0.04); g.add(vz); }
   if (av.skateboard) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.04, 0.9), M(0xff4f79)); b.position.set(0.05, 0.03, 0); g.add(b); for (const sz of [-0.3, 0.3]) for (const sx of [-0.1, 0.1]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 8), M(0xffffff)); w.rotation.z = Math.PI / 2; w.position.set(0.05 + sx, 0.04, sz); g.add(w); } g.userData.skate = true; }
   return g;
 }
@@ -405,6 +408,25 @@ export function makePet(kind) {
 }
 export function animatePet(p, t, speed) { const u = p.userData; const s = Math.sin(t * 10) * 0.5 * speed; u.legs.forEach((l, i) => { l.rotation.x = s * (i % 2 ? 1 : -1); }); u.tail.rotation.z = Math.sin(t * 6) * 0.5; if (u.wingL) { u.wingL.rotation.z = Math.sin(t * 8) * 0.5; u.wingR.rotation.z = -Math.sin(t * 8) * 0.5; } }
 
+/* Body type (v3): works on rigged + Classic characters. */
+export const BUILDS = [['Regular', 'regular'], ['Slim', 'slim'], ['Muscle', 'muscle'], ['Sumo', 'sumo'], ['Comic big-head', 'comic'], ['Tall', 'tall'], ['Mini', 'mini']];
+export function applyBuild(g, build) {
+  if (!g || !build || build === 'regular') return g; const u = g.userData; const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  if (u.model && u.mixer) {
+    const want = { slim: { UpperArm: V(0.8, 1, 0.8), LowerArm: V(0.8, 1, 0.8), UpperLeg: V(0.85, 1, 0.85), Chest: V(0.88, 1, 0.9) },
+      muscle: { UpperArm: V(1.45, 1, 1.45), LowerArm: V(1.25, 1, 1.25), Chest: V(1.22, 1.05, 1.18), Shoulder: V(1.2, 1, 1.2), Neck: V(1.25, 1, 1.25), UpperLeg: V(1.2, 1, 1.2) },
+      sumo: { Abdomen: V(1.65, 1, 1.75), Torso: V(1.35, 1, 1.4), Chest: V(1.15, 1, 1.12), UpperLeg: V(1.45, 1, 1.45), LowerLeg: V(1.25, 1, 1.25), UpperArm: V(1.3, 1, 1.3) },
+      comic: { Head: V(1.38, 1.38, 1.38), Chest: V(1.12, 1, 1.08) } }[build];
+    if (want) { u.buildBones = []; u.model.traverse(o => { if (!o.isBone) return; const k = Object.keys(want).find(n => o.name.replace(/[._](L|R)$/i, '') === n); if (k) u.buildBones.push([o, want[k].clone()]); }); }
+    if (build === 'tall') u.model.scale.multiplyScalar(1.1); if (build === 'mini') u.model.scale.multiplyScalar(0.82);
+    if (build === 'sumo') u.model.scale.x *= 1.06;
+  } else {
+    const k = { slim: [0.86, 1, 0.86], muscle: [1.22, 1.02, 1.12], sumo: [1.5, 0.96, 1.4], comic: [1, 1, 1], tall: [1, 1.1, 1], mini: [0.85, 0.82, 0.85] }[build];
+    if (k) g.scale.set(g.scale.x * k[0], g.scale.y * k[1], g.scale.z * k[2]);
+    if (build === 'comic') g.traverse(o => { if (o.userData && o.userData.head && o.parent) o.parent.scale.multiplyScalar(1.3); });
+  }
+  u.build = build; return g;
+}
 export function buildCharacter(ch, av = {}, faceTex = null) {
   const common = { shirt: av.shirt, pants: av.pants, skin: av.skin, hair: av.hair, hairStyle: av.hairStyle, hat: !!av.hat, sunglasses: !!av.sunglasses, headphones: !!av.headphones, bag: false, glasses: false, beard: false, dress: !!av.dress, scale: 1 };
   Object.keys(common).forEach(k => common[k] === undefined && delete common[k]);
@@ -429,7 +451,7 @@ export function loadRiggedPerson(url, opts = {}) {
     const src = gltf.scene; const model = cloneSkinned(src);
     const g = new THREE.Group(); g.add(model);
     // normalize height + ground
-    const box = new THREE.Box3().setFromObject(model); const h = box.max.y - box.min.y || 1.8; const s = (opts.height || 1.8) / h; model.scale.setScalar(s);
+    const box = new THREE.Box3().setFromObject(model); const h = box.max.y - box.min.y || 1.8; const s = (opts.height || 1.72) / h; model.scale.setScalar(s);
     model.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
     model.rotation.y = opts.yaw || 0;
     // materials: recolor hair / skin, drop weapons if any
@@ -448,22 +470,24 @@ export function loadRiggedPerson(url, opts = {}) {
     const act = (c) => { if (!c) return null; const a = mixer.clipAction(c); a.enabled = true; a.setEffectiveWeight(0); a.play(); return a; };
     g.userData.actions = { idle: act(idleC), walk: act(walkC), run: act(runC), wave: act(waveC), sit: act(sitC) };
     if (g.userData.actions.idle) g.userData.actions.idle.setEffectiveWeight(1);
-    g.userData.mixer = mixer; g.userData.model = model; g.userData.kind = 'glb'; g.userData.headY = (opts.height || 1.8) + 0.1; g.userData.phase = Math.random() * 10;
+    g.userData.mixer = mixer; g.userData.model = model; g.userData.kind = 'glb'; g.userData.headY = (opts.height || 1.72) + 0.1; g.userData.phase = Math.random() * 10;
     g.userData.limbs = null; g.userData.lastT = 0;
-    // selfie face on the rigged head: a small floating face plate parented to the head bone
+    // selfie face v2: parented straight to the head BONE so it rides every animation frame (walk, wave, swim, ride);
+    // sized from the real head mesh; the original cartoon head is swapped out so nothing blocks the photo.
     if (opts.faceTex) {
-      let headBone = null; model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name)) headBone = o; });
+      let headBone = null; model.traverse(o => { if (!headBone && o.isBone && /^head$/i.test(o.name)) headBone = o; });
+      if (!headBone) model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name) && !/end|top|nub/i.test(o.name)) headBone = o; });
       let headMesh = null; model.traverse(o => { if (!headMesh && o.isMesh && /head/i.test(o.name)) headMesh = o; });
-      {
-        model.updateMatrixWorld(true); const box = new THREE.Box3(); if (headMesh) { headMesh.geometry.computeBoundingBox(); box.copy(headMesh.geometry.boundingBox).applyMatrix4(headMesh.matrixWorld); } else { box.setFromCenterAndSize(new THREE.Vector3(0, 1.62, 0), new THREE.Vector3(0.3, 0.3, 0.3)); }
-        const size = new THREE.Vector3(); box.getSize(size); const center = new THREE.Vector3(); box.getCenter(center); const r = Math.max(0.09, Math.min(size.x, size.y) * 0.5 * 0.98);
-        const hr = 0.125 * ((opts.height || 1.8) / 1.8);
-        const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
-        const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.42), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
-        if (headMesh) headMesh.visible = false;
-        g.add(plate); g.userData.faceHead = plate; g.userData.headBone = headBone; g.userData.headOffset = new THREE.Vector3(0, hr * 0.55, 0.02); if (!headBone) plate.position.set(0, (opts.height || 1.8) - hr * 0.55, 0.02);
-        g.userData.face = plate.userData.cap;
-      }
+      model.updateMatrixWorld(true);
+      const HH = opts.height || 1.72; const center = new THREE.Vector3(0, HH * 0.9, 0.02); let hr = 0.125 * HH / 1.8;
+      if (headMesh) { headMesh.geometry.computeBoundingBox(); const bb = headMesh.geometry.boundingBox.clone().applyMatrix4(headMesh.matrixWorld); if (!bb.isEmpty()) { const sz = new THREE.Vector3(); bb.getSize(sz); const c = new THREE.Vector3(); bb.getCenter(c); if (sz.y > 0.06 && sz.y < 0.8 && c.y > HH * 0.55) { center.copy(c); hr = THREE.MathUtils.clamp(Math.min(sz.x, sz.y) * 0.46, 0.1, 0.2); } } }
+      const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
+      const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.42), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
+      if (headMesh) headMesh.visible = false;
+      if (headBone) { const ws = new THREE.Vector3(); headBone.getWorldScale(ws); const bq = new THREE.Quaternion(); headBone.getWorldQuaternion(bq); headBone.add(plate); plate.position.copy(headBone.worldToLocal(center.clone())); plate.quaternion.copy(bq.invert()); plate.scale.setScalar(1 / (Math.abs(ws.x) || 1)); }
+      else { g.add(plate); plate.position.copy(center); }
+      plate.traverse(o => { o.frustumCulled = false; o.castShadow = true; });
+      g.userData.faceHead = plate; g.userData.faceOK = true; g.userData.face = plate.userData.cap;
     }
     if (opts.sunglasses) { let hb = null; model.traverse(o => { if (!hb && o.isBone && /head/i.test(o.name)) hb = o; }); if (hb) { const f = new THREE.Group(); addSunglasses(f, 0.06 / s, 0.08 / s); f.scale.setScalar(1 / s); hb.add(f); } }
     return g;
@@ -579,7 +603,7 @@ export function makeRider(color) {
 export function animatePerson(p, t, speed = 1) {
   const u = p.userData;
   if (u.mixer) {
-    const dt = clamp(t - (u.lastT || t), 0, 0.05); u.lastT = t; u.mixer.update(dt);
+    const dt = clamp(t - (u.lastT || t), 0, 0.05); u.lastT = t; u.mixer.update(dt); if (u.buildBones) for (const [b, v] of u.buildBones) b.scale.copy(v);
     if (u.faceHead && u.headBone) { p.updateMatrixWorld(true); const v = new THREE.Vector3(); u.headBone.getWorldPosition(v); p.worldToLocal(v); u.faceHead.position.copy(v).add(u.headOffset); }
     const A = u.actions; const want = u.pose === 'sit' && A.sit ? 'sit' : u.pose === 'wave' && A.wave ? 'wave' : speed > 1.4 && A.run ? 'run' : speed > 0.05 && A.walk ? 'walk' : 'idle';
     for (const k of Object.keys(A)) { const a = A[k]; if (!a) continue; const target = k === want ? 1 : 0; a.setEffectiveWeight(lerp(a.getEffectiveWeight(), target, 0.12)); if (k === 'walk' || k === 'run') a.setEffectiveTimeScale(clamp(speed, 0.6, 1.8)); }
@@ -599,7 +623,7 @@ export function animatePerson(p, t, speed = 1) {
 export function sitPerson(p, on = true) {
   const u = p.userData; u.pose = on ? 'sit' : null;
   if (u.limbs) { const L = u.limbs; if (on) { L.lL.rotation.x = L.lR.rotation.x = 1.35; L.aL.rotation.x = L.aR.rotation.x = -0.9; L.lL.position.y = L.lR.position.y = 0.42; } else { L.lL.rotation.x = L.lR.rotation.x = L.aL.rotation.x = L.aR.rotation.x = 0; L.lL.position.y = L.lR.position.y = 0.45; } }
-  if (u.model && !u.actions?.sit) { u.model.rotation.x = on ? 0 : 0; }
+  if (u.model && !u.actions?.sit) { if (u.sitBaseY === undefined) u.sitBaseY = u.model.position.y; u.model.traverse(o => { if (o.isMesh && /legs|feet|foot|shoe|boot/i.test(o.name)) o.visible = !on; }); u.model.position.y = u.sitBaseY + (on ? -0.66 * ((u.headY || 1.82) / 1.82) : 0); }
   return (u.headY || 2) * (on ? 0.8 : 1);
 }
 
@@ -744,7 +768,7 @@ export class WVM {
     const placeholder = makePerson(Object.assign({ bag: false, faceTex, age: 'adult', scale: 1, glasses: false, beard: false, dress: false, hairStyle: 'short', hair: 0x4a2e15, skin: 0xe0ac7e, shirt: 0x38f0ff, pants: 0x1e2a4a, hat: false }, saved));
     this._setAvatar(placeholder);
     const gen = this._avatarGen = (this._avatarGen || 0) + 1;
-    buildCharacter(ch, saved, faceTex).then(av => { if (gen !== this._avatarGen) return; addExtras(av, saved); this._setAvatar(av); });
+    buildCharacter(ch, saved, faceTex).then(av => { if (gen !== this._avatarGen) return; addExtras(av, saved); applyBuild(av, saved.build); if (faceTex && ch.face && !av.userData.faceOK && ch.kind === 'glb') this.toast('📷 Your face could not attach to ' + ch.name + ' on this device. Classic, Kid, Alien, Robot, Cart and the bobbleheads always work.', 5200); this._setAvatar(av); try { window.dispatchEvent(new CustomEvent('aou-avatar')); } catch (e) { } });
   }
   _setAvatar(av) {
     if (this.avatar) { this.player.remove(this.avatar); if (this.vehicle) sitPerson(av, true); }
@@ -1138,7 +1162,7 @@ export class WVM {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(wid, len), new THREE.MeshStandardMaterial({ map: t, emissive: 0x38f0ff, emissiveMap: t, emissiveIntensity: 1.6, roughness: 0.4, polygonOffset: true, polygonOffsetFactor: -2 })); m.rotation.x = -Math.PI / 2; m.rotation.z = rot; m.position.set(x, y, z); m.userData.noShadow = true; this.scene.add(m);
     const b = { x, z, c: Math.cos(rot), s: Math.sin(rot), hl: len / 2, hw: wid / 2, t, on: false }; this.boosts.push(b); return m;
   }
-  _updateBoosts(dt) { const p = this.player.position; for (const b of this.boosts) { b.t.offset.y -= dt * 2.2; const dx = p.x - b.x, dz = p.z - b.z; const along = dx * b.s + dz * b.c, across = dx * b.c - dz * b.s; const on = Math.abs(along) < b.hl && Math.abs(across) < b.hw && !this.ride && (this.level || 0) === 0; if (on && !b.on) { this.toast('⚡ BOOST!', 900); this.buzz(30); } b.on = on; if (on) this._boost = 2.2; } if (this._boost > 0) this._boost -= dt; }
+  _updateBoosts(dt) { const p = this.player.position; for (const b of this.boosts) { b.t.offset.y -= dt * 2.2; const dx = p.x - b.x, dz = p.z - b.z; const along = dx * b.s + dz * b.c, across = dx * b.c - dz * b.s; const on = Math.abs(along) < b.hl && Math.abs(across) < b.hw && !this.ride && (this.level || 0) === 0; if (on && !b.on) { this.toast('⚡ BOOST!', 900); this.buzz(30); } b.on = on; if (on) { this._boost = 2.2; const vx = -b.s * 11 * dt, vz = -b.c * 11 * dt; if (!this._blocked(p.x + vx, p.z + vz)) { p.x += vx; p.z += vz; } } } if (this._boost > 0) this._boost -= dt; }
   /* A sittable reclaimed-barnwood bench. opts.credit links the maker. */
   addBench(x, z, rot = 0, opts = {}) {
     const g = new THREE.Group(); g.position.set(x, opts.y || 0, z); g.rotation.y = rot; const wood = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.95 }); const tones = [0x6b4423, 0x7a5230, 0x5c3a1e, 0x8a6238];
@@ -1665,12 +1689,13 @@ export class WVM {
     const el = this.selfieEl, chars = el.querySelector('.wvm-chars'), tabs = el.querySelector('.wvm-tabs'), looks = el.querySelector('.wvm-looks');
     const get = () => this._load('wvm_avatar', {}) || {}; const set = (patch) => { const a = Object.assign(get(), patch); this._save('wvm_avatar', a); this._buildAvatar(); return a; };
     // character cards
-    const renderChars = () => { chars.innerHTML = ''; const cur = get().character || 'hero'; for (const c of CHARACTERS) { const b = document.createElement('button'); b.className = 'wvm-char' + (c.id === cur ? ' on' : ''); b.innerHTML = `<span class="ic">${c.icon}</span><b>${c.name}</b><small>${c.desc}</small>`; b.onclick = () => { set({ character: c.id }); renderChars(); renderLooks(); }; chars.appendChild(b); } };
+    const renderChars = () => { chars.innerHTML = ''; const cur = get().character || 'hero'; for (const c of CHARACTERS) { const b = document.createElement('button'); b.className = 'wvm-char' + (c.id === cur ? ' on' : ''); b.innerHTML = `<span class="ic">${c.icon}</span><b>${c.name}</b><small>${c.desc}</small><em class="fbadge${c.face ? '' : ' no'}">${c.face ? '📷 selfie face' : 'no face option'}</em>`; b.onclick = () => { set({ character: c.id }); renderChars(); renderLooks(); }; chars.appendChild(b); } };
     const groups = {
       Colors: [['shirt', 'Outfit', [['Sky', 0x38f0ff], ['Coral', 0xff4f79], ['Sun', 0xffd23f], ['Mint', 0x7cff6b], ['Violet', 0xb08cff], ['Orange', 0xff8a3d], ['White', 0xffffff], ['Navy', 0x1e2a4a], ['Black', 0x111111]]], ['pants', 'Pants', [['navy', 0x1e2a4a], ['black', 0x2b2b2b], ['purple', 0x4a3b8c], ['denim', 0x3a6ea5], ['khaki', 0x6b4f2a], ['wine', 0x8a1c3a], ['olive', 0x556b2f]]]],
       Skin: [['skin', 'Skin', [['light', 0xffdbac], ['fair', 0xf1c9a5], ['tan', 0xe0ac7e], ['olive', 0xc68642], ['brown', 0x8d5524], ['deep', 0x5c3a1e]]]],
       Hair: [['hair', 'Hair color', HAIR_COLORS], ['hairStyle', 'Hair style', [['short', 'short'], ['long', 'long'], ['ponytail', 'ponytail'], ['curly', 'curly'], ['bun', 'bun'], ['mohawk', 'mohawk'], ['spiky', 'spiky'], ['bald', 'bald']]]],
-      Extras: [['toggles', '', [['🕶️ Sunglasses', 'sunglasses'], ['🎧 Headphones', 'headphones'], ['🧢 Hat', 'hat'], ['👗 Dress', 'dress'], ['🦸 Cape', 'cape'], ['🦋 Wings', 'wings'], ['👑 Crown', 'crown'], ['🎒 Backpack', 'backpack'], ['🛹 Skateboard', 'skateboard']]]],
+      Extras: [['toggles', '', [['🕶️ Sunglasses', 'sunglasses'], ['🎧 Headphones', 'headphones'], ['🧢 Hat', 'hat'], ['👗 Dress', 'dress'], ['🦸 Cape', 'cape'], ['🦋 Wings', 'wings'], ['👑 Crown', 'crown'], ['🎒 Backpack', 'backpack'], ['🛹 Skateboard', 'skateboard'], ['🎀 Bow tie', 'bowtie'], ['🧣 Scarf', 'scarf'], ['🥽 Visor', 'visor']]]],
+      Body: [['build', 'Body type', BUILDS]],
       Pet: [['pet', 'Companion', [['none', 'none'], ['🐶 Dog', 'dog'], ['🐱 Cat', 'cat'], ['🐉 Dragon', 'dragon'], ['🦆 Duck', 'duck'], ['🤖 Robo-pup', 'robopup'], ['🦄 Mini unicorn', 'unicorn']]]],
     };
     let tab = 'Colors';

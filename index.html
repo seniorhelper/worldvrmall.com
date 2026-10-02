@@ -42,7 +42,7 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=38">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=39">
 <link rel="modulepreload" href="/js/wvm-bot.js?v=38">
 <link rel="modulepreload" href="/js/wvm-store.js?v=38">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
@@ -192,7 +192,7 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=38';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=39';
 import { initBot } from '/js/wvm-bot.js?v=38';
 import { ideaForm } from '/js/wvm-store.js?v=38';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -225,6 +225,7 @@ const S = app.scene, T = THREE;
 // module-level state used by builders that run before the end of this script (const/let do not hoist)
 const LOFT = (() => { const a = 12 / 56 * Math.PI * 2, dx = Math.sin(a), dz = Math.cos(a); return { dx, dz, door: [dx * 620.6, dz * 620.6], stand: [dx * 614, dz * 614], rot: Math.atan2(-dx, -dz) }; })(); const PENT = { on: false, y: 58, enter: null }, DECK = { on: false, y: 2300, fog: [0, 0], sky: null }; const DOMES = { beach: false, wilds: false, city: null }; const BEACH = { x: 40, z: -470, r: 85 }; const WILDS = { x: -478, z: 96, r: 84 };
 const ZOO = { x: -250, z: -470 };
+window.WVM_SPOTS = Object.assign(window.WVM_SPOTS || {}, { lake: LAKE, zoo: ZOO, wilds: WILDS, beach: BEACH });
 const GOND = { a: { x: 128, z: 100 }, b: { x: -128, z: 60 }, h: 42 };
 const isNightNowLocal = () => { const h = new Date().getHours(); return h >= 18 || h < 6; };
 let chiller = null; const RIDES = {}; window.WVM_RIDES = RIDES;
@@ -1619,6 +1620,9 @@ function buildMallExtras() {
 
   app.onUpdate((dt) => { rot.rotation.z += dt * 0.15; });
 }
+
+// v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
+import('/js/wvm-plus.js?v=39').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 </script>
 </body>
 </html>

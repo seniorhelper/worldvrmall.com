@@ -36,7 +36,7 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=38">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=39">
 <link rel="modulepreload" href="/js/wvm-bot.js?v=38">
 <link rel="modulepreload" href="/js/wvm-store.js?v=38">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/futuristic-global-mall-360-4096x2048.avif">
@@ -98,7 +98,7 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=38';
+import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=39';
 import { initBot } from '/js/wvm-bot.js?v=38';
 import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=38';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -1499,7 +1499,7 @@ function buildPeaceFloor() {
   // boost strips beside the moving walkways + down the lobby
   app.addBoost(-132, 7, Math.PI / 2, 140, 3.2); app.addBoost(132, -7, -Math.PI / 2, 140, 3.2); app.addBoost(7, -132, Math.PI, 140, 3.2); app.addBoost(-7, 74, Math.PI, 30, 3.2);
   // portals at the ends of the two legs, and the fast ones by the door
-  app.addPortal(-36, 36, new T.Vector3(GAL.x, 0, GAL.z + 34), { label: '🎨 ' + GALLERY_NAME, color: 0xb08cff, yaw: 0 });
+  app.addPortal(-36, 36, new T.Vector3(-700, 0, 1098), { label: '🎨 ' + GALLERY_NAME + ' · new wing', color: 0xb08cff, yaw: 0 });
   app.addPortal(36, 36, new T.Vector3(ROW.x - 110, 0, ROW.z), { label: '🍽️ Restaurant Row', color: 0xff8a3d, yaw: -Math.PI / 2 });
   app.addPortal(-14, 58, new T.Vector3(CATH.x, 0, CATH.z + CATH.R - 18), { label: '☮️ Peace Cathedral', color: 0xffd23f, yaw: 0 });
   app.addPortal(14, 58, new T.Vector3(LAB.x - 84, 0, LAB.z + 30), { label: '🧪 Lab · 🕹️ Arcade', color: 0x7cff6b, yaw: -Math.PI / 2 });
@@ -1657,7 +1657,7 @@ function buildRestaurantRow() {
     STORE_POS['dine-' + r.slug] = { x: wpos(-5, 14).x, z: wpos(-5, 14).z, name: r.name };
   });
   // the office door: restaurant advertising
-  const dx = cx + 134.4, dz = cz; const door = new T.Group(); door.position.set(dx, 0, dz); door.rotation.y = -Math.PI / 2; S.add(door); const slab = new T.Mesh(new T.BoxGeometry(3.4, 7, 0.3), M(0x3a2410, { roughness: 0.6 })); slab.position.y = 3.5; door.add(slab); const glassP = new T.Mesh(new T.PlaneGeometry(2.4, 2.6), new T.MeshBasicMaterial({ map: makeTextTexture(['RESTAURANT', 'ADVERTISING', 'office'], { w: 512, h: 554, bg: '#e9f1f7', fg: '#1a1a1a', accent: '#c9a24a', border: '#c9a24a', glow: false, font: 'bold 78px Georgia, serif', radius: 12 }) })); glassP.position.set(0, 4.6, 0.17); door.add(glassP); const knob = new T.Mesh(new T.SphereGeometry(0.16, 12, 10), M(0xc9a24a, { metalness: 0.9, roughness: 0.2 })); knob.position.set(1.25, 3.3, 0.3); door.add(knob); const fr = new T.Mesh(new T.BoxGeometry(4.2, 7.6, 0.2), M(0xf4f1ea)); fr.position.set(0, 3.8, -0.1); door.add(fr); const dl = new T.Mesh(new T.PlaneGeometry(7, 1.3), new T.MeshBasicMaterial({ map: makeTextTexture('advertisingforrestaurant.com', { w: 1400, h: 260, bg: '#07123a', fg: '#fff', accent: '#ff4f79', border: '#ff4f79', font: 'bold 92px Poppins, Segoe UI, Arial', radius: 40 }) })); dl.position.set(0, 8.4, 0.12); door.add(dl);
+  const dx = cx + 134.4, dz = cz; const door = new T.Group(); door.position.set(dx, 0, dz); door.rotation.y = -Math.PI / 2; S.add(door); const slab = new T.Mesh(new T.BoxGeometry(3.4, 7, 0.3), M(0x3a2410, { roughness: 0.6 })); slab.position.y = 3.5; door.add(slab); const glassP = new T.Mesh(new T.PlaneGeometry(2.4, 2.6), new T.MeshBasicMaterial({ map: makeTextTexture(['RESTAURANT', 'ADVERTISING', 'office'], { w: 512, h: 554, bg: '#e9f1f7', fg: '#1a1a1a', accent: '#c9a24a', border: '#c9a24a', glow: false, font: 'bold 78px Georgia, serif', radius: 12 }) })); glassP.position.set(0, 4.6, 0.17); door.add(glassP); const knob = new T.Mesh(new T.SphereGeometry(0.16, 12, 10), M(0xc9a24a, { metalness: 0.9, roughness: 0.2 })); knob.position.set(1.25, 3.3, 0.3); door.add(knob); const fr = new T.Mesh(new T.BoxGeometry(4.2, 7.6, 0.2), M(0xf4f1ea)); fr.position.set(0, 3.8, -0.1); door.add(fr); const dl = new T.Mesh(new T.PlaneGeometry(7, 1.3), new T.MeshBasicMaterial({ map: makeTextTexture('advertisingforrestaurant.com', { w: 1400, h: 260, bg: '#07123a', fg: '#fff', accent: '#ff4f79', border: '#ff4f79', font: 'bold 92px Poppins, Segoe UI, Arial', radius: 40 }) })); dl.position.set(0, 8.4, 0.12); door.add(dl); window.WVM_SPOTS = Object.assign(window.WVM_SPOTS || {}, { restDoor: { x: dx, z: dz } });
   const openDoor = (a) => a.popup('🚪 Restaurant advertising office', '<p>Own a restaurant? Behind this door is a 50\'s diner you can walk into, where Peggy, Dot, Sal and Hank explain how restaurants get found and fill tables.</p>', [{ label: 'Open the door · advertisingforrestaurant.com', href: 'https://advertisingforrestaurant.com/', newTab: true, primary: true }, { label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true }]); app.addHotspot(door, { fn: openDoor }); app.addInteractable(dx - 4, dz, 4.5, '🚪 Restaurant advertising office', openDoor);
   const gate = makeSign(['RESTAURANT ROW', 'sit down · order · eat · real places from Belize to Hawaii'], { width: 22, height: 5, postHeight: 9, bg: '#3a1a0a', accent: '#ffd23f', border: '#ffd23f', posts: false, neon: true }); gate.position.set(cx - 118, 0, cz); gate.rotation.y = Math.PI / 2; S.add(gate);
   for (const [bx, br] of [[-60, 0], [0, Math.PI], [60, 0]]) app.addBench(cx + bx, cz, br, { url: RIBURL, credit: 'Raised In a Barn Furniture' });
@@ -1791,6 +1791,9 @@ app.start(async (a) => {
   if (location.hash === '#leasing') { a.player.position.set(22, 0, 84); a.yaw = -Math.PI / 2; setTimeout(() => pitch(a, 0), 1200); }
 });
 
+
+// v39: one login with allofus.one, Lifeboard, voice, prize hunt, 360 showroom, new gallery wing + Paint Studio, Portal Hall
+import('/js/wvm-plus.js?v=39').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
 </script>
 </body>
 </html>
