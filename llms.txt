@@ -55,3 +55,5 @@
 - Speed strips now carry you the way the arrows point.
 - Tour (animated, self-playing): https://worldvrmall.com/tour/
 - Investors (let's talk): https://worldvrmall.com/investors/
+- Arcade Annex: a playable retro Code Snake cabinet, the Matrix-style code fountain, and the red DO NOT PUSH button (code fills the room, an anteater eats it).
+- Bubble Float: ride a giant soap bubble over the island. Character Studio with live 3D preview, Zach characters, ant and spider, new hairdos and outfits, shrink-to-ant mode.
