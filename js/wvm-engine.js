@@ -472,22 +472,17 @@ export function loadRiggedPerson(url, opts = {}) {
     if (g.userData.actions.idle) g.userData.actions.idle.setEffectiveWeight(1);
     g.userData.mixer = mixer; g.userData.model = model; g.userData.kind = 'glb'; g.userData.headY = (opts.height || 1.72) + 0.1; g.userData.phase = Math.random() * 10;
     g.userData.limbs = null; g.userData.lastT = 0;
-    // selfie face v2: parented straight to the head BONE so it rides every animation frame (walk, wave, swim, ride);
-    // sized from the real head mesh; the original cartoon head is swapped out so nothing blocks the photo.
+    // selfie face v3: a face disc that follows the head bone every frame and turns toward whoever is looking.
+    // It never depends on the model's bone axes or scale, so it works on every rigged character (and for other players).
     if (opts.faceTex) {
       let headBone = null; model.traverse(o => { if (!headBone && o.isBone && /^head$/i.test(o.name)) headBone = o; });
       if (!headBone) model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name) && !/end|top|nub/i.test(o.name)) headBone = o; });
       let headMesh = null; model.traverse(o => { if (!headMesh && o.isMesh && /head/i.test(o.name)) headMesh = o; });
       model.updateMatrixWorld(true);
-      const HH = opts.height || 1.72; const center = new THREE.Vector3(0, HH * 0.9, 0.02); let hr = 0.125 * HH / 1.8;
+      const HH = opts.height || 1.72; const center = new THREE.Vector3(0, HH * 0.9, 0.02); let hr = 0.13 * HH / 1.8;
       if (headMesh) { headMesh.geometry.computeBoundingBox(); const bb = headMesh.geometry.boundingBox.clone().applyMatrix4(headMesh.matrixWorld); if (!bb.isEmpty()) { const sz = new THREE.Vector3(); bb.getSize(sz); const c = new THREE.Vector3(); bb.getCenter(c); if (sz.y > 0.06 && sz.y < 0.8 && c.y > HH * 0.55) { center.copy(c); hr = THREE.MathUtils.clamp(Math.min(sz.x, sz.y) * 0.46, 0.1, 0.2); } } }
-      const plate = makeFaceHead(opts.faceTex, skin || 0xe0ac7e, hr);
-      const hairCap = new THREE.Mesh(new THREE.SphereGeometry(hr * 1.06, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.42), hairMat(hair === undefined ? 0x4a2e15 : hair)); hairCap.position.y = hr * 0.1; plate.add(hairCap);
-      if (headMesh) headMesh.visible = false;
-      if (headBone) { const ws = new THREE.Vector3(); headBone.getWorldScale(ws); const bq = new THREE.Quaternion(); headBone.getWorldQuaternion(bq); headBone.add(plate); plate.position.copy(headBone.worldToLocal(center.clone())); plate.quaternion.copy(bq.invert()); plate.scale.setScalar(1 / (Math.abs(ws.x) || 1)); }
-      else { g.add(plate); plate.position.copy(center); }
-      plate.traverse(o => { o.frustumCulled = false; o.castShadow = true; });
-      g.userData.faceHead = plate; g.userData.faceOK = true; g.userData.face = plate.userData.cap;
+      const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: opts.faceTex, transparent: true, alphaTest: 0.2, depthWrite: false })); spr.scale.set(hr * 2.15, hr * 2.6, 1); spr.renderOrder = 3; spr.position.copy(center); g.add(spr);
+      g.userData.faceSprite = spr; g.userData.faceR = hr; g.userData.faceBone = headBone; g.userData.faceLocal = headBone ? headBone.worldToLocal(center.clone()) : null; g.userData.faceCenter = center.clone(); g.userData.faceOK = true;
     }
     if (opts.sunglasses) { let hb = null; model.traverse(o => { if (!hb && o.isBone && /head/i.test(o.name)) hb = o; }); if (hb) { const f = new THREE.Group(); addSunglasses(f, 0.06 / s, 0.08 / s); f.scale.setScalar(1 / s); hb.add(f); } }
     return g;
@@ -599,11 +594,13 @@ export function makeRider(color) {
   const h = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshStandardMaterial({ color: pick(skinTones) })); h.position.y = 0.78; g.add(h);
   return g;
 }
+const _fcV = new THREE.Vector3(), _fcC = new THREE.Vector3(), _fcF = new THREE.Vector3();
+function placeFace(p, u) { const v = _fcV; if (u.faceBone) { v.copy(u.faceLocal); u.faceBone.localToWorld(v); } else { v.copy(u.faceCenter); p.localToWorld(v); } const cam = globalThis.WVM_APP && globalThis.WVM_APP.camera; if (cam) { _fcC.setFromMatrixPosition(cam.matrixWorld).sub(v); const d = _fcC.length(); p.getWorldDirection(_fcF); const front = d > 0.001 ? _fcF.dot(_fcC) / d : 1; u.faceSprite.visible = front > -0.15; if (d > 0.001) v.addScaledVector(_fcC, Math.min(0.9, u.faceR * 1.1 / d)); } p.worldToLocal(v); u.faceSprite.position.copy(v); }
 /* Animate any character. speed 0 = idle, ~1 = walk, >1.4 = run. Works for Classic limbs, rigged mixers, drones and bobbleheads. */
 export function animatePerson(p, t, speed = 1) {
   const u = p.userData;
   if (u.mixer) {
-    const dt = clamp(t - (u.lastT || t), 0, 0.05); u.lastT = t; u.mixer.update(dt); if (u.buildBones) for (const [b, v] of u.buildBones) b.scale.copy(v);
+    const dt = clamp(t - (u.lastT || t), 0, 0.05); u.lastT = t; u.mixer.update(dt); if (u.faceSprite) placeFace(p, u); if (u.buildBones) for (const [b, v] of u.buildBones) b.scale.copy(v);
     if (u.faceHead && u.headBone) { p.updateMatrixWorld(true); const v = new THREE.Vector3(); u.headBone.getWorldPosition(v); p.worldToLocal(v); u.faceHead.position.copy(v).add(u.headOffset); }
     const A = u.actions; const want = u.pose === 'sit' && A.sit ? 'sit' : u.pose === 'wave' && A.wave ? 'wave' : speed > 1.4 && A.run ? 'run' : speed > 0.05 && A.walk ? 'walk' : 'idle';
     for (const k of Object.keys(A)) { const a = A[k]; if (!a) continue; const target = k === want ? 1 : 0; a.setEffectiveWeight(lerp(a.getEffectiveWeight(), target, 0.12)); if (k === 'walk' || k === 'run') a.setEffectiveTimeScale(clamp(speed, 0.6, 1.8)); }
@@ -724,7 +721,7 @@ export class WVM {
     const savedPet = (this._load('wvm_avatar', {}) || {}).pet; if (savedPet && savedPet !== 'none') setTimeout(() => this.setPet(savedPet), 500);
     if (!o.shadows) { const c = document.createElement('canvas'); c.width = c.height = 64; const q = c.getContext('2d'); const gr = q.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, 'rgba(0,0,0,0.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = gr; q.fillRect(0, 0, 64, 64); const blob = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })); blob.rotation.x = -Math.PI / 2; blob.renderOrder = 1; blob.userData.noCull = true; scene.add(blob); this.onUpdate(() => { const p = this.player.position; blob.visible = !this.ride && this.dist > 0.6 && !(this._sw && this._sw.on); blob.position.set(p.x, p.y + 0.05, p.z); const s = this.vehicle ? 2.2 : 1; blob.scale.set(s, s, 1); }); }
     // shadow camera follows the player so shadows stay sharp where you are
-    this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; const tx = (o.shadowRange * 2) / o.shadowSize * 4; const sx = Math.round(p.x / tx) * tx, sz = Math.round(p.z / tx) * tx; this.sun.position.set(sx - 120, 140 + p.y, sz - 160); this.sun.target.position.set(sx, p.y, sz); this.sun.target.updateMatrixWorld(); });
+    this.onUpdate(() => { if (!this.sun.castShadow) return; const p = this.player.position; const tx = (o.shadowRange * 2) / o.shadowSize; const sx = Math.round(p.x / tx) * tx, sz = Math.round(p.z / tx) * tx, sy = Math.round(p.y / 4) * 4; this.sun.position.set(sx - 120, 140 + sy, sz - 160); this.sun.target.position.set(sx, sy, sz); this.sun.target.updateMatrixWorld(); });
   }
 
   _vrBadge() { if (this.hud.querySelector('.wvm-vrbadge')) return; const b = document.createElement('div'); b.className = 'wvm-vrbadge'; b.textContent = '🥽 Works on VR headsets too'; b.title = 'Open this same address in a headset browser and an Enter VR button appears'; this.hud.appendChild(b); }
