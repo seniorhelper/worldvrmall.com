@@ -534,7 +534,7 @@ export function loadRiggedPerson(url, opts = {}) {
     const src = gltf.scene; const model = cloneSkinned(src);
     const g = new THREE.Group(); g.add(model);
     // normalize height + ground
-    const box = new THREE.Box3().setFromObject(model); const h = box.max.y - box.min.y || 1.8; const s = (opts.height || 1.72) / h; model.scale.setScalar(s);
+    const box = new THREE.Box3().setFromObject(model); const h = box.max.y - box.min.y || 1.8; const s = (opts.height || 1.66) / h; model.scale.setScalar(s);
     model.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
     model.rotation.y = opts.yaw || 0;
     // materials: recolor hair / skin, drop weapons if any
@@ -562,7 +562,7 @@ export function loadRiggedPerson(url, opts = {}) {
       if (!headBone) model.traverse(o => { if (!headBone && o.isBone && /head/i.test(o.name) && !/end|top|nub/i.test(o.name)) headBone = o; });
       let headMesh = null; model.traverse(o => { if (!headMesh && o.isMesh && /head/i.test(o.name)) headMesh = o; });
       model.updateMatrixWorld(true);
-      const HH = opts.height || 1.72; const center = new THREE.Vector3(0, HH * 0.9, 0.02); let hr = 0.13 * HH / 1.8;
+      const HH = opts.height || 1.66; const center = new THREE.Vector3(0, HH * 0.9, 0.02); let hr = 0.13 * HH / 1.8;
       if (headMesh) { headMesh.geometry.computeBoundingBox(); const bb = headMesh.geometry.boundingBox.clone().applyMatrix4(headMesh.matrixWorld); if (!bb.isEmpty()) { const sz = new THREE.Vector3(); bb.getSize(sz); const c = new THREE.Vector3(); bb.getCenter(c); if (sz.y > 0.06 && sz.y < 0.8 && c.y > HH * 0.55) { center.copy(c); hr = THREE.MathUtils.clamp(Math.min(sz.x, sz.y) * 0.46, 0.1, 0.2); } } }
       const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: opts.faceTex, transparent: true, alphaTest: 0.2, depthWrite: false })); spr.scale.set(hr * 2.15, hr * 2.6, 1); spr.renderOrder = 3; spr.position.copy(center); g.add(spr);
       if (!(center.y > HH * 0.78 && center.y < HH * 1.02)) center.set(0, HH * 0.915, 0.02); if (Math.abs(center.x) > 0.15) center.x = 0; if (center.z < -0.15 || center.z > 0.3) center.z = 0.02; if (headMesh) headMesh.visible = true;
@@ -1207,7 +1207,7 @@ export class WVM {
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
     if (this._bubble) { this.player.remove(this._bubble); this._bubble.material.map.dispose(); this._bubble.material.dispose(); this._bubble = null; }
-    const s = makeSprite('💬 ' + text, { scale: 5.2, bg: 'rgba(255,255,255,0.96)', fg: '#0b1a3a', accent: '#38f0ff', far: 1e9 }); s.position.set(0, (this.avatar.userData.headY || 2) + 1.0, 0); s.renderOrder = 20; s.material.depthTest = false; this.player.add(s); this._bubble = s; const t0 = this.t;
+    const s = makeSprite('▸ ' + text, { scale: 3.4, bg: 'rgba(5,12,34,0.88)', fg: '#eaffff', accent: '#38f0ff', far: 1e9 }); s.position.set(0, (this.avatar.userData.headY || 2) + 1.0, 0); s.renderOrder = 20; s.material.depthTest = false; this.player.add(s); this._bubble = s; const t0 = this.t;
     const fn = () => { if (this._bubble !== s) { this.updaters = this.updaters.filter(u => u !== fn); return; } const k = this.t - t0; s.material.opacity = k > secs - 0.6 ? Math.max(0, (secs - k) / 0.6) : 1; if (k > secs) { this.player.remove(s); s.material.map.dispose(); s.material.dispose(); this._bubble = null; this.updaters = this.updaters.filter(u => u !== fn); } }; this.onUpdate(fn); this.toast(text, secs * 1000);
   }
   /* A* over the same collision test the visitor walks against, so a found path is a walkable path. */
@@ -1374,7 +1374,7 @@ export class WVM {
     if (this.keys.KeyD || this.keys.ArrowRight) mv.x += 1;
     if (this.locked) mv.set(0, 0); else { mv.add(this.moveVec); if (this.xrMove) mv.add(this.xrMove); }
     let speed = (this.keys.ShiftLeft || this.keys.ShiftRight || this.running) ? o.runSpeed : o.walkSpeed; if (this.vehicle) { speed *= this.vehicle.speed * (this.vehicle.turbo > 0 ? 1.9 : 1); }
-    speed *= this.speedMul * (this._boost > 0 ? 2.6 : 1) * (this._route ? 1.3 : 1) * (this._sw && this._sw.on ? 0.6 : 1);
+    speed *= this.speedMul * (this._boost > 0 ? 2.6 : 1) * (this._route ? 1.3 : 1) * (this._sw && this._sw.on ? 0.6 : 1); { const want = this.moving ? speed : 0; this._spd = (this._spd === undefined ? want : this._spd) + (want - this._spd) * Math.min(1, dt * (want > (this._spd || 0) ? 9 : 14)); if (this.moving) speed = Math.max(speed * 0.35, this._spd); }
     if (mv.lengthSq() > 1) mv.normalize();
     if (this._route) { if (mv.lengthSq() > 0.04) { this._route = null; this.walkTarget = null; this.toast('Okay, you have the controls. 🎮', 1500); } else if (!this.locked) this._followRoute(); }
     // tap-to-walk (a plain walk target that stops making progress is dropped, so nobody moonwalks into a wall)
