@@ -637,7 +637,7 @@ export function earthCanvas() {
   g.fillStyle = 'rgba(248,251,255,0.92)'; g.beginPath(); g.ellipse(X(-41), Y(73), W * 0.028, H * 0.055, 0, 0, 6.2832); g.fill();
   g.restore();
   // Antarctica + Arctic sea ice, ragged edges
-  g.fillStyle = '#f6f9fd'; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += W / 96) g.lineTo(x, Y(-70 - Math.sin(x / W * 25) * 3 - rn() * 3)); g.lineTo(W, H); g.closePath(); g.fill();
+  g.fillStyle = '#f6f9fd'; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += W / 192) { const u = x / W; const pen = Math.exp(-Math.pow((u - 0.335) / 0.02, 2)) * 7; const ross = Math.exp(-Math.pow((u - 0.95) / 0.05, 2)) * -3; const wed = Math.exp(-Math.pow((u - 0.42) / 0.04, 2)) * -3; g.lineTo(x, Y(-69 - Math.sin(u * 6.283 * 2 + 1) * 3 - Math.sin(u * 6.283 * 5 + 2) * 2 - rn() * 1.5 + pen + ross + wed)); } g.lineTo(W, H); g.closePath(); g.fill(); g.fillStyle = 'rgba(220,232,245,0.6)'; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += W / 96) g.lineTo(x, Y(-63 - Math.sin(x / W * 6.283 * 3) * 2 - rn() * 2)); g.lineTo(W, H); g.closePath(); g.fill();
   g.fillStyle = 'rgba(240,246,252,0.9)'; g.beginPath(); g.moveTo(0, 0); for (let x = 0; x <= W; x += W / 96) g.lineTo(x, Y(83 + Math.sin(x / W * 19) * 3 + rn() * 2)); g.lineTo(W, 0); g.closePath(); g.fill();
   _earthCv = c; return c;
 }

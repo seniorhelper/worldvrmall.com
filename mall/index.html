@@ -1799,6 +1799,9 @@ app.start(async (a) => {
 import('/js/wvm-plus.js?v=39').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+
+/* fun3 inside: store drones for Showers4Less, Raised In a Barn, Eye To Ad Media; Earth console in the arcade */
+(async () => { const ready = () => window.WVM_APP && window.WVM_APP.scene && (window.WVM_APP.interactables || []).length > 5; for (let k = 0; k < 200 && !ready(); k++) await new Promise(r => setTimeout(r, 250)); if (!ready()) return; try { const f3 = await import('../js/wvm-fun3.js'); const app = window.WVM_APP; const ctx = f3.initFun3(app, { S: app.scene, toast: (m, ms) => app.toast(m, ms), modal: (t, h, o) => (window.WVM_PLUS && window.WVM_PLUS.modal) ? window.WVM_PLUS.modal(t, h, o) : null, close: () => window.WVM_PLUS && window.WVM_PLUS.close && window.WVM_PLUS.close() }); window.WVM_FUN3 = ctx; const pos = (slug) => { const p = (app.places || []).find(q => q.id === slug || q.id === 'store-' + slug || (q.keys || '').includes(slug)); return p ? { x: p.x, z: p.z } : null; }; const RIBB = { name: 'Raised In a Barn Furniture', tag: '(970) 518-2883', color: '#d9a441', url: 'https://rusticbarnwoodfurniture.com', foot: 'handcrafted in Colorado · free shipping' }; for (const [slug, brand] of [['showers4less', f3.S4L], ['raised-in-a-barn', RIBB], ['eye-to-ad-media', f3.ETA]]) { const st = (typeof findStore === 'function') ? findStore(slug) : null; const p = pos(slug); if (p) ctx.droneFor(st || { products: slug === 'eye-to-ad-media' ? f3.ETA_PRODUCTS : [] }, { x: p.x, z: p.z + 3 }, brand); } const ar = (app.places || []).find(q => q.id === 'arcade'); if (ar) ctx.mkConsole(ar.x + 6, ar.z + 4, '🌍 Earth console · arcade', 'Inside the mall'); } catch (e) { console.error('fun3 inside', e); } })();
 </script>
 </body>
 </html>
