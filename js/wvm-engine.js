@@ -192,6 +192,8 @@ export const CHARACTERS = [
   { id: 'bear', name: 'Bear', icon: '🐻', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'bear', face: true },
   { id: 'lion', name: 'Lion', icon: '🦁', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'lion', face: true },
 ];
+for (let i = CHARACTERS.length - 1; i >= 0; i--) if (CHARACTERS[i].kind === 'glb') CHARACTERS.splice(i, 1);
+
 
 const M = (c, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, ...extra });
 function shadowed(obj) { obj.traverse(o => { if (o.isMesh) { o.castShadow = true; } }); return obj; }
@@ -1170,7 +1172,7 @@ export class WVM {
   }
 
   /* ===== v6 · places, search, travel (walk a real path, or transport), speed, boosts, weather ===== */
-  addPlace(p) { p.id = p.id || p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); p.keys = ((p.keys || '') + ' ' + p.name + ' ' + (p.cat || '')).toLowerCase(); const i = this.places.findIndex(q => q.id === p.id); if (i >= 0) this.places[i] = p; else this.places.push(p); return p; }
+  addPlace(p) { if (p && p.id) { const k = this.places.findIndex(q => q.id === p.id); if (k >= 0) this.places.splice(k, 1); } p.id = p.id || p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); p.keys = ((p.keys || '') + ' ' + p.name + ' ' + (p.cat || '')).toLowerCase(); const i = this.places.findIndex(q => q.id === p.id); if (i >= 0) this.places[i] = p; else this.places.push(p); return p; }
   findPlaces(q, max = 8) {
     const toks = String(q || '').toLowerCase().replace(/[^a-z0-9$ ]+/g, ' ').split(/\s+/).filter(w => w.length > 1 && !WVM.STOP.has(w)); if (!toks.length) return [];
     const out = []; for (const p of this.places) { const nm = p.name.toLowerCase(); let s = 0, hit = 0; for (const w of toks) { let k = 0; if (nm.startsWith(w)) k = 6; else if (nm.includes(w)) k = 5; else if (p.keys.includes(w)) k = 2; else if (w.length > 4 && p.keys.includes(w.slice(0, -1))) k = 1; if (k) hit++; s += k; } if (hit && hit >= Math.ceil(toks.length / 2)) out.push([s + hit * 3 + (p.top ? 2.5 : 0) - (p.rank || 0) * 0.01, p]); }
@@ -1331,7 +1333,7 @@ export class WVM {
   _perf(dt) {
     const Q = this._q || (this._q = { lvl: 0, acc: 0, n: 0, hold: 0, base: this.renderer.getPixelRatio(), f: 0, cullT: 0, list: null, listT: -99 }); Q.f++;
     if (Q.f === 1 && !isMobile()) { Q.lvl = this.opts.startLvl ?? 1; this._noBloom = true; this._applyQ(Q); }
-    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % ((Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) * (this.opts.shadowEvery || 1)) === 0) this.renderer.shadowMap.needsUpdate = true; }
+    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % ((Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) * (this.opts.shadowEvery || (isMobile() ? 3 : 2))) === 0) this.renderer.shadowMap.needsUpdate = true; }
     const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
     if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && !this._holdQ && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
     if (this.t - Q.cullT > (this._intro ? 0.15 : 0.5)) { Q.cullT = this.t; this._cull(Q); }
