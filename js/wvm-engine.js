@@ -142,10 +142,12 @@ export function makeSign(lines, opts = {}) {
 export const SPRITES = [];
 export function makeSprite(text, opts = {}) {
   const { scale = 4, bg = 'rgba(8,20,50,0.85)', fg = '#fff', accent = '#7cf8ff', font = 'bold 56px Poppins, Segoe UI, Arial' } = opts;
-  const tex = makeTextTexture(text, { w: 1024, h: 256, bg, fg, accent, font, radius: 120, border: accent, glow: true });
+  // long labels: wrap at the separators into 2 lines and widen the canvas so nothing is squished or cut off
+  let lines = Array.isArray(text) ? text : [String(text)]; if (lines.length === 1 && lines[0].length > 30) { const t = lines[0]; const cut = t.lastIndexOf(' · ', Math.ceil(t.length * 0.62)); const sp = t.indexOf(' ', Math.floor(t.length / 2) - 4); const at = cut > 10 ? cut : (sp > 0 ? sp : -1); if (at > 0) lines = [t.slice(0, at).trim(), t.slice(at).replace(/^ · /, '').trim()]; } const longest = Math.max(...lines.map(l => l.length)); const W = longest > 22 ? Math.min(2560, 1024 + (longest - 22) * 38) : 1024; const H = lines.length > 1 ? 400 : 256;
+  const tex = makeTextTexture(lines, { w: W, h: H, bg, fg, accent, font, radius: 120, border: accent, glow: true });
   const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
   const s = new THREE.Sprite(mat);
-  s.scale.set(scale, scale / 4, 1); s.userData.far = opts.far; SPRITES.push(s);
+  s.scale.set(scale * W / 1024, (scale / 4) * H / 256, 1); s.userData.far = opts.far; SPRITES.push(s);
   return s;
 }
 
