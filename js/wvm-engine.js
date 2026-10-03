@@ -1352,6 +1352,7 @@ export class WVM {
 
   /* ----- frame ----- */
   _frame() {
+    if (this.sleep) { this.clock.getDelta(); return; }
     const raw = this.clock.getDelta(); const dt = Math.min(0.05, raw); this.t += dt;
     if (!this.paused) { const mdt = Math.min(0.1, raw), n = (this.ride || mdt <= 0.034) ? 1 : Math.ceil(mdt / 0.034); for (let i = 0; i < n; i++) this._movePlayer(this.ride ? dt : mdt / n); }
     if (this._clip) this._seatUpdate();
