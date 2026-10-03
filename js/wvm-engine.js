@@ -143,7 +143,7 @@ export const SPRITES = [];
 export function makeSprite(text, opts = {}) {
   const { scale = 4, bg = 'rgba(8,20,50,0.85)', fg = '#fff', accent = '#7cf8ff', font = 'bold 56px Poppins, Segoe UI, Arial' } = opts;
   // long labels: wrap at the separators into 2 lines and widen the canvas so nothing is squished or cut off
-  let lines = Array.isArray(text) ? text : [String(text)]; if (lines.length === 1 && lines[0].length > 30) { const t = lines[0]; const cut = t.lastIndexOf(' · ', Math.ceil(t.length * 0.62)); const sp = t.indexOf(' ', Math.floor(t.length / 2) - 4); const at = cut > 10 ? cut : (sp > 0 ? sp : -1); if (at > 0) lines = [t.slice(0, at).trim(), t.slice(at).replace(/^ · /, '').trim()]; } const longest = Math.max(...lines.map(l => l.length)); const W = longest > 22 ? Math.min(2560, 1024 + (longest - 22) * 38) : 1024; const H = lines.length > 1 ? 400 : 256;
+  let lines = Array.isArray(text) ? text : [String(text)]; if (lines.length === 1 && lines[0].length > 30) { const words = lines[0].split(/\s+/); const max = lines[0].length > 90 ? 34 : 28; const out = []; let cur = ''; for (const w of words) { if ((cur + ' ' + w).trim().length > max && cur) { out.push(cur.trim()); cur = w; } else cur = (cur + ' ' + w); } if (cur.trim()) out.push(cur.trim()); lines = out.map(l => l.replace(/^·\s*/, '').replace(/\s*·$/, '')).slice(0, 4); } const longest = Math.max(...lines.map(l => l.length)); const W = longest > 22 ? Math.min(2560, 1024 + (longest - 22) * 40) : 1024; const H = lines.length > 1 ? 180 + lines.length * 150 : 256;
   const tex = makeTextTexture(lines, { w: W, h: H, bg, fg, accent, font, radius: 120, border: accent, glow: true });
   const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
   const s = new THREE.Sprite(mat);
@@ -1211,7 +1211,7 @@ export class WVM {
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
     if (this._bubble) { this.player.remove(this._bubble); this._bubble.material.map.dispose(); this._bubble.material.dispose(); this._bubble = null; }
-    const s = makeSprite('▸ ' + text, { scale: 3.4, bg: 'rgba(5,12,34,0.88)', fg: '#eaffff', accent: '#38f0ff', far: 1e9 }); s.position.set(0, (this.avatar.userData.headY || 2) + 1.0, 0); s.renderOrder = 20; s.material.depthTest = false; this.player.add(s); this._bubble = s; const t0 = this.t;
+    const s = makeSprite('▸ ' + text, { scale: 3.4, bg: 'rgba(5,12,34,0.88)', fg: '#eaffff', accent: '#38f0ff', far: 1e9 }); s.position.set(0, (this.avatar.userData.headY || 2) + 1.0, 0); s.renderOrder = 20; s.material.depthTest = false; this.player.add(s); this._bubble = s; const t0 = this.t; const dismiss = () => { if (this._bubble === s) { this.player.remove(s); s.material.map.dispose(); s.material.dispose(); this._bubble = null; } }; this._bubbleDismiss = dismiss; if (this.addHotspot) try { this.addHotspot(s, { fn: dismiss }); } catch (e) { }
     const fn = () => { if (this._bubble !== s) { this.updaters = this.updaters.filter(u => u !== fn); return; } const k = this.t - t0; s.material.opacity = k > secs - 0.6 ? Math.max(0, (secs - k) / 0.6) : 1; if (k > secs) { this.player.remove(s); s.material.map.dispose(); s.material.dispose(); this._bubble = null; this.updaters = this.updaters.filter(u => u !== fn); } }; this.onUpdate(fn); this.toast(text, secs * 1000);
   }
   /* A* over the same collision test the visitor walks against, so a found path is a walkable path. */
@@ -1504,7 +1504,7 @@ export class WVM {
       e.preventDefault();
     }, { passive: false });
     el.addEventListener('touchend', e => { if (e.changedTouches.length && dragging) onUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
-    el.addEventListener('wheel', e => { e.preventDefault(); this.targetDist = clamp(this.targetDist + e.deltaY * Math.max(0.01, this.targetDist * 0.002), 0.01, this.opts.maxDist); if (this.targetDist < 2.2) this.targetDist = e.deltaY < 0 ? 0.01 : 2.2; if (this.targetDist > 0.6 && this.targetDist < 2.2) this.targetDist = 2.2; }, { passive: false });
+    el.addEventListener('keydown', e => { if (e.key === 'Escape' && this._bubbleDismiss) this._bubbleDismiss(); }); addEventListener('wheel', e => { e.preventDefault(); this.targetDist = clamp(this.targetDist + e.deltaY * Math.max(0.01, this.targetDist * 0.002), 0.01, this.opts.maxDist); if (this.targetDist < 2.2) this.targetDist = e.deltaY < 0 ? 0.01 : 2.2; if (this.targetDist > 0.6 && this.targetDist < 2.2) this.targetDist = 2.2; }, { passive: false });
     el.addEventListener('contextmenu', e => e.preventDefault());
     this._buildJoystick();
   }
