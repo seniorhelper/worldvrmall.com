@@ -62,7 +62,10 @@ export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpac
 
 /* ---- Sky presets (files live in /images/) ---- */
 export const SKIES = {
-  day: '/images/lake-mountain-landscape-360-main',
+  day: '/textures/sky-day-2k.jpg',
+  lake: '/images/lake-mountain-landscape-360-main',
+  sunset: '/textures/sky-sunset-2k.jpg',
+  citrus: '/textures/sky-citrus-2k.jpg',
   night: '/images/realistic-night-sky-moon-stars-360',
   meadow: '/images/daisy-meadow-360-panorama',
   beach: '/images/tropical-beach-360-panorama',
@@ -831,16 +834,20 @@ export class WVM {
     else tryLoad(url + '.avif', () => tryLoad(url + '.jpg', () => tryLoad('/images/sky.jpg', () => { this.scene.background = new THREE.Color(0x87c6ff); })));
     this.skyUrl = url;
   }
+  /* real image-based lighting + mirror reflections from a Poly Haven HDR (CC0). Cached per URL, built once with PMREM. */
+  setEnvHDR(url) { this._envHDRs = this._envHDRs || new Map(); const have = this._envHDRs.get(url); if (have) { if (have.texture) { this.scene.environment = have.texture; this._envHDR = url; } return; } const rec = { texture: null }; this._envHDRs.set(url, rec); import('three/addons/loaders/RGBELoader.js').then(({ RGBELoader }) => { new RGBELoader().load(url, (t) => { t.mapping = THREE.EquirectangularReflectionMapping; const pm = this._pmrem || (this._pmrem = new THREE.PMREMGenerator(this.renderer)); rec.texture = pm.fromEquirectangular(t).texture; t.dispose(); const cur = /\/textures\/sky-(day|sunset|citrus)-2k\.jpg$/.exec(this.skyUrl || ''); if (cur && url.includes('sky-' + cur[1] + '-')) { this.scene.environment = rec.texture; this._envHDR = url; this.scene.traverse(o => { const m = o.material; if (m && m.isMeshStandardMaterial && m.envMapIntensity === undefined) m.envMapIntensity = 1; }); } }, undefined, () => { this._envHDRs.delete(url); }); }).catch(() => { this._envHDRs.delete(url); }); }
   preloadSky(url) { this._skyCache = this._skyCache || new Map(); if (this._skyCache.has(url)) return; const hasExt = /\.(avif|jpe?g|png|webp)$/i.test(url); const u = hasExt ? url : url + '.avif'; this.texLoader.load(u, (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }, undefined, () => { if (!hasExt) this.texLoader.load(url + '.jpg', (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }); }); }
   buzz(ms = 60) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
   _applySky(tex, opts = {}) {
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
     this.scene.background = tex;
-    if (this.opts.envFromSky) {
+    const hdr = /\/textures\/sky-(day|sunset|citrus)-2k\.jpg$/.exec(this.skyUrl || '');
+    if (hdr) this.setEnvHDR('/textures/sky-' + hdr[1] + '-1k.hdr');
+    else if (this.opts.envFromSky) {
       const envs = this._envCache || (this._envCache = new Map()); let env = envs.get(tex);
       if (!env) { const pm = this._pmrem || (this._pmrem = new THREE.PMREMGenerator(this.renderer)); env = pm.fromEquirectangular(tex).texture; envs.set(tex, env); }
       this.scene.environment = env;
-    }
+    } else if (!this._envHDR) this.scene.environment = null;
     const night = opts.night ?? /night|stars|moon/i.test(this.skyUrl || '');
     this.sun.intensity = night ? 0.45 : 1.9; this.sun.color.set(night ? 0x9fb8ff : 0xfff1d6); this.hemi.intensity = night ? 0.35 : 0.75; this.fill.intensity = night ? 0.15 : 0.3;
     this.scene.fog.color.set(night ? 0x0d1b3a : this.opts.fog); this.renderer.toneMappingExposure = night ? this.opts.exposure * 0.85 : this.opts.exposure;
@@ -1384,7 +1391,7 @@ export class WVM {
     if (this.keys.KeyD || this.keys.ArrowRight) mv.x += 1;
     if (this.locked) mv.set(0, 0); else { mv.add(this.moveVec); if (this.xrMove) mv.add(this.xrMove); }
     let speed = (this.keys.ShiftLeft || this.keys.ShiftRight || this.running) ? o.runSpeed : o.walkSpeed; if (this.vehicle) { speed *= this.vehicle.speed * (this.vehicle.turbo > 0 ? 1.9 : 1); }
-    speed *= this.speedMul * (this._boost > 0 ? 2.6 : 1) * (this._route ? 1.3 : 1) * (this._sw && this._sw.on ? 0.6 : 1); { const want = this.moving ? speed : 0; const cur = Number.isFinite(this._spd) ? this._spd : 0; this._spd = cur + (want - cur) * Math.min(1, dt * (want > cur ? 9 : 14)); if (!Number.isFinite(this._spd)) this._spd = want; if (this.moving) speed = Math.max(speed * 0.35, this._spd); }
+    speed *= this.speedMul * ((this._xr && this._xr.scale) || 1) * (this._boost > 0 ? 2.6 : 1) * (this._route ? 1.3 : 1) * (this._sw && this._sw.on ? 0.6 : 1); { const want = this.moving ? speed : 0; const cur = Number.isFinite(this._spd) ? this._spd : 0; this._spd = cur + (want - cur) * Math.min(1, dt * (want > cur ? 9 : 14)); if (!Number.isFinite(this._spd)) this._spd = want; if (this.moving) speed = Math.max(speed * 0.35, this._spd); }
     if (mv.lengthSq() > 1) mv.normalize();
     if (this._route) { if (mv.lengthSq() > 0.04) { this._route = null; this.walkTarget = null; this.toast('Okay, you have the controls. 🎮', 1500); } else if (!this.locked) this._followRoute(); }
     // tap-to-walk (a plain walk target that stops making progress is dropped, so nobody moonwalks into a wall)
@@ -1420,7 +1427,7 @@ export class WVM {
   }
 
   _updateCamera(dt) {
-    if (this.renderer.xr.isPresenting) { this.rig.position.copy(this.player.position); this.rig.rotation.y = this.yaw; return; }
+    if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0) + ((this.ride && !this.ride.stand) || this.vehicle ? -0.42 : 0); this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
     this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6 * (this.shrink || 1);
     this.avatar.visible = !first && !this._intro && !this._introPending;
@@ -1532,7 +1539,7 @@ export class WVM {
   _activate(h, hit) {
     if (h.fn) { h.fn(this, hit); return; }
     if (h.go) { this.go(h.go, h.label || 'Entering…'); return; }
-    if (this.renderer.xr && this.renderer.xr.isPresenting && h.actions && h.actions.length) { const act = h.actions.find(x => x.fn && x.primary) || h.actions.find(x => x.fn); if (act) { this.toast((h.title || '') + ' → ' + act.label, 2500); act.fn(this); return; } }
+    if (this.renderer.xr && this.renderer.xr.isPresenting && !this._xrLayer && h.actions && h.actions.length) { const act = h.actions.find(x => x.fn && x.primary) || h.actions.find(x => x.fn); if (act) { this.toast((h.title || '') + ' → ' + act.label, 2500); act.fn(this); return; } }
     if (h.title) this.popup(h.title, h.html || '', h.actions || []);
   }
   _marker(pt) {

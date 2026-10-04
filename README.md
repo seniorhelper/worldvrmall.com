@@ -1,2 +1,1 @@
-# worldvrmall.com
-worldvrmall.com
+Static site.
