@@ -1094,7 +1094,7 @@ export class WVM {
     const ab = this.pop.querySelector('.wvm-pop-actions'); ab.innerHTML = '';
     for (const a of actions) { const b = document.createElement('button'); b.className = 'wvm-btn' + (a.primary ? ' primary' : ''); b.textContent = a.label; b.onclick = () => { if (!a.keep) this.closePopup(); if (a.href) { if (/^(tel|sms|mailto):/i.test(a.href)) location.href = a.href; else if (a.newTab || /^https?:/i.test(a.href) && !a.href.includes(location.host)) window.open(a.href, '_blank', 'noopener'); else this.go(a.href, a.label); } else if (a.fn) a.fn(); }; ab.appendChild(b); }
     const close = document.createElement('button'); close.className = 'wvm-btn ghost'; close.textContent = 'Close'; close.onclick = () => this.closePopup(); ab.appendChild(close);
-    this.pop.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open');
+    if (this.renderer.xr && this.renderer.xr.isPresenting) { this.toast(title, 2500); return; } this.pop.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open');
   }
   closePopup() { this.pop.classList.remove('on'); this.pop.querySelector('.wvm-pop-body').innerHTML = ''; this.paused = false; document.body.classList.remove('wvm-modal-open'); }
   /* Shopping list */
@@ -1527,6 +1527,7 @@ export class WVM {
   _activate(h, hit) {
     if (h.fn) { h.fn(this, hit); return; }
     if (h.go) { this.go(h.go, h.label || 'Entering…'); return; }
+    if (this.renderer.xr && this.renderer.xr.isPresenting && h.actions && h.actions.length) { const act = h.actions.find(x => x.fn && x.primary) || h.actions.find(x => x.fn); if (act) { this.toast((h.title || '') + ' → ' + act.label, 2500); act.fn(this); return; } }
     if (h.title) this.popup(h.title, h.html || '', h.actions || []);
   }
   _marker(pt) {
@@ -1569,6 +1570,7 @@ export class WVM {
   /* ----- WebXR ----- */
   _xrStart() {
     this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = false; this.targetDist = 0.01; this.dist = 0.01;
+    /* nothing on screen can hold the player in VR: close every overlay and unpause */ try { this.paused = false; this.locked = false; this.walkTarget = null; this._route = null; if (this.pop) this.pop.classList.remove('on'); if (this.selfieEl) this.selfieEl.classList.remove('on'); document.body.classList.remove('wvm-modal-open'); document.querySelectorAll('.wvm-bm, .mp-modal, .aou-modal').forEach(el => el.remove()); } catch (e) { }
     this.rig.position.copy(this.player.position); this.camera.position.set(0, 0, 0); this.camera.rotation.set(0, 0, 0);
     this.xrMove = new THREE.Vector2();
     this._xrPoll = () => { if (this._xrLayer) return; /* basic fallback when the VR layer is off (?vr=basic): sticks only */ const s = this.renderer.xr.getSession(); if (!s) return; this.xrMove.set(0, 0); for (const src of s.inputSources) { const gp = src.gamepad; if (!gp) continue; const ax = gp.axes; const x = ax[2] ?? ax[0] ?? 0, y = ax[3] ?? ax[1] ?? 0; if (src.handedness === 'right') { if (Math.abs(x) > 0.6) this.yaw -= x * 0.03; } else { if (Math.abs(x) > 0.15) this.xrMove.x += x; if (Math.abs(y) > 0.15) this.xrMove.y -= y; } } };
@@ -1833,7 +1835,7 @@ export class WVM {
     el.querySelector('#wvm-cam-clear').onclick = () => { localStorage.removeItem('wvm_face'); this._buildAvatar(); this.toast('Cartoon face restored'); };
     el.querySelector('#wvm-selfie-done').onclick = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; el.classList.remove('cam'); } el.classList.remove('on'); this.paused = false; document.body.classList.remove('wvm-modal-open'); localStorage.setItem('wvm_seen', '1'); };
   }
-  openSelfie() { this.selfieEl.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open'); }
+  openSelfie() { if (this.renderer.xr && this.renderer.xr.isPresenting) return; this.selfieEl.classList.add('on'); this.paused = true; document.body.classList.add('wvm-modal-open'); }
   _maybeSelfie() { if (this.opts.showSelfieOnFirstVisit && !localStorage.getItem('wvm_seen')) this.openSelfie(); }
 
   _injectCSS() {
