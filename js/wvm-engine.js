@@ -194,7 +194,7 @@ export const CHARACTERS = [
   { id: 'bear', name: 'Bear', icon: '🐻', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'bear', face: true },
   { id: 'lion', name: 'Lion', icon: '🦁', desc: 'Giant bobblehead', kind: 'bobble', bobble: 'lion', face: true },
 ];
-for (let i = CHARACTERS.length - 1; i >= 0; i--) if (CHARACTERS[i].kind === 'glb') CHARACTERS.splice(i, 1);
+/* rigged Quaternius characters are back (Oct 4 2026) */
 
 
 const M = (c, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, ...extra });
@@ -260,7 +260,7 @@ export function makePerson(opts = {}) {
   for (const a of [aL, aR]) { const hand = new THREE.Mesh(new THREE.SphereGeometry(0.085, 8, 6), skinM); hand.position.y = -0.34; a.add(hand); }
   // head + face
   const face = new THREE.Group(); face.position.set(0, 1.72, 0); g.add(face);
-  const headGroup = makeFaceHead(o.faceTex, o.skin, 0.24); headGroup.position.y = 1.72; g.add(headGroup);
+  const headGroup = makeFaceHead(o.faceTex, o.skin, 0.24); headGroup.position.y = 1.72; g.add(headGroup); g.userData.headGroup = headGroup;
   if (o.faceTex) { g.userData.face = headGroup.userData.cap; }
   else {
     const eyeM = M(0xffffff, { roughness: 0.3 }), pupM = M(0x111111);
@@ -347,6 +347,10 @@ export function makeRobot(opts = {}) {
 }
 
 /* ---- Drone: hovers, spinning rotors, a little camera eye. No limbs — bobs instead. ---- */
+/* ---- real PBR textures (Poly Haven, CC0; 1K JPG) ---- */
+const _rt = {}; export function realTex(name, repeat = 4, o = {}) { const k = name + ':' + repeat; if (_rt[k]) return _rt[k]; const t = new THREE.TextureLoader().load('/textures/' + name + '.jpg'); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = isMobile() ? 4 : 8; if (!o.linear) t.colorSpace = THREE.SRGBColorSpace; _rt[k] = t; return t; }
+export function realMat(name, repeat = 4, o = {}) { const m = new THREE.MeshStandardMaterial(Object.assign({ map: realTex(name, repeat), roughness: 0.9, metalness: 0 }, o)); if (!isMobile() || o.normal) { m.normalMap = realTex(name + '-n', repeat, { linear: true }); m.normalScale = new THREE.Vector2(o.ns || 0.6, o.ns || 0.6); } return m; }
+
 export function makeDrone(opts = {}) {
   const o = Object.assign({ color: 0x1e2a4a, accent: 0x38f0ff, scale: 1 }, opts);
   const g = new THREE.Group(); const m = M(o.color, { metalness: 0.6, roughness: 0.35 }); const glow = new THREE.MeshStandardMaterial({ color: o.accent, emissive: o.accent, emissiveIntensity: 1.6 });
@@ -1569,14 +1573,14 @@ export class WVM {
 
   /* ----- WebXR ----- */
   _xrStart() {
-    this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = false; this.targetDist = 0.01; this.dist = 0.01;
+    this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = true; this.targetDist = 0.01; this.dist = 0.01; try { const av = this.avatar; const hide = (o) => { if (o) { o.userData._xrScale = o.scale.clone(); o.scale.setScalar(0.001); } }; if (av.userData.headGroup) hide(av.userData.headGroup); if (av.userData.kind === 'glb' && av.userData.model) { let hb = null; av.userData.model.traverse(x => { if (!hb && x.isBone && /^head$/i.test(x.name)) hb = x; }); if (!hb) av.userData.model.traverse(x => { if (!hb && x.isBone && /head/i.test(x.name) && !/end|top|nub/i.test(x.name)) hb = x; }); hide(hb); if (av.userData.faceSprite) av.userData.faceSprite.visible = false; } av.userData._xrHidden = true; } catch (e) { }
     /* nothing on screen can hold the player in VR: close every overlay and unpause */ try { this.paused = false; this.locked = false; this.walkTarget = null; this._route = null; if (this.pop) this.pop.classList.remove('on'); if (this.selfieEl) this.selfieEl.classList.remove('on'); document.body.classList.remove('wvm-modal-open'); document.querySelectorAll('.wvm-bm, .mp-modal, .aou-modal').forEach(el => el.remove()); } catch (e) { }
     this.rig.position.copy(this.player.position); this.camera.position.set(0, 0, 0); this.camera.rotation.set(0, 0, 0);
     this.xrMove = new THREE.Vector2();
     this._xrPoll = () => { if (this._xrLayer) return; /* basic fallback when the VR layer is off (?vr=basic): sticks only */ const s = this.renderer.xr.getSession(); if (!s) return; this.xrMove.set(0, 0); for (const src of s.inputSources) { const gp = src.gamepad; if (!gp) continue; const ax = gp.axes; const x = ax[2] ?? ax[0] ?? 0, y = ax[3] ?? ax[1] ?? 0; if (src.handedness === 'right') { if (Math.abs(x) > 0.6) this.yaw -= x * 0.03; } else { if (Math.abs(x) > 0.15) this.xrMove.x += x; if (Math.abs(y) > 0.15) this.xrMove.y -= y; } } };
     this.updaters.push(this._xrPoll);
   }
-  _xrEnd() { this.hud.classList.remove('xr'); this.padEl.style.display = ''; this.xrMove = null; this.updaters = this.updaters.filter(u => u !== this._xrPoll); }
+  _xrEnd() { this.hud.classList.remove('xr'); this.padEl.style.display = ''; this.xrMove = null; try { const av = this.avatar; const show = (o) => { if (o && o.userData._xrScale) { o.scale.copy(o.userData._xrScale); delete o.userData._xrScale; } }; if (av.userData.headGroup) show(av.userData.headGroup); if (av.userData.model) av.userData.model.traverse(x => { if (x.isBone) show(x); }); if (av.userData.faceSprite) av.userData.faceSprite.visible = true; } catch (e) { } this.updaters = this.updaters.filter(u => u !== this._xrPoll); }
 
   /* ----- HUD / CSS ----- */
   _buildHUD() {
