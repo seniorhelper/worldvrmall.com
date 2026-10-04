@@ -1568,13 +1568,10 @@ export class WVM {
 
   /* ----- WebXR ----- */
   _xrStart() {
-    this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = false;
+    this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = false; this.targetDist = 0.01; this.dist = 0.01;
     this.rig.position.copy(this.player.position); this.camera.position.set(0, 0, 0); this.camera.rotation.set(0, 0, 0);
     this.xrMove = new THREE.Vector2();
-    this._xrPoll = () => {
-      const s = this.renderer.xr.getSession(); if (!s) return; this.xrMove.set(0, 0);
-      for (const src of s.inputSources) { const gp = src.gamepad; if (!gp) continue; const ax = gp.axes; const x = ax[2] ?? ax[0] ?? 0, y = ax[3] ?? ax[1] ?? 0; if (src.handedness === 'right') { if (Math.abs(x) > 0.6) { this.yaw -= x * 0.03; } } else { if (Math.abs(x) > 0.15) this.xrMove.x += x; if (Math.abs(y) > 0.15) this.xrMove.y -= y; } if (gp.buttons[0]?.pressed && src.handedness === 'right') { const xrCam = this.renderer.xr.getCamera(); const dir = new THREE.Vector3(); xrCam.getWorldDirection(dir); dir.y = 0; dir.normalize(); this.player.position.addScaledVector(dir, 0.15); } }
-    };
+    this._xrPoll = () => { /* sticks, hands, laser and the wrist menu live in the VR layer (initXR) */ };
     this.updaters.push(this._xrPoll);
   }
   _xrEnd() { this.hud.classList.remove('xr'); this.padEl.style.display = ''; this.xrMove = null; this.updaters = this.updaters.filter(u => u !== this._xrPoll); }
