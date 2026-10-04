@@ -1146,7 +1146,7 @@ export class WVM {
     }).catch(err => { console.error(err); clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Build error: <code style="font-size:12px;color:#c00">' + esc(err && err.message ? err.message : String(err)) + '</code><br><small>' + esc((err && err.stack ? err.stack.split('\n')[1] : '') || '') + '</small><br>Screenshot this and send it to Zach.'; });
     addEventListener('error', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Script error: <code style="font-size:12px;color:#c00">' + esc(ev.message || '') + '</code><br><small>' + esc((ev.filename || '').split('/').pop() + ':' + ev.lineno) + '</small>'; } });
     addEventListener('unhandledrejection', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Load error: <code style="font-size:12px;color:#c00">' + esc(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)) + '</code>'; } });
-    this.renderer.setAnimationLoop(() => this._frame());
+    this.renderer.setAnimationLoop(() => { try { this._frame(); } catch (e) { this._ferr = (this._ferr || 0) + 1; if (this._ferr <= 3) { console.error('frame', e); try { const L = JSON.parse(localStorage.getItem('frame_errors') || '[]'); L.push({ t: Date.now(), xr: !!(this.renderer.xr && this.renderer.xr.isPresenting), m: String(e && e.message), s: String(e && e.stack).slice(0, 300) }); localStorage.setItem('frame_errors', JSON.stringify(L.slice(-10))); } catch (err) { } } } });
   }
 
   async _warm() {
@@ -1571,7 +1571,7 @@ export class WVM {
     this.hud.classList.add('xr'); this.padEl.style.display = 'none'; this.avatar.visible = false; this.targetDist = 0.01; this.dist = 0.01;
     this.rig.position.copy(this.player.position); this.camera.position.set(0, 0, 0); this.camera.rotation.set(0, 0, 0);
     this.xrMove = new THREE.Vector2();
-    this._xrPoll = () => { /* sticks, hands, laser and the wrist menu live in the VR layer (initXR) */ };
+    this._xrPoll = () => { if (this._xrLayer) return; /* basic fallback when the VR layer is off (?vr=basic): sticks only */ const s = this.renderer.xr.getSession(); if (!s) return; this.xrMove.set(0, 0); for (const src of s.inputSources) { const gp = src.gamepad; if (!gp) continue; const ax = gp.axes; const x = ax[2] ?? ax[0] ?? 0, y = ax[3] ?? ax[1] ?? 0; if (src.handedness === 'right') { if (Math.abs(x) > 0.6) this.yaw -= x * 0.03; } else { if (Math.abs(x) > 0.15) this.xrMove.x += x; if (Math.abs(y) > 0.15) this.xrMove.y -= y; } } };
     this.updaters.push(this._xrPoll);
   }
   _xrEnd() { this.hud.classList.remove('xr'); this.padEl.style.display = ''; this.xrMove = null; this.updaters = this.updaters.filter(u => u !== this._xrPoll); }
