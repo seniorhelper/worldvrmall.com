@@ -42,9 +42,9 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=42">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=42">
-<link rel="modulepreload" href="/js/wvm-store.js?v=42">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=45">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=45">
+<link rel="modulepreload" href="/js/wvm-store.js?v=45">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
 <script type="application/ld+json">
 {
@@ -125,7 +125,7 @@
 <link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/images/world-vr-mall-favicon-192.png"><style>@view-transition{navigation:auto}</style>
 </head>
 <body>
-<div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:#ffffff;display:flex;align-items:center;justify-content:center"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
+<div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:#ffffff;display:flex;align-items:center;justify-content:center"><img loading="lazy" decoding="async" src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
 <div id="wvm-stage"></div>
 <button class="wvm-scrollhint" id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ About the mall</button>
 
@@ -193,9 +193,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=42';
-import { initBot } from '/js/wvm-bot.js?v=42';
-import { ideaForm } from '/js/wvm-store.js?v=42';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=45';
+import { initBot } from '/js/wvm-bot.js?v=45';
+import { ideaForm } from '/js/wvm-store.js?v=45';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -1623,7 +1623,7 @@ function buildMallExtras() {
 }
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
-import('/js/wvm-plus.js?v=42').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=45').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 

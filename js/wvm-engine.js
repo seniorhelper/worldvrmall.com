@@ -842,12 +842,13 @@ export class WVM {
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
     this.scene.background = tex;
     const hdr = /\/textures\/sky-(day|sunset|citrus)-2k\.jpg$/.exec(this.skyUrl || '');
-    if (hdr) this.setEnvHDR('/textures/sky-' + hdr[1] + '-1k.hdr');
-    else if (this.opts.envFromSky) {
+    /* metals and glass need SOME environment or they render black: the sky itself first (cheap PMREM), the HDR swaps in when it loads */
+    if (hdr || this.opts.envFromSky || true) {
       const envs = this._envCache || (this._envCache = new Map()); let env = envs.get(tex);
       if (!env) { const pm = this._pmrem || (this._pmrem = new THREE.PMREMGenerator(this.renderer)); env = pm.fromEquirectangular(tex).texture; envs.set(tex, env); }
       this.scene.environment = env;
-    } else if (!this._envHDR) this.scene.environment = null;
+    }
+    if (hdr) this.setEnvHDR('/textures/sky-' + hdr[1] + '-1k.hdr');
     const night = opts.night ?? /night|stars|moon/i.test(this.skyUrl || '');
     this.sun.intensity = night ? 0.45 : 1.9; this.sun.color.set(night ? 0x9fb8ff : 0xfff1d6); this.hemi.intensity = night ? 0.35 : 0.75; this.fill.intensity = night ? 0.15 : 0.3;
     this.scene.fog.color.set(night ? 0x0d1b3a : this.opts.fog); this.renderer.toneMappingExposure = night ? this.opts.exposure * 0.85 : this.opts.exposure;
@@ -1430,9 +1431,9 @@ export class WVM {
     if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0); this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
     this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6 * (this.shrink || 1);
-    this.avatar.visible = !first && !this._intro && !this._introPending;
+    this.avatar.visible = !first && !this._intro && !this._introPending && !(((this.ride && !this.ride.stand) || this.vehicle) && this.dist < 1.8);
     const p = this.player.position;
-    const SH = this.shrink || 1; const eye = (this._eyeV || (this._eyeV = new THREE.Vector3())).set(p.x, p.y + 1.65 * SH, p.z);
+    const SH = this.shrink || 1; const riding = !!(this.ride && !this.ride.stand) || !!this.vehicle; if (riding && !first && this.dist < 3.4) { this.dist = 3.4; if (this.targetDist < 3.4 && this.targetDist > 0.6) this.targetDist = 4.2; } const eye = (this._eyeV || (this._eyeV = new THREE.Vector3())).set(p.x, p.y + (riding ? 1.15 : 1.65) * SH, p.z);
     if (first) {
       this.rig.position.copy(eye); this.rig.rotation.set(0, 0, 0); this.camera.position.set(0, 0, 0);
       this.camera.rotation.set(this.pitch, this.yaw, this.roll || 0, 'YXZ');
@@ -1445,7 +1446,7 @@ export class WVM {
     } else {
       const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
       const off = (this._offV || (this._offV = new THREE.Vector3())).set(Math.sin(this.yaw) * cp * this.dist, -sp * this.dist + 0.6 * SH, Math.cos(this.yaw) * cp * this.dist);
-      const od = off.length(); if (od > 0.01) off.multiplyScalar(this._occlusion(eye, off.clone().divideScalar(od), od) / od);
+      if (riding) off.y += 1.1 * SH; /* on rides the camera sits higher and is never pulled into the car or boat by the occlusion test */ const od = off.length(); if (od > 0.01 && !riding) off.multiplyScalar(this._occlusion(eye, off.clone().divideScalar(od), od) / od);
       const camPos = eye.clone().add(off);
       const gy = this.opts.groundY(camPos.x, camPos.z) + 0.4; if (camPos.y < gy) camPos.y = gy;
       // zoomed way out = world view: push the fog back so the whole map stays visible
