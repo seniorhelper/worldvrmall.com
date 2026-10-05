@@ -8,7 +8,7 @@
    paint waterfall and a Paint Studio · Portal Hall · Directory
    © 2026 World VR Mall · Eye To Ad Media, Denver, Colorado
    ============================================================ */
-import { THREE, makeSprite, SKIES, buildCharacter, CHARACTERS, addExtras, applyBuild, makePerson, animatePerson, isMobile } from './wvm-engine.js?v=40';
+import { THREE, makeSprite, SKIES, buildCharacter, CHARACTERS, addExtras, applyBuild, makePerson, animatePerson, isMobile } from './wvm-engine.js?v=42';
 import { initStudio } from './wvm-studio.js';
 import { initSky } from './wvm-sky.js';
 import { CONFIG } from './wvm-config.js';
@@ -331,7 +331,7 @@ export function initMallPlus(app, page = 'outside') {
   /* 🩹 self-heal: if you keep pushing to move but nothing moves for 1.5 s (a stuck seat, a stale ride, a paused flag), you get released */
   { let want = 0, lastX = 0, lastZ = 0; setInterval(() => { const P = app.player.position; const pushing = (app.moveVec && app.moveVec.lengthSq() > 0.01) || (app.keys && (app.keys.KeyW || app.keys.KeyA || app.keys.KeyS || app.keys.KeyD || app.keys.ArrowUp || app.keys.ArrowDown || app.keys.ArrowLeft || app.keys.ArrowRight)); const moved = Math.hypot(P.x - lastX, P.z - lastZ) > 0.05; lastX = P.x; lastZ = P.z; const modalOpen = document.querySelector('.aou-modal, .mp-modal, #hub, #aou-selfie, #wvm-bigmap, .wvm-modal.on, #wvm-pop.on, #golf-hud'); if (pushing && !moved && !modalOpen) want += 0.5; else want = 0; if (want >= 1.5) { want = 0; let fixed = []; if (app.paused) { app.paused = false; fixed.push('pause'); } if (app.locked) { app.locked = false; try { app.seatClear && app.seatClear(); } catch (e) { } fixed.push('seat'); } if (app.ride && !app.ride.stand && !(app.ride.until && app.ride.until > app.t)) { try { app.ride.done && app.ride.done(); } catch (e) { } app.ride = null; try { app.seatClear && app.seatClear(); } catch (e) { } fixed.push('ride'); } if (app.flyAlt > 0 && !(app.flyOK && app.flyOK())) { app.flyAlt = 0; fixed.push('fly'); } if (app.level && !(app.obstacles || []).some(o => o.level === app.level && o.keepIn)) { app.level = 0; fixed.push('level'); } if (!app.ride && app.roll) { app.roll = 0; fixed.push('tilt'); } if (!app.ride && app.camera && Math.abs(app.camera.fov - 70) > 0.5) { app.camera.fov = 70; app.camera.updateProjectionMatrix(); fixed.push('zoom'); } if (!app.ride && app.targetDist < 2.2 && app.targetDist > 0.011) { app.targetDist = 2.2; fixed.push('camera'); } if (fixed.length) { toast('🩹 Unstuck you (' + fixed.join(', ') + '). Go!', 2200); console.warn('self-heal', fixed); } } }, 500); }
 
-  import('./wvm-fun.js?v=40').then(m => { try { m.initFun(app, page); } catch (e) { console.error('fun', e); } }).catch(e => console.error('fun load', e));
+  import('./wvm-fun.js?v=42').then(m => { try { m.initFun(app, page); } catch (e) { console.error('fun', e); } }).catch(e => console.error('fun load', e));
   window.WVM_PLUS = { openShowroom, salesTool, openLifeboard, openDirectory, openHunt, paintStudio, signIn, joinVoice, me: () => me, modal, close };
   return window.WVM_PLUS;
 }

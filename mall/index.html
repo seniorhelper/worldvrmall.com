@@ -36,9 +36,9 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=40">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=40">
-<link rel="modulepreload" href="/js/wvm-store.js?v=40">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=42">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=42">
+<link rel="modulepreload" href="/js/wvm-store.js?v=42">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/futuristic-global-mall-360-4096x2048.avif">
 <link rel="preload" as="fetch" href="/data/stores.json" crossorigin>
 <script type="application/ld+json">
@@ -99,9 +99,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=40';
-import { initBot } from '/js/wvm-bot.js?v=40';
-import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=40';
+import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=42';
+import { initBot } from '/js/wvm-bot.js?v=42';
+import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=42';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const T = THREE;
@@ -1796,7 +1796,7 @@ app.start(async (a) => {
 
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 360 showroom, new gallery wing + Paint Studio, Portal Hall
-import('/js/wvm-plus.js?v=40').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=42').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 

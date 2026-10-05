@@ -1,6 +1,6 @@
 /* App-like speed: 3D models, images and the 3D engine are cached on your device after the first visit,
    so the next visit opens in seconds. Pages and code always check for the newest version first. */
-const V = 'v66';
+const V = 'v68';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => !k.startsWith(V)).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
 const cacheFirst = async (req, name) => { const c = await caches.open(name); const hit = await c.match(req); if (hit) return hit; const res = await fetch(req); if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone()); return res; };

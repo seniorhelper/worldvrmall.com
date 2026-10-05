@@ -1427,7 +1427,7 @@ export class WVM {
   }
 
   _updateCamera(dt) {
-    if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0) + ((this.ride && !this.ride.stand) || this.vehicle ? -0.42 : 0); this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
+    if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0); this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
     this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6 * (this.shrink || 1);
     this.avatar.visible = !first && !this._intro && !this._introPending;

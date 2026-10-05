@@ -5,7 +5,7 @@
    (code fills the room from the floor up… then an anteater eats it)
    🫧 Bubble Float ride · 🐜 golden ant secret · 🪩 a code-word party
    ============================================================ */
-import { THREE, makeSprite, isMobile } from './wvm-engine.js?v=40';
+import { THREE, makeSprite, isMobile } from './wvm-engine.js?v=42';
 const T = THREE; const MOB = isMobile();
 const M = (c, o = {}) => new T.MeshStandardMaterial({ color: c, roughness: 0.7, ...o });
 const glyphAtlas = (() => { let tex = null; return () => { if (tex) return tex; const c = document.createElement('canvas'); c.width = c.height = 256; const q = c.getContext('2d'); q.fillStyle = '#000'; q.fillRect(0, 0, 256, 256); q.fillStyle = '#7dff9a'; q.font = 'bold 50px "Courier New", monospace'; q.textAlign = 'center'; q.textBaseline = 'middle'; const G = '01アイウエオカキク{}</>;=+$#'; for (let i = 0; i < 16; i++) { q.shadowColor = '#3cff6e'; q.shadowBlur = 10; q.fillText(G[i], (i % 4) * 64 + 32, Math.floor(i / 4) * 64 + 34); } tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace; return tex; }; })();
