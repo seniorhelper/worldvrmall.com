@@ -1,4 +1,4 @@
-/* World VR Mall house icons (shared with allofus.one) (Oct 2026) — outlined, colored, squared. One swap map replaces the generic emoji the UI used to lean on.
+/* allofus.one house icons (Oct 2026) — outlined, colored, squared. One swap map replaces the generic emoji the UI used to lean on.
    Content people typed (posts, comments, Hearts answers, composer) is never touched. */
 const P = (d, extra = '') => `<svg class="hic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}${extra}</svg>`;
 export const HICON = {
@@ -42,13 +42,28 @@ export const HICON = {
   '🖼': P('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="M21 16l-5-5-8 8"/>'),
   '👤': P('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
   '🪐': P('<circle cx="12" cy="12" r="5"/><path d="M3 10c5-3 13-3 18 0M3 14c5 3 13 3 18 0"/>'),
+  '🚶': P('<circle cx="13" cy="4" r="2"/><path d="M10 22l2-7 3 2v5M8 13l3-6 4 1 2 4 3 1M11 10l-1 5-3 4"/>'),
+  '👀': P('<ellipse cx="8" cy="12" rx="4" ry="5"/><ellipse cx="16" cy="12" rx="4" ry="5"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="17" cy="13" r="1.5" fill="currentColor"/>'),
+  '👩': P('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+  '🧍': P('<circle cx="12" cy="5" r="2"/><path d="M12 7v8M9 10l3-1 3 1M10 22l2-7 2 7"/>'),
+  '📺': P('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 21h8M9 3l3 3 3-3"/>'),
+  '🗺': P('<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>'),
+  '🧊': P('<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>'),
+  '🕶': P('<path d="M3 9a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-3l-2-3h-2l-2 3H6a3 3 0 0 1-3-3z"/>'),
+  '🔍': P('<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>'),
+  '🧑': P('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+  '📻': P('<rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="8" cy="14" r="2.5"/><path d="M13 12h5M13 16h5M6 8l10-5"/>'),
+  '⛶': P('<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>'),
+  '🎒': P('<path d="M7 9a5 5 0 0 1 10 0v11H7z"/><path d="M9 9V6a3 3 0 0 1 6 0v3M7 14h10"/>'),
+  '🪙': P('<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>'),
+  '❔': P('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/>'),
   '🧭': P('<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-4 2 2-6z"/>'),
   '🧱': P('<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 10h18M3 14h18M8 5v5M16 5v5M12 10v4M8 14v5M16 14v5"/>'),
   '🧠': P('<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3h1V4zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3h-1V4z"/>')
 };
 export const ICON_CSS = `.hic{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;color:currentColor}`;
 const RX = new RegExp('(' + Object.keys(HICON).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\uFE0F?', 'g');
-const SKIP = 'textarea, input, [contenteditable], canvas, #wvm-bot, .bot-tab, .wvm-bot, .txt, .cmts, .cmt, .no-icons, code, pre';
+const SKIP = 'textarea, input, [contenteditable], canvas, #orbit-tab, .glove, #aou-lumi .face, .txt, .cmts, .cmt, .hearts, #hearts, .lb .out, .no-icons, code, pre, .fl-feed .say';
 export function swapEmoji(root) {
   if (!root) return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => { if (!n.nodeValue || !RX.test(n.nodeValue)) return NodeFilter.FILTER_REJECT; RX.lastIndex = 0; const p = n.parentElement; if (!p || p.closest(SKIP) || p.closest('svg')) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; } });

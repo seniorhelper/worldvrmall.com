@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=51';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=55';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -473,9 +473,9 @@ function ensurePopCSS() {
     .wvm-prod-name{font-size:24px;font-weight:900;line-height:1.15;margin:2px 0}
     .wvm-prod-price{font-size:22px;font-weight:900;color:#7cf8ff}
     .wvm-prod-desc{color:#dbe9ff;font-size:15px;line-height:1.5}
-    .wvm-prod-buy{display:block;text-align:center;background:#38f0ff;color:#04122a;font-weight:900;border-radius:999px;padding:14px 18px;font-size:16px;text-decoration:none;box-shadow:0 8px 30px rgba(56,240,255,.35)}
+    .wvm-prod-buy{display:block;text-align:center;background:#38f0ff;color:#04122a;font-weight:900;border-radius:12px;padding:14px 18px;font-size:16px;text-decoration:none;box-shadow:0 8px 30px rgba(56,240,255,.35)}
     .wvm-prod-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .wvm-heart{background:rgba(255,79,121,.15);border:1px solid #ff4f79;color:#fff;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;font-family:inherit}
+    .wvm-heart{background:rgba(255,79,121,.15);border:1px solid #ff4f79;color:#fff;border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;font-family:inherit}
     .wvm-heart.on{background:#ff4f79}
     @media (prefers-reduced-motion:reduce){.wvm-prod-img img{animation:none}}
   `; document.head.appendChild(s);

@@ -178,7 +178,7 @@ body.wvm-modal-open #pax-tab,body.wvm-modal-open #pax-stage{display:none}
 `;
 
 export function initBot(app, opts = {}) {
-  if (document.getElementById('pax-tab')) return; let hidden = false; try { hidden = sessionStorage.getItem('pax_hide') === '1'; } catch (e) { } if (hidden) return;
+  if (document.getElementById('pax-tab')) return; let hidden = false; try { hidden = sessionStorage.getItem('pax_hide') === '1'; } catch (e) { } if (hidden) { document.body.classList.add('pax-off'); return; }
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
   const tab = document.createElement('button'); tab.id = 'pax-tab'; tab.type = 'button'; tab.innerHTML = '<i>✌️</i>Need a hand?<span class="pax-hide" title="Hide this tab">✕</span>'; document.body.appendChild(tab);
   const stage = document.createElement('div'); stage.id = 'pax-stage'; stage.innerHTML = '<div id="pax-drone">' + DRONE + '</div><div id="pax-beam"></div><div id="pax-bot" title="Pax">' + PAX + '</div><div id="pax-panel" role="dialog" aria-label="Pax the peace bot"><div class="pax-head"><div><b>Pax · peace bot ✌️</b><small>not AI · just a well-read robot</small></div><button class="pax-x" aria-label="Send Pax home">✕</button></div><div class="pax-log" aria-live="polite"></div><div class="pax-in"><input type="text" placeholder="zoo, beach, a store, a joke…" autocomplete="off" enterkeyhint="send" maxlength="140"><button type="button">Go</button></div></div>'; document.body.appendChild(stage);
@@ -207,7 +207,7 @@ export function initBot(app, opts = {}) {
     setTimeout(() => beam.classList.add('on'), 1300); setTimeout(() => bot.classList.add('down'), 1500);
     setTimeout(() => { beam.classList.remove('on'); drone.classList.remove('in'); drone.classList.add('out'); panel.classList.add('on'); open = true; busy = false; if (!greeted) { greeted = true; add('b', pick(['Hey! I am Pax. ✌️ Lost, curious, or need a laugh?', 'Pax here, fresh off the drone. What are we looking for?'])); acts([{ label: '🗺️ Find a place', fn: () => send('Find a place') }, { label: '😂 Tell me a joke', fn: () => send('Tell me a joke') }, { label: '🎢 The Chiller', fn: () => send('coaster') }, { label: '🌻 Sky Garden', fn: () => send('organic garden') }, { label: '🏬 Lease a store', fn: () => send('lease a store') }, { label: '🙋 Talk to a human', fn: () => send('talk to a human') }]); } if (!('ontouchstart' in window)) inp.focus(); }, 2700); };
   const dismiss = () => { if (busy) return; busy = true; panel.classList.remove('on'); open = false; drone.className = ''; void drone.offsetWidth; drone.classList.add('in'); setTimeout(() => beam.classList.add('on'), 1200); setTimeout(() => bot.classList.remove('down'), 1400); setTimeout(() => { beam.classList.remove('on'); drone.classList.remove('in'); drone.classList.add('out'); tab.style.display = ''; busy = false; }, 2500); };
-  tab.onclick = (e) => { if (e.target.classList.contains('pax-hide')) { tab.remove(); stage.remove(); try { sessionStorage.setItem('pax_hide', '1'); } catch (er) { } return; } summon(); };
+  tab.onclick = (e) => { if (e.target.classList.contains('pax-hide')) { tab.remove(); stage.remove(); try { sessionStorage.setItem('pax_hide', '1'); document.body.classList.add('pax-off'); } catch (er) { } return; } summon(); };
   $('.pax-x').onclick = dismiss; bot.onclick = () => { if (open) { panel.classList.toggle('on'); } };
   app.pax = { summon, dismiss, send };
 }

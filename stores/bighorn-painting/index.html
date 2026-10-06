@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bighorn Painting in World VR Mall | House Painters · Arvada, Colorado</title>
-<meta name="description" content="Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties a. Walk into the 3D store, see the products, and buy direct from Bighorn Painting.">
+<title>Bighorn Painting in World VR Mall | House Painters · Denver</title>
+<meta name="description" content="Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties a.">
 <link rel="canonical" href="https://worldvrmall.com/stores/bighorn-painting/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#050b1c">
@@ -13,13 +13,13 @@
 <meta property="og:title" content="Bighorn Painting — House Painters · Arvada, Colorado | World VR Mall">
 <meta property="og:description" content="Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties a. Walk into the 3D store, see the products, and buy direct from Bighorn Painting.">
 <meta property="og:url" content="https://worldvrmall.com/stores/bighorn-painting/">
-<meta property="og:image" content="https://worldvrmall.com/images/virtual-reality-stores.png">
+<meta property="og:image" content="https://worldvrmall.com/images/virtual-reality-stores.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+{ "imports": { "three": "/vendor/three/three.module.min.js",
+               "three/addons/": "/vendor/three/jsm/" } }
 </script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Store", "@id": "https://worldvrmall.com/stores/bighorn-painting/#store", "name": "Bighorn Painting", "url": "https://worldvrmall.com/stores/bighorn-painting/", "sameAs": ["https://bighornpainting.com"], "description": "Arvada, Colorado professional house painters. Quality workmanship, premium paints, guaranteed satisfaction for residential and commercial properties across Jefferson County.", "telephone": "720-912-4676", "containedInPlace": {"@type": "ShoppingCenter", "name": "World VR Mall", "url": "https://worldvrmall.com/mall/"}, "address": {"@type": "PostalAddress", "addressLocality": "Arvada, Colorado"}, "makesOffer": [{"@type": "Offer", "name": "Exterior House Painting", "url": "https://bighornpainting.com", "availability": "https://schema.org/InStock", "description": "Built to endure Colorado sun and snow."}, {"@type": "Offer", "name": "Interior Painting", "url": "https://bighornpainting.com", "availability": "https://schema.org/InStock", "description": "Clean lines, no drips, done on time."}, {"@type": "Offer", "name": "Cabinet Refinishing", "url": "https://bighornpainting.com", "availability": "https://schema.org/InStock", "description": "A new kitchen without the demo."}, {"@type": "Offer", "name": "Commercial Painting", "url": "https://bighornpainting.com", "availability": "https://schema.org/InStock", "description": "Offices, retail, HOAs."}, {"@type": "Offer", "name": "In-Home Estimate", "url": "https://bighornpainting.com", "availability": "https://schema.org/InStock", "description": "We come to you. 720-912-4676."}]}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "World VR Mall", "item": "https://worldvrmall.com/"}, {"@type": "ListItem", "position": 2, "name": "Inside the Mall", "item": "https://worldvrmall.com/mall/"}, {"@type": "ListItem", "position": 3, "name": "Americas Wing", "item": "https://worldvrmall.com/mall/#americas"}, {"@type": "ListItem", "position": 4, "name": "Bighorn Painting", "item": "https://worldvrmall.com/stores/bighorn-painting/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do I buy Bighorn Painting products?", "acceptedAnswer": {"@type": "Answer", "text": "Every Buy button on this page and inside the 3D store goes to Bighorn Painting's own website (bighornpainting.com). Checkout, shipping, and support are handled directly by the brand."}}, {"@type": "Question", "name": "Where is Bighorn Painting inside World VR Mall?", "acceptedAnswer": {"@type": "Answer", "text": "Bighorn Painting is in the Americas Wing. Tap Walk into the store above, or open the mall directory and choose Bighorn Painting to be walked there."}}, {"@type": "Question", "name": "Can I visit on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The 3D store works on any phone, tablet, or laptop, and on VR headsets with a browser."}}]}]}</script>
 <style>
@@ -72,8 +72,8 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, rand, pick, makeSign, makeSprite, makePerson, makeTextTexture } from '/js/wvm-engine.js?v=51';
-import { buildStore } from '/js/wvm-store.js?v=51';
+import { WVM, THREE, rand, pick, makeSign, makeSprite, makePerson, makeTextTexture } from '/js/wvm-engine.js?v=55';
+import { buildStore } from '/js/wvm-store.js?v=55';
 const T = THREE, SLUG = 'bighorn-painting';
 const app = new WVM({ worldName: 'Bighorn Painting · Americas Wing', page: 'store', spawn: new T.Vector3(0, 0, 13), spawnYaw: 0, groundY: () => 0, bounds: 40, fog: 0xdfeeff, fogNear: 60, fogFar: 200, showSelfieOnFirstVisit: false, sky: '/images/sky.jpg' });
 window.WVM_APP = app;
@@ -104,5 +104,6 @@ app.start(async (a) => {
   setTimeout(() => a.toast('Walk in, tap a product, or tap the clerk 🙂', 3500), 1200);
 });
 </script>
+<style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#64748b;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/">Need a website?</a></div>
 </body>
 </html>

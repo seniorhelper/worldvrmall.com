@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google-site-verification" content="sAWrIWTYeeSXWfTjl35DNPCRSVv8T1GZrmc8RXdCTRo" />
-<title>World VR Mall | Walk Through a 3D Virtual Shopping Mall With Stores From All Over the World</title>
-<meta name="description" content="World VR Mall is a free 3D virtual shopping mall you walk through on your phone, laptop, or VR headset. Explore stores and brands from around the world, a huge park with roller coasters, a lake, an old-world market, and more. Get your brand a store today. New: Spider World, the globe portal, the open-air 360 showroom, Phoenix's Corner in the gallery, and a 360 beach you can port to in one tap.">>
+<title>World VR Mall | Walk a 3D Mall With Real Stores From Around the World</title>
+<meta name="description" content="World VR Mall is a free 3D virtual shopping mall you walk through on your phone, laptop, or VR headset — real stores from around the world, one click to buy.">>
 <link rel="canonical" href="https://worldvrmall.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#050b1c">
@@ -25,26 +25,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
-               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+{ "imports": { "three": "/vendor/three/three.module.min.js",
+               "three/addons/": "/vendor/three/jsm/" } }
 </script>
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/BufferGeometryUtils.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/VRButton.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/RenderPass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/OutputPass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/Pass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/MaskPass.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=51">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=51">
-<link rel="modulepreload" href="/js/wvm-store.js?v=51">
+<link rel="modulepreload" href="/vendor/three/three.module.min.js">
+<link rel="modulepreload" href="/vendor/three/jsm/loaders/GLTFLoader.js">
+<link rel="modulepreload" href="/vendor/three/jsm/utils/BufferGeometryUtils.js">
+<link rel="modulepreload" href="/vendor/three/jsm/webxr/VRButton.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/EffectComposer.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/RenderPass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/UnrealBloomPass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/OutputPass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/ShaderPass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/Pass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/postprocessing/MaskPass.js">
+<link rel="modulepreload" href="/vendor/three/jsm/shaders/CopyShader.js">
+<link rel="modulepreload" href="/vendor/three/jsm/shaders/LuminosityHighPassShader.js">
+<link rel="modulepreload" href="/vendor/three/jsm/shaders/OutputShader.js">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=55">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=55">
+<link rel="modulepreload" href="/js/wvm-store.js?v=55">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
 <script type="application/ld+json">
 {
@@ -75,7 +75,7 @@
   .card{background:linear-gradient(160deg,#0d1f4d,#071233);border:1px solid rgba(124,248,255,.35);border-radius:18px;padding:18px 20px}
   .card b{color:#7cf8ff;display:block;margin-bottom:6px;font-size:18px}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0}
-  .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:999px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer}
+  .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:12px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer}
   .btn.alt{background:transparent;color:#7cf8ff;border:2px solid #38f0ff}
   .btn.hot{background:#ff4f79;color:#fff}
   .fact{border-left:4px solid #ffd23f;padding:10px 16px;background:rgba(255,210,63,.08);border-radius:0 12px 12px 0;margin:14px 0}
@@ -127,7 +127,7 @@
 <body>
 <div id="wvm-preload" style="position:fixed;inset:0;z-index:9;background:#ffffff;display:flex;align-items:center;justify-content:center"><img loading="lazy" decoding="async" src="/images/world-vr-mall-logo.png" alt="World VR Mall" style="height:126px;max-width:80vw;object-fit:contain"></div>
 <div id="wvm-stage"></div>
-<button class="wvm-scrollhint" id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ About the mall</button>
+<button class="wvm-scrollhint" id="scrollhint" style="position:fixed;bottom:14px;right:14px;z-index:3;background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:12px;padding:8px 14px;font-size:12px;font-weight:700;color:#eaf4ff;cursor:pointer;font-family:inherit">▼ About the mall</button>
 
 <main class="wvm-content" id="about">
   <h1>World VR Mall: <span>the world's virtual shopping mall</span>, open to everyone</h1>
@@ -193,9 +193,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=51';
-import { initBot } from '/js/wvm-bot.js?v=51';
-import { ideaForm } from '/js/wvm-store.js?v=51';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=55';
+import { initBot } from '/js/wvm-bot.js?v=55';
+import { ideaForm } from '/js/wvm-store.js?v=55';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -1623,7 +1623,7 @@ function buildMallExtras() {
 }
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
-import('/js/wvm-plus.js?v=51').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=55').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 
@@ -1640,8 +1640,9 @@ if ('serviceWorker' in navigator) addEventListener('load', () => navigator.servi
 (async () => { const ready = () => window.WVM_APP && window.WVM_APP.renderer; for (let k = 0; k < 200 && !ready(); k++) await new Promise(r => setTimeout(r, 250)); if (!ready()) return; try { const FE = JSON.parse(localStorage.getItem('frame_errors') || '[]'); if (FE.length) { const app0 = window.WVM_APP; app0.toast('⚠️ Last session logged ' + FE.length + ' render error(s): ' + FE[FE.length - 1].m.slice(0, 80) + ' (copied to clipboard)', 9000); try { navigator.clipboard.writeText(JSON.stringify(FE, null, 1)); } catch (e) { } localStorage.setItem('frame_errors', '[]'); } } catch (e) { } if (new URLSearchParams(location.search).get('vr') === 'basic') return; try { const x = await import('./js/wvm-xr.js'); const app = window.WVM_APP; window.WVM_XR = x.import('./js/wvm-orbit3d.js').then(o => o.spawnOrbit(app, { hidden: () => !!(app.ride && !app.ride.stand) })).catch(e => console.warn('orbit3d', e)); try { const extraPlaces = (typeof places !== 'undefined' ? places : []).map(([n, x, z]) => ({ id: 'place-' + n.toLowerCase().replace(/[^a-z]+/g, '-'), name: n.split('·')[0].trim(), x, z, top: true })); app.places = (app.places || []).concat(extraPlaces.filter(e => !(app.places || []).some(q => q.name === e.name))); } catch (e) { } initXR(app, { name: 'World VR Mall', extra: (window.WVM_PLUS && window.WVM_PLUS.vrExtra) || [], onBugs: (list) => { const last = list.slice(-5).reverse(); const html = '<p>Logged in VR. Add a line about what went wrong and send.</p>' + last.map((b, i) => `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin:6px 0"><b>#${list.length - i}</b> · ${b.near || 'unknown spot'} · (${b.x}, ${b.y}, ${b.z})${b.act ? ' · near: ' + b.act : ''}${b.ride ? ' · on a ride' : ''}<br><input data-bug="${list.length - 1 - i}" placeholder="What happened?" style="width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font:600 13px Poppins,Arial"></div>`).join('') + '<button class="mp-btn holo" id="bug-send">📤 Send bug reports</button>'; const m = (window.WVM_PLUS && window.WVM_PLUS.modal) ? window.WVM_PLUS.modal('🐞 VR bug reports', html) : null; if (!m) return; m.querySelector('#bug-send').onclick = async () => { const notes = {}; m.querySelectorAll('[data-bug]').forEach(i => notes[i.dataset.bug] = i.value); const body = list.map((b, i) => `#${i + 1} ${b.t} ${b.page} at (${b.x},${b.y},${b.z}) yaw ${b.yaw} near "${b.near}" act "${b.act}" ride ${b.ride} :: ${notes[i] || ''}`).join('\n'); try { await navigator.clipboard.writeText(body); } catch (e) { } const mail = 'mailto:zach@eyetoad.com?subject=' + encodeURIComponent('VR bug reports · ' + location.host) + '&body=' + encodeURIComponent(body); window.open(mail, '_blank'); localStorage.setItem('vr_bugs', '[]'); window.WVM_PLUS.close && window.WVM_PLUS.close(); app.toast('📤 Copied + opened in your mail app.', 3000); }; } }); } catch (e) { console.error('xr', e); } })();
 
 /* 3D · Directory · VR rail + the ?vr=1 door */
-(() => { try { const rail = document.createElement('div'); rail.id = 'wvm-modes'; rail.innerHTML = `<div class="modes"><span class="track"></span><a class="on" href="javascript:void(0)"><i></i>🧊 3D</a><a href="/directory/"><i></i>📒 Directory</a><a href="javascript:void(0)" data-vr><i></i>🕶️ VR</a></div>`; const st = document.createElement('style'); st.textContent = `#wvm-modes{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30}#wvm-modes .modes{display:inline-flex;align-items:center;background:#0b1a3a;border-radius:999px;padding:3px;border:1px solid rgba(56,240,255,.35);box-shadow:0 6px 20px rgba(2,8,30,.35);position:relative}#wvm-modes a{position:relative;z-index:1;color:#cbd5e1;font:800 11px Poppins,Arial;padding:6px 11px;border-radius:999px;text-decoration:none;display:flex;align-items:center;gap:5px}#wvm-modes a i{width:8px;height:8px;border-radius:50%;background:#334155}#wvm-modes a.on{color:#fff}#wvm-modes a.on i{background:#38f0ff;box-shadow:0 0 10px #38f0ff}#wvm-modes .track{position:absolute;left:24px;right:24px;top:50%;height:2px;background:linear-gradient(90deg,#1e3a6a,#38f0ff,#1e3a6a);opacity:.5}.wvm-hud.xr #wvm-modes{display:none}@media(max-width:560px){#wvm-modes{top:6px}#wvm-modes a{padding:5px 8px;font-size:10px}}`; document.head.appendChild(st); document.body.appendChild(rail); rail.querySelector('[data-vr]').onclick = () => { const v = document.getElementById('wvm-vr'); if (v) v.click(); else window.WVM_APP && window.WVM_APP.toast('🕶️ Open this page in a headset browser (Quest) to enter VR.', 3500); }; if (new URLSearchParams(location.search).get('vr') === '1') { const wait = setInterval(() => { const v = document.getElementById('wvm-vr'); if (!v) return; clearInterval(wait); const o = document.createElement('button'); o.textContent = '🕶️ Tap to enter VR'; o.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;border:0;border-radius:999px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font:900 20px Poppins,Arial;padding:18px 32px;box-shadow:0 16px 40px rgba(2,8,30,.5)'; o.onclick = () => { v.click(); o.remove(); }; document.body.appendChild(o); setTimeout(() => o.remove(), 60000); }, 500); } } catch (e) { } })();
+(() => { try { const rail = document.createElement('div'); rail.id = 'wvm-modes'; rail.innerHTML = `<div class="modes"><span class="track"></span><a class="on" href="javascript:void(0)"><i></i>🧊 3D</a><a href="/directory/"><i></i>📒 Directory</a><a href="javascript:void(0)" data-vr><i></i>🕶️ VR</a></div>`; const st = document.createElement('style'); st.textContent = `#wvm-modes{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30}#wvm-modes .modes{display:inline-flex;align-items:center;background:#0b1a3a;border-radius:12px;padding:3px;border:1px solid rgba(56,240,255,.35);box-shadow:0 6px 20px rgba(2,8,30,.35);position:relative}#wvm-modes a{position:relative;z-index:1;color:#cbd5e1;font:800 11px Poppins,Arial;padding:6px 11px;border-radius:12px;text-decoration:none;display:flex;align-items:center;gap:5px}#wvm-modes a i{width:8px;height:8px;border-radius:50%;background:#334155}#wvm-modes a.on{color:#fff}#wvm-modes a.on i{background:#38f0ff;box-shadow:0 0 10px #38f0ff}#wvm-modes .track{position:absolute;left:24px;right:24px;top:50%;height:2px;background:linear-gradient(90deg,#1e3a6a,#38f0ff,#1e3a6a);opacity:.5}.wvm-hud.xr #wvm-modes{display:none}@media(max-width:560px){#wvm-modes{top:6px}#wvm-modes a{padding:5px 8px;font-size:10px}}`; document.head.appendChild(st); document.body.appendChild(rail); rail.querySelector('[data-vr]').onclick = () => { const v = document.getElementById('wvm-vr'); if (v) v.click(); else window.WVM_APP && window.WVM_APP.toast('🕶️ Open this page in a headset browser (Quest) to enter VR.', 3500); }; if (new URLSearchParams(location.search).get('vr') === '1') { const wait = setInterval(() => { const v = document.getElementById('wvm-vr'); if (!v) return; clearInterval(wait); const o = document.createElement('button'); o.textContent = '🕶️ Tap to enter VR'; o.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;border:0;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font:900 20px Poppins,Arial;padding:18px 32px;box-shadow:0 16px 40px rgba(2,8,30,.5)'; o.onclick = () => { v.click(); o.remove(); }; document.body.appendChild(o); setTimeout(() => o.remove(), 60000); }, 500); } } catch (e) { } })();
 </script>
-<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=51"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=55"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#64748b;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/">Need a website?</a></div>
 </body>
 </html>
