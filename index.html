@@ -42,9 +42,9 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=49">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=49">
-<link rel="modulepreload" href="/js/wvm-store.js?v=49">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=50">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=50">
+<link rel="modulepreload" href="/js/wvm-store.js?v=50">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
 <script type="application/ld+json">
 {
@@ -193,9 +193,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=49';
-import { initBot } from '/js/wvm-bot.js?v=49';
-import { ideaForm } from '/js/wvm-store.js?v=49';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=50';
+import { initBot } from '/js/wvm-bot.js?v=50';
+import { ideaForm } from '/js/wvm-store.js?v=50';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -1623,7 +1623,7 @@ function buildMallExtras() {
 }
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
-import('/js/wvm-plus.js?v=49').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=50').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 

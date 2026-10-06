@@ -58,7 +58,7 @@ export const isMobile = () => isTouch() && Math.min(innerWidth, innerHeight) < 9
 export const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 /* Phones get half-size generated textures (a quarter of the GPU memory). iPhones are the strictest: Safari kills a tab that uses too much. */
 export const TEX_SCALE = /OculusBrowser|Quest|Pico/i.test(navigator.userAgent) ? 1.75 : (isMobile() ? 1.0 : (window.devicePixelRatio > 1.3 ? 1.6 : 1.25)); /* headsets get the sharpest text: blurry storefront words and sign shimmer come from low-res canvases */
-export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; { t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; } else { t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; } return t; }
+export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; return t; }
 
 /* ---- Sky presets (files live in /images/) ---- */
 export const SKIES = {
