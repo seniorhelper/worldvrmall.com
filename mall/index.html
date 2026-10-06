@@ -36,9 +36,9 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=50">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=50">
-<link rel="modulepreload" href="/js/wvm-store.js?v=50">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=51">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=51">
+<link rel="modulepreload" href="/js/wvm-store.js?v=51">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/futuristic-global-mall-360-4096x2048.avif">
 <link rel="preload" as="fetch" href="/data/stores.json" crossorigin>
 <script type="application/ld+json">
@@ -99,9 +99,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=50';
-import { initBot } from '/js/wvm-bot.js?v=50';
-import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=50';
+import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, makeTextTexture, esc, L, LANG, sitPerson, makeAlien, makeRobot, isMobile, SKIES } from '/js/wvm-engine.js?v=51';
+import { initBot } from '/js/wvm-bot.js?v=51';
+import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=51';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const T = THREE;
@@ -1493,7 +1493,7 @@ function buildPeaceFloor() {
   flat(new T.Mesh(new T.RingGeometry(45.2, 46.8, 96), gold), 0, 0); flat(new T.Mesh(new T.PlaneGeometry(1.6, 150), gold), 0, 29);
   for (const sx of [-1, 1]) flat(new T.Mesh(new T.PlaneGeometry(1.6, 44), gold), sx * 19.8, 19.8, sx * Math.PI / 4 * -1);
   app.onUpdate((dt, t) => { gold.emissiveIntensity = 0.75 + Math.sin(t * 1.2) * 0.25; });
-  const arrow = (x, z, w, h, lines, col, rz = 0) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ map: makeTextTexture(lines, { w: 1024, h: Math.round(1024 * h / w), bg: 'rgba(7,18,58,0.88)', fg: '#ffffff', accent: col, border: col, font: 'bold 120px Poppins, Segoe UI, Arial', radius: 60 }), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 })); flat(m, x, z, rz); m.position.y = 0.06; app.onUpdate((dt, t) => { m.material.opacity = 0.72 + Math.sin(t * 1.5 + x * 0.1) * 0.22; }); return m; };
+  const arrow = (x, z, w, h, lines, col, rz = 0) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ map: makeTextTexture(lines, { w: 1024, h: Math.round(1024 * h / w), bg: 'rgba(7,18,58,0.88)', fg: '#ffffff', accent: col, border: col, font: 'bold 120px Poppins, Segoe UI, Arial', radius: 60 }), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 })); flat(m, x, z, rz); m.position.y = 0.06; app.onUpdate((dt, t) => { m.material.opacity = 0.9; }); return m; };
   arrow(0, 84, 9, 3, ['⬆ THIS WAY IN'], '#7cff6b'); arrow(0, 66, 9, 3, ['⬆ THE ATRIUM · 3 WAYS TO GO'], '#7cff6b');
   arrow(-17, 52, 12, 4, ['⬅ THE AMERICAS', 'shops · Alien Quarter'], '#38f0ff'); arrow(0, 40, 12, 4, ['⬆ THE WORLD', 'Asia · Africa · Islands · food · kids'], '#ff4f79'); arrow(17, 52, 12, 4, ['EUROPE ➡', 'shops · Chinatown'], '#ffd23f');
   arrow(-27, 43, 9, 3, ['↖ ART GALLERY'], '#b08cff', Math.PI / 4); arrow(27, 43, 9, 3, ['RESTAURANT ROW ↗'], '#ff8a3d', -Math.PI / 4);
@@ -1796,7 +1796,7 @@ app.start(async (a) => {
 
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 360 showroom, new gallery wing + Paint Studio, Portal Hall
-import('/js/wvm-plus.js?v=50').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=51').then(m => setTimeout(() => { try { m.initMallPlus(app, 'mall'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 
@@ -1812,5 +1812,6 @@ if ('serviceWorker' in navigator) addEventListener('load', () => navigator.servi
 /* ?store=slug: land at that store's door */
 (async () => { try { const to = new URLSearchParams(location.search).get('to'); if (to) { const ready = () => window.WVM_APP && window.WVM_APP.travel; for (let k = 0; k < 200 && !ready(); k++) await new Promise(r => setTimeout(r, 250)); if (ready()) setTimeout(() => { try { window.WVM_APP.travel(to); } catch (e) { } }, 1500); } } catch (e) { } })(); (async () => { try { const slug = new URLSearchParams(location.search).get('store'); if (!slug) return; const ready = () => window.WVM_APP && (window.WVM_APP.places || []).length > 5; for (let k = 0; k < 200 && !ready(); k++) await new Promise(r => setTimeout(r, 250)); const app = window.WVM_APP; const p = (app.places || []).find(q => q.id === slug || q.id === 'store-' + slug || (q.keys || '').includes(slug)); if (p && app.travel) { setTimeout(() => app.travel(p), 1200); } } catch (e) { } })();
 </script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=51"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 </body>
 </html>

@@ -38,4 +38,5 @@ async function save(){const fp=footprint();window._fp=fp;stat.textContent='Savin
  stat.textContent=saved?'Footprint saved and emailed. You can also download it below.':'Could not reach the server — download the JSON and send it.';out.textContent=JSON.stringify(fp,null,1).slice(0,4000);}
 $('#start').onclick=start;$('#save').onclick=save;$('#dl').onclick=()=>{const fp=window._fp||footprint();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(fp,null,1)],{type:'application/json'}));a.download=(fp.store||'store').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'-footprint.json';a.click();};$('#mail').onclick=save;
 draw();
-</script></body></html>
+</script><script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=51"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+</body></html>
