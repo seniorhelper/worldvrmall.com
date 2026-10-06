@@ -8,7 +8,7 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=45';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=49';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -202,12 +202,22 @@ export function buildStore(app, store, opts = {}) {
   // floor + walls + ceiling
   const floor = new T.Mesh(new T.PlaneGeometry(W, D), M(hex(colors.floor), { roughness: 0.35, metalness: 0.2 })); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0.02, -D / 2); floor.receiveShadow = true; g.add(floor);
   const wallM = M(hex(colors.wall));
+  /* scanned stores: a real footprint from /scan/ replaces the box walls. Points are meters, store-local, centered, door side toward +z. */
+  if (Array.isArray(store.footprint) && store.footprint.length >= 3) { try { const fp = store.footprint; const cx = fp.reduce((q, p) => q + p[0], 0) / fp.length, cz = fp.reduce((q, p) => q + p[1], 0) / fp.length; const pts = fp.map(([x, z]) => [x - cx, z - cz]); const hReal = store.ceilingHeight || H; for (let i = 0; i < pts.length; i++) { const [x1, z1] = pts[i], [x2, z2] = pts[(i + 1) % pts.length]; const len = Math.hypot(x2 - x1, z2 - z1); if (len < 0.3) continue; const mid = [(x1 + x2) / 2, (z1 + z2) / 2]; const front = mid[1] > 0 && Math.abs(mid[0]) < Math.max(1.6, (store.doorWidth || 2.4) / 2) && Math.abs(z2 - z1) < 0.3; if (front) continue; const w = sh(new T.Mesh(new T.BoxGeometry(len, hReal, 0.25), wallM)); w.position.set(mid[0], hReal / 2, mid[1] - D / 2); w.rotation.y = -Math.atan2(z2 - z1, x2 - x1); g.add(w); } (store.fixtures || []).forEach(f => { if (!f.poly || f.poly.length < 3) return; const xs = f.poly.map(p => p[0] - cx), zs = f.poly.map(p => p[2] - cz); const w = Math.max(0.3, Math.max(...xs) - Math.min(...xs)), d = Math.max(0.3, Math.max(...zs) - Math.min(...zs)); const y = f.poly[0][1] || 0.8; const box = sh(new T.Mesh(new T.BoxGeometry(w, Math.max(0.4, y), d), new T.MeshStandardMaterial({ color: 0x8a6a4a, roughness: 0.7 }))); box.position.set((Math.max(...xs) + Math.min(...xs)) / 2, Math.max(0.4, y) / 2, (Math.max(...zs) + Math.min(...zs)) / 2 - D / 2); g.add(box); }); g.userData.scanned = true; } catch (e) { console.warn('footprint', e); } }
   const backW = sh(new T.Mesh(new T.BoxGeometry(W, H, 0.3), wallM)); backW.position.set(0, H / 2, -D); g.add(backW);
   for (const sx of [-1, 1]) { const side = sh(new T.Mesh(new T.BoxGeometry(0.3, H, D), wallM)); side.position.set(sx * hw, H / 2, -D / 2); g.add(side); }
   const ceil = new T.Mesh(new T.PlaneGeometry(W, D), M(0xffffff, { side: T.DoubleSide, emissive: 0xffffff, emissiveIntensity: placeholder ? 0.15 : 0.35 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, H - 0.05, -D / 2); g.add(ceil);
   const roof = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.3, D + 0.6), M(0x2a3350, { roughness: 0.9 })); roof.position.set(0, H + 0.1, -D / 2); roof.receiveShadow = true; g.add(roof);
+  /* unique facades: each store gets a style from its name — chrome columns, an awning, a neon outline, a pediment, or a glass canopy — plus a brushed-metal kick plate and real reflections */
+  { const seed = [...String(store.name || store.id || 'store')].reduce((x, ch) => x + ch.charCodeAt(0), 0); const style = seed % 5; const chrome = new T.MeshPhysicalMaterial({ color: 0xdfe6ef, metalness: 1, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.6 }); const brushed = new T.MeshPhysicalMaterial({ color: 0x9aa4b2, metalness: 0.95, roughness: 0.36, envMapIntensity: 1.3 }); const kick = sh(new T.Mesh(new T.BoxGeometry(W + 0.4, 0.5, 0.25), brushed)); kick.position.set(0, 0.25, 0.1); g.add(kick);
+    if (style === 0) { for (const sx of [-1, 1]) { const col = sh(new T.Mesh(new T.CylinderGeometry(0.22, 0.26, H, 18), chrome)); col.position.set(sx * (hw - 0.4), H / 2, 0.2); g.add(col); const cap = new T.Mesh(new T.CylinderGeometry(0.34, 0.34, 0.12, 18), chrome); cap.position.set(sx * (hw - 0.4), H - 0.06, 0.2); g.add(cap); } }
+    else if (style === 1) { const aw = sh(new T.Mesh(new T.BoxGeometry(W + 0.2, 0.12, 2.2), new T.MeshStandardMaterial({ color: trimHex, roughness: 0.7 }))); aw.position.set(0, H - 1.2, 1.1); aw.rotation.x = 0.22; g.add(aw); for (let i = 0; i < 5; i++) { const rib = new T.Mesh(new T.BoxGeometry(0.06, 0.16, 2.2), chrome); rib.position.set(-W / 2 + (i + 0.5) * W / 5, H - 1.14, 1.1); rib.rotation.x = 0.22; g.add(rib); } }
+    else if (style === 2) { const neon = new T.Mesh(new T.TorusGeometry(0.0001, 0.0001, 2, 3), chrome); const edge = new T.Mesh(new T.BoxGeometry(W + 0.5, 0.08, 0.08), new T.MeshBasicMaterial({ color: trimHex })); edge.position.set(0, H + 0.3, 0.35); g.add(edge); for (const sx of [-1, 1]) { const v = new T.Mesh(new T.BoxGeometry(0.08, H + 0.3, 0.08), new T.MeshBasicMaterial({ color: trimHex })); v.position.set(sx * (hw + 0.25), (H + 0.3) / 2, 0.35); g.add(v); } g.add(neon); }
+    else if (style === 3) { const ped = sh(new T.Mesh(new T.ConeGeometry(W * 0.62, 1.6, 4), brushed)); ped.rotation.y = Math.PI / 4; ped.scale.set(1, 1, 0.5); ped.position.set(0, H + 0.9, 0.1); g.add(ped); }
+    else { const glass = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.08, 2.6), new T.MeshPhysicalMaterial({ color: 0xbfe8ff, metalness: 0.1, roughness: 0.05, transparent: true, opacity: 0.35, clearcoat: 1 })); glass.position.set(0, H - 0.4, 1.3); g.add(glass); for (const sx of [-1, 1]) { const rod = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 2.4, 8), chrome); rod.position.set(sx * (hw - 0.6), H - 1.2, 1.3); rod.rotation.x = Math.PI / 2 - 0.5; g.add(rod); } }
+  }
   for (const zz of (big ? [-3, -7, -11, -15] : [-3, -6, -9])) { const strip = new T.Mesh(new T.BoxGeometry(W - 2, 0.1, 0.3), new T.MeshBasicMaterial({ color: placeholder ? 0x445 : 0xffffff })); strip.position.set(0, H - 0.2, zz); g.add(strip); }
-  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), M(trimHex, { emissive: trimHex, emissiveIntensity: 0.15, roughness: 0.6 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.035, -D / 2 + 0.3); if (placeholder) g.add(runner);
+  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), new THREE.MeshPhysicalMaterial({ color: trimHex, metalness: 0.85, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 1.4, emissive: trimHex, emissiveIntensity: 0.06 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.035, -D / 2 + 0.3); if (placeholder) g.add(runner);
 
   // facade: header + logo, URL bar, glass, door mat, plants, neon marquee
   const header = sh(new T.Mesh(new T.BoxGeometry(W + 0.6, 2.2, 0.6), M(hex(store.logo?.bg || colors.wall), { roughness: 0.4 }))); header.position.set(0, H - 1.1, 0.3); g.add(header);
@@ -420,7 +430,7 @@ export function buildStore(app, store, opts = {}) {
   }
   // ----- counter + clerk -----
   const counterZ = layout === 'cafe' ? -3.5 : layout === 'clinic' ? -3.2 : -D + 3.2;
-  if (layout !== 'cafe' && layout !== 'clinic') { const counter = sh(new T.Mesh(new T.BoxGeometry(5, 1.1, 1.2), M(trimHex, { roughness: 0.3, metalness: 0.2 }))); counter.position.set(0, 0.55, -D + 3.2); g.add(counter);
+  if (layout !== 'cafe' && layout !== 'clinic') { const counter = sh(new T.Mesh(new T.BoxGeometry(5, 1.1, 1.2), new THREE.MeshPhysicalMaterial({ color: trimHex, metalness: 0.9, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.5 }))); counter.position.set(0, 0.55, -D + 3.2); g.add(counter);
   const counterTop = new T.Mesh(new T.BoxGeometry(5.2, 0.12, 1.4), M(0xffffff, { roughness: 0.2 })); counterTop.position.set(0, 1.16, -D + 3.2); g.add(counterTop);
   const reg = new T.Mesh(new T.BoxGeometry(0.6, 0.4, 0.5), M(0x1e2a4a, { metalness: 0.6 })); reg.position.set(1.6, 1.42, -D + 3.2); g.add(reg);
   const regScreen = new T.Mesh(new T.PlaneGeometry(0.5, 0.3), new T.MeshBasicMaterial({ color: 0x38f0ff })); regScreen.position.set(1.6, 1.5, -D + 3.46); g.add(regScreen);

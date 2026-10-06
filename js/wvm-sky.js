@@ -1,6 +1,6 @@
 /* 🏮 Sky Lantern Festival + 🌠 meteor showers (shared by both worlds). Write a wish, release a glowing lantern;
    everyone's recent wishes float overhead as lanterns, pulled from the FLAT 'wishes' group. */
-import { THREE, makeSprite, isMobile } from './wvm-engine.js?v=45';
+import { THREE, makeSprite, isMobile } from './wvm-engine.js?v=49';
 const T = THREE; const MOB = isMobile();
 const glowTex = (() => { let t = null; return () => { if (t) return t; const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,230,160,1)'); gr.addColorStop(0.4, 'rgba(255,180,80,.5)'); gr.addColorStop(1, 'rgba(255,150,50,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); t = new T.CanvasTexture(c); return t; }; })();
 export function initSky(app, { x, z, sb, me, toast, popup, celebrate, groundY }) {
