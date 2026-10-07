@@ -42,9 +42,9 @@
 <link rel="modulepreload" href="/vendor/three/jsm/shaders/CopyShader.js">
 <link rel="modulepreload" href="/vendor/three/jsm/shaders/LuminosityHighPassShader.js">
 <link rel="modulepreload" href="/vendor/three/jsm/shaders/OutputShader.js">
-<link rel="modulepreload" href="/js/wvm-engine.js?v=55">
-<link rel="modulepreload" href="/js/wvm-bot.js?v=55">
-<link rel="modulepreload" href="/js/wvm-store.js?v=55">
+<link rel="modulepreload" href="/js/wvm-engine.js?v=57">
+<link rel="modulepreload" href="/js/wvm-bot.js?v=57">
+<link rel="modulepreload" href="/js/wvm-store.js?v=57">
 <link rel="preload" as="image" type="image/avif" crossorigin="anonymous" href="/images/lake-mountain-landscape-360-main.avif">
 <script type="application/ld+json">
 {
@@ -193,9 +193,9 @@
 </main>
 
 <script type="module">
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=55';
-import { initBot } from '/js/wvm-bot.js?v=55';
-import { ideaForm } from '/js/wvm-store.js?v=55';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=57';
+import { initBot } from '/js/wvm-bot.js?v=57';
+import { ideaForm } from '/js/wvm-store.js?v=57';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -1623,7 +1623,7 @@ function buildMallExtras() {
 }
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
-import('/js/wvm-plus.js?v=55').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=57').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 
@@ -1642,7 +1642,7 @@ if ('serviceWorker' in navigator) addEventListener('load', () => navigator.servi
 /* 3D · Directory · VR rail + the ?vr=1 door */
 (() => { try { const rail = document.createElement('div'); rail.id = 'wvm-modes'; rail.innerHTML = `<div class="modes"><span class="track"></span><a class="on" href="javascript:void(0)"><i></i>🧊 3D</a><a href="/directory/"><i></i>📒 Directory</a><a href="javascript:void(0)" data-vr><i></i>🕶️ VR</a></div>`; const st = document.createElement('style'); st.textContent = `#wvm-modes{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30}#wvm-modes .modes{display:inline-flex;align-items:center;background:#0b1a3a;border-radius:12px;padding:3px;border:1px solid rgba(56,240,255,.35);box-shadow:0 6px 20px rgba(2,8,30,.35);position:relative}#wvm-modes a{position:relative;z-index:1;color:#cbd5e1;font:800 11px Poppins,Arial;padding:6px 11px;border-radius:12px;text-decoration:none;display:flex;align-items:center;gap:5px}#wvm-modes a i{width:8px;height:8px;border-radius:50%;background:#334155}#wvm-modes a.on{color:#fff}#wvm-modes a.on i{background:#38f0ff;box-shadow:0 0 10px #38f0ff}#wvm-modes .track{position:absolute;left:24px;right:24px;top:50%;height:2px;background:linear-gradient(90deg,#1e3a6a,#38f0ff,#1e3a6a);opacity:.5}.wvm-hud.xr #wvm-modes{display:none}@media(max-width:560px){#wvm-modes{top:6px}#wvm-modes a{padding:5px 8px;font-size:10px}}`; document.head.appendChild(st); document.body.appendChild(rail); rail.querySelector('[data-vr]').onclick = () => { const v = document.getElementById('wvm-vr'); if (v) v.click(); else window.WVM_APP && window.WVM_APP.toast('🕶️ Open this page in a headset browser (Quest) to enter VR.', 3500); }; if (new URLSearchParams(location.search).get('vr') === '1') { const wait = setInterval(() => { const v = document.getElementById('wvm-vr'); if (!v) return; clearInterval(wait); const o = document.createElement('button'); o.textContent = '🕶️ Tap to enter VR'; o.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;border:0;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font:900 20px Poppins,Arial;padding:18px 32px;box-shadow:0 16px 40px rgba(2,8,30,.5)'; o.onclick = () => { v.click(); o.remove(); }; document.body.appendChild(o); setTimeout(() => o.remove(), 60000); }, 500); } } catch (e) { } })();
 </script>
-<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=55"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=57"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 <style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#64748b;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/">Need a website?</a></div>
 </body>
 </html>

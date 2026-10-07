@@ -1,4 +1,4 @@
-/* allofus.one house icons (Oct 2026) — outlined, colored, squared. One swap map replaces the generic emoji the UI used to lean on.
+/* World VR Mall house icons (Oct 2026) — outlined, colored, squared. One swap map replaces the generic emoji the UI used to lean on.
    Content people typed (posts, comments, Hearts answers, composer) is never touched. */
 const P = (d, extra = '') => `<svg class="hic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}${extra}</svg>`;
 export const HICON = {
