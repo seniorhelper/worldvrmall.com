@@ -751,7 +751,7 @@ export class WVM {
     this._buildHUD();
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: !isMobile() && window.devicePixelRatio < 2, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.2 : 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.35 : 2)); /* full sharpness; the governor below steps it down only if frames actually drop */
     const pre = document.getElementById('wvm-preload'); if (pre) pre.remove();
     renderer.setSize(innerWidth, innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1064,6 +1064,14 @@ export class WVM {
   /* Fade + navigate to another page (portal). */
   go(url, label = 'Teleporting…') {
     try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
+    /* from inside a headset: end the XR session cleanly first (the browser tearing it down mid-navigation is the glitch), carry ?vr=1 so the next page shows the one-tap door right away */
+    if (this.renderer && this.renderer.xr && this.renderer.xr.isPresenting) {
+      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); url = u.href; } } catch (e) { }
+      try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { }
+      const s = this.renderer.xr.getSession(); let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
+      if (s) { try { s.addEventListener('end', nav); s.end(); } catch (e) { nav(); } setTimeout(nav, 1200); } else nav();
+      return;
+    }
     this.fade.classList.add('on'); this.fade.textContent = label;
     setTimeout(() => { location.href = url; }, 160);
   }
@@ -1347,13 +1355,14 @@ export class WVM {
      3) Shadows are re-drawn every other frame (every 4th at the lowest level) instead of every frame. */
   _perf(dt) {
     const Q = this._q || (this._q = { lvl: 0, acc: 0, n: 0, hold: 0, base: this.renderer.getPixelRatio(), f: 0, cullT: 0, list: null, listT: -99 }); Q.f++;
-    if (Q.f === 1 && !isMobile()) { Q.lvl = this.opts.startLvl ?? 1; this._noBloom = true; this._applyQ(Q); }
-    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && Q.f % ((Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) * (this.opts.shadowEvery || (isMobile() ? 3 : 2))) === 0) this.renderer.shadowMap.needsUpdate = true; }
+    /* start at FULL quality (glow on, full resolution); the governor only steps down after a full second of real frame drops. Starting a level down "to be safe" is what made the mall look dull. */
+    if (Q.f === 1 && !isMobile()) { Q.lvl = this.opts.startLvl ?? 0; this._applyQ(Q); }
+    if (this.renderer.shadowMap.enabled) { this.renderer.shadowMap.autoUpdate = false; if (!this._intro && !(this._xr && this._xr._shadowFrozen) && !this.renderer.xr.isPresenting && Q.f % ((Q.lvl >= 4 ? 4 : Q.lvl >= 2 ? 2 : 1) * (this.opts.shadowEvery || (isMobile() ? 3 : 2))) === 0) this.renderer.shadowMap.needsUpdate = true; }
     const raw = this.clock ? dt : dt; if (!this.paused && document.visibilityState !== 'hidden' && !this.renderer.xr.isPresenting && this.loader.classList.contains('off')) { Q.acc += raw; Q.n++; }
-    if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 27 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 42 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && !this._holdQ && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 120) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
+    if (Q.acc >= 1.1 && Q.n >= 6) { const ms = Q.acc / Q.n * 1000; Q.acc = 0; Q.n = 0; if (Q.hold > 0) Q.hold--; else if (ms > 30 && Q.lvl < 5) { (Q.bad = Q.bad || {})[Q.lvl] = this.t; Q.lvl = Math.min(5, Q.lvl + (ms > 48 ? 2 : 1)); Q.hold = 1; this._applyQ(Q); } else if (ms < 17.5 && Q.lvl > 0 && !this._intro && !this._holdQ && this.t - ((Q.bad || {})[Q.lvl - 1] || -999) > 60) { Q.lvl--; Q.hold = 4; this._applyQ(Q); } }
     if (!(Q.cullT > -1e9) || this.t < Q.cullT || this.t - Q.cullT > (this._intro ? 0.15 : (this.renderer.xr && this.renderer.xr.isPresenting ? 0.9 : 0.5))) { Q.cullT = this.t; this._cull(Q); }
   }
-  _applyQ(Q) { const ratios = [1, 1, 0.85, 0.72, 0.62, 0.55]; this._noBloom = Q.lvl >= 1; const pr = Math.max(0.6, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
+  _applyQ(Q) { const ratios = [1, 0.92, 0.84, 0.74, 0.64, 0.55]; this._noBloom = Q.lvl >= 3; const pr = Math.max(0.7, Q.base * ratios[Q.lvl]); if (Math.abs(this.renderer.getPixelRatio() - pr) > 0.01) { this.renderer.setPixelRatio(pr); this.renderer.setSize(innerWidth, innerHeight); if (this.composer) { this.composer.setPixelRatio(pr); this.composer.setSize(innerWidth, innerHeight); } } }
   _cull(Q) {
     if (!(Q.listT > -1e9) || !Q.list || !Q.list.length || this.t - Q.listT > 4 || this.t < Q.listT) { Q.listT = this.t; Q.budget = 0; const L = []; const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.isPoints || o.frustumCulled === false) continue; let c = o.userData._cs; if (!c) { if ((Q.budget = (Q.budget || 0) + 1) > 250) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); c = o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { continue; } } if (c.r > 260) continue; L.push(o); } Q.list = L; }
     if (!Q.list) return; const P = this.player.position; const wide = this.dist > 30 || !!this._intro || !!this.ride || !!this._air; const lim = this.opts.cullDist || Math.min(this.opts.fogFar * 1.05, 900); const camY = this._air ? this.rig.position.y : this.rig.position.y - P.y; const lod = wide && camY > 50 ? Math.min(40, camY * 0.0125) : 0;
