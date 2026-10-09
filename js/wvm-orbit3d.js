@@ -9,7 +9,7 @@ const PHONE = '1-800-481-8638';
 const QA = [
   [/join|sign ?up|account|log ?in/i, 'Join free on the Feed at allofus.one — name, @username, email. Your house and character come with it.'],
   [/brand|business|page|seo|website|market/i, 'Brand pages run from your profile: allofus.one → Brand. Build it yourself, or the experts build it fully optimized in 24-48 hours. Call ' + PHONE + '.'],
-  [/mall|store|shop|lease|product/i, 'World VR Mall: walk the hall, tap a storefront to visit the real store. Lease a store at worldvrmall.com/lease — set up in about ten minutes.'],
+  [/mall|store|shop|lease|product/i, 'World VR Mall: walk the hall, tap a storefront to visit the real store. Rent a store at worldvrmall.com/lease — set up in about ten minutes.'],
   [/coaster|ride|chiller|thrill/i, 'Rides: open the menu (Y in VR, map on screen) → Ride the coaster. Life-size on rides, always.'],
   [/vr|laser|menu|controller|turn|teleport|floor/i, 'VR: left stick walks, right stick turns, trigger clicks the laser, grip pulls you there, Y = menu, X = views, B = bug report. Raise / Lower my view fixes the floor.'],
   [/house|home|build|land|character|avatar/i, 'Your house: My house on the Feed, or the Customize button here for your character, land and home.'],

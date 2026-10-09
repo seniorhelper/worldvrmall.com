@@ -6,13 +6,13 @@
 - Free to visit; no accounts, no login, no ads, no chat with strangers. Kid-safe by design.
 - Purchases happen on each brand's own website; World VR Mall never handles payment or customer data.
 - Visitor selfie avatars and shopping lists are stored only in the visitor's browser.
-- Brands lease a storefront month to month; setup takes about ten minutes by phone; pricing depends on placement (Grand Lobby premium, wing storefront, food court kiosk, Old World Market booth). Call 1-800-481-8638.
+- Brands rent a storefront month to month; setup takes about ten minutes by phone; pricing depends on placement (Grand Lobby premium, wing storefront, food court kiosk, Old World Market booth). Call 1-800-481-8638.
 - Mall layout: Grand Lobby, Americas Wing, Europe Wing, Asia & Islands Wing, Global Food Court, Kids' Discovery Zone, Aquarium Garden, Sky Deck. A roller coaster (the Mall Blaster) runs through the mall interior.
 
 ## Pages
 - [Outside world / home](https://worldvrmall.com/): teleport station, park, coasters, lake, market, train, airport, playground; FAQ.
-- [Inside the mall](https://worldvrmall.com/mall/): all wings, stores, food court, kids' zone, leasing office; full store directory.
-- [Lease a store](https://worldvrmall.com/lease/): what a storefront includes, placement tiers, setup steps, callback form.
+- [Inside the mall](https://worldvrmall.com/mall/): all wings, stores, food court, kids' zone, store rental office; full store directory.
+- [Rent a store](https://worldvrmall.com/lease/): what a storefront includes, placement tiers, setup steps, callback form.
 - [All stores](https://worldvrmall.com/stores/): every store grouped by wing, with open storefronts marked.
 - [About](https://worldvrmall.com/about/): why it exists, who built it, how to visit, privacy, press boilerplate.
 
@@ -35,7 +35,7 @@
 
 ## Contact
 - Phone: 1-800-481-8638
-- Leasing: https://worldvrmall.com/lease/
+- Store rentals: https://worldvrmall.com/lease/
 
 - [Every country](https://worldvrmall.com/countries/): all 195 countries invited; each gets its own street as its first stores open; multi-language clerks; one sign-up form.
 
@@ -72,7 +72,7 @@
 - v6.8 (Oct 5 2026): metals and glass always get an environment (no black vehicles or chrome when the HDR is still loading); on-screen modals (arcade games, store panels, builders) mirror into VR panels whose buttons work with the laser; VR layer v2.3.
 - v6.9 (Oct 5 2026): VR layer v2.4 — trigger from either hand, no system keyboard in VR, near-miss menu selection, smaller closable notices, smaller signs in VR, Earth-with-arcs arrival.
 - v7.0 (Oct 5 2026): ride camera fixed on the Chiller, the World Loop Express, gondolas and the Sky Wheel in 3D — seated eye height, higher chase camera never pulled into the car, body hides up close; VR bug reports send instantly with position; preconnects and lazy images on every page.
-- v7.1 (Oct 6 2026): Orbit, the helper, lives in the mall in 3D and VR — a moon-station companion at your right shoulder (dish eye, glasses, smile, halo rings, comet trail, his own light); tap or laser him for help with stores, leasing, rides and VR controls. Mode rail vertical at the far left on phones.
+- v7.1 (Oct 6 2026): Orbit, the helper, lives in the mall in 3D and VR — a moon-station companion at your right shoulder (dish eye, glasses, smile, halo rings, comet trail, his own light); tap or laser him for help with stores, store rentals, rides and VR controls. Mode rail vertical at the far left on phones.
 - v7.2 (Oct 6 2026): headsets get the sharpest text (storefront words crisp, no sign shimmer); VR layer v2.5 — wrist menu by touch, laser-dismissable signs, far signs thin out, steel body, bigger arrival, foveation.
 - v7.3 (Oct 6 2026): VR movement fixed — the on-screen cinematic intro locked the player in a headset; VR now skips intros and nothing can re-lock you except a ride. Art gallery (One Sky Gallery) on the main More menu, in the welcome popup, in the places list and the Y menu; /mall/?to=gallery deep link; directory has Get your store, Call, Art gallery and 360 showroom buttons. Storefronts: five unique facade styles chosen by store name (chrome columns, awning with chrome ribs, neon outline, brushed pediment, glass canopy), brushed-metal kick plates, brand-tinted brushed-steel trims with clearcoat and real reflections. Shared VR layer v2.5: wrist menu by touch, laser-dismissable signs, far signs thin out, sharpest text on headsets, steel body, bigger arrival, graphics-reset guard, foveation.
 - v7.4 (Oct 6 2026): Store Scanner (/scan/) — on a Quest 3 the page opens passthrough, reads the headset's room planes and meshes (floor, walls, ceiling, doors, windows, tables, shelves) via WebXR plane and mesh detection, draws the live footprint, and saves it (download, email, Supabase store_scans). The store builder reads a footprint and extrudes the real walls, doorway and fixtures, so a scanned store's mall twin matches the real layout. VR: double-tap the trigger anywhere to open the menu (besides Y and wrist touch), ACES tone mapping and a soft fill light while presenting so steel and glass read right.
