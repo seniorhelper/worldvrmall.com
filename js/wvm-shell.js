@@ -11,8 +11,11 @@
    chosen before a session starts, and the overlay layout fixes.
    Hooks for the VR layer: app.arrivalCfg, app.goMenuExtra, app.vrBody(),
    app._cancelArrival (mall), places with a url (Go menu rows).
+   The VR layer itself (wvm-xr.js + wvm-go.js + wvm-lifevr.js) is booted
+   here for every 3D page (outside, mall, store) once the renderer exists;
+   ?vr=1 / ?xrsim=1 modulepreload it, ?vr=basic skips it.
    ============================================================ */
-import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go } from '/js/wvm-rail.js?v=58';
+import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me } from '/js/wvm-rail.js?v=58';
 import { HICON } from '/js/wvm-icons.js?v=58';
 
 const I = (k) => HICON[k] || '';
@@ -56,6 +59,10 @@ body.pax-open #mp-dock,body.pax-open #wvm-turbo{display:none!important}
   body.wvm-3d .mp-banner.on{transform:none}
 }
 @media (max-width:680px){ body.wvm-3d #wvm-toast{top:130px} body.wvm-3d .wvm-panel{top:130px} }
+/* the intro's Skip button: above the scroll hint on desktop (inline bottom:58px), above the bottom rail + VR button on phones */
+@media (max-width:820px){ body.wvm-3d #wvm-skip{bottom:118px!important} }
+/* desktop: the Pax helper sits above the dock's top tile instead of on it */
+@media (min-width:821px){ body.wvm-3d #pax-tab{top:auto;bottom:476px} }
 /* the one-tap VR door */
 #wvm-door{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;display:flex;flex-direction:column;gap:10px;align-items:center;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:16px;padding:20px 28px;box-shadow:0 16px 40px rgba(2,8,30,.5);font-family:Poppins,Arial;max-width:92vw}
 #wvm-door button{border:0;border-radius:12px;background:#fff;color:#0b1a3a;font:900 22px Poppins,Arial;padding:14px 26px;cursor:pointer;display:flex;align-items:center;gap:10px}
@@ -65,6 +72,7 @@ body.pax-open #mp-dock,body.pax-open #wvm-turbo{display:none!important}
 #wvm-door select{border:0;border-radius:9px;padding:6px 8px;font:700 12px Poppins,Arial;color:#0b1a3a}
 `;
 
+const XR_PRELOADS = ['/js/wvm-xr.js', '/js/wvm-go.js', '/js/wvm-icons.js?v=58', '/js/wvm-lifevr.js'];
 const PRELOADS = ['/vendor/three/three.module.min.js', '/vendor/three/jsm/loaders/GLTFLoader.js', '/vendor/three/jsm/utils/BufferGeometryUtils.js', '/vendor/three/jsm/webxr/VRButton.js', '/vendor/three/jsm/postprocessing/EffectComposer.js', '/vendor/three/jsm/postprocessing/RenderPass.js', '/vendor/three/jsm/postprocessing/UnrealBloomPass.js', '/vendor/three/jsm/postprocessing/OutputPass.js', '/vendor/three/jsm/postprocessing/ShaderPass.js', '/vendor/three/jsm/postprocessing/Pass.js', '/vendor/three/jsm/postprocessing/MaskPass.js', '/vendor/three/jsm/shaders/CopyShader.js', '/vendor/three/jsm/shaders/LuminosityHighPassShader.js', '/vendor/three/jsm/shaders/OutputShader.js', '/js/wvm-engine.js?v=58', '/js/wvm-bot.js?v=58', '/js/wvm-store.js?v=58'];
 
 const q = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
@@ -73,8 +81,10 @@ export function bootShell(cfg) {
   ensureCSS();
   const st = document.createElement('style'); st.id = 'wvm-shell-css'; st.textContent = SHELL_CSS; document.head.appendChild(st);
   const page = cfg.page; // 'outside' | 'mall' | 'store'
-  const vr = q.get('vr') === '1';
+  const xrsim = q.get('xrsim') === '1';
+  const vr = q.get('vr') === '1' || xrsim;
   const qm = q.get('mode');
+  if (vr) { try { for (const h of XR_PRELOADS) { const l = document.createElement('link'); l.rel = 'modulepreload'; l.href = h; document.head.appendChild(l); } } catch (e) { } }
   if (qm === '3d') setMode('3d'); else if (qm === 'flat') setMode('flat');
   const deep = /[?&](to|ride|store)=/.test(location.search) || location.hash === '#mall' || location.hash === '#leasing';
   let want3d;
@@ -146,10 +156,38 @@ export function bootShell(cfg) {
       } catch (e) { return null; }
     };
     document.addEventListener('click', (e) => { const v = e.target.closest('#wvm-vr'); if (v && app.renderer && !app.renderer.xr.isPresenting) app.vrBody(); }, true);
+    /* the VR layer: arrival, laser, menu, body, ?xrsim=1 simulator */
+    if (q.get('vr') !== 'basic') bootXR(app);
     /* the ?vr=1 door */
-    if (vr) vrDoor(app);
+    if (vr && !xrsim) vrDoor(app);
     /* flat <main> below the stage keeps its scroll hint */
     const sh = document.getElementById('scrollhint'); const about = document.getElementById('about'); if (sh && about && !sh.onclick) sh.onclick = () => about.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* the VR layer boots once the renderer exists (app.start is async); the options come from the page's hooks */
+  async function bootXR(app) {
+    for (let k = 0; k < 400 && !(app.renderer && app.renderer.xr); k++) await new Promise(r => setTimeout(r, 250));
+    if (!app.renderer) return null;
+    try {
+      const x = await import('/js/wvm-xr.js');
+      window.WVM_XR = x;
+      import('/js/wvm-orbit3d.js').then(o => o.spawnOrbit(app, { hidden: () => !!(app.ride && !app.ride.stand) })).catch(e => console.warn('orbit3d', e));
+      /* a GL context loss in the headset reloads the page; come back to the same spot */
+      try { const rs = JSON.parse(localStorage.getItem('wvm_resume') || 'null'); if (rs && Date.now() - rs.t < 120000) { localStorage.removeItem('wvm_resume'); app.player.position.set(rs.x, app.player.position.y, rs.z); if (rs.yaw !== undefined) app.yaw = rs.yaw; app.toast && app.toast('Back where you were.'); } } catch (e) { }
+      const A = app.arrivalCfg || {};
+      const api = x.initXR(app, {
+        name: A.name || 'World VR Mall', tagline: A.tagline || '', accent: A.accent || '#22d3ee', logoTexture: A.logoTexture || null, chrome: !!A.chrome,
+        me: () => me(),
+        extra: (app.goMenuExtra || []).concat((window.WVM_PLUS && window.WVM_PLUS.vrExtra) || []),
+        onBugs: (list) => {
+          const last = list.slice(-5).reverse();
+          const html = '<p>Logged in VR. Add a line about what went wrong and send.</p>' + last.map((b, i) => `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin:6px 0"><b>#${list.length - i}</b> · ${b.near || 'unknown spot'} · (${b.x}, ${b.y}, ${b.z})${b.act ? ' · near: ' + b.act : ''}${b.ride ? ' · on a ride' : ''}<br><input data-bug="${list.length - 1 - i}" placeholder="What happened?" style="width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font:600 13px Poppins,Arial"></div>`).join('') + '<button class="mp-btn holo" id="bug-send">📤 Send bug reports</button>';
+          const m = (window.WVM_PLUS && window.WVM_PLUS.modal) ? window.WVM_PLUS.modal('🐞 VR bug reports', html) : null; if (!m) return;
+          m.querySelector('#bug-send').onclick = async () => { const notes = {}; m.querySelectorAll('[data-bug]').forEach(i => notes[i.dataset.bug] = i.value); const body = list.map((b, i) => `#${i + 1} ${b.t} ${b.page} at (${b.x},${b.y},${b.z}) yaw ${b.yaw} near "${b.near}" act "${b.act}" ride ${b.ride} :: ${notes[i] || ''}`).join('\n'); try { await navigator.clipboard.writeText(body); } catch (e) { } const mail = 'mailto:' + atob('emFjaA==') + String.fromCharCode(64) + atob('ZXlldG9hZC5jb20=') + '?subject=' + encodeURIComponent('VR bug reports · ' + location.host) + '&body=' + encodeURIComponent(body); window.open(mail, '_blank'); localStorage.setItem('vr_bugs', '[]'); window.WVM_PLUS.close && window.WVM_PLUS.close(); app.toast('📤 Copied + opened in your mail app.', 3000); };
+        },
+      });
+      S.xr = api; return api;
+    } catch (e) { console.error('VR layer failed', e); return null; }
   }
 
   function enterVR() {
