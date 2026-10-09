@@ -333,6 +333,8 @@ export function initMallPlus(app, page = 'outside') {
 
   import('./wvm-fun.js?v=58').then(m => { try { m.initFun(app, page); } catch (e) { console.error('fun', e); } }).catch(e => console.error('fun load', e));
   window.WVM_PLUS = { openShowroom, salesTool, openLifeboard, openDirectory, openHunt, paintStudio, signIn, joinVoice, me: () => me, modal, close };
+  /* the VR LIFEboard panel (wvm-lifevr.js) reads and writes the same lifeboard through window.WVM.UI */
+  window.WVM = Object.assign(window.WVM || {}, { UI: { LB, saveLB, openLifeboard, modal, close, me: () => me } });
   return window.WVM_PLUS;
 }
 
