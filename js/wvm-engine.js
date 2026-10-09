@@ -27,6 +27,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { goGroups, goItem, storesByLetter } from './wvm-go.js';
 
 export { THREE };
 export const WVM_VERSION = '7';
@@ -934,7 +935,7 @@ export class WVM {
   /* Runs fn once after the visitor has walked `meters` on their own (for a delayed welcome popup). */
   onFirstSteps(meters, fn) { this._stepHooks.push({ meters, fn, done: false }); }
   /* Something you can DO when standing near it: shows a big green button with the label. */
-  addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); }
+  addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); this._interVer = (this._interVer || 0) + 1; }
   _updateInteractables() {
     if (!this.interactables) return; const p = this.player.position; let best = null, bd = 1e9;
     for (const it of this.interactables) { if (it.level !== undefined ? it.level !== (this.level || 0) : ((this.level || 0) >= 3 && it.r < 1e6)) continue; const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
@@ -1068,14 +1069,34 @@ export class WVM {
     try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
     /* from inside a headset: end the XR session cleanly first (the browser tearing it down mid-navigation is the glitch), carry ?vr=1 so the next page shows the one-tap door right away */
     if (this.renderer && this.renderer.xr && this.renderer.xr.isPresenting) {
-      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); url = u.href; } } catch (e) { }
+      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); if (u.origin !== location.origin && !u.searchParams.has('from')) u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
       try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { }
       const s = this.renderer.xr.getSession(); let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
       if (s) { try { s.addEventListener('end', nav); s.end(); } catch (e) { nav(); } setTimeout(nav, 1200); } else nav();
       return;
     }
+    try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && u.origin !== location.origin && /(^|\.)(allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) && !u.searchParams.has('from')) { u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
     this.fade.classList.add('on'); this.fade.textContent = label;
     setTimeout(() => { location.href = url; }, this.opts.goFade || 400);
+  }
+  /* "Go anywhere": every place, store, world and mode in one grouped modal (the map button opens it; the big map is one tap away).
+     Stores are a letter-indexed page; app.goMenuExtra rows ([label, fn]) sit on top; in a headset the VR menu's Go tab opens instead. */
+  goMenu(group, letter) {
+    const groups = goGroups(this); if (!groups.length) { this.showMap(); return; } const cur = group || this._goGroup || groups[0].key; this._goGroup = cur;
+    const g = groups.find(x => x.key === cur) || groups[0]; if (letter !== undefined) this._goLetter = letter; const L = g.stores ? (this._goLetter || '') : '';
+    const items = g.stores ? storesByLetter(g, L || null) : g.items;
+    const extra = (this.goMenuExtra || []).filter(r => r && r[0] && typeof r[1] === 'function');
+    const html = `<div class="wvm-go-tabs">${groups.map(x => `<button class="wvm-tab${x.key === g.key ? ' on' : ''}" data-gg="${x.key}">${x.icon} ${esc(x.label)} <small>${x.items.length}</small></button>`).join('')}</div>` +
+      (extra.length ? `<div class="wvm-go-extra">${extra.map((r, i) => `<button class="wvm-btn" data-gx="${i}">${esc(r[0])}</button>`).join('')}</div>` : '') +
+      (g.stores ? `<div class="wvm-go-letters"><button class="wvm-tab${!L ? ' on' : ''}" data-gl="">All · ${g.items.length}</button>${(g.letters || []).map(l => `<button class="wvm-tab${L === l ? ' on' : ''}" data-gl="${l}">${l}</button>`).join('')}</div>` : '') +
+      `<div class="wvm-go-grid">${items.map((it, i) => `<button class="wvm-place" data-gi="${i}"><span>${it.icon || '📍'}</span><b>${esc(it.label)}</b><small>${it.url ? esc(it.url.replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/#.*$/, '').slice(0, 40)) : (it.cat ? esc(it.cat) : 'tap to jump')}</small></button>`).join('')}</div>`;
+    if (this.renderer.xr && this.renderer.xr.isPresenting && this._xrApi && this._xrApi.openGo) { this._xrApi.openGo(); return; }
+    this.popup('🧭 Go anywhere', html, [{ label: '🗺️ Open the map', fn: () => this.showMap() }]);
+    const card = this.pop; if (!card) return;
+    card.querySelectorAll('[data-gg]').forEach(b => b.onclick = () => this.goMenu(b.dataset.gg));
+    card.querySelectorAll('[data-gl]').forEach(b => b.onclick = () => this.goMenu(g.key, b.dataset.gl));
+    card.querySelectorAll('[data-gx]').forEach(b => b.onclick = () => { const r = extra[+b.dataset.gx]; this.closePopup(); setTimeout(() => { try { r[1](this); } catch (e) { console.error(e); } }, 40); });
+    card.querySelectorAll('[data-gi]').forEach(b => b.onclick = () => { const it = items[+b.dataset.gi]; this.closePopup(); setTimeout(() => goItem(this, it, 'port'), 40); });
   }
   /* A wall screen that plays a YouTube video: a glowing frame in 3D plus a Watch button that opens the player. */
   addScreen(x, y, z, rot, videoId, opts = {}) {
@@ -1230,7 +1251,7 @@ export class WVM {
       if (!L) { const c = this.opts.viewCenter || [0, 0]; L = [c[0], c[1]]; } yaw = Math.atan2(-(L[0] - x), -(L[1] - z)); }
     this.yaw = yaw; this.pitch = pl.pitch !== undefined ? pl.pitch : -0.06; this.avatar.rotation.y = yaw + Math.PI; if (this.viewMode !== 'follow' && this.viewMode !== undefined) this.viewMode = 'follow'; if (this.targetDist > 0.6 && (this.targetDist < 5 || this.targetDist > 14)) { this.targetDist = 7.5; this.dist = 7.5; }
   }
-  _arrived(pl) { this._route = null; this.walkTarget = null; if (pl.silent) return; if (pl.look || pl.yaw !== undefined) { const P = this.player.position; this._faceView(pl, P.x, P.z); } else if (this.pitch < -0.5) this.pitch = -0.08; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
+  _arrived(pl) { this._route = null; this.walkTarget = null; try { this._uncullAll && this._uncullAll(); this._updateZones(); if (this.renderer.shadowMap.enabled) this.renderer.shadowMap.needsUpdate = true; } catch (e) { } if (pl.silent) return; if (pl.look || pl.yaw !== undefined) { const P = this.player.position; this._faceView(pl, P.x, P.z); } else if (this.pitch < -0.5) this.pitch = -0.08; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
     if (this._bubble) { this.player.remove(this._bubble); this._bubble.material.map.dispose(); this._bubble.material.dispose(); this._bubble = null; }
@@ -1496,12 +1517,26 @@ export class WVM {
 
   _updateZones() {
     const p = this.player.position;
+    /* time-sliced: due zones are queued and built at most one per frame, and only while the frame has budget left (≤6 ms of build work
+       per frame on average), so arriving at a wing never freezes the headset. The zone you are standing in always goes first. */
+    const q = this._zoneQ || (this._zoneQ = []);
     for (const z of this.zones) {
-      if (z.built) continue;
+      if (z.built || z._queued) continue;
       const dx = p.x - z.center.x, dz = p.z - z.center.z;
-      if (dx * dx + dz * dz < z.radius * z.radius) { z.built = true; try { z.build(this); } catch (e) { console.error('zone', z.name, e); } }
+      if (dx * dx + dz * dz < z.radius * z.radius) { z._queued = true; q.push(z); }
     }
+    if (!q.length) return;
+    /* while the teleport gate is still up nothing is on screen yet: build everything due at once (places and booths register here) */
+    if (this.loader && !this.loader.classList.contains('off')) { while (q.length) this._buildZone(q.shift()); return; }
+    q.sort((a, b) => ((a.center.x - p.x) ** 2 + (a.center.z - p.z) ** 2) - ((b.center.x - p.x) ** 2 + (b.center.z - p.z) ** 2));
+    const z = q[0]; const dz2 = (z.center.x - p.x) ** 2 + (z.center.z - p.z) ** 2;
+    /* a zone you are already well inside builds now; the ones you are only approaching wait while the frame is paying off build debt */
+    if (this._zoneDebt > 0 && dz2 > z.radius * z.radius * 0.36) { this._zoneDebt -= 6; return; }
+    q.shift(); this._buildZone(z);
   }
+  _buildZone(z) { if (!z || z.built) return 0; z.built = true; z._queued = false; const t = performance.now(); try { z.build(this); } catch (e) { console.error('zone', z.name, e); } const ms = performance.now() - t; this._zoneDebt = Math.min(60, Math.max(0, (this._zoneDebt || 0) + ms - 6)); this._zoneMs = (this._zoneMs || 0) + ms; try { if (this.renderer.shadowMap.enabled) this.renderer.shadowMap.needsUpdate = true; } catch (e) { } return ms; }
+  /* build every unbuilt zone, one per frame (used behind the VR arrival dome so the world is complete when it fades in) */
+  prebuildZones(onDone) { const list = this.zones.filter(z => !z.built); let i = 0; const step = () => { if (i >= list.length) { this.updaters = this.updaters.filter(u => u !== step); try { this._cullPrep && this._cullPrep(); } catch (e) { } onDone && onDone(); return; } this._buildZone(list[i++]); }; this.onUpdate(step); return list.length; }
 
   /* ----- input ----- */
   _bindInput() {
@@ -1674,7 +1709,7 @@ export class WVM {
     this.setSpeed(this._load('wvm_speed', 1));
     hud.querySelector('#wvm-list').onclick = () => this.toggleList();
     hud.querySelector('#wvm-radio').onclick = () => this.toggleRadio();
-    hud.querySelector('#wvm-map').onclick = () => this.showMap();
+    hud.querySelector('#wvm-map').onclick = () => this.goMenu();
     hud.querySelector('#wvm-full').onclick = () => { const d = document; if (d.fullscreenElement) { d.exitFullscreen(); } else { (d.documentElement.requestFullscreen || d.documentElement.webkitRequestFullscreen || (() => this.toast('Full screen is not available in this browser'))).call(d.documentElement); window.scrollTo(0, 0); } };
     this.listPanel.querySelector('.wvm-x').onclick = () => this.toggleList(false);
     this.radioPanel.querySelector('.wvm-x').onclick = () => this.toggleRadio(false);
@@ -1966,6 +2001,7 @@ export class WVM {
       #wvm-turbo{position:absolute;right:18px;bottom:96px;width:88px;height:88px;border-radius:12px;border:3px solid #ffd23f;background:radial-gradient(circle at 40% 35%,#ff8a3d,#c1121f);color:#fff;font-weight:900;font-size:14px;display:none;box-shadow:0 8px 30px rgba(255,80,40,.5);font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
       #wvm-turbo.on{display:block} #wvm-turbo:active{transform:scale(.94)}
       @media (prefers-reduced-motion: reduce){#wvm-act{animation:none} .wvm-ring{animation:none}}
+      .wvm-go-tabs,.wvm-go-letters,.wvm-go-extra{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px} .wvm-go-letters .wvm-tab{padding:5px 9px;min-width:34px;justify-content:center} .wvm-go-extra .wvm-btn{margin:0} .wvm-go-tabs .wvm-tab small{opacity:.7;font-weight:600;margin-left:2px} .wvm-go-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;max-height:52vh;overflow:auto} .wvm-go-grid .wvm-place{margin:0;color:#0f172a;background:rgba(15,23,42,.05);border-color:#cbd5e1} .wvm-go-grid .wvm-place:hover,.wvm-go-grid .wvm-place:focus{background:rgba(56,240,255,.22)} .wvm-go-grid .wvm-place b{color:#0f172a;font-size:13px} .wvm-go-grid .wvm-place small{color:#64748b} .wvm-go-grid .wvm-place span{color:#0ea5e9}
       .wvm-scrollhint{position:absolute;bottom:14px;right:14px;background:rgba(8,20,50,.75);border:1px solid rgba(124,248,255,.4);border-radius:12px;padding:6px 12px;font-size:12px;font-weight:700}
     `;
     document.head.appendChild(s);
