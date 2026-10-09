@@ -121,7 +121,12 @@ export function mountRail(opts = {}) {
     }
   });
   document.addEventListener('click', (e) => { if (!rail.contains(e.target)) aou.classList.remove('open'); }, true);
-  if (opts.into) opts.into.appendChild(rail); else document.body.appendChild(rail);
+  /* phones: the bar is fixed to the viewport, so it lives on <body> (a sticky header with backdrop-filter would trap it);
+     wide screens: inline in the header slot when one is given */
+  const mq = matchMedia('(max-width:820px)');
+  const place = () => { if (opts.into && !mq.matches) { if (rail.parentNode !== opts.into) opts.into.appendChild(rail); } else if (rail.parentNode !== document.body && !(rail.parentNode && rail.parentNode.classList && rail.parentNode.classList.contains('wvm-top') && !mq.matches)) document.body.appendChild(rail); };
+  place(); try { mq.addEventListener('change', place); } catch (e) { }
+  rail._place = place;
   document.body.classList.add('wvm-railpad');
   return rail;
 }

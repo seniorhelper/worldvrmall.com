@@ -19,7 +19,7 @@
   *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:#050b1c;color:#eaf4ff;font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
   a{color:#38f0ff}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:rgba(4,10,30,.9);position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(124,248,255,.2)}
-  header img{height:40px;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:#ff4f79;padding:8px 14px;border-radius:999px}
+  header img{height:40px;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:#ff4f79;padding:8px 14px;border-radius:12px}
   .hero{padding:64px 22px 40px;text-align:center;background:radial-gradient(circle at 50% 20%,#123a8a,#050b1c 65%)}
   h1{font-size:clamp(30px,5vw,54px);line-height:1.08;margin:0 0 12px;color:#fff;max-width:900px;margin-inline:auto} h1 span{color:#38f0ff}
   .lead{font-size:clamp(18px,2.3vw,22px);color:#d7e6ff;max-width:800px;margin:0 auto 18px}
@@ -33,14 +33,16 @@
   form{background:linear-gradient(160deg,#0d1f4d,#071233);border:1px solid rgba(124,248,255,.45);border-radius:22px;padding:26px 24px;margin:20px 0}
   label{display:block;font-weight:700;font-size:14px;margin:12px 0 5px;color:#fff} input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(124,248,255,.35);background:#050b1c;color:#fff;font:inherit;font-size:16px} textarea{min-height:90px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:640px){.row{grid-template-columns:1fr}}
-  .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:999px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer;display:inline-block} .btn.hot{background:#ff4f79;color:#fff} .btn.alt{background:transparent;color:#7cf8ff;border:2px solid #38f0ff}
+  .btn{background:#38f0ff;color:#04122a;font-weight:800;border-radius:12px;padding:14px 24px;text-decoration:none;font-size:16px;border:0;cursor:pointer;display:inline-block} .btn.hot{background:#ff4f79;color:#fff} .btn.alt{background:transparent;color:#7cf8ff;border:2px solid #38f0ff}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0} .status{margin-top:12px;font-weight:700;min-height:22px}
   details{background:rgba(8,20,50,.6);border:1px solid rgba(124,248,255,.25);border-radius:14px;padding:12px 18px;margin:10px 0} summary{cursor:pointer;font-weight:700;font-size:17px;color:#fff}
   footer{border-top:1px solid rgba(255,255,255,.1);margin-top:50px;padding-top:22px;font-size:14px;color:#9fb3d9} footer a{text-decoration:none}
 </style>
+<style>.wvm-railrow{display:flex;justify-content:center;padding:8px 10px 0}@media(max-width:820px){.wvm-railrow{padding:0}}</style>
 </head>
 <body>
 <header><a href="/"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall"></a><nav><a href="/">Outside</a><a href="/mall/">Mall</a><a href="/stores/">Stores</a><a href="/lease/">Rent a store</a><a class="call" href="tel:18004818638">📞 1-800-481-8638</a></nav></header>
+<div class="wvm-railrow" id="railrow"></div>
 <section class="hero">
   <div class="flags" aria-hidden="true">🇺🇸🇯🇵🇩🇪🇧🇷🇰🇪🇮🇳🇫🇷🇲🇽🇰🇷🇳🇬🇬🇧🇮🇹🇨🇦🇹🇭🇿🇦🇵🇱🇸🇪🇪🇸🇦🇺🇬🇹🇵🇷🇳🇴🇪🇬🇵🇹🇲🇦🇮🇩🇵🇭🇬🇭🇨🇺🇵🇪🇨🇳🇻🇳🇹🇷🇦🇷🇨🇴</div>
   <h1>195 countries. <span>One mall.</span> Bring your country.</h1>
@@ -95,5 +97,6 @@
 </script>
 <script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=58"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 <style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#64748b;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/">Need a website?</a></div>
+<script type="module">import { mountRail, backChip } from "/js/wvm-rail.js?v=58"; mountRail({ page: "flat", into: document.getElementById("railrow") }); backChip();</script>
 </body>
 </html>

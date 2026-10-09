@@ -87,8 +87,10 @@ function _makeTextTexture(lines, opts = {}) {
     font = 'bold 72px Poppins, Segoe UI, Arial, sans-serif', pad = 40, radius = 40,
     align = 'center', glow = true, border = accent, lineGap = 1.15, small = null,
   } = opts;
-  const c = document.createElement('canvas'); c.width = Math.round(w * TEX_SCALE); c.height = Math.round(h * TEX_SCALE);
-  const g = c.getContext('2d'); g.scale(TEX_SCALE, TEX_SCALE);
+  /* v9: never above 2048 px on the long side (GPU memory + upload time on headsets); the drawing scale follows */
+  const TS = Math.min(TEX_SCALE, 2048 / Math.max(w, h));
+  const c = document.createElement('canvas'); c.width = Math.round(w * TS); c.height = Math.round(h * TS);
+  const g = c.getContext('2d'); g.scale(TS, TS);
   g.fillStyle = bg;
   roundRect(g, 0, 0, w, h, radius); g.fill();
   if (border) { g.lineWidth = 12; g.strokeStyle = border; roundRect(g, 6, 6, w - 12, h - 12, radius); g.stroke(); }
@@ -1073,7 +1075,7 @@ export class WVM {
       return;
     }
     this.fade.classList.add('on'); this.fade.textContent = label;
-    setTimeout(() => { location.href = url; }, 160);
+    setTimeout(() => { location.href = url; }, this.opts.goFade || 400);
   }
   /* A wall screen that plays a YouTube video: a glowing frame in 3D plus a Watch button that opens the player. */
   addScreen(x, y, z, rot, videoId, opts = {}) {
@@ -1897,7 +1899,7 @@ export class WVM {
       @media (max-width:760px){.wvm-bm-body{position:relative;display:block}.wvm-bm-head .muted{display:none}.wvm-bm-head{padding:6px 8px}.wvm-bm-head b{font-size:13px}.wvm-bm-toggle{display:inline-block;background:#7cff6b;color:#04122a}.wvm-bm-list{position:absolute;left:0;right:0;bottom:0;width:auto;height:62%;border-left:0;border-top:2px solid #7cff6b;border-radius:16px 16px 0 0;transform:translateY(102%);transition:transform .25s;z-index:2}#wvm-bigmap.list-open .wvm-bm-list{transform:none}.wvm-bm-list .wvm-place{padding:12px 10px;font-size:15px}}
       #wvm-searchpanel{left:50%;right:auto;transform:translateX(-50%);width:min(440px,94vw)} #wvm-searchpanel input{display:block;width:calc(100% - 20px);margin:0 10px 8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(124,248,255,.6);background:#fff;color:#0b1a3a;font:600 16px Poppins,Segoe UI,Arial;outline:none}
       .wvm-place{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:8px;width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(124,248,255,.22);border-radius:12px;color:#fff;padding:8px 10px;margin:0 0 6px;cursor:pointer;font:inherit} .wvm-place:hover,.wvm-place:focus{background:rgba(56,240,255,.18)} .wvm-place span{grid-row:1/3;font-size:22px;align-self:center;text-align:center} .wvm-place small{color:#9fc4e8;font-size:12px}
-      .wvm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .wvm-chip{background:rgba(56,240,255,.14);border:1px solid rgba(124,248,255,.45);color:#fff;border-radius:99px;padding:6px 11px;font:600 13px Poppins,Segoe UI,Arial;cursor:pointer}
+      .wvm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .wvm-chip{background:rgba(56,240,255,.14);border:1px solid rgba(124,248,255,.45);color:#fff;border-radius:10px;padding:6px 11px;font:600 13px Poppins,Segoe UI,Arial;cursor:pointer}
       .wvm-panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1);user-select:none;-webkit-user-select:none}
       .wvm-x{background:none;border:0;color:#fff;font-size:16px;cursor:pointer}
       .wvm-list-body,.wvm-radio-body{padding:10px 14px}
@@ -1923,7 +1925,7 @@ export class WVM {
       .wvm-look{min-width:36px;height:36px;border-radius:18px;border:3px solid transparent;cursor:pointer;font-size:13px;font-weight:700;background:#0b1a3a;color:#fff;padding:0 10px;font-family:inherit} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.txt{border-radius:12px} .wvm-look.rainbow{background:linear-gradient(135deg,#ff4f79,#ff8a3d,#ffd23f,#7cff6b,#38f0ff,#b08cff)}
       .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0;position:relative} .wvm-cam video{width:0;height:0;border-radius:16px;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:180px;height:180px} .wvm-cam canvas{width:96px;height:120px;border-radius:48px 48px 40px 40px/50px 50px 60px 60px;background:#0b1a3a;transition:.3s} #wvm-selfie.snapped canvas{width:160px;height:200px;box-shadow:0 0 0 4px #7cff6b} .wvm-cam-hint{font-size:12px;color:#9fd3ff;display:none} #wvm-selfie.cam .wvm-cam-hint{display:block}
       .wvm-privacy{font-size:13px;background:rgba(124,248,255,.1);border:1px solid rgba(124,248,255,.35);border-radius:10px;padding:8px 10px}
-      #wvm-fade{position:absolute;inset:0;background:#ffffff;color:#0b1a3a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:.5s}
+      #wvm-fade{position:absolute;inset:0;background:#ffffff;color:#0b1a3a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:opacity .4s}
       #wvm-fade.on{opacity:1;pointer-events:auto}
       /* ---- teleport station (white to match the logo) ---- */
       #wvm-loader{position:absolute;inset:0;background:#ffffff;display:flex;align-items:center;justify-content:center;transition:opacity .6s;z-index:60;color:#0b1a3a}
@@ -1943,13 +1945,13 @@ export class WVM {
       @keyframes wvmbeam{0%,100%{opacity:.78}50%{opacity:1}} @keyframes wvmrise{from{background-position:0 0,9px 11px}to{background-position:0 -92px,9px -81px}} @keyframes wvmrays{0%,100%{transform:rotate(-2.5deg);opacity:.7}50%{transform:rotate(2.5deg);opacity:1}} @keyframes wvmhover{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
       @keyframes wvmmat{0%{clip-path:inset(0 0 100% 0);opacity:.2}60%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:1}} @keyframes wvmpulse{0%,100%{transform:scaleX(.8);opacity:.6}50%{transform:scaleX(1.1);opacity:1}} @keyframes wvmup{to{transform:translateY(-260px);opacity:0}}
       @media (prefers-reduced-motion: reduce){.wvm-beamcol,.wvm-silh,.wvm-pad-glow,.wvm-ring-top,.wvm-beam-lines,.wvm-beam::before{animation:none}}
-      .wvm-loadmsg{font-weight:800;margin-bottom:12px;min-height:22px;color:#0b1a3a} .wvm-barwrap{height:12px;border-radius:99px;background:rgba(11,26,58,.12);overflow:hidden;border:1px solid rgba(56,240,255,.6)}
+      .wvm-loadmsg{font-weight:800;margin-bottom:12px;min-height:22px;color:#0b1a3a} .wvm-barwrap{height:12px;border-radius:8px;background:rgba(11,26,58,.12);overflow:hidden;border:1px solid rgba(56,240,255,.6)}
       .wvm-bar{height:100%;width:0;background:linear-gradient(90deg,#38f0ff,#ff4f79,#ffd23f);transition:width .4s;box-shadow:0 0 16px #38f0ff}
       .wvm-tele small{display:block;margin-top:10px;color:#3a5a8a}
       #wvm-pad{position:absolute;left:18px;bottom:22px;width:150px;height:150px;user-select:none;-webkit-user-select:none}
       body.wvm-modal-open #wvm-pad,body.wvm-modal-open #wvm-act,body.wvm-modal-open #wvm-turbo,body.wvm-modal-open #wvm-vr{display:none!important}
       .wvm-pad-grip{position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:8px;padding:1px 10px;font-size:12px;cursor:grab;letter-spacing:-2px;color:#7cf8ff;z-index:2}
-      .wvm-pad-mode{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(124,248,255,.4);background:rgba(8,20,50,.8);color:#7cf8ff;cursor:pointer;z-index:2}
+      .wvm-pad-mode{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:9px;border:1px solid rgba(124,248,255,.4);background:rgba(8,20,50,.8);color:#7cf8ff;cursor:pointer;z-index:2}
       .wvm-stick{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(56,240,255,.18),rgba(8,20,50,.65) 70%);border:2px solid rgba(124,248,255,.4);touch-action:none}
       .wvm-knob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8ff7ff,#1aa8c9);box-shadow:0 6px 16px rgba(0,0,0,.5)}
       .wvm-dpad{position:absolute;inset:0;display:none;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr}
@@ -1961,7 +1963,7 @@ export class WVM {
       .wvm-vrbadge{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(8,20,50,.7);border:1px solid rgba(124,248,255,.35);border-radius:12px;padding:6px 12px;font-size:12px;font-weight:700;color:#9fd3ff;pointer-events:none}
       #wvm-act{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);background:#7cff6b;color:#04122a;border:0;border-radius:12px;padding:14px 26px;font-weight:900;font-size:17px;display:none;box-shadow:0 8px 30px rgba(124,255,107,.45);font-family:inherit;cursor:pointer;animation:wvmpop .4s;max-width:70vw}
       #wvm-act.on{display:block} @keyframes wvmpop{from{transform:translateX(-50%) scale(.7)}to{transform:translateX(-50%) scale(1)}}
-      #wvm-turbo{position:absolute;right:18px;bottom:96px;width:92px;height:92px;border-radius:50%;border:3px solid #ffd23f;background:radial-gradient(circle at 40% 35%,#ff8a3d,#c1121f);color:#fff;font-weight:900;font-size:14px;display:none;box-shadow:0 8px 30px rgba(255,80,40,.5);font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+      #wvm-turbo{position:absolute;right:18px;bottom:96px;width:88px;height:88px;border-radius:12px;border:3px solid #ffd23f;background:radial-gradient(circle at 40% 35%,#ff8a3d,#c1121f);color:#fff;font-weight:900;font-size:14px;display:none;box-shadow:0 8px 30px rgba(255,80,40,.5);font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
       #wvm-turbo.on{display:block} #wvm-turbo:active{transform:scale(.94)}
       @media (prefers-reduced-motion: reduce){#wvm-act{animation:none} .wvm-ring{animation:none}}
       .wvm-scrollhint{position:absolute;bottom:14px;right:14px;background:rgba(8,20,50,.75);border:1px solid rgba(124,248,255,.4);border-radius:12px;padding:6px 12px;font-size:12px;font-weight:700}
