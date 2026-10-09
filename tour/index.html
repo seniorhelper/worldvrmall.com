@@ -47,5 +47,5 @@ document.getElementById('t-voice').onclick = (e) => { voice = !voice; e.target.s
 document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); if (e.key === ' ') { e.preventDefault(); document.getElementById('t-play').click(); } });
 let last = performance.now(); const tick = (now) => { const dt = now - last; last = now; if (playing) { t += dt; if (t >= DUR) { if (i < S.length - 1) go(1); else { playing = false; document.getElementById('t-play').textContent = '▶️'; t = DUR; } } } bar.style.width = ((i + Math.min(1, t / DUR)) / S.length * 100) + '%'; requestAnimationFrame(tick); }; draw(); requestAnimationFrame(tick);
 </script>
-<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=57"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=58"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 </body></html>

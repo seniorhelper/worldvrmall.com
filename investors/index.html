@@ -32,5 +32,5 @@ f.onsubmit = async (e) => { e.preventDefault(); const v = (id) => document.getEl
   let ok = false; try { const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'); const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY); const { error } = await sb.rpc('submit_lead', { p_kind: 'investor', p_name: v('i-n'), p_business: v('i-f'), p_email: v('i-e'), p_phone: v('i-p'), p_website: '', p_details: JSON.stringify({ interest: v('i-k'), message: v('i-m') }) }); ok = !error; } catch (err) { }
   out.innerHTML = ok ? '✅ Thank you. Zach will reach out personally, usually within one business day.' : '📞 Our form did not answer. Please call <a href="tel:13033041191">303-304-1191</a> or <a href="tel:18004818638">1-800-481-8638</a>.'; if (ok) f.reset(); };
 </script>
-<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=57"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=58"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 </body></html>
