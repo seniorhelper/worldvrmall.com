@@ -27,6 +27,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { goGroups, goItem, storesByLetter } from './wvm-go.js';
 
 export { THREE };
 export const WVM_VERSION = '7';
@@ -87,8 +88,10 @@ function _makeTextTexture(lines, opts = {}) {
     font = 'bold 72px Poppins, Segoe UI, Arial, sans-serif', pad = 40, radius = 40,
     align = 'center', glow = true, border = accent, lineGap = 1.15, small = null,
   } = opts;
-  const c = document.createElement('canvas'); c.width = Math.round(w * TEX_SCALE); c.height = Math.round(h * TEX_SCALE);
-  const g = c.getContext('2d'); g.scale(TEX_SCALE, TEX_SCALE);
+  /* v9: never above 2048 px on the long side (GPU memory + upload time on headsets); the drawing scale follows */
+  const TS = Math.min(TEX_SCALE, 2048 / Math.max(w, h));
+  const c = document.createElement('canvas'); c.width = Math.round(w * TS); c.height = Math.round(h * TS);
+  const g = c.getContext('2d'); g.scale(TS, TS);
   g.fillStyle = bg;
   roundRect(g, 0, 0, w, h, radius); g.fill();
   if (border) { g.lineWidth = 12; g.strokeStyle = border; roundRect(g, 6, 6, w - 12, h - 12, radius); g.stroke(); }
@@ -932,7 +935,7 @@ export class WVM {
   /* Runs fn once after the visitor has walked `meters` on their own (for a delayed welcome popup). */
   onFirstSteps(meters, fn) { this._stepHooks.push({ meters, fn, done: false }); }
   /* Something you can DO when standing near it: shows a big green button with the label. */
-  addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); }
+  addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); this._interVer = (this._interVer || 0) + 1; }
   _updateInteractables() {
     if (!this.interactables) return; const p = this.player.position; let best = null, bd = 1e9;
     for (const it of this.interactables) { if (it.level !== undefined ? it.level !== (this.level || 0) : ((this.level || 0) >= 3 && it.r < 1e6)) continue; const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
@@ -1066,14 +1069,34 @@ export class WVM {
     try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
     /* from inside a headset: end the XR session cleanly first (the browser tearing it down mid-navigation is the glitch), carry ?vr=1 so the next page shows the one-tap door right away */
     if (this.renderer && this.renderer.xr && this.renderer.xr.isPresenting) {
-      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); url = u.href; } } catch (e) { }
+      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); if (u.origin !== location.origin && !u.searchParams.has('from')) u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
       try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { }
       const s = this.renderer.xr.getSession(); let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
       if (s) { try { s.addEventListener('end', nav); s.end(); } catch (e) { nav(); } setTimeout(nav, 1200); } else nav();
       return;
     }
+    try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && u.origin !== location.origin && /(^|\.)(allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) && !u.searchParams.has('from')) { u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
     this.fade.classList.add('on'); this.fade.textContent = label;
-    setTimeout(() => { location.href = url; }, 160);
+    setTimeout(() => { location.href = url; }, this.opts.goFade || 400);
+  }
+  /* "Go anywhere": every place, store, world and mode in one grouped modal (the map button opens it; the big map is one tap away).
+     Stores are a letter-indexed page; app.goMenuExtra rows ([label, fn]) sit on top; in a headset the VR menu's Go tab opens instead. */
+  goMenu(group, letter) {
+    const groups = goGroups(this); if (!groups.length) { this.showMap(); return; } const cur = group || this._goGroup || groups[0].key; this._goGroup = cur;
+    const g = groups.find(x => x.key === cur) || groups[0]; if (letter !== undefined) this._goLetter = letter; const L = g.stores ? (this._goLetter || '') : '';
+    const items = g.stores ? storesByLetter(g, L || null) : g.items;
+    const extra = (this.goMenuExtra || []).filter(r => r && r[0] && typeof r[1] === 'function');
+    const html = `<div class="wvm-go-tabs">${groups.map(x => `<button class="wvm-tab${x.key === g.key ? ' on' : ''}" data-gg="${x.key}">${x.icon} ${esc(x.label)} <small>${x.items.length}</small></button>`).join('')}</div>` +
+      (extra.length ? `<div class="wvm-go-extra">${extra.map((r, i) => `<button class="wvm-btn" data-gx="${i}">${esc(r[0])}</button>`).join('')}</div>` : '') +
+      (g.stores ? `<div class="wvm-go-letters"><button class="wvm-tab${!L ? ' on' : ''}" data-gl="">All · ${g.items.length}</button>${(g.letters || []).map(l => `<button class="wvm-tab${L === l ? ' on' : ''}" data-gl="${l}">${l}</button>`).join('')}</div>` : '') +
+      `<div class="wvm-go-grid">${items.map((it, i) => `<button class="wvm-place" data-gi="${i}"><span>${it.icon || '📍'}</span><b>${esc(it.label)}</b><small>${it.url ? esc(it.url.replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/#.*$/, '').slice(0, 40)) : (it.cat ? esc(it.cat) : 'tap to jump')}</small></button>`).join('')}</div>`;
+    if (this.renderer.xr && this.renderer.xr.isPresenting && this._xrApi && this._xrApi.openGo) { this._xrApi.openGo(); return; }
+    this.popup('🧭 Go anywhere', html, [{ label: '🗺️ Open the map', fn: () => this.showMap() }]);
+    const card = this.pop; if (!card) return;
+    card.querySelectorAll('[data-gg]').forEach(b => b.onclick = () => this.goMenu(b.dataset.gg));
+    card.querySelectorAll('[data-gl]').forEach(b => b.onclick = () => this.goMenu(g.key, b.dataset.gl));
+    card.querySelectorAll('[data-gx]').forEach(b => b.onclick = () => { const r = extra[+b.dataset.gx]; this.closePopup(); setTimeout(() => { try { r[1](this); } catch (e) { console.error(e); } }, 40); });
+    card.querySelectorAll('[data-gi]').forEach(b => b.onclick = () => { const it = items[+b.dataset.gi]; this.closePopup(); setTimeout(() => goItem(this, it, 'port'), 40); });
   }
   /* A wall screen that plays a YouTube video: a glowing frame in 3D plus a Watch button that opens the player. */
   addScreen(x, y, z, rot, videoId, opts = {}) {
@@ -1228,7 +1251,7 @@ export class WVM {
       if (!L) { const c = this.opts.viewCenter || [0, 0]; L = [c[0], c[1]]; } yaw = Math.atan2(-(L[0] - x), -(L[1] - z)); }
     this.yaw = yaw; this.pitch = pl.pitch !== undefined ? pl.pitch : -0.06; this.avatar.rotation.y = yaw + Math.PI; if (this.viewMode !== 'follow' && this.viewMode !== undefined) this.viewMode = 'follow'; if (this.targetDist > 0.6 && (this.targetDist < 5 || this.targetDist > 14)) { this.targetDist = 7.5; this.dist = 7.5; }
   }
-  _arrived(pl) { this._route = null; this.walkTarget = null; if (pl.silent) return; if (pl.look || pl.yaw !== undefined) { const P = this.player.position; this._faceView(pl, P.x, P.z); } else if (this.pitch < -0.5) this.pitch = -0.08; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
+  _arrived(pl) { this._route = null; this.walkTarget = null; try { this._uncullAll && this._uncullAll(); this._updateZones(); if (this.renderer.shadowMap.enabled) this.renderer.shadowMap.needsUpdate = true; } catch (e) { } if (pl.silent) return; if (pl.look || pl.yaw !== undefined) { const P = this.player.position; this._faceView(pl, P.x, P.z); } else if (this.pitch < -0.5) this.pitch = -0.08; this.say(pl.say || ('We made it: ' + pl.name + '! ' + (pl.icon || '🎉'))); this.buzz(40); if (pl.onArrive) { try { pl.onArrive(this); } catch (e) { console.error(e); } } }
   /* speech bubble over the visitor's head */
   say(text, secs = 4.5) {
     if (this._bubble) { this.player.remove(this._bubble); this._bubble.material.map.dispose(); this._bubble.material.dispose(); this._bubble = null; }
@@ -1494,12 +1517,26 @@ export class WVM {
 
   _updateZones() {
     const p = this.player.position;
+    /* time-sliced: due zones are queued and built at most one per frame, and only while the frame has budget left (≤6 ms of build work
+       per frame on average), so arriving at a wing never freezes the headset. The zone you are standing in always goes first. */
+    const q = this._zoneQ || (this._zoneQ = []);
     for (const z of this.zones) {
-      if (z.built) continue;
+      if (z.built || z._queued) continue;
       const dx = p.x - z.center.x, dz = p.z - z.center.z;
-      if (dx * dx + dz * dz < z.radius * z.radius) { z.built = true; try { z.build(this); } catch (e) { console.error('zone', z.name, e); } }
+      if (dx * dx + dz * dz < z.radius * z.radius) { z._queued = true; q.push(z); }
     }
+    if (!q.length) return;
+    /* while the teleport gate is still up nothing is on screen yet: build everything due at once (places and booths register here) */
+    if (this.loader && !this.loader.classList.contains('off')) { while (q.length) this._buildZone(q.shift()); return; }
+    q.sort((a, b) => ((a.center.x - p.x) ** 2 + (a.center.z - p.z) ** 2) - ((b.center.x - p.x) ** 2 + (b.center.z - p.z) ** 2));
+    const z = q[0]; const dz2 = (z.center.x - p.x) ** 2 + (z.center.z - p.z) ** 2;
+    /* a zone you are already well inside builds now; the ones you are only approaching wait while the frame is paying off build debt */
+    if (this._zoneDebt > 0 && dz2 > z.radius * z.radius * 0.36) { this._zoneDebt -= 6; return; }
+    q.shift(); this._buildZone(z);
   }
+  _buildZone(z) { if (!z || z.built) return 0; z.built = true; z._queued = false; const t = performance.now(); try { z.build(this); } catch (e) { console.error('zone', z.name, e); } const ms = performance.now() - t; this._zoneDebt = Math.min(60, Math.max(0, (this._zoneDebt || 0) + ms - 6)); this._zoneMs = (this._zoneMs || 0) + ms; try { if (this.renderer.shadowMap.enabled) this.renderer.shadowMap.needsUpdate = true; } catch (e) { } return ms; }
+  /* build every unbuilt zone, one per frame (used behind the VR arrival dome so the world is complete when it fades in) */
+  prebuildZones(onDone) { const list = this.zones.filter(z => !z.built); let i = 0; const step = () => { if (i >= list.length) { this.updaters = this.updaters.filter(u => u !== step); try { this._cullPrep && this._cullPrep(); } catch (e) { } onDone && onDone(); return; } this._buildZone(list[i++]); }; this.onUpdate(step); return list.length; }
 
   /* ----- input ----- */
   _bindInput() {
@@ -1672,7 +1709,7 @@ export class WVM {
     this.setSpeed(this._load('wvm_speed', 1));
     hud.querySelector('#wvm-list').onclick = () => this.toggleList();
     hud.querySelector('#wvm-radio').onclick = () => this.toggleRadio();
-    hud.querySelector('#wvm-map').onclick = () => this.showMap();
+    hud.querySelector('#wvm-map').onclick = () => this.goMenu();
     hud.querySelector('#wvm-full').onclick = () => { const d = document; if (d.fullscreenElement) { d.exitFullscreen(); } else { (d.documentElement.requestFullscreen || d.documentElement.webkitRequestFullscreen || (() => this.toast('Full screen is not available in this browser'))).call(d.documentElement); window.scrollTo(0, 0); } };
     this.listPanel.querySelector('.wvm-x').onclick = () => this.toggleList(false);
     this.radioPanel.querySelector('.wvm-x').onclick = () => this.toggleRadio(false);
@@ -1897,7 +1934,7 @@ export class WVM {
       @media (max-width:760px){.wvm-bm-body{position:relative;display:block}.wvm-bm-head .muted{display:none}.wvm-bm-head{padding:6px 8px}.wvm-bm-head b{font-size:13px}.wvm-bm-toggle{display:inline-block;background:#7cff6b;color:#04122a}.wvm-bm-list{position:absolute;left:0;right:0;bottom:0;width:auto;height:62%;border-left:0;border-top:2px solid #7cff6b;border-radius:16px 16px 0 0;transform:translateY(102%);transition:transform .25s;z-index:2}#wvm-bigmap.list-open .wvm-bm-list{transform:none}.wvm-bm-list .wvm-place{padding:12px 10px;font-size:15px}}
       #wvm-searchpanel{left:50%;right:auto;transform:translateX(-50%);width:min(440px,94vw)} #wvm-searchpanel input{display:block;width:calc(100% - 20px);margin:0 10px 8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(124,248,255,.6);background:#fff;color:#0b1a3a;font:600 16px Poppins,Segoe UI,Arial;outline:none}
       .wvm-place{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:8px;width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(124,248,255,.22);border-radius:12px;color:#fff;padding:8px 10px;margin:0 0 6px;cursor:pointer;font:inherit} .wvm-place:hover,.wvm-place:focus{background:rgba(56,240,255,.18)} .wvm-place span{grid-row:1/3;font-size:22px;align-self:center;text-align:center} .wvm-place small{color:#9fc4e8;font-size:12px}
-      .wvm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .wvm-chip{background:rgba(56,240,255,.14);border:1px solid rgba(124,248,255,.45);color:#fff;border-radius:99px;padding:6px 11px;font:600 13px Poppins,Segoe UI,Arial;cursor:pointer}
+      .wvm-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .wvm-chip{background:rgba(56,240,255,.14);border:1px solid rgba(124,248,255,.45);color:#fff;border-radius:10px;padding:6px 11px;font:600 13px Poppins,Segoe UI,Arial;cursor:pointer}
       .wvm-panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1);user-select:none;-webkit-user-select:none}
       .wvm-x{background:none;border:0;color:#fff;font-size:16px;cursor:pointer}
       .wvm-list-body,.wvm-radio-body{padding:10px 14px}
@@ -1923,7 +1960,7 @@ export class WVM {
       .wvm-look{min-width:36px;height:36px;border-radius:18px;border:3px solid transparent;cursor:pointer;font-size:13px;font-weight:700;background:#0b1a3a;color:#fff;padding:0 10px;font-family:inherit} .wvm-look.on{border-color:#fff;box-shadow:0 0 0 2px #38f0ff} .wvm-look.txt{border-radius:12px} .wvm-look.rainbow{background:linear-gradient(135deg,#ff4f79,#ff8a3d,#ffd23f,#7cff6b,#38f0ff,#b08cff)}
       .wvm-cam{display:flex;gap:12px;align-items:center;margin:8px 0;position:relative} .wvm-cam video{width:0;height:0;border-radius:16px;object-fit:cover;transform:scaleX(-1)} #wvm-selfie.cam video{width:180px;height:180px} .wvm-cam canvas{width:96px;height:120px;border-radius:48px 48px 40px 40px/50px 50px 60px 60px;background:#0b1a3a;transition:.3s} #wvm-selfie.snapped canvas{width:160px;height:200px;box-shadow:0 0 0 4px #7cff6b} .wvm-cam-hint{font-size:12px;color:#9fd3ff;display:none} #wvm-selfie.cam .wvm-cam-hint{display:block}
       .wvm-privacy{font-size:13px;background:rgba(124,248,255,.1);border:1px solid rgba(124,248,255,.35);border-radius:10px;padding:8px 10px}
-      #wvm-fade{position:absolute;inset:0;background:#ffffff;color:#0b1a3a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:.5s}
+      #wvm-fade{position:absolute;inset:0;background:#ffffff;color:#0b1a3a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;opacity:0;pointer-events:none;transition:opacity .4s}
       #wvm-fade.on{opacity:1;pointer-events:auto}
       /* ---- teleport station (white to match the logo) ---- */
       #wvm-loader{position:absolute;inset:0;background:#ffffff;display:flex;align-items:center;justify-content:center;transition:opacity .6s;z-index:60;color:#0b1a3a}
@@ -1943,13 +1980,13 @@ export class WVM {
       @keyframes wvmbeam{0%,100%{opacity:.78}50%{opacity:1}} @keyframes wvmrise{from{background-position:0 0,9px 11px}to{background-position:0 -92px,9px -81px}} @keyframes wvmrays{0%,100%{transform:rotate(-2.5deg);opacity:.7}50%{transform:rotate(2.5deg);opacity:1}} @keyframes wvmhover{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
       @keyframes wvmmat{0%{clip-path:inset(0 0 100% 0);opacity:.2}60%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:1}} @keyframes wvmpulse{0%,100%{transform:scaleX(.8);opacity:.6}50%{transform:scaleX(1.1);opacity:1}} @keyframes wvmup{to{transform:translateY(-260px);opacity:0}}
       @media (prefers-reduced-motion: reduce){.wvm-beamcol,.wvm-silh,.wvm-pad-glow,.wvm-ring-top,.wvm-beam-lines,.wvm-beam::before{animation:none}}
-      .wvm-loadmsg{font-weight:800;margin-bottom:12px;min-height:22px;color:#0b1a3a} .wvm-barwrap{height:12px;border-radius:99px;background:rgba(11,26,58,.12);overflow:hidden;border:1px solid rgba(56,240,255,.6)}
+      .wvm-loadmsg{font-weight:800;margin-bottom:12px;min-height:22px;color:#0b1a3a} .wvm-barwrap{height:12px;border-radius:8px;background:rgba(11,26,58,.12);overflow:hidden;border:1px solid rgba(56,240,255,.6)}
       .wvm-bar{height:100%;width:0;background:linear-gradient(90deg,#38f0ff,#ff4f79,#ffd23f);transition:width .4s;box-shadow:0 0 16px #38f0ff}
       .wvm-tele small{display:block;margin-top:10px;color:#3a5a8a}
       #wvm-pad{position:absolute;left:18px;bottom:22px;width:150px;height:150px;user-select:none;-webkit-user-select:none}
       body.wvm-modal-open #wvm-pad,body.wvm-modal-open #wvm-act,body.wvm-modal-open #wvm-turbo,body.wvm-modal-open #wvm-vr{display:none!important}
       .wvm-pad-grip{position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:rgba(8,20,50,.8);border:1px solid rgba(124,248,255,.4);border-radius:8px;padding:1px 10px;font-size:12px;cursor:grab;letter-spacing:-2px;color:#7cf8ff;z-index:2}
-      .wvm-pad-mode{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(124,248,255,.4);background:rgba(8,20,50,.8);color:#7cf8ff;cursor:pointer;z-index:2}
+      .wvm-pad-mode{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:9px;border:1px solid rgba(124,248,255,.4);background:rgba(8,20,50,.8);color:#7cf8ff;cursor:pointer;z-index:2}
       .wvm-stick{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(56,240,255,.18),rgba(8,20,50,.65) 70%);border:2px solid rgba(124,248,255,.4);touch-action:none}
       .wvm-knob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8ff7ff,#1aa8c9);box-shadow:0 6px 16px rgba(0,0,0,.5)}
       .wvm-dpad{position:absolute;inset:0;display:none;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr}
@@ -1961,9 +1998,10 @@ export class WVM {
       .wvm-vrbadge{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(8,20,50,.7);border:1px solid rgba(124,248,255,.35);border-radius:12px;padding:6px 12px;font-size:12px;font-weight:700;color:#9fd3ff;pointer-events:none}
       #wvm-act{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);background:#7cff6b;color:#04122a;border:0;border-radius:12px;padding:14px 26px;font-weight:900;font-size:17px;display:none;box-shadow:0 8px 30px rgba(124,255,107,.45);font-family:inherit;cursor:pointer;animation:wvmpop .4s;max-width:70vw}
       #wvm-act.on{display:block} @keyframes wvmpop{from{transform:translateX(-50%) scale(.7)}to{transform:translateX(-50%) scale(1)}}
-      #wvm-turbo{position:absolute;right:18px;bottom:96px;width:92px;height:92px;border-radius:50%;border:3px solid #ffd23f;background:radial-gradient(circle at 40% 35%,#ff8a3d,#c1121f);color:#fff;font-weight:900;font-size:14px;display:none;box-shadow:0 8px 30px rgba(255,80,40,.5);font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+      #wvm-turbo{position:absolute;right:18px;bottom:96px;width:88px;height:88px;border-radius:12px;border:3px solid #ffd23f;background:radial-gradient(circle at 40% 35%,#ff8a3d,#c1121f);color:#fff;font-weight:900;font-size:14px;display:none;box-shadow:0 8px 30px rgba(255,80,40,.5);font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
       #wvm-turbo.on{display:block} #wvm-turbo:active{transform:scale(.94)}
       @media (prefers-reduced-motion: reduce){#wvm-act{animation:none} .wvm-ring{animation:none}}
+      .wvm-go-tabs,.wvm-go-letters,.wvm-go-extra{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px} .wvm-go-letters .wvm-tab{padding:5px 9px;min-width:34px;justify-content:center} .wvm-go-extra .wvm-btn{margin:0} .wvm-go-tabs .wvm-tab small{opacity:.7;font-weight:600;margin-left:2px} .wvm-go-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;max-height:52vh;overflow:auto} .wvm-go-grid .wvm-place{margin:0;color:#0f172a;background:rgba(15,23,42,.05);border-color:#cbd5e1} .wvm-go-grid .wvm-place:hover,.wvm-go-grid .wvm-place:focus{background:rgba(56,240,255,.22)} .wvm-go-grid .wvm-place b{color:#0f172a;font-size:13px} .wvm-go-grid .wvm-place small{color:#64748b} .wvm-go-grid .wvm-place span{color:#0ea5e9}
       .wvm-scrollhint{position:absolute;bottom:14px;right:14px;background:rgba(8,20,50,.75);border:1px solid rgba(124,248,255,.4);border-radius:12px;padding:6px 12px;font-size:12px;font-weight:700}
     `;
     document.head.appendChild(s);

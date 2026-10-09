@@ -8,7 +8,8 @@
    ads, an eyetoad.com projector) so nothing looks unfinished from behind, shelves under wall cards,
    a 'clinic' layout for medical / dental tenants, shadows on everything. Signs read correctly
    from both sides. */
-import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=57';
+import { THREE, makePerson, makeSprite, makeTextTexture, pick, rand, esc, L, TEX_SCALE, canvasTex, isMobile } from './wvm-engine.js?v=58';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const T = THREE;
 const hex = (s) => new T.Color(s);
@@ -73,7 +74,12 @@ function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcT
 const imgLoader = new T.TextureLoader(); imgLoader.setCrossOrigin('anonymous');
 const host = (u) => String(u || '').replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
 /* Chase-light marquee texture: animated by shifting texture offset each frame. */
+const _mqCache = new Map();
 function marqueeTexture(color) {
+  if (_mqCache.has(color)) { const t0 = _mqCache.get(color).clone(); t0.needsUpdate = true; return t0; }
+  const t1 = _marqueeTexture(color); _mqCache.set(color, t1); return t1.clone();
+}
+function _marqueeTexture(color) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 32; const g = c.getContext('2d');
   g.fillStyle = '#0b1a3a'; g.fillRect(0, 0, 256, 32);
   for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? color : '#fff6c0'; g.beginPath(); g.arc(16 + i * 32, 16, 9, 0, Math.PI * 2); g.fill(); }
@@ -187,6 +193,39 @@ export function ideaForm(app, kind = 'coaster') {
 }
 
 /* ---------- the store ---------- */
+/* v9: one draw call per material for the static parts of a storefront (walls, shelves, frames, pots, strips...).
+   Only direct children that are plain meshes with a map-less material, no hotspot/userData and a simple geometry are merged;
+   animated or interactive pieces keep their own mesh. The first mesh's material object is reused, so updaters that poke it still work. */
+const _mergeKey = (m, mesh) => {
+  if (!m || Array.isArray(m) || m.map || m.emissiveMap || m.alphaMap || m.isShaderMaterial || m.isSpriteMaterial || m.transparent || m.visible === false) return null;
+  const c = m.color ? m.color.getHex() : -1, e = m.emissive ? m.emissive.getHex() : -1;
+  return [m.type, c, e, m.emissiveIntensity, m.metalness, m.roughness, m.side, m.opacity, m.envMapIntensity, m.wireframe ? 1 : 0, m.depthWrite ? 1 : 0, mesh.castShadow ? 1 : 0, mesh.receiveShadow ? 1 : 0, mesh.renderOrder || 0].join('|');
+};
+export function mergeStatic(g, opts = {}) {
+  try {
+    const groups = new Map(); const keep = [];
+    for (const o of g.children) {
+      if (!o.isMesh || o.userData.hotspot || o.userData.noMerge || o.userData.inter || Object.keys(o.userData).length || !o.geometry || !o.geometry.isBufferGeometry || o.geometry.index === null && !o.geometry.attributes.position) { continue; }
+      const a = o.geometry.attributes; if (!a.position || !a.normal || !a.uv || a.position.count > 4000 || o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) continue;
+      const k = _mergeKey(o.material, o); if (!k) continue;
+      if (!groups.has(k)) groups.set(k, []); groups.get(k).push(o);
+    }
+    let merged = 0;
+    for (const [k, list] of groups) {
+      if (list.length < 2) continue;
+      const geos = list.map(o => { o.updateMatrix(); const ge = o.geometry.clone(); ge.applyMatrix4(o.matrix); for (const n of Object.keys(ge.attributes)) if (!['position', 'normal', 'uv'].includes(n)) ge.deleteAttribute(n); if (!ge.index) { return ge.toNonIndexed ? ge : ge; } return ge; });
+      const allIndexed = geos.every(ge => !!ge.index), noneIndexed = geos.every(ge => !ge.index);
+      let use = geos; if (!allIndexed && !noneIndexed) use = geos.map(ge => ge.index ? ge.toNonIndexed() : ge);
+      const mg = mergeGeometries(use, false); if (!mg) continue;
+      const first = list[0]; const m = new T.Mesh(mg, first.material); m.castShadow = first.castShadow; m.receiveShadow = first.receiveShadow; m.renderOrder = first.renderOrder; m.userData.merged = list.length;
+      for (const o of list) { g.remove(o); if (o.geometry !== first.geometry) { try { o.geometry.dispose(); } catch (e) { } } }
+      g.add(m); merged += list.length - 1;
+    }
+    g.userData.mergedAway = merged;
+  } catch (e) { console.warn('mergeStatic', e); }
+  return g;
+}
+
 export function buildStore(app, store, opts = {}) {
   const { x = 0, z = 0, rot = 0, placeholder = false, label = true, storePage = true, welcome = true, back = true } = opts;
   const g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = rot; g.userData.store = store;
@@ -209,15 +248,15 @@ export function buildStore(app, store, opts = {}) {
   const ceil = new T.Mesh(new T.PlaneGeometry(W, D), M(0xffffff, { side: T.DoubleSide, emissive: 0xffffff, emissiveIntensity: placeholder ? 0.15 : 0.35 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, H - 0.05, -D / 2); g.add(ceil);
   const roof = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.3, D + 0.6), M(0x2a3350, { roughness: 0.9 })); roof.position.set(0, H + 0.1, -D / 2); roof.receiveShadow = true; g.add(roof);
   /* unique facades: each store gets a style from its name — chrome columns, an awning, a neon outline, a pediment, or a glass canopy — plus a brushed-metal kick plate and real reflections */
-  { const seed = [...String(store.name || store.id || 'store')].reduce((x, ch) => x + ch.charCodeAt(0), 0); const style = seed % 5; const chrome = new T.MeshPhysicalMaterial({ color: 0xdfe6ef, metalness: 1, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.6 }); const brushed = new T.MeshPhysicalMaterial({ color: 0x9aa4b2, metalness: 0.95, roughness: 0.36, envMapIntensity: 1.3 }); const kick = sh(new T.Mesh(new T.BoxGeometry(W + 0.4, 0.5, 0.25), brushed)); kick.position.set(0, 0.25, 0.1); g.add(kick);
+  { const seed = [...String(store.name || store.id || 'store')].reduce((x, ch) => x + ch.charCodeAt(0), 0); const style = seed % 5; const chrome = new T.MeshStandardMaterial({ color: 0xdfe6ef, metalness: 1, roughness: 0.12, envMapIntensity: 1.7 }); const brushed = new T.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.95, roughness: 0.36, envMapIntensity: 1.3 }); const kick = sh(new T.Mesh(new T.BoxGeometry(W + 0.4, 0.5, 0.25), brushed)); kick.position.set(0, 0.25, 0.1); g.add(kick);
     if (style === 0) { for (const sx of [-1, 1]) { const col = sh(new T.Mesh(new T.CylinderGeometry(0.22, 0.26, H, 18), chrome)); col.position.set(sx * (hw - 0.4), H / 2, 0.2); g.add(col); const cap = new T.Mesh(new T.CylinderGeometry(0.34, 0.34, 0.12, 18), chrome); cap.position.set(sx * (hw - 0.4), H - 0.06, 0.2); g.add(cap); } }
     else if (style === 1) { const aw = sh(new T.Mesh(new T.BoxGeometry(W + 0.2, 0.12, 2.2), new T.MeshStandardMaterial({ color: trimHex, roughness: 0.7 }))); aw.position.set(0, H - 1.2, 1.1); aw.rotation.x = 0.22; g.add(aw); for (let i = 0; i < 5; i++) { const rib = new T.Mesh(new T.BoxGeometry(0.06, 0.16, 2.2), chrome); rib.position.set(-W / 2 + (i + 0.5) * W / 5, H - 1.14, 1.1); rib.rotation.x = 0.22; g.add(rib); } }
     else if (style === 2) { const neon = new T.Mesh(new T.TorusGeometry(0.0001, 0.0001, 2, 3), chrome); const edge = new T.Mesh(new T.BoxGeometry(W + 0.5, 0.08, 0.08), new T.MeshBasicMaterial({ color: trimHex })); edge.position.set(0, H + 0.3, 0.35); g.add(edge); for (const sx of [-1, 1]) { const v = new T.Mesh(new T.BoxGeometry(0.08, H + 0.3, 0.08), new T.MeshBasicMaterial({ color: trimHex })); v.position.set(sx * (hw + 0.25), (H + 0.3) / 2, 0.35); g.add(v); } g.add(neon); }
     else if (style === 3) { const ped = sh(new T.Mesh(new T.ConeGeometry(W * 0.62, 1.6, 4), brushed)); ped.rotation.y = Math.PI / 4; ped.scale.set(1, 1, 0.5); ped.position.set(0, H + 0.9, 0.1); g.add(ped); }
-    else { const glass = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.08, 2.6), new T.MeshPhysicalMaterial({ color: 0xbfe8ff, metalness: 0.1, roughness: 0.05, transparent: true, opacity: 0.35, clearcoat: 1 })); glass.position.set(0, H - 0.4, 1.3); g.add(glass); for (const sx of [-1, 1]) { const rod = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 2.4, 8), chrome); rod.position.set(sx * (hw - 0.6), H - 1.2, 1.3); rod.rotation.x = Math.PI / 2 - 0.5; g.add(rod); } }
+    else { const glass = new T.Mesh(new T.BoxGeometry(W + 0.6, 0.08, 2.6), new T.MeshStandardMaterial({ color: 0xbfe8ff, metalness: 0.1, roughness: 0.05, transparent: true, opacity: 0.35, envMapIntensity: 1.6 })); glass.position.set(0, H - 0.4, 1.3); g.add(glass); for (const sx of [-1, 1]) { const rod = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 2.4, 8), chrome); rod.position.set(sx * (hw - 0.6), H - 1.2, 1.3); rod.rotation.x = Math.PI / 2 - 0.5; g.add(rod); } }
   }
   for (const zz of (big ? [-3, -7, -11, -15] : [-3, -6, -9])) { const strip = new T.Mesh(new T.BoxGeometry(W - 2, 0.1, 0.3), new T.MeshBasicMaterial({ color: placeholder ? 0x445 : 0xffffff })); strip.position.set(0, H - 0.2, zz); g.add(strip); }
-  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), new THREE.MeshPhysicalMaterial({ color: trimHex, metalness: 0.85, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.1, envMapIntensity: 1.4, emissive: trimHex, emissiveIntensity: 0.06 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.035, -D / 2 + 0.3); if (placeholder) g.add(runner);
+  const runner = new T.Mesh(new T.PlaneGeometry(3.2, D - 1), new THREE.MeshStandardMaterial({ color: trimHex, metalness: 0.85, roughness: 0.26, envMapIntensity: 1.5, emissive: trimHex, emissiveIntensity: 0.06 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.035, -D / 2 + 0.3); if (placeholder) g.add(runner);
 
   // facade: header + logo, URL bar, glass, door mat, plants, neon marquee
   const header = sh(new T.Mesh(new T.BoxGeometry(W + 0.6, 2.2, 0.6), M(hex(store.logo?.bg || colors.wall), { roughness: 0.4 }))); header.position.set(0, H - 1.1, 0.3); g.add(header);
@@ -234,7 +273,7 @@ export function buildStore(app, store, opts = {}) {
     const urlBar = new T.Mesh(new T.PlaneGeometry(W - 3, 0.8), new T.MeshBasicMaterial({ map: makeTextTexture(host(store.url), { w: 1600, h: 128, bg: colors.trim, fg: '#04122a', border: null, glow: false, font: 'bold 84px Poppins, Segoe UI, Arial', radius: 40 }), transparent: true })); urlBar.position.set(0, H - 2.75, 0.62); g.add(urlBar);
     app.addHotspot(urlBar, { title: store.name, html: `<p>${esc(store.about || '')}</p>`, actions: [{ label: store.cta || 'Visit ' + host(store.url), href: store.url, newTab: true, primary: true }] });
   }
-  const glassM = new T.MeshPhysicalMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0.2, depthWrite: false, envMapIntensity: 1.6 });
+  const glassM = new T.MeshStandardMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0.2, depthWrite: false, envMapIntensity: 1.6 });
   for (const sx of [-1, 1]) { const pane = new T.Mesh(new T.BoxGeometry(hw - 2.2, H - 2.9, 0.12), glassM); pane.position.set(sx * (hw - (hw - 2.2) / 2), (H - 2.9) / 2, 0); g.add(pane); const frame = sh(new T.Mesh(new T.BoxGeometry(0.16, H - 2.9, 0.3), M(0x1e2a4a, { metalness: 0.6 }))); frame.position.set(sx * 2.2, (H - 2.9) / 2, 0); g.add(frame); }
   const mat = new T.Mesh(new T.PlaneGeometry(4, 1.6), new T.MeshBasicMaterial({ color: trim, transparent: true, opacity: placeholder ? 0.25 : 0.7 })); mat.rotation.x = -Math.PI / 2; mat.position.set(0, 0.03, 0.9); g.add(mat);
   for (const sx of [-1, 1]) { const pot = sh(new T.Mesh(new T.CylinderGeometry(0.35, 0.28, 0.6, 10), M(0xd9cbb0))); pot.position.set(sx * (hw - 0.6), 0.3, 0.9); g.add(pot); const leaf = sh(new T.Mesh(new T.SphereGeometry(0.55, 8, 6), M(0x3fa34d))); leaf.position.set(sx * (hw - 0.6), 0.95, 0.9); g.add(leaf); }
@@ -452,6 +491,7 @@ export function buildStore(app, store, opts = {}) {
     });
   }
   if (storePage) { const sp = makeSprite('ℹ️ Store page & all products', { scale: 5, bg: 'rgba(8,20,50,0.85)', accent: colors.trim }); sp.position.set(hw - 2.6, 1.3, 0.6); g.add(sp); app.addHotspot(sp, { go: `/stores/${store.slug}/`, label: `Opening ${store.name}…` }); }
+  if (opts.merge !== false) mergeStatic(g);
   return g;
 }
 
