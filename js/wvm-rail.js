@@ -63,7 +63,7 @@ ${ICON_CSS}
 @media (min-width:821px) and (max-width:1180px){.wvm-top .wvm-rail{position:fixed;top:54px;left:10px;margin:0}}
 /* phones: one bottom bar */
 @media (max-width:820px){
-  .wvm-rail,.wvm-top .wvm-rail{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;margin:0;gap:0;padding:0 0 env(safe-area-inset-bottom);background:#0b1a3a;border-top:1px solid var(--rline);box-shadow:0 -8px 24px rgba(2,8,30,.45)}
+  .wvm-rail.inline,.wvm-rail.fixed,.wvm-top .wvm-rail{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;margin:0;gap:0;padding:0 0 env(safe-area-inset-bottom);background:#0b1a3a;border-top:1px solid var(--rline);box-shadow:0 -8px 24px rgba(2,8,30,.45)}
   .wvm-rail .wr-main{flex:1;border:0;border-radius:0;box-shadow:none;padding:0;background:transparent;display:grid;grid-template-columns:repeat(5,1fr)}
   .wvm-rail a{flex-direction:column;gap:3px;padding:7px 2px 6px;border-radius:0;font-size:10px;justify-content:center}
   .wvm-rail a .hic{width:20px;height:20px}
@@ -121,7 +121,8 @@ export function mountRail(opts = {}) {
     }
   });
   document.addEventListener('click', (e) => { if (!rail.contains(e.target)) aou.classList.remove('open'); }, true);
-  if (opts.into) opts.into.appendChild(rail); else { document.body.appendChild(rail); document.body.classList.add('wvm-railpad'); }
+  if (opts.into) opts.into.appendChild(rail); else document.body.appendChild(rail);
+  document.body.classList.add('wvm-railpad');
   return rail;
 }
 

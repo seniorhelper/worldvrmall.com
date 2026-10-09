@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>World VR Mall Feed | New Stores, Deals & the Prize Hunt</title>
+<meta name="description" content="The flat Mall feed: new and featured stores, this week's real offers, the prize hunt, and a one-tap walk-in to any store in 3D or VR. No engine, loads instantly.">
+<link rel="canonical" href="https://worldvrmall.com/feed/"><meta name="robots" content="index,follow,max-image-preview:large"><meta name="theme-color" content="#0b1a3a"><link rel="icon" href="/images/world-vr-mall-favicon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" as="fetch" crossorigin="anonymous" href="/data/stores.json"><link rel="preload" as="fetch" crossorigin="anonymous" href="/data/offers.json">
+<meta property="og:type" content="website"><meta property="og:site_name" content="World VR Mall"><meta property="og:title" content="World VR Mall Feed"><meta property="og:description" content="New stores, real offers and the prize hunt. Walk into any store in 3D or VR."><meta property="og:url" content="https://worldvrmall.com/feed/"><meta property="og:image" content="https://worldvrmall.com/images/vr-stores-hero-billboard.jpg">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="World VR Mall Feed"><meta name="twitter:description" content="New stores, real offers and the prize hunt."><meta name="twitter:image" content="https://worldvrmall.com/images/vr-stores-hero-billboard.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://worldvrmall.com/feed/#page","name":"World VR Mall Feed","url":"https://worldvrmall.com/feed/","description":"New and featured stores, current offers and the prize hunt in World VR Mall.","isPartOf":{"@id":"https://worldvrmall.com/#site"},"about":{"@id":"https://worldvrmall.com/#org"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"World VR Mall","item":"https://worldvrmall.com/"},{"@type":"ListItem","position":2,"name":"Mall feed","item":"https://worldvrmall.com/feed/"}]}]}</script>
+<style>
+:root{--ink:#14183a;--mute:#64748b;--line:#e2e8f0;--bg:#f3f5fa;--navy:#0b1a3a;--cyan:#38f0ff;--pink:#ff4f79;--gold:#ffd23f}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,Arial,sans-serif}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}.top .w{max-width:1240px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top img{height:56px;width:auto;display:block}
+.top .sp{flex:1}
+.wvm-userchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px 11px;font:700 12px Poppins,Arial;text-decoration:none;color:var(--ink);box-shadow:0 2px 6px rgba(2,8,30,.06)}.wvm-userchip .hic{width:15px;height:15px}.wvm-userchip.on{border-color:#86efac;background:#f0fdf4}
+.wrap{max-width:1240px;margin:0 auto;padding:14px}
+.hero{background:radial-gradient(900px 400px at 10% -20%,#dbeafe,transparent),radial-gradient(700px 300px at 95% 0,#fde68a,transparent),#fff;border:1px solid var(--line);border-radius:22px;padding:24px 26px;box-shadow:0 20px 50px rgba(2,8,30,.08);display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:center}
+.hero .k{font:800 12px Poppins,Arial;letter-spacing:.14em;color:#6366f1}.hero h1{font:900 clamp(26px,4vw,42px)/1.1 Poppins,Arial;margin:6px 0 8px;letter-spacing:-.02em}.hero p{margin:0 0 12px;color:#334155;max-width:620px}
+.hero .walk{display:flex;gap:8px;flex-wrap:wrap}
+.hero img{width:100%;border-radius:16px;border:1px solid var(--line);display:block}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#f1f5f9);border-radius:11px;padding:10px 13px;font:700 13px Poppins,Arial;color:var(--ink);text-decoration:none;cursor:pointer;box-shadow:0 1px 0 #fff inset,0 2px 6px rgba(2,8,30,.08);white-space:nowrap}
+.btn .hic{width:16px;height:16px}.btn.p{background:linear-gradient(180deg,#38bdf8,#0284c7);border-color:#0369a1;color:#fff}.btn.g{background:linear-gradient(180deg,#4ade80,#16a34a);border-color:#15803d;color:#fff}.btn.dark{background:linear-gradient(180deg,#1e2a4a,#0b1a3a);color:#fff;border-color:#0b1a3a}.btn.sm{padding:7px 10px;font-size:12px}
+h2{font:900 22px Poppins,Arial;margin:26px 0 10px;display:flex;align-items:center;gap:8px}h2 .hic{width:22px;height:22px;color:#6366f1}h2 small{font:600 12px Poppins,Arial;color:var(--mute);margin-left:auto}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.bar input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font:600 14px Poppins,Arial;box-shadow:inset 0 2px 4px rgba(2,8,30,.05)}.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font:700 12px Poppins,Arial;cursor:pointer}.chips button.on{background:#14183a;color:#fff;border-color:#14183a}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 0 #fff inset,0 10px 30px rgba(2,8,30,.06);display:flex;flex-direction:column}.card .cv{height:84px;display:flex;align-items:flex-end;padding:10px 14px;color:#fff;font:900 17px Poppins,Arial;text-shadow:0 2px 8px rgba(0,0,0,.35);position:relative}.card .cv .flag{position:absolute;right:12px;top:10px;font-size:22px}.card .b{padding:12px 14px;display:flex;flex-direction:column;gap:6px;flex:1}.card .tag{font:700 12px Poppins,Arial;color:#6366f1}.card .city{font:600 12px Poppins,Arial;color:var(--mute)}.card p{margin:0;font-size:13px;color:#334155;line-height:1.45}.card .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.card .pill{display:inline-block;font:800 10px Poppins,Arial;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:7px;background:#fef3c7;color:#92400e}.card .pill.new{background:#dcfce7;color:#166534}.card .pill.real{background:#e0f2fe;color:#075985}
+.offer{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 30px rgba(2,8,30,.06);border-left:5px solid var(--gold)}.offer.coupon{border-left-color:var(--pink)}.offer.free{border-left-color:#16a34a}.offer b{font:800 15px Poppins,Arial}.offer .price{font:900 14px Poppins,Arial;color:#0369a1}.offer p{margin:0;font-size:13px;color:#334155;line-height:1.45}.offer small{color:var(--mute);font-size:12px}
+.prize{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.pz{background:linear-gradient(135deg,#fff7ed,#fdf2f8);border:1px solid #fbbf24;border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}.pz .hic{width:26px;height:26px;color:#c2410c;flex:0 0 auto;margin-top:2px}.pz b{display:block;font:800 14px Poppins,Arial}.pz small{color:#9a3412;font-size:12px;display:block}.pz .st{margin-top:4px;font:800 11px Poppins,Arial;letter-spacing:.06em;text-transform:uppercase;color:#166534}.pz .st.gone{color:#991b1b}
+.pzbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 0;font-size:13px;color:#334155}
+.up{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:22px}.upc{background:linear-gradient(135deg,#0b1a3a,#1e3a6a);color:#fff;border-radius:20px;padding:20px;box-shadow:0 20px 50px rgba(11,26,58,.35)}.upc h3{margin:0 0 6px;font:900 20px Poppins,Arial}.upc p{color:#cbd5e1;margin:0 0 12px;font-size:14px}.upc.gold{background:linear-gradient(135deg,#7c2d12,#f59e0b)}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0 90px;font-size:13px;color:var(--mute);display:flex;gap:8px 16px;flex-wrap:wrap}footer a{text-decoration:none;font-weight:600}
+.muted{color:var(--mute)}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.hero img{max-height:180px;object-fit:cover}.top img{height:44px}}
+</style></head>
+<body>
+<div class="top"><div class="w"><a href="/" aria-label="World VR Mall home"><img loading="eager" decoding="async" src="/images/world-vr-mall-logo-600.png" alt="World VR Mall"></a><div id="railslot"></div><span class="sp"></span><span id="userchip"></span></div></div>
+<div class="wrap">
+<section class="hero">
+  <div><div class="k">MALL FEED · THE FLAT MODE</div><h1>What's new in World VR Mall</h1><p>New stores, real offers from the brands inside, and the prize hunt. Shop from here, or walk into any store in 3D or VR with one tap. Nothing loads until you ask for it.</p>
+  <div class="walk"><a class="btn p" href="/mall/?mode=3d" id="walk3d">Walk in · 3D</a><a class="btn dark" href="/mall/?vr=1" id="walkvr">Walk in · VR</a><a class="btn" href="/directory/">Full directory</a><a class="btn" href="/?mode=3d">The island</a></div></div>
+  <img src="/images/vr-stores-hero-billboard.jpg" alt="World VR Mall billboard: stores from all over the world" width="1536" height="864" loading="lazy">
+</section>
+
+<h2 id="h-search">Find a store <small id="count"></small></h2>
+<div class="bar"><input id="q" type="search" placeholder="Search stores, products, cities (showers, pizza, Denver)" aria-label="Search the directory"><div class="chips" id="wings"><button class="on" data-w="all">All</button><button data-w="lobby">Lobby</button><button data-w="americas">Americas</button><button data-w="europe">Europe</button><button data-w="asia">Asia &amp; Africa</button><button data-w="food">Food court</button></div></div>
+<div class="grid" id="results" hidden></div>
+
+<h2 id="h-new">New &amp; featured stores <small>real businesses, real checkout</small></h2>
+<div class="grid" id="featured"><p class="muted">Loading the stores…</p></div>
+
+<h2 id="h-deals">Deals &amp; offers <small id="offers-when"></small></h2>
+<div class="grid" id="offers"><p class="muted">Loading offers…</p></div>
+
+<h2 id="h-prize">Prize hunt <small id="prize-when">status</small></h2>
+<p class="muted" style="margin:0 0 10px;font-size:14px">Over $5,000 in prizes hidden on the island and inside the mall. No clues. When you find one in 3D or VR, a claim form opens. One prize per person · 18+ · U.S. only · no purchase necessary · <a href="/prize-rules/">official rules</a>.</p>
+<div class="prize" id="prizes"></div>
+<div class="pzbar"><a class="btn g sm" href="/?mode=3d">Hunt on the island</a><a class="btn g sm" href="/mall/?mode=3d">Hunt inside the mall</a><a class="btn sm" href="/mall/?vr=1">Hunt in VR</a></div>
+
+<div class="up">
+  <div class="upc"><h3>Get your storefront</h3><p>A photo-real store shoppers walk into, a helper that answers questions and hands off to your phone, and a listing in this feed. Works on any phone. Set up in about ten minutes.</p><a class="btn" href="tel:18004818638">1-800-481-8638</a> <a class="btn" href="/lease/">Store rental details</a></div>
+  <div class="upc gold"><h3>One login, two worlds</h3><p>Your allofus.one account works here too: the same Lifeboard, the same friends, your character follows you. Walk through the portal in either world and you arrive signed in.</p><a class="btn" href="https://allofus.one/?from=mall" id="aou-home">AllOfUs home</a></div>
+</div>
+
+<footer><a href="/">Home</a><a href="/mall/">Inside the mall</a><a href="/directory/">Directory</a><a href="/stores/">All stores</a><a href="/lease/">Rent a store</a><a href="/about/">About</a><a href="/tour/">Tour</a><a href="/terms/">Terms &amp; Privacy</a><a href="/prize-rules/">Prize rules</a><span>World VR Mall · Denver, Colorado · Powered by <a href="https://eyetoad.com">Eye To Ad Media</a> · © 2026</span></footer>
+</div>
+<script type="module" src="/js/wvm-feed.js?v=58"></script>
+</body></html>
