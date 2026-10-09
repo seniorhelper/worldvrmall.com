@@ -114,7 +114,7 @@ export function vrArrival(app, cfg = {}) {
   /* safety net: the arrival ends itself on the world clock; this wall-clock check only steps in when the updater has stopped ticking (a dead loop),
      never on a slow device that is still drawing frames (prebuilding 14 zones under software GL took >60 s of wall time, 0.6 s of world time) */
   let lastTick = performance.now(); const fx0 = fx; const fxT = (dt) => { lastTick = performance.now(); fx0(dt); }; app.onUpdate(fxT); H._fx = fxT;
-  const guard = () => { if (done) return; if (performance.now() - lastTick > 8000) { try { H.done(); } catch (e) { } } else setTimeout(guard, 10000); }; setTimeout(guard, 60000);
+  const guard = () => { if (done) return; if (performance.now() - lastTick > 30000) { try { H.done(); } catch (e) { } } else setTimeout(guard, 10000); }; setTimeout(guard, 60000);
   return H;
 }
 
