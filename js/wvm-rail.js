@@ -124,7 +124,11 @@ export function mountRail(opts = {}) {
   /* phones: the bar is fixed to the viewport, so it lives on <body> (a sticky header with backdrop-filter would trap it);
      wide screens: inline in the header slot when one is given */
   const mq = matchMedia('(max-width:820px)');
-  const place = () => { if (opts.into && !mq.matches) { if (rail.parentNode !== opts.into) opts.into.appendChild(rail); } else if (rail.parentNode !== document.body && !(rail.parentNode && rail.parentNode.classList && rail.parentNode.classList.contains('wvm-top') && !mq.matches)) document.body.appendChild(rail); };
+  const place = () => {
+    const into = opts.into || rail._into;
+    if (into && !mq.matches) { if (rail.parentNode !== into) (rail._mount || ((r) => into.appendChild(r)))(rail); rail.classList.add('inline'); rail.classList.remove('fixed'); }
+    else if (rail.parentNode !== document.body) { document.body.appendChild(rail); rail.classList.toggle('fixed', !into); rail.classList.toggle('inline', !!into); }
+  };
   place(); try { mq.addEventListener('change', place); } catch (e) { }
   rail._place = place;
   document.body.classList.add('wvm-railpad');

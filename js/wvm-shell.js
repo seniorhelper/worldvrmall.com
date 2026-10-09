@@ -118,7 +118,7 @@ export function bootShell(cfg) {
 
   function wireApp(app) {
     /* rail into the HUD top bar (wide screens become part of the flex row; laptops a second row; phones the bottom bar) */
-    try { const top = app.hud && app.hud.querySelector('.wvm-top'); const brand = top && top.querySelector('.wvm-brand'); if (brand) brand.after(rail); rail.classList.remove('fixed'); } catch (e) { }
+    try { const top = app.hud && app.hud.querySelector('.wvm-top'); const brand = top && top.querySelector('.wvm-brand'); if (brand) { rail._into = top; rail._mount = (r) => brand.after(r); rail._place(); } } catch (e) { }
     /* XR hooks (consumed by the VR layer; kept on the app so the port can read them) */
     app.arrivalCfg = app.arrivalCfg || { name: 'World VR Mall', tagline: 'Walk in. Every store is real.', accent: '#22d3ee' };
     const aouVR = () => app.go(aouUrl('/world/', { vr: '1' }), 'AllOfUs VR');
