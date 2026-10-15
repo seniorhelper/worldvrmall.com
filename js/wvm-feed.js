@@ -5,9 +5,9 @@
    demo status otherwise), directory search, SSO-aware user chip,
    and "walk in" deep links into 3D / VR.
    ============================================================ */
-import { mountRail, backChip, setMode, userChipHTML, aouUrl, me } from '/js/wvm-rail.js?v=58';
-import { HICON } from '/js/wvm-icons.js?v=58';
-import { CONFIG } from '/js/wvm-config.js?v=58';
+import { mountRail, backChip, setMode, userChipHTML, aouUrl, me } from '/js/wvm-rail.js?v=59';
+import { HICON } from '/js/wvm-icons.js?v=59';
+import { CONFIG } from '/js/wvm-config.js?v=59';
 
 const I = (k) => HICON[k] || '';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

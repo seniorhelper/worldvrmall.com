@@ -355,7 +355,7 @@ export function makeRobot(opts = {}) {
 /* ---- Drone: hovers, spinning rotors, a little camera eye. No limbs — bobs instead. ---- */
 /* ---- real PBR textures (Poly Haven, CC0; 1K JPG) ---- */
 const _rt = {}; export function realTex(name, repeat = 4, o = {}) { const k = name + ':' + repeat; if (_rt[k]) return _rt[k]; const t = new THREE.TextureLoader().load('/textures/' + name + '.jpg'); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat); t.anisotropy = isMobile() ? 4 : 8; if (!o.linear) t.colorSpace = THREE.SRGBColorSpace; _rt[k] = t; return t; }
-export function realMat(name, repeat = 4, o = {}) { const m = new THREE.MeshStandardMaterial(Object.assign({ map: realTex(name, repeat), roughness: 0.9, metalness: 0 }, o)); if (!isMobile() || o.normal) { m.normalMap = realTex(name + '-n', repeat, { linear: true }); m.normalScale = new THREE.Vector2(o.ns || 0.6, o.ns || 0.6); } return m; }
+export function realMat(name, repeat = 4, o = {}) { const { ns: _ns, normal: _nm, ...mo } = o; /* ns / normal are ours, not material properties */ const m = new THREE.MeshStandardMaterial(Object.assign({ map: realTex(name, repeat), roughness: 0.9, metalness: 0 }, mo)); if (!isMobile() || o.normal) { m.normalMap = realTex(name + '-n', repeat, { linear: true }); m.normalScale = new THREE.Vector2(o.ns || 0.6, o.ns || 0.6); } return m; }
 
 export function makeDrone(opts = {}) {
   const o = Object.assign({ color: 0x1e2a4a, accent: 0x38f0ff, scale: 1 }, opts);
@@ -937,7 +937,7 @@ export class WVM {
   /* Something you can DO when standing near it: shows a big green button with the label. */
   addInteractable(x, z, r, label, fn) { (this.interactables = this.interactables || []).push({ x, z, r, label, fn }); this._interVer = (this._interVer || 0) + 1; }
   _updateInteractables() {
-    if (!this.interactables) return; const p = this.player.position; let best = null, bd = 1e9;
+    if (!this.interactables) return; const p = (this.renderer.xr.isPresenting && this._xrFeet) || this.player.position; let best = null, bd = 1e9;
     for (const it of this.interactables) { if (it.level !== undefined ? it.level !== (this.level || 0) : ((this.level || 0) >= 3 && it.r < 1e6)) continue; const dx = p.x - it.x, dz = p.z - it.z, d = dx * dx + dz * dz; if (d < it.r * it.r && d < bd) { bd = d; best = it; } }
     if (this.paused) best = null; else if (this.ride) best = this.interactables.find(i => i.r >= 1e8) || null; // during a ride only the ride's own stop button shows
     if (best !== this._act) { this._act = best; this.actBtn.textContent = best ? best.label : ''; this.actBtn.classList.toggle('on', !!best); }
@@ -956,7 +956,7 @@ export class WVM {
     g.rotation.y = opts.rot || 0; this.scene.add(g);
     this.onUpdate((dt, t) => { ring.rotation.y += dt * 0.8; disc.material.opacity = 0.25 + Math.sin(t * 3) * 0.12; disc.rotation.z += dt; });
     const go = (a) => { if (typeof to === 'string') { a.go(to, opts.label ? 'Off to ' + opts.label + '…' : 'Teleporting…'); return; } a.fade.classList.add('on'); a.fade.textContent = opts.label ? '✨ ' + opts.label : '✨'; setTimeout(() => { a.player.position.copy(to); if (opts.yaw !== undefined) a.yaw = opts.yaw; a.walkTarget = null; setTimeout(() => a.fade.classList.remove('on'), 250); }, 380); };
-    this.addTrigger(x, z, 1.5, go); this.addHotspot(g, { fn: (a) => a.walkTo(x, z) });
+    this.addTrigger(x, z, 1.5, go); this.addHotspot(g, { title: opts.label || 'Portal', fn: (a) => { if (a.renderer.xr.isPresenting) go(a); else a.walkTo(x, z); } });
     return g;
   }
   walkTo(x, z) { const p = this.player.position; this._marker(new THREE.Vector3(x, this.opts.groundY(x, z), z)); if (this.ride || this.vehicle) return; const d = Math.hypot(x - p.x, z - p.z);
@@ -1406,7 +1406,7 @@ export class WVM {
     this._updateNPCs(dt);
     this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length && (this.level || 0) < 3) this._updateBoosts(dt);
     if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro || !!this._air; const high = wide && (this._air || this.rig.position.y - P.y > 80); for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? 1 : 0); } }
-    if (this.triggers && !this.paused && !this.ride && !this._air && (this.level || 0) < 3) { const p = this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
+    if (this.triggers && !this.paused && !this.ride && !this._air && (this.level || 0) < 3) { const p = (this.renderer.xr.isPresenting && this._xrFeet) || this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
     this._perf(dt);
     if (this.composer && !this._noBloom && !this._intro && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);

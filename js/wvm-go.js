@@ -4,7 +4,7 @@
    (from=mall + the signed-in session) and hop through app.go() (ends VR, carries ?vr=1). Oct 2026 (port of aou-go.js).
    Grouping is data-driven: a place lands in the first group that names its id, else the first group that names its cat,
    else the catch-all "Places" group. Stores (cat "Store…" / "Space available") get their own paged, letter-indexed group. */
-import { aouUrl, AOU } from '/js/wvm-rail.js?v=58';
+import { aouUrl, AOU } from '/js/wvm-rail.js?v=59';
 
 const OUTSIDE = location.pathname === '/' || /^\/index\.html$/.test(location.pathname);
 const STORE_PAGE = /^\/stores\//.test(location.pathname);

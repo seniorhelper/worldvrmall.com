@@ -28,14 +28,14 @@
   *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
   a{color:var(--cyan)}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:rgba(4,10,30,.9);position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(124,248,255,.2)}
-  header img{height:40px;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:var(--pink);padding:8px 14px;border-radius:12px}
+  header img{height:40px;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px} header nav a.call{background:#e11d48;padding:8px 14px;border-radius:12px}
   .hero{position:relative;overflow:hidden;padding:72px 22px 56px;text-align:center;background:radial-gradient(circle at 50% 20%,#123a8a,#050b1c 65%)}
   .hero h1{font-size:clamp(32px,5.6vw,60px);line-height:1.05;margin:0 0 14px;color:#fff;max-width:900px;margin-inline:auto} .hero h1 span{color:var(--cyan)}
   .lead{font-size:clamp(18px,2.4vw,23px);color:#d7e6ff;max-width:760px;margin:0 auto 26px}
   .orbit{position:absolute;inset:0;pointer-events:none;overflow:hidden} .orbit i{position:absolute;border-radius:50%;border:1px solid rgba(124,248,255,.25);animation:drift 40s linear infinite} @keyframes drift{to{transform:rotate(360deg)}}
   .orbit i:nth-child(1){width:620px;height:620px;left:calc(50% - 310px);top:-360px} .orbit i:nth-child(2){width:900px;height:900px;left:calc(50% - 450px);top:-520px;animation-duration:70s;animation-direction:reverse} .orbit i b{position:absolute;top:-6px;left:50%;width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
   .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:18px 0}
-  .btn{background:var(--cyan);color:#04122a;font-weight:800;border-radius:12px;padding:15px 26px;text-decoration:none;font-size:16px;border:0;cursor:pointer;display:inline-block;transition:transform .15s} .btn:hover{transform:translateY(-2px)} .btn.hot{background:var(--pink);color:#fff} .btn.alt{background:transparent;color:var(--cyan);border:2px solid var(--cyan)}
+  .btn{background:var(--cyan);color:#04122a;font-weight:800;border-radius:12px;padding:15px 26px;text-decoration:none;font-size:16px;border:0;cursor:pointer;display:inline-block;transition:transform .15s} .btn:hover{transform:translateY(-2px)} .btn.hot{background:#e11d48;color:#fff} .btn.alt{background:transparent;color:var(--cyan);border:2px solid var(--cyan)}
   main{max-width:1080px;margin:0 auto;padding:10px 22px 80px}
   h2{font-size:clamp(24px,3.2vw,34px);margin:52px 0 10px;color:#7cf8ff;line-height:1.15} h3{font-size:19px;margin:18px 0 6px;color:#fff}
   p,li{font-size:17px;color:#d7e6ff}
@@ -151,7 +151,7 @@
   <details><summary>Can shoppers visit on a phone or a VR headset?</summary><p>Yes. World VR Mall runs in the web browser on phones, laptops and VR headsets, so there is no app for shoppers to download. They walk the mall, step into your store and tap a buy button to go to your own checkout.</p></details>
   <details><summary>Is there a smaller option for makers?</summary><p>Yes. Old World Market booths are the most affordable spot in the mall, built for makers such as soap, candle, jam, jewelry and art sellers. Call 1-800-481-8638 to ask about booth pricing and availability.</p></details>
 
-  <footer><p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · <a href="/">Home</a> · <a href="/mall/">Inside the mall</a> · <a href="/about/">About</a> · <a href="tel:18004818638">1-800-481-8638</a> · © 2026 World VR Mall.</p></footer>
+  <footer><p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · <a href="/">Home</a> · <a href="/mall/">Inside the mall</a> · <a href="/about/">About</a> · <a href="tel:18004818638">1-800-481-8638</a> · <a href="/report-bug/?from=/lease/">Report a bug</a> · © 2026 World VR Mall.</p></footer>
 <section style="max-width:900px;margin:0 auto 30px;padding:0 16px"><div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px"><h3 style="margin:0 0 6px">Your real layout, in the mall</h3><p style="margin:0 0 8px">We scan your store with a Quest 3 — one button, ten seconds — and build your mall storefront to the real footprint: walls, doorway, counters, shelves. <a href="/scan/">How the Store Scanner works</a>.</p></div></section></main>
 <a class="sticky-call" href="tel:18004818638">📞 1-800-481-8638</a>
 
@@ -170,8 +170,8 @@
   });
 })();
 </script>
-<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=58"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
-<style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#64748b;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/" rel="nofollow">Need a website?</a></div>
-<script type="module">import { mountRail, backChip } from "/js/wvm-rail.js?v=58"; mountRail({ page: "flat", into: document.getElementById("railrow") }); backChip();</script>
+<script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=59"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
+<style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#94a3b8;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/" rel="nofollow">Need a website?</a></div>
+<script type="module">import { mountRail, backChip } from "/js/wvm-rail.js?v=59"; mountRail({ page: "flat", into: document.getElementById("railrow") }); backChip();</script>
 </body>
 </html>

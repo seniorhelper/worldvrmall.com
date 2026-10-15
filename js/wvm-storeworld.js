@@ -3,8 +3,8 @@
    Booted by the shell only on "View in 3D" (or ?mode=3d / ?vr=1):
    the product page is the page; this is the walk-in version.
    ============================================================ */
-import { WVM, THREE, rand, pick, makeSign, makeSprite, makePerson, makeTextTexture } from '/js/wvm-engine.js?v=58';
-import { buildStore } from '/js/wvm-store.js?v=58';
+import { WVM, THREE, rand, pick, makeSign, makeSprite, makePerson, makeTextTexture } from '/js/wvm-engine.js?v=59';
+import { buildStore } from '/js/wvm-store.js?v=59';
 
 export function bootStore({ slug, worldName }) {
   const T = THREE, SLUG = slug;

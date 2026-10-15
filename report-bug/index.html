@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report a Bug | World VR Mall</title>
+<meta name="description" content="Found something broken in World VR Mall? A sign stuck in a wall, a menu that won't open in VR, a store that won't load? Tell us here. A person reads every report.">
+<link rel="canonical" href="https://worldvrmall.com/report-bug/">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#050b1c">
+<link rel="icon" href="/images/world-vr-mall-favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#eaf4ff;--bg:#050b1c;--cyan:#38f0ff;--pink:#ff4f79;--gold:#ffd23f}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
+  a{color:var(--cyan)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:rgba(4,10,30,.9);border-bottom:1px solid rgba(124,248,255,.2);flex-wrap:wrap}
+  header img{height:40px;width:auto;background:#fff;padding:5px 12px;border-radius:12px} header nav a{color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-left:14px}
+  main{max-width:720px;margin:0 auto;padding:36px 20px 70px}
+  h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 10px;color:#fff} h1 span{color:var(--cyan)}
+  .lead{font-size:18px;color:#d7e6ff;margin:0 0 22px}
+  .note{background:rgba(255,210,63,.08);border-left:4px solid var(--gold);border-radius:0 12px 12px 0;padding:12px 16px;margin:0 0 24px;font-size:15px;color:#fff}
+  form{background:linear-gradient(160deg,#0d1f4d,#071233);border:1px solid rgba(124,248,255,.35);border-radius:18px;padding:22px}
+  label{display:block;font-weight:700;font-size:15px;color:#fff;margin:0 0 16px} label small{display:block;font-weight:400;color:#a9c2e8;font-size:13px}
+  textarea,input,select{display:block;width:100%;margin-top:6px;background:#04112e;color:#fff;border:1px solid rgba(124,248,255,.45);border-radius:12px;padding:12px 14px;font:500 16px Poppins,Arial,sans-serif}
+  textarea{min-height:140px;resize:vertical} textarea:focus,input:focus,select:focus{outline:3px solid var(--cyan);outline-offset:1px}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .btn{background:var(--cyan);color:#04122a;font-weight:800;border-radius:12px;padding:14px 26px;font-size:16px;border:0;cursor:pointer;font-family:inherit} .btn[disabled]{opacity:.6;cursor:wait}
+  .msg{margin-top:16px;font-size:16px;border-radius:12px;padding:12px 16px;display:none} .msg.ok{display:block;background:rgba(124,255,107,.12);border:1px solid #7cff6b;color:#fff} .msg.err{display:block;background:rgba(255,79,121,.12);border:1px solid var(--pink);color:#fff}
+  .small{font-size:14px;color:#9fb3d9;margin-top:22px}
+  footer{border-top:1px solid rgba(255,255,255,.1);margin-top:40px;padding-top:18px;font-size:14px;color:#9fb3d9} footer a{text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <a href="/"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall" width="160" height="40"></a>
+  <nav><a href="/">Outside</a><a href="/mall/">Mall</a><a href="/about/">About</a></nav>
+</header>
+<main>
+  <h1>Report a <span>bug</span></h1>
+  <p class="lead">World VR Mall is still being built. If something looks wrong or doesn't work, tell us what happened. A person reads every report.</p>
+  <p class="note">🛠️ <b>In active development.</b> New wings and stores arrive every week, so some things will look rough or break, especially in VR headsets. Your report is how we find them.</p>
+  <form id="bug" novalidate>
+    <label for="b-note">What happened?<small>For example: "A sign in the Food Court is half inside the wall", or "In VR the menu disappeared after I rode the coaster".</small>
+      <textarea id="b-note" name="note" maxlength="1000" required></textarea></label>
+    <label for="b-area">Where were you?
+      <select id="b-area" name="area">
+        <option value="">Choose one (optional)</option>
+        <option>Outside, on the island</option>
+        <option>Inside the mall</option>
+        <option>In a VR headset</option>
+        <option>The Mall feed</option>
+        <option>A store page</option>
+        <option>Somewhere else</option>
+      </select></label>
+    <label for="b-email">Your email (optional)<small>Only if you'd like a reply. We use it for nothing else.</small>
+      <input id="b-email" name="email" type="email" autocomplete="email" maxlength="120"></label>
+    <div class="hp" aria-hidden="true"><label for="b-web">Leave this empty<input id="b-web" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <button class="btn" id="b-go" type="submit">Send report</button>
+    <div class="msg" id="b-msg" role="status" aria-live="polite"></div>
+  </form>
+  <p class="small">What we receive: what you write, the area you picked, the page you came from, your screen size and your browser type. No account, no tracking. You can also email <a id="b-mail" href="#">info@eyetoad.com</a>.</p>
+  <footer><p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · <a href="/">Home</a> · <a href="/mall/">Inside the mall</a> · <a href="/about/">About</a> · © 2026 World VR Mall.</p></footer>
+</main>
+<script>
+(function () {
+  var SB = 'https://izfccjaznlcffvjxawya.supabase.co', KEY = 'sb_publishable_b6KPHJ3aPWaxl3yVz93sTw_c47NzfOF';
+  var MAIL = ['info', 'eyetoad.com'].join('@'); /* the email fallback when the server cannot be reached */
+  var from = ''; try { from = new URLSearchParams(location.search).get('from') || ''; if (!from && document.referrer && new URL(document.referrer).host === location.host) from = new URL(document.referrer).pathname + new URL(document.referrer).search; } catch (e) { }
+  var f = document.getElementById('bug'), msg = document.getElementById('b-msg'), go = document.getElementById('b-go'), note = document.getElementById('b-note');
+  var mailHref = function (body) { return 'mailto:' + MAIL + '?subject=' + encodeURIComponent('World VR Mall bug report') + '&body=' + encodeURIComponent(body || ''); };
+  document.getElementById('b-mail').href = mailHref('');
+  if (/vr/i.test(from) || /OculusBrowser|Quest/i.test(navigator.userAgent)) { var s = document.getElementById('b-area'); s.value = 'In a VR headset'; }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault(); msg.className = 'msg'; msg.textContent = '';
+    var text = note.value.trim(), area = document.getElementById('b-area').value, email = document.getElementById('b-email').value.trim();
+    if (document.getElementById('b-web').value) { msg.className = 'msg ok'; msg.textContent = 'Thank you. Your report was sent.'; f.reset(); return; } /* a bot filled the hidden field */
+    if (text.length < 4) { msg.className = 'msg err'; msg.textContent = 'Please write a few words about what happened.'; note.focus(); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = 'msg err'; msg.textContent = 'That email address looks incomplete. Fix it or leave it empty.'; document.getElementById('b-email').focus(); return; }
+    var row = { kind: 'bug', note: (text + (email ? ' · reply to ' + email : '')).slice(0, 1150), page: (from || '/report-bug/').slice(0, 300), ua: navigator.userAgent.slice(0, 160), extra: { site: location.hostname, form: 'report-bug', area: area || null, viewport: innerWidth + 'x' + innerHeight } };
+    go.disabled = true; go.textContent = 'Sending…';
+    fetch(SB + '/rest/v1/bugs', { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); msg.className = 'msg ok'; msg.textContent = 'Thank you. Your report was sent, and a person will read it.'; f.reset(); })
+      .catch(function () { msg.className = 'msg err'; msg.innerHTML = 'We could not reach our server just now. <a href="' + mailHref(text + '\n\nWhere: ' + (area || '-') + '\nPage: ' + (from || '-') + '\nBrowser: ' + navigator.userAgent) + '">Send it by email instead</a> (your report is filled in).'; })
+      .then(function () { go.disabled = false; go.textContent = 'Send report'; });
+  });
+})();
+</script>
+</body>
+</html>

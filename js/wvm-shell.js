@@ -15,8 +15,8 @@
    here for every 3D page (outside, mall, store) once the renderer exists;
    ?vr=1 / ?xrsim=1 modulepreload it, ?vr=basic skips it.
    ============================================================ */
-import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me } from '/js/wvm-rail.js?v=58';
-import { HICON } from '/js/wvm-icons.js?v=58';
+import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me } from '/js/wvm-rail.js?v=59';
+import { HICON } from '/js/wvm-icons.js?v=59';
 
 const I = (k) => HICON[k] || '';
 const SHELL_CSS = `
@@ -72,8 +72,8 @@ body.pax-open #mp-dock,body.pax-open #wvm-turbo{display:none!important}
 #wvm-door select{border:0;border-radius:9px;padding:6px 8px;font:700 12px Poppins,Arial;color:#0b1a3a}
 `;
 
-const XR_PRELOADS = ['/js/wvm-xr.js', '/js/wvm-go.js', '/js/wvm-icons.js?v=58', '/js/wvm-lifevr.js'];
-const PRELOADS = ['/vendor/three/three.module.min.js', '/vendor/three/jsm/loaders/GLTFLoader.js', '/vendor/three/jsm/utils/BufferGeometryUtils.js', '/vendor/three/jsm/webxr/VRButton.js', '/vendor/three/jsm/postprocessing/EffectComposer.js', '/vendor/three/jsm/postprocessing/RenderPass.js', '/vendor/three/jsm/postprocessing/UnrealBloomPass.js', '/vendor/three/jsm/postprocessing/OutputPass.js', '/vendor/three/jsm/postprocessing/ShaderPass.js', '/vendor/three/jsm/postprocessing/Pass.js', '/vendor/three/jsm/postprocessing/MaskPass.js', '/vendor/three/jsm/shaders/CopyShader.js', '/vendor/three/jsm/shaders/LuminosityHighPassShader.js', '/vendor/three/jsm/shaders/OutputShader.js', '/js/wvm-engine.js?v=58', '/js/wvm-bot.js?v=58', '/js/wvm-store.js?v=58'];
+const XR_PRELOADS = ['/js/wvm-xr.js', '/js/wvm-go.js', '/js/wvm-icons.js?v=59', '/js/wvm-lifevr.js'];
+const PRELOADS = ['/vendor/three/three.module.min.js', '/vendor/three/jsm/loaders/GLTFLoader.js', '/vendor/three/jsm/utils/BufferGeometryUtils.js', '/vendor/three/jsm/webxr/VRButton.js', '/vendor/three/jsm/postprocessing/EffectComposer.js', '/vendor/three/jsm/postprocessing/RenderPass.js', '/vendor/three/jsm/postprocessing/UnrealBloomPass.js', '/vendor/three/jsm/postprocessing/OutputPass.js', '/vendor/three/jsm/postprocessing/ShaderPass.js', '/vendor/three/jsm/postprocessing/Pass.js', '/vendor/three/jsm/postprocessing/MaskPass.js', '/vendor/three/jsm/shaders/CopyShader.js', '/vendor/three/jsm/shaders/LuminosityHighPassShader.js', '/vendor/three/jsm/shaders/OutputShader.js', '/js/wvm-engine.js?v=59', '/js/wvm-bot.js?v=59', '/js/wvm-store.js?v=59'];
 
 const q = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
 
@@ -198,7 +198,7 @@ export function bootShell(cfg) {
 
   async function vrDoor(app) {
     let hop = false; try { hop = sessionStorage.getItem('wvm_vr_hop') === '1'; sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { }
-    let chars = []; try { chars = (await import('/js/wvm-engine.js?v=58')).CHARACTERS || []; } catch (e) { }
+    let chars = []; try { chars = (await import('/js/wvm-engine.js?v=59')).CHARACTERS || []; } catch (e) { }
     const sv = app._load('wvm_avatar', {}) || {}; let pref = null; try { pref = localStorage.getItem('wvm_vr_body'); } catch (e) { }
     const cur = pref || sv.character || 'hero';
     let tries = 0; const wait = setInterval(() => {

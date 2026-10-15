@@ -6,7 +6,7 @@
    carries from=mall. Desktop: top bar. Phones: one bottom bar.
    No engine, no emoji: icons come from wvm-icons.js.
    ============================================================ */
-import { HICON, ICON_CSS } from '/js/wvm-icons.js?v=58';
+import { HICON, ICON_CSS } from '/js/wvm-icons.js?v=59';
 
 export const AOU = 'https://allofus.one';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

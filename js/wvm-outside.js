@@ -1,6 +1,6 @@
-import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=58';
-import { initBot } from '/js/wvm-bot.js?v=58';
-import { ideaForm } from '/js/wvm-store.js?v=58';
+import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, clamp, makeSign, makeSprite, makePerson, makeRider, realTex, realMat, makeTextTexture, sitPerson, isMobile, esc } from '/js/wvm-engine.js?v=59';
+import { initBot } from '/js/wvm-bot.js?v=59';
+import { ideaForm } from '/js/wvm-store.js?v=59';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ------------------------------------------------------------
@@ -281,7 +281,7 @@ function buildMall() {
   app.addHotspot(arch, { go: '/mall/', label: 'Entering World VR Mall…' });
   app.addHotspot(enterSign, { go: '/mall/', label: 'Entering World VR Mall…' });
   /* the mall is fetched ahead of time (page, its code, the store list and the lobby panorama) the moment you get near the door or the island goes quiet, so walking in is a quick cut instead of a cold load */
-  { let pre = false; const prefetchMall = () => { if (pre) return; pre = true; try { ['/mall/', '/js/wvm-inside.js?v=58', '/data/mall-extras.json', '/js/wvm-plus.js?v=58', '/js/wvm-fun3.js', '/js/wvm-orbit3d.js', '/js/wvm-xr.js', '/js/wvm-store.js?v=58', '/data/stores.json', '/data/new-stores.json', '/images/futuristic-global-mall-360-4096x2048.avif'].forEach(h => { const l = document.createElement('link'); l.rel = 'prefetch'; l.href = h; l.as = /\.avif$/.test(h) ? 'image' : /\.json$/.test(h) ? 'fetch' : /\.js/.test(h) ? 'script' : 'document'; if (l.as === 'fetch') l.crossOrigin = 'anonymous'; document.head.appendChild(l); }); } catch (e) { } }; app.addTrigger(0, 46, 70, prefetchMall); const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1)); setTimeout(() => idle(prefetchMall), 9000); }
+  { let pre = false; const prefetchMall = () => { if (pre) return; pre = true; try { ['/mall/', '/js/wvm-inside.js?v=59', '/data/mall-extras.json', '/js/wvm-plus.js?v=59', '/js/wvm-fun3.js', '/js/wvm-orbit3d.js', '/js/wvm-xr.js', '/js/wvm-store.js?v=59', '/data/stores.json', '/data/new-stores.json', '/images/futuristic-global-mall-360-4096x2048.avif'].forEach(h => { const l = document.createElement('link'); l.rel = 'prefetch'; l.href = h; l.as = /\.avif$/.test(h) ? 'image' : /\.json$/.test(h) ? 'fetch' : /\.js/.test(h) ? 'script' : 'document'; if (l.as === 'fetch') l.crossOrigin = 'anonymous'; document.head.appendChild(l); }); } catch (e) { } }; app.addTrigger(0, 46, 70, prefetchMall); const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1)); setTimeout(() => idle(prefetchMall), 9000); }
   // "Get your brand" sign sticking out beside the entrance
   const brand = makeSign(['GET YOUR BRAND IN', 'WORLD VR MALL TODAY'], { width: 12, height: 4, postHeight: 0, posts: false, neon: true, bg: '#ff4f79', fg: '#fff', accent: '#ffd23f', border: '#ffd23f', small: 'Store rental office just inside · 1-800-481-8638' }); brand.position.set(30, 8, 50); brand.rotation.y = -0.45; g.add(brand); app.onUpdate((dt, t) => { brand.position.y = 8 + Math.sin(t * 0.8 + 1.5) * 0.25; });
   app.addHotspot(brand, { title: 'Ground-floor opportunity', html: '<p>Premium mall real estate, right by the entrance, where every visitor walks past. Limited spots. Ten-minute setup.</p><p>Walk in and visit the store rental office, or skip the line:</p>', actions: [{ label: '📞 1-800-481-8638', href: 'tel:18004818638', newTab: true, primary: true }, { label: 'Store rental office', href: '/mall/#leasing' }] });
@@ -1453,7 +1453,7 @@ function buildMallExtras() {
 }
 
 // v39: one login with allofus.one, Lifeboard, voice, prize hunt, 20 ft dives, 360 showroom
-import('/js/wvm-plus.js?v=58').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
+import('/js/wvm-plus.js?v=59').then(m => setTimeout(() => { try { m.initMallPlus(app, 'outside'); } catch (e) { console.error('plus', e); } }, 1200));
 
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 
