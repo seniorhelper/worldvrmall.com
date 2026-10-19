@@ -72,7 +72,7 @@ body.pax-open #mp-dock,body.pax-open #wvm-turbo{display:none!important}
 #wvm-door select{border:0;border-radius:9px;padding:6px 8px;font:700 12px Poppins,Arial;color:#0b1a3a}
 `;
 
-const XR_PRELOADS = ['/js/wvm-xr.js', '/js/wvm-go.js', '/js/wvm-icons.js?v=59', '/js/wvm-lifevr.js'];
+const XR_PRELOADS = ['/js/wvm-xr.js', '/js/wvm-go.js', '/js/wvm-icons.js?v=59', '/js/wvm-arrival.js'];
 const PRELOADS = ['/vendor/three/three.module.min.js', '/vendor/three/jsm/loaders/GLTFLoader.js', '/vendor/three/jsm/utils/BufferGeometryUtils.js', '/vendor/three/jsm/webxr/VRButton.js', '/vendor/three/jsm/postprocessing/EffectComposer.js', '/vendor/three/jsm/postprocessing/RenderPass.js', '/vendor/three/jsm/postprocessing/UnrealBloomPass.js', '/vendor/three/jsm/postprocessing/OutputPass.js', '/vendor/three/jsm/postprocessing/ShaderPass.js', '/vendor/three/jsm/postprocessing/Pass.js', '/vendor/three/jsm/postprocessing/MaskPass.js', '/vendor/three/jsm/shaders/CopyShader.js', '/vendor/three/jsm/shaders/LuminosityHighPassShader.js', '/vendor/three/jsm/shaders/OutputShader.js', '/js/wvm-engine.js?v=59', '/js/wvm-bot.js?v=59', '/js/wvm-store.js?v=59'];
 
 const q = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(); } })();
@@ -137,6 +137,9 @@ export function bootShell(cfg) {
       : page === 'outside'
         ? [['🏬 Inside the mall', () => app.go('/mall/', 'Entering World VR Mall…')], ['🌍 AllOfUs VR', aouVR]]
         : [['🏬 Back to the mall', () => app.go('/mall/', 'Back to the mall…')], ['🌍 AllOfUs VR', aouVR]];
+    /* a lost GL context in the headset: a 'Tap to continue' card that reloads the page straight back into VR where you stood */
+    app.opts.onContextLost = () => ctxCard(app);
+    app.opts.onContextRestored = () => { const c = document.getElementById('wvm-ctx'); if (c) c.remove(); app.toast && app.toast('Graphics came back.', 2000); };
     app.goMenuExtra = (app.goMenuExtra || []).concat(EXTRA.filter(r => !(app.goMenuExtra || []).some(x => x[0] === r[0])));
     /* the shared Go menu lists every place that has a url */
     if (app.addPlace) {
@@ -171,14 +174,27 @@ export function bootShell(cfg) {
     try {
       const x = await import('/js/wvm-xr.js');
       window.WVM_XR = x;
-      import('/js/wvm-orbit3d.js').then(o => o.spawnOrbit(app, { hidden: () => !!(app.ride && !app.ride.stand) })).catch(e => console.warn('orbit3d', e));
+      import('/js/wvm-orbit3d.js').then(o => o.spawnOrbit(app, { hidden: () => !!(app.ride && !app.ride.stand) || !!(app._xr && app._xr._arrival && (app._xr._arrival.active || app._xr._arrival.card)) })).catch(e => console.warn('orbit3d', e));
       /* a GL context loss in the headset reloads the page; come back to the same spot */
       try { const rs = JSON.parse(localStorage.getItem('wvm_resume') || 'null'); if (rs && Date.now() - rs.t < 120000) { localStorage.removeItem('wvm_resume'); app.player.position.set(rs.x, app.player.position.y, rs.z); if (rs.yaw !== undefined) app.yaw = rs.yaw; app.toast && app.toast('Back where you were.'); } } catch (e) { }
       const A = app.arrivalCfg || {};
+      /* the mall's own cinematic arrival (wvm-arrival.js); the layer's built-in Dawn is the fallback if it fails to load */
+      let arr = null; try { arr = await import('/js/wvm-arrival.js'); } catch (e) { console.warn('arrival module', e); }
+      const AOU_WORLDS = [['🌍 AllOfUs · the 3D world (VR)', aouUrl('/world/', { vr: '1' })], ['📰 AllOfUs · the feed', aouUrl('/')], ['🪐 The VR Galaxy', 'https://thevrgalaxy.com/'], ['🌀 Another Dimension', 'https://anotherdimensionvr.com/'], ['🧭 VR Adventure', 'https://virtualrealityadventure.com/'], ['✈️ Flight Simulator', 'https://vrflyingsimulator.com/'], ['💥 Comics Come Alive', 'https://comicscomealive.com/'], ['🍔 Sparkle Diner', 'https://advertisingforrestaurant.com/']];
+      const WORLDS = (page === 'mall' ? [['🏝️ World VR Mall · the island', '/']] : page === 'outside' ? [['🏬 World VR Mall · inside', '/mall/']] : [['🏬 World VR Mall · inside', '/mall/'], ['🏝️ World VR Mall · the island', '/']]).concat(AOU_WORLDS);
+      /* links to allofus.one carry the signed-in session (same Supabase project) in the fragment, never to a server */
+      const signAou = (u) => { try { const x2 = new URL(u, location.href); if (/(^|\.)allofus\.one$/i.test(x2.hostname) && !x2.hash) { const params = {}; x2.searchParams.forEach((v2, k2) => { params[k2] = v2; }); return aouUrl(x2.pathname, params); } } catch (e) { } return u; };
+      const bugPost = (row) => { try { import('/js/wvm-config.js?v=59').then(m => { const C = m.CONFIG || {}; if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) return; return fetch(C.SUPABASE_URL + '/rest/v1/bugs', { method: 'POST', headers: { apikey: C.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }); }).catch(() => { }); } catch (e) { } };
       const api = x.initXR(app, {
-        name: A.name || 'World VR Mall', tagline: A.tagline || '', accent: A.accent || '#22d3ee', logoTexture: A.logoTexture || null, chrome: !!A.chrome,
+        name: A.name || 'World VR Mall', tagline: A.tagline || '', accent: A.accent || '#22d3ee', logoTexture: A.logoTexture || null, logoUrl: '/images/world-vr-mall-logo-600.png', chrome: !!A.chrome,
+        mallUrl: null, worlds: WORLDS, lifeboard: !!(window.WVM && window.WVM.UI && window.WVM.UI.LB), arrival: arr && arr.mallArrival ? arr.mallArrival : undefined,
+        ssoHref: (u) => Promise.resolve(signAou(u)), bugPost,
+        welcome: '🕶️ Left stick walks · right stick turns · point + trigger = click it or go there · grip pulls you there · Y, your wrist or the MENU pad on the floor = menu (Go lists every store and place · Worlds = allofus.one and the rest) · X = view · A = nearest · B = bug.', welcomeAt: 26000,
+        hint: 'Y, your wrist or the MENU pad on the floor = menu · left stick walks · trigger = go there',
+        onDrop: () => { try { app.toast && app.toast('VR closed by itself. One tap puts you back where you were.', 5000); } catch (e) { } vrDoor(app, { hop: true, text: 'Tap once · back into VR', sub: 'VR closed by itself (we logged it). Tapping puts you right back where you were.' }); },
+        onStall: () => { try { app.toast && app.toast('The headset stopped drawing frames; logged for the bug report.', 3000); } catch (e) { } },
         me: () => me(),
-        extra: (app.goMenuExtra || []).concat((window.WVM_PLUS && window.WVM_PLUS.vrExtra) || []),
+        extra: (app.goMenuExtra || []).filter(r => !/allofus/i.test(String(r[0]))).concat((window.WVM_PLUS && window.WVM_PLUS.vrExtra) || []),
         onBugs: (list) => {
           const last = list.slice(-5).reverse();
           const html = '<p>Logged in VR. Add a line about what went wrong and send.</p>' + last.map((b, i) => `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin:6px 0"><b>#${list.length - i}</b> · ${b.near || 'unknown spot'} · (${b.x}, ${b.y}, ${b.z})${b.act ? ' · near: ' + b.act : ''}${b.ride ? ' · on a ride' : ''}<br><input data-bug="${list.length - 1 - i}" placeholder="What happened?" style="width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font:600 13px Poppins,Arial"></div>`).join('') + '<button class="mp-btn holo" id="bug-send">📤 Send bug reports</button>';
@@ -186,7 +202,10 @@ export function bootShell(cfg) {
           m.querySelector('#bug-send').onclick = async () => { const notes = {}; m.querySelectorAll('[data-bug]').forEach(i => notes[i.dataset.bug] = i.value); const body = list.map((b, i) => `#${i + 1} ${b.t} ${b.page} at (${b.x},${b.y},${b.z}) yaw ${b.yaw} near "${b.near}" act "${b.act}" ride ${b.ride} :: ${notes[i] || ''}`).join('\n'); try { await navigator.clipboard.writeText(body); } catch (e) { } const mail = 'mailto:' + atob('emFjaA==') + String.fromCharCode(64) + atob('ZXlldG9hZC5jb20=') + '?subject=' + encodeURIComponent('VR bug reports · ' + location.host) + '&body=' + encodeURIComponent(body); window.open(mail, '_blank'); localStorage.setItem('vr_bugs', '[]'); window.WVM_PLUS.close && window.WVM_PLUS.close(); app.toast('📤 Copied + opened in your mail app.', 3000); };
         },
       });
-      S.xr = api; return api;
+      S.xr = api;
+      /* frozen matrices: 6 s after the world is up (and every 30 s for lazy zones) every leaf mesh that has not moved stops recomposing its matrix each frame; the engine's sweep unfreezes anything that moves */
+      if (app.freezeStatic) { setTimeout(() => { try { app.freezeStatic(); } catch (e) { } }, 6000); setInterval(() => { try { app.freezeStatic(); } catch (e) { } }, 30000); }
+      return api;
     } catch (e) { console.error('VR layer failed', e); return null; }
   }
 
@@ -196,8 +215,9 @@ export function bootShell(cfg) {
     const v = document.getElementById('wvm-vr'); if (v) v.click(); else if (S.app && S.app.toast) S.app.toast('Open this page in a headset browser (Quest) to enter VR.', 3500);
   }
 
-  async function vrDoor(app) {
-    let hop = false; try { hop = sessionStorage.getItem('wvm_vr_hop') === '1'; sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { }
+  async function vrDoor(app, o = {}) {
+    let hop = !!o.hop; try { if (sessionStorage.getItem('wvm_vr_hop') === '1') hop = true; sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { }
+    try { const old = document.getElementById('wvm-door'); if (old) old.remove(); } catch (e) { }
     let chars = []; try { chars = (await import('/js/wvm-engine.js?v=59')).CHARACTERS || []; } catch (e) { }
     const sv = app._load('wvm_avatar', {}) || {}; let pref = null; try { pref = localStorage.getItem('wvm_vr_body'); } catch (e) { }
     const cur = pref || sv.character || 'hero';
@@ -205,12 +225,22 @@ export function bootShell(cfg) {
       const v = document.getElementById('wvm-vr'); if (!v) { if (++tries > 60) { clearInterval(wait); if (app.toast) app.toast('VR needs a headset browser (Quest). On this device the 3D mode is the whole show.', 5000); } return; }
       clearInterval(wait);
       const o = document.createElement('div'); o.id = 'wvm-door';
-      o.innerHTML = `<button type="button">${I('🕶')}<span>${hop ? 'Tap once · back into VR' : 'Tap to enter VR'}</span></button>${hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
+      o.innerHTML = `<button type="button">${I('🕶')}<span>${o.text || (hop ? 'Tap once · back into VR' : 'Tap to enter VR')}</span></button>${o.sub ? '<small>' + o.sub + '</small>' : hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
         (chars.length ? `<label>Body in VR <select>${chars.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.name}</option>`).join('')}</select></label>` : '');
       const sel = o.querySelector('select'); if (sel) sel.onchange = () => app.vrBody(sel.value);
       o.querySelector('button').onclick = () => { app.vrBody(sel ? sel.value : null); v.click(); o.remove(); };
       document.body.appendChild(o); setTimeout(() => o.remove(), 90000);
     }, 250);
+  }
+  S.vrDoor = (o) => S.app && vrDoor(S.app, o || {});
+
+  /* the graphics context was lost (memory pressure in the headset): a card that reloads this page straight back into VR, where you stood (the engine saved wvm_resume) */
+  function ctxCard(app) {
+    try { const old = document.getElementById('wvm-ctx'); if (old) old.remove(); } catch (e) { }
+    const o = document.createElement('div'); o.id = 'wvm-ctx'; o.setAttribute('style', 'position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;background:rgba(5,11,28,.92);color:#fff;font-family:Poppins,Arial;text-align:center;padding:24px');
+    o.innerHTML = '<div><p style="font:800 22px Poppins,Arial;margin:0 0 8px">The graphics stopped for a moment.</p><p style="font:600 14px Poppins,Arial;margin:0 0 18px;color:#cfe9ff">The headset ran out of memory. One tap reloads the mall right where you were.</p><button type="button" style="border:0;border-radius:12px;background:#38f0ff;color:#04122a;font:900 20px Poppins,Arial;padding:14px 26px;cursor:pointer">Tap to continue</button></div>';
+    o.querySelector('button').onclick = () => { try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { } const u = new URL(location.href); if (app.renderer && app.renderer.xr && (app.renderer.xr.isPresenting || /vr=1/.test(location.search))) u.searchParams.set('vr', '1'); location.replace(u.href); };
+    document.body.appendChild(o);
   }
 
   if (want3d) {

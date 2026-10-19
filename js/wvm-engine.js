@@ -58,8 +58,24 @@ const isTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0
 export const isMobile = () => isTouch() && Math.min(innerWidth, innerHeight) < 900;
 export const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 /* Phones get half-size generated textures (a quarter of the GPU memory). iPhones are the strictest: Safari kills a tab that uses too much. */
-export const TEX_SCALE = /OculusBrowser|Quest|Pico/i.test(navigator.userAgent) ? 1.75 : (isMobile() ? 1.0 : (window.devicePixelRatio > 1.3 ? 1.6 : 1.25)); /* headsets get the sharpest text: blurry storefront words and sign shimmer come from low-res canvases */
-export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; return t; }
+/* headsets: 1.0 (Oct 19 2026). 1.75 tripled the pixels of every one of the ~1,300 canvas signs (about 2 GB of texture memory on a Quest 3, which is the
+   'black screen / freeze / hard reset' under memory pressure). Sharpness in the headset now comes from mipmaps + anisotropic filtering, not from huge canvases. */
+export const TEX_SCALE = /OculusBrowser|Quest|Pico/i.test(navigator.userAgent) ? 1.0 : (isMobile() ? 1.0 : (window.devicePixelRatio > 1.3 ? 1.6 : 1.25));
+/* layer used to hide far sprites from every camera. It was layer 1, which WebXR gives to the LEFT eye only (cameraL.layers = 0b011): far signs
+   showed in one eye and not the other — the 'flickering, eye-straining' signs in the headset. Layer 7 is seen by no camera. */
+export const HIDE_LAYER = 7;
+/* a vibrate before the first tap is refused by the browser with a console error: every caller in the world goes through this guard */
+try { if (navigator.vibrate && navigator.userActivation) { const nv = navigator.vibrate.bind(navigator); navigator.vibrate = (p) => navigator.userActivation.hasBeenActive ? nv(p) : false; } } catch (e) { }
+export function canvasTex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = isMobile() ? 4 : 8; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; return t; }
+/* texture memory (Oct 19 2026): the mall interior holds ~1,650 canvas signs and labels (about 3 GB at the laptop scale, over 1 GB on a Quest) and a
+   handful of raw product photos (one was 5712 × 4284 = 124 MB on the GPU). Two caps: every photo that comes through TextureLoader is shrunk to
+   TEX_MAX on its long side on load, and once the canvases made so far pass TEX_BUDGET (the lobby and the wings come first, lazy stores later) the
+   drawing scale of every further canvas drops to 0.6 (still crisp for a label, a third of the bytes). */
+const HEADSET = /OculusBrowser|Quest|Pico/i.test(navigator.userAgent);
+export const TEX_MAX = HEADSET ? 1024 : 2048;
+export const texBudget = { bytes: 0, canvases: 0, cap: HEADSET ? 320e6 : 1.4e9, over() { return this.bytes > this.cap; } };
+export function shrinkTex(tex, max = TEX_MAX) { try { const im = tex && tex.image; if (!im || !im.width || !im.height) return tex; const s = max / Math.max(im.width, im.height); if (s >= 1) return tex; const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * s)); c.height = Math.max(1, Math.round(im.height * s)); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); tex.image = c; tex.needsUpdate = true; } catch (e) { } return tex; }
+try { const L0 = THREE.TextureLoader.prototype.load; THREE.TextureLoader.prototype.load = function (url, onLoad, onProgress, onError) { return L0.call(this, url, (t) => { shrinkTex(t); if (onLoad) onLoad(t); }, onProgress, onError); }; } catch (e) { }
 
 /* ---- Sky presets (files live in /images/) ---- */
 export const SKIES = {
@@ -89,8 +105,8 @@ function _makeTextTexture(lines, opts = {}) {
     align = 'center', glow = true, border = accent, lineGap = 1.15, small = null,
   } = opts;
   /* v9: never above 2048 px on the long side (GPU memory + upload time on headsets); the drawing scale follows */
-  const TS = Math.min(TEX_SCALE, 2048 / Math.max(w, h));
-  const c = document.createElement('canvas'); c.width = Math.round(w * TS); c.height = Math.round(h * TS);
+  const TS = Math.min(TEX_SCALE, 2048 / Math.max(w, h)) * (texBudget.over() ? 0.6 : 1);
+  const c = document.createElement('canvas'); c.width = Math.round(w * TS); c.height = Math.round(h * TS); texBudget.bytes += c.width * c.height * 5.33; texBudget.canvases++;
   const g = c.getContext('2d'); g.scale(TS, TS);
   g.fillStyle = bg;
   roundRect(g, 0, 0, w, h, radius); g.fill();
@@ -754,7 +770,9 @@ export class WVM {
     this._buildHUD();
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: !isMobile() && window.devicePixelRatio < 2, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.35 : 2)); /* full sharpness; the governor below steps it down only if frames actually drop */
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile() ? 1.35 : 2));
+    renderer.domElement.addEventListener('webglcontextlost', (e) => { try { e.preventDefault(); } catch (err) { } this._ctxLost = (this._ctxLost || 0) + 1; try { const P = this.player.position; localStorage.setItem('wvm_resume', JSON.stringify({ x: +P.x.toFixed(1), z: +P.z.toFixed(1), yaw: +(this.yaw || 0).toFixed(2), t: Date.now() })); } catch (err) { } try { const L = JSON.parse(localStorage.getItem('frame_errors') || '[]'); L.push({ t: Date.now(), xr: !!(this.renderer.xr && this.renderer.xr.isPresenting), m: 'WebGL context lost', s: '' }); localStorage.setItem('frame_errors', JSON.stringify(L.slice(-10))); } catch (err) { } try { if (this.opts.onContextLost) this.opts.onContextLost(this); } catch (err) { } }, false);
+    renderer.domElement.addEventListener('webglcontextrestored', () => { this._ctxRestored = (this._ctxRestored || 0) + 1; try { this.scene.traverse(o => { for (const m of [].concat(o.material || [])) if (m) m.needsUpdate = true; }); } catch (err) { } try { if (this.opts.onContextRestored) this.opts.onContextRestored(this); } catch (err) { } }, false); /* full sharpness; the governor below steps it down only if frames actually drop */
     const pre = document.getElementById('wvm-preload'); if (pre) pre.remove();
     renderer.setSize(innerWidth, innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -840,7 +858,7 @@ export class WVM {
   /* real image-based lighting + mirror reflections from a Poly Haven HDR (CC0). Cached per URL, built once with PMREM. */
   setEnvHDR(url) { this._envHDRs = this._envHDRs || new Map(); const have = this._envHDRs.get(url); if (have) { if (have.texture) { this.scene.environment = have.texture; this._envHDR = url; } return; } const rec = { texture: null }; this._envHDRs.set(url, rec); import('three/addons/loaders/RGBELoader.js').then(({ RGBELoader }) => { new RGBELoader().load(url, (t) => { t.mapping = THREE.EquirectangularReflectionMapping; const pm = this._pmrem || (this._pmrem = new THREE.PMREMGenerator(this.renderer)); rec.texture = pm.fromEquirectangular(t).texture; t.dispose(); const cur = /\/textures\/sky-(day|sunset|citrus)-2k\.jpg$/.exec(this.skyUrl || ''); if (cur && url.includes('sky-' + cur[1] + '-')) { this.scene.environment = rec.texture; this._envHDR = url; this.scene.traverse(o => { const m = o.material; if (m && m.isMeshStandardMaterial && m.envMapIntensity === undefined) m.envMapIntensity = 1; }); } }, undefined, () => { this._envHDRs.delete(url); }); }).catch(() => { this._envHDRs.delete(url); }); }
   preloadSky(url) { this._skyCache = this._skyCache || new Map(); if (this._skyCache.has(url)) return; const hasExt = /\.(avif|jpe?g|png|webp)$/i.test(url); const u = hasExt ? url : url + '.avif'; this.texLoader.load(u, (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }, undefined, () => { if (!hasExt) this.texLoader.load(url + '.jpg', (t) => { if (!this._skyCache.has(url)) this._skyCache.set(url, t); }); }); }
-  buzz(ms = 60) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
+  buzz(ms = 60) { try { /* browsers log an error for a vibrate before the first tap; skip it until then */ if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(ms); } catch (e) { } }
   _applySky(tex, opts = {}) {
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; if (isMobile()) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
     this.scene.background = tex;
@@ -897,7 +915,7 @@ export class WVM {
   autoCollide() {
     const list = []; const box = new THREE.Box3(); for (const o of this.scene.children) { const u = o.userData; if (o.isLight || o.isCamera || o.isSprite || o.isPoints || o.isLine || o === this.player || o === this.rig || u.noCollide || u.mapHide || u.noCull || u.collided || o.visible === false) continue; list.push([o, o.position.x, o.position.y, o.position.z, o.rotation.y]); }
     const pts = []; for (const it of (this.interactables || [])) if (it.r < 1e6) pts.push([it.x, it.z]); for (const t of (this.triggers || [])) pts.push([t.x, t.z]); for (const p of this.places) if (p.x !== undefined && !p.url) pts.push([p.x, p.z]); for (const n of this.npcs) { const path = n.path || []; for (let i = 0; i < path.length; i++) { const A = path[i], B = path[(i + 1) % path.length]; const d = Math.hypot(B.x - A.x, B.z - A.z), k = Math.max(1, Math.ceil(d / 2)); for (let j = 0; j <= k; j++) pts.push([A.x + (B.x - A.x) * j / k, A.z + (B.z - A.z) * j / k]); } } pts.push([this.opts.spawn.x, this.opts.spawn.z]);
-    const rc = new THREE.Raycaster(), o3 = new THREE.Vector3(), d3 = new THREE.Vector3(); let i = 0, added = 0; const t0 = this.t;
+    const rc = new THREE.Raycaster(), o3 = new THREE.Vector3(), d3 = new THREE.Vector3(); rc.camera = this.camera; /* sprites inside a group refuse a raycast without a camera (a console error per sprite) */ let i = 0, added = 0; const t0 = this.t;
     const step = () => { if (this.t - t0 < 2.5) return; let n = 0; while (i < list.length && n++ < 6) { const [o, px, py, pz, ry] = list[i++]; try {
           if (!o.parent || Math.abs(o.position.x - px) + Math.abs(o.position.y - py) + Math.abs(o.position.z - pz) + Math.abs(o.rotation.y - ry) > 1e-4) continue; // it moves
           let solid = 0, meshes = 0; o.traverse(m => { if (!m.isMesh || m.isInstancedMesh || m.isSkinnedMesh) return; meshes++; const mt = m.material; if (mt && !Array.isArray(mt) && !(mt.transparent && mt.opacity < 0.5) && mt.visible !== false && !/Plane|Circle|Ring|Shape/.test(m.geometry.type)) solid++; }); if (solid < 1) continue;
@@ -1069,7 +1087,7 @@ export class WVM {
     try { sessionStorage.setItem('wvm_from', this.opts.page); } catch (e) { }
     /* from inside a headset: end the XR session cleanly first (the browser tearing it down mid-navigation is the glitch), carry ?vr=1 so the next page shows the one-tap door right away */
     if (this.renderer && this.renderer.xr && this.renderer.xr.isPresenting) {
-      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); if (u.origin !== location.origin && !u.searchParams.has('from')) u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
+      try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); if (u.origin !== location.origin && !u.searchParams.has('from')) u.searchParams.set('from', 'mall'); /* the in-headset diagnostics follow you through the door */ if (/[?&]vrdebug=1/.test(location.search) && !u.searchParams.has('vrdebug')) u.searchParams.set('vrdebug', '1'); url = u.href; } } catch (e) { }
       try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { }
       const s = this.renderer.xr.getSession(); let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
       if (s) { try { s.addEventListener('end', nav); s.end(); } catch (e) { nav(); } setTimeout(nav, 1200); } else nav();
@@ -1190,7 +1208,7 @@ export class WVM {
     }).catch(err => { console.error(err); clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Build error: <code style="font-size:12px;color:#c00">' + esc(err && err.message ? err.message : String(err)) + '</code><br><small>' + esc((err && err.stack ? err.stack.split('\n')[1] : '') || '') + '</small><br>Screenshot this and send it to Zach.'; });
     addEventListener('error', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Script error: <code style="font-size:12px;color:#c00">' + esc(ev.message || '') + '</code><br><small>' + esc((ev.filename || '').split('/').pop() + ':' + ev.lineno) + '</small>'; } });
     addEventListener('unhandledrejection', (ev) => { if (!this.loader.classList.contains('off')) { clearInterval(tick); this.loadMsg.innerHTML = '⚠️ Load error: <code style="font-size:12px;color:#c00">' + esc(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)) + '</code>'; } });
-    this.renderer.setAnimationLoop(() => { try { this._frame(); } catch (e) { this._ferr = (this._ferr || 0) + 1; if (this._ferr <= 3) { console.error('frame', e); try { const L = JSON.parse(localStorage.getItem('frame_errors') || '[]'); L.push({ t: Date.now(), xr: !!(this.renderer.xr && this.renderer.xr.isPresenting), m: String(e && e.message), s: String(e && e.stack).slice(0, 300) }); localStorage.setItem('frame_errors', JSON.stringify(L.slice(-10))); } catch (err) { } } } });
+    this.renderer.setAnimationLoop(() => { try { this._frame(); } catch (e) { this._ferr = (this._ferr || 0) + 1; try { if (this._xr && this._xr.onError) this._xr.onError(e); } catch (x) { } if (this._ferr <= 3) { console.error('frame', e); try { const L = JSON.parse(localStorage.getItem('frame_errors') || '[]'); L.push({ t: Date.now(), xr: !!(this.renderer.xr && this.renderer.xr.isPresenting), m: String(e && e.message), s: String(e && e.stack).slice(0, 300) }); localStorage.setItem('frame_errors', JSON.stringify(L.slice(-10))); } catch (err) { } } } });
   }
 
   async _warm() {
@@ -1394,6 +1412,22 @@ export class WVM {
   /* measure every top-level object once, up front, so culling and air-LOD work from the very first frame */
   _cullPrep() { const box = new THREE.Box3(), sph = new THREE.Sphere(); for (const o of this.scene.children) { if (o.isLight || o.isCamera || o === this.player || o === this.rig || o.userData.noCull || o.userData._cs) continue; try { box.setFromObject(o); if (box.isEmpty()) continue; box.getBoundingSphere(sph); o.userData._cs = { r: sph.radius, ox: sph.center.x - o.position.x, oz: sph.center.z - o.position.z }; } catch (e) { } } if (this._q) this._q.listT = -99; }
   _uncullAll() { const Q = this._q; if (Q && Q.list) for (const o of Q.list) if (o.userData._culled) { o.visible = true; o.userData._culled = false; } }
+  /* ===== frozen matrices (Oct 19 2026): the mall interior holds ~15,000 leaf meshes and three recomposed every local matrix every frame (~19 ms on a laptop,
+     a multiple of that on a Quest). freezeStatic() takes a snapshot of every object's transform (meshes AND groups: a live parent forces every child's world matrix,
+     so only a frozen branch saves the multiply); a second call 1.5 s later freezes the ones that did not move (matrixAutoUpdate = false, matrix kept). Nothing is ever stuck: _fzSweep() compares ~1,500 frozen transforms per frame against the snapshot and
+     unfreezes anything that changed (a door that opens, an elevator car, a sign that starts to spin) within a few frames. Moving things, skinned and
+     instanced meshes, the player, the rig, the avatar and anything flagged userData.noFreeze are never touched. Call it again any time (lazy zones). ===== */
+  freezeStatic() {
+    const skip = new Set([this.player, this.rig, this.avatar, this.camera].filter(Boolean)); const under = (o) => { let q = o; while (q) { if (skip.has(q) || (q.userData && q.userData.noFreeze)) return true; q = q.parent; } return false; };
+    const now = this.t; const F = this._fz || (this._fz = { list: [], i: 0, pending: new Map(), frozen: 0, unfroze: 0 });
+    const key = (o) => { const p = o.position, q = o.quaternion, s = o.scale; return [p.x, p.y, p.z, q.x, q.y, q.z, q.w, s.x, s.y, s.z]; };
+    const same = (a, b) => { for (let i = 0; i < 10; i++) if (a[i] !== b[i]) return false; return true; };
+    let took = 0, armed = 0;
+    this.scene.traverse(o => { /* groups too: a live parent forces every child's world matrix anyway, so only a frozen branch saves the multiply */ if (o === this.scene || o.isCamera || o.isLight || o.isSprite || o.isSkinnedMesh || o.isInstancedMesh || !o.matrixAutoUpdate || o.userData._fzKey || under(o)) return; const was = F.pending.get(o); const k = key(o); if (was && now - was.t >= 1.5) { if (same(was.k, k)) { o.updateMatrix(); o.matrixAutoUpdate = false; o.userData._fzKey = k; F.list.push(o); took++; } F.pending.delete(o); } else if (!was) { F.pending.set(o, { k, t: now }); armed++; } });
+    F.frozen = F.list.length; if (F.pending.size && !this._fzTimer) { this._fzTimer = setTimeout(() => { this._fzTimer = null; try { this.freezeStatic(); } catch (e) { } }, 1700); }
+    return { frozen: took, armed, total: F.list.length };
+  }
+  _fzSweep() { const F = this._fz; if (!F || !F.list.length) return; const L = F.list; const n = Math.min(L.length, 1500); for (let c = 0; c < n; c++) { if (F.i >= L.length) F.i = 0; const o = L[F.i]; const k = o.userData._fzKey; const p = o.position, q = o.quaternion, s = o.scale; if (!o.parent || !k || p.x !== k[0] || p.y !== k[1] || p.z !== k[2] || q.x !== k[3] || q.y !== k[4] || q.z !== k[5] || q.w !== k[6] || s.x !== k[7] || s.y !== k[8] || s.z !== k[9]) { o.matrixAutoUpdate = true; o.userData._fzKey = null; if (o.parent) { o.updateMatrix(); F.unfroze++; } L[F.i] = L[L.length - 1]; L.pop(); continue; } F.i++; } F.frozen = L.length; }
 
   /* ----- frame ----- */
   _frame() {
@@ -1405,9 +1439,10 @@ export class WVM {
     this._updateCamera(dt);
     this._updateNPCs(dt);
     this._updateZones(); this._updateInteractables(); this._updateBalls(dt); if (this.boosts.length && (this.level || 0) < 3) this._updateBoosts(dt);
-    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro || !!this._air; const high = wide && (this._air || this.rig.position.y - P.y > 80); for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? 1 : 0); } }
+    if (this.t - (this._cullT || 0) > 0.3) { this._cullT = this.t; const far = this.opts.spriteFar || 90, P = this.player.position, v = this._cv || (this._cv = new THREE.Vector3()); const wide = this.dist > 30 || !!this._intro || !!this._air; const high = wide && (this._air || this.rig.position.y - P.y > 80); for (const sp of SPRITES) { if (!sp.parent) continue; v.setFromMatrixPosition(sp.matrixWorld); const f = sp.userData.far || far; const dx = v.x - P.x, dz = v.z - P.z; sp.layers.set((high && f < 1e8) || (!wide && dx * dx + dz * dz > f * f) ? HIDE_LAYER : 0); } }
     if (this.triggers && !this.paused && !this.ride && !this._air && (this.level || 0) < 3) { const p = (this.renderer.xr.isPresenting && this._xrFeet) || this.player.position; for (const tr of this.triggers) { const dx = p.x - tr.x, dz = p.z - tr.z; const inside = dx * dx + dz * dz < tr.r * tr.r; if (inside && !tr.fired) { tr.fired = true; tr.fn(this); } else if (!inside) tr.fired = false; } }
     for (const u of this.updaters) u(dt, this.t);
+    if (this._fz) this._fzSweep();
     this._perf(dt);
     if (this.composer && !this._noBloom && !this._intro && !this.renderer.xr.isPresenting) this.composer.render(); else this.renderer.render(this.scene, this.camera);
   }
@@ -1417,7 +1452,7 @@ export class WVM {
     this._rideFit();
     if (this.ride) { p.position.copy(this.ride.pos(this.t)); if (this.ride.yaw !== undefined) this.avatar.rotation.y = this.ride.yaw; animatePerson(this.avatar, this.t, 0); if (this.ride.until !== undefined && this.t > this.ride.until) { const r = this.ride; this.ride = null; if (r.done) r.done(this); } return; }
     if (this.locked) { animatePerson(this.avatar, this.t, this.walkTarget ? 1 : 0); }
-    const mv = new THREE.Vector2(0, 0);
+    const mv = (this._mv || (this._mv = new THREE.Vector2())).set(0, 0); /* reused: this ran up to three times a frame and allocated every time */
     if (this.keys.KeyW || this.keys.ArrowUp) mv.y += 1;
     if (this.keys.KeyS || this.keys.ArrowDown) mv.y -= 1;
     if (this.keys.KeyA || this.keys.ArrowLeft) mv.x -= 1;
@@ -1460,7 +1495,7 @@ export class WVM {
   }
 
   _updateCamera(dt) {
-    if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0); this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
+    if (this.renderer.xr.isPresenting) { const X = this._xr || {}; const P = this.player.position; this.rig.position.copy(P); if (X.off) { const y = this.yaw, c = Math.cos(y), sn = Math.sin(y); this.rig.position.x += X.off.x * c + X.off.z * sn; this.rig.position.z += -X.off.x * sn + X.off.z * c; this.rig.position.y += X.off.y; } this.rig.position.y += (X.floor || 0) + (X.introY || 0); /* introY: the arrival's descent (the VR layer sets it) */ this.rig.rotation.y = this.yaw; const k = X.scale || 1; if (Math.abs(this.rig.scale.x - k) > 1e-4) { this.rig.scale.setScalar(k); this.camera.near = Math.max(0.01, 0.1 * k); this.camera.updateProjectionMatrix(); } return; }
     this.dist = lerp(this.dist, this.targetDist, 1 - Math.pow(0.85, Math.max(dt, 0.001) * 60));
     const first = this.dist < 0.6 * (this.shrink || 1);
     this.avatar.visible = !first && !this._intro && !this._introPending && !(((this.ride && !this.ride.stand) || this.vehicle) && this.dist < 1.8);
@@ -1491,7 +1526,7 @@ export class WVM {
   setFar(on) { const f = (on || this._air) ? (this.opts.camFar || 2400) : 2400; if (this.camera.far !== f) { this.camera.far = f; this.camera.updateProjectionMatrix(); } }
   _occlusion(eye, dir, dist) {
     if (this.t - (this._occT || 0) > 0.25) { this._occT = this.t; let lim = Infinity;
-      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.set(eye, dir); rc.far = dist; rc.layers.set(0); const P0 = this.player.position; if (!this._occList || this.t - (this._occListT || -9) > 12 || Math.hypot(P0.x - (this._occX || 0), P0.z - (this._occZ || 0)) > 14 || (this.level || 0) !== this._occLv) { this._occListT = this.t; this._occX = P0.x; this._occZ = P0.z; this._occLv = this.level || 0; const L = []; const P = this.player.position; const v = new THREE.Vector3(); const near = []; for (const top of this.scene.children) { const c = top.userData._cs; if (top === this.player || top === this.rig || top.isLight || top.visible === false) continue; if (c && c.r < 400) { const ddx = top.position.x + c.ox - P.x, ddz = top.position.z + c.oz - P.z; if (ddx * ddx + ddz * ddz > (c.r + 50) * (c.r + 50)) continue; } near.push(top); } for (const top of near) top.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
+      if (dist > 1.6 && dist < 30 && !this.ride) { const rc = this._rc || (this._rc = new THREE.Raycaster()); rc.camera = this.camera; rc.set(eye, dir); rc.far = dist; rc.layers.set(0); const P0 = this.player.position; if (!this._occList || this.t - (this._occListT || -9) > 12 || Math.hypot(P0.x - (this._occX || 0), P0.z - (this._occZ || 0)) > 14 || (this.level || 0) !== this._occLv) { this._occListT = this.t; this._occX = P0.x; this._occZ = P0.z; this._occLv = this.level || 0; const L = []; const P = this.player.position; const v = new THREE.Vector3(); const near = []; for (const top of this.scene.children) { const c = top.userData._cs; if (top === this.player || top === this.rig || top.isLight || top.visible === false) continue; if (c && c.r < 400) { const ddx = top.position.x + c.ox - P.x, ddz = top.position.z + c.oz - P.z; if (ddx * ddx + ddz * ddz > (c.r + 50) * (c.r + 50)) continue; } near.push(top); } for (const top of near) top.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isSprite || L.length > 400) return; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) return; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || bs.radius < 1.5) return; v.setFromMatrixPosition(o.matrixWorld); const reach = bs.radius * Math.max(o.scale.x, o.scale.y, o.scale.z) + 45; if ((v.x - P.x) ** 2 + (v.z - P.z) ** 2 > reach * reach) return; L.push(o); }); this._occList = L; }
         let hits = []; try { hits = rc.intersectObjects(this._occList, false); } catch (e) { }
         for (const h of hits) { const o = h.object; if (!o.isMesh || o.isSprite || h.distance < 0.8) continue; const m = o.material; if (!m || Array.isArray(m) || m.transparent || m.visible === false || o.userData.noOcclude) continue; let pa = o, skip = false; const veh = this.vehicle && this.vehicle.m; while (pa) { if (pa === this.player || pa === veh || !pa.visible) { skip = true; break; } pa = pa.parent; } if (skip) continue; lim = h.distance - 0.5; break; } }
       this._occLim = lim; }
