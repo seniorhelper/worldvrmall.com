@@ -24,12 +24,6 @@ export function logoTexture(logo, opts = {}) {
     g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = '900 118px "Arial Black", Poppins, "Segoe UI", Arial, sans-serif'; const rw = g.measureText('ROOF ').width; const tw = rw + g.measureText('SOLUTIONS').width; const k = Math.min(1, (w - 330) / tw); g.save(); g.translate(300, 112); g.scale(k, 1); g.fillStyle = '#4a4d52'; g.fillText('ROOF ', 0, 0); g.fillStyle = '#c8102e'; g.fillText('SOLUTIONS', rw, 0); g.restore();
     g.fillStyle = '#4a4d52'; g.fillRect(300, 182, w - 340, 6); g.font = 'bold 40px Poppins, "Segoe UI", Arial, sans-serif'; g.fillStyle = '#5c6066'; const sl = 'INDUSTRIAL     COMMERCIAL     RESIDENTIAL'; fitText(g, sl, 300, 226, w - 340, 40); g.fillStyle = '#c8102e'; g.font = 'bold 40px Poppins, "Segoe UI", Arial, sans-serif'; fitText(g, 'ATLANTA, GEORGIA', 300, 280, w - 340, 40);
     const t = canvasTex(c); t.anisotropy = isMobile() ? 1 : 4; return t; }
-  if (logo.draw === 'rewind') { // Rewind Med Spa: gold script wordmark with a long swash, spaced small caps underneath
-    g.fillStyle = '#e2e2e0'; g.fillRect(0, 0, w, h); g.textBaseline = 'middle'; g.textAlign = 'center'; g.fillStyle = '#e0b400'; g.strokeStyle = '#e0b400';
-    g.font = 'italic 210px "Snell Roundhand", "Segoe Script", "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive'; g.fillText('Rewind', w / 2, 128);
-    g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(w / 2 - 330, 205); g.bezierCurveTo(w / 2 - 120, 250, w / 2 + 160, 170, w / 2 + 350, 60); g.stroke();
-    g.font = 'bold 58px Poppins, "Segoe UI", Arial, sans-serif'; try { g.letterSpacing = '18px'; } catch (e) { } g.fillText('MED SPA', w / 2, 268); try { g.letterSpacing = '0px'; } catch (e) { }
-    const t = canvasTex(c); t.anisotropy = isMobile() ? 1 : 4; return t; }
   g.fillStyle = logo.bg || '#0b1a3a'; g.fillRect(0, 0, w, h);
   g.strokeStyle = logo.accent || '#fff'; g.lineWidth = 10; g.strokeRect(8, 8, w - 16, h - 16);
   g.textBaseline = 'middle'; g.textAlign = 'left';

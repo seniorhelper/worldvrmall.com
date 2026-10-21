@@ -3081,32 +3081,6 @@
       "about": "Full-service conversion rate optimization agency. Fixes what happens after the click."
     },
     {
-      "slug": "elevation-health-booth",
-      "name": "Elevation Health",
-      "tag": "GLP-1 Weight Loss · Denver",
-      "url": "https://loseweightonglp1.com",
-      "lead": false,
-      "logo": {
-        "icon": "⛰️",
-        "text": "ELEVATION",
-        "sub": "HEALTH",
-        "bg": "#0f766e",
-        "fg": "#ffffff",
-        "accent": "#a7f3d0"
-      },
-      "colors": {
-        "trim": "#2dd4bf"
-      },
-      "rep": {
-        "name": "Elle",
-        "lines": [
-          "Got your GLP-1? Elevation Health helps Denver lose weight with medically guided GLP-1 programs.",
-          "Ask me anything. No judgment, no pressure."
-        ]
-      },
-      "about": "Medically guided GLP-1 weight-loss programs in Denver, Colorado."
-    },
-    {
       "slug": "raised-in-a-barn-booth",
       "name": "Raised In A Barn Furniture",
       "tag": "Reclaimed Barnwood Furniture · Colorado",

@@ -140,14 +140,11 @@ function buildAtrium() {
   const words = ['You belong here 💙', 'Shop small. Shop the world.', 'Whatever you\'re looking for, you\'ll know it when you see it', 'Breathe. You\'re in a mall with a roller coaster.', 'Kindness ships free, everywhere'];
   words.forEach((w, i) => { const s = makeSprite(w, { scale: 14, bg: 'rgba(8,20,50,0.85)', accent: i % 2 ? '#ffd23f' : '#7cf8ff' }); const a = i / words.length * Math.PI * 2; S.add(s); app.onUpdate((dt, t) => { const an = a + t * 0.05; s.position.set(Math.cos(an) * 20, 10 + (i % 2) * 2.5 + Math.sin(t + i) * 0.4, Math.sin(an) * 20); }); });
   // booths (kiosks in the middle of the mall)
-  (DATA.booths || []).forEach((b, i) => { const a = Math.PI / 2 + (i - 1) * 0.75; buildBooth(b, Math.cos(a) * 24, Math.sin(a) * 24 + 4, -a + Math.PI / 2); });
+  { const bs = DATA.booths || [], step = bs.length > 1 ? 1.5 / (bs.length - 1) : 0; bs.forEach((b, i) => { const a = Math.PI / 2 + (i - (bs.length - 1) / 2) * step; buildBooth(b, Math.cos(a) * 24, Math.sin(a) * 24 + 4, -a + Math.PI / 2); }); }
   // World Pole: every country, slowly turning
   buildWorldPole(22, -30); buildTeleporter(-22, -30);
   // glass elevator to the clouds
   buildElevator(40, -40);
-  // "Got your GLP-1?" sign near the Elevation booth
-  const glp = makeSign(['GOT YOUR GLP-1? 🏔️', 'Elevation Health · Denver'], { width: 8, height: 3.2, postHeight: 6, bg: '#0f766e', accent: '#a7f3d0', border: '#a7f3d0', posts: false, small: 'loseweightonglp1.com' }); glp.position.set(-8, 0, -14); glp.rotation.y = 0.4; S.add(glp);
-  app.addHotspot(glp, { title: 'Elevation Health', html: '<p>Medically guided GLP-1 weight-loss programs in Denver. Ask Elle at the booth, or visit the site.</p>', actions: [{ label: 'loseweightonglp1.com', href: 'https://loseweightonglp1.com', newTab: true, primary: true }] });
 }
 
 function buildBooth(b, x, z, rot) {
@@ -1308,16 +1305,20 @@ function plantTrees(spots, y = 0) {
     get.then(src => { const m = src.clone(); m.position.set(x, y, z); m.scale.setScalar(1.6); m.rotation.y = rand(0, 6.28); S.add(m); const pot = new T.Mesh(new T.CylinderGeometry(1.6, 1.3, 1.0, 16), M(0xdfe6f5, { roughness: 0.4 })); pot.position.set(x, y + 0.5, z); S.add(pot); app.addObstacle(x, z, 1.7); }).catch(() => { }); });
 }
 
-/* ----- Main Street: Dr. Rex, Roof Solutions, Rewind, and the Directory Hall of local guides from Colorado to the islands ----- */
+/* ----- Main Street: Dr. Rex, Roof Solutions, Bath Pillow World, an open storefront, and the Directory Hall of local guides from Colorado to the islands ----- */
 const MAINST = { x: -700, z: -700 };
 let MAIN_STORES = [];
 let DIRECTORY = [];
 function buildMainStreet() {
   const { x: cx, z: cz } = MAINST; ROOM(cx, cz, 340, 200, 0xffffff, 0xe9eef7, { floorTex: (() => { const t = floorTex('marble'); t.repeat.set(34, 20); return t; })(), h: 22, ceilGlow: 0xdff4ff });
   for (const s of MAIN_STORES) { DATA.stores = DATA.stores || []; if (!DATA.stores.find(x => x.slug === s.slug)) DATA.stores.push(s); }
-  if (MAIN_STORES.length < 3) return; const [roof, rex, rewind] = MAIN_STORES;
   const place = (s, x, z, rot, ph) => { const g = buildStore(app, s, { x, z, rot, storePage: false, placeholder: !!ph }); S.add(g); STORE_POS[s.slug] = { x, z: z + (rot === 0 ? 3 : -3), name: s.name, cx: x, cz: z }; };
-  place(roof, cx - 110, cz - 30, 0); place(rex, cx - 60, cz - 30, 0); place(rewind, cx - 130, cz + 30, Math.PI); if (MAIN_STORES[3]) place(MAIN_STORES[3], cx - 80, cz + 30, Math.PI);
+  /* fixed storefront slots; a store can name its slot ("slot": n in mall-extras), otherwise stores fill the free slots in order. Empty slots get a "space available" storefront, so a store leaving never leaves a hole */
+  const SLOTS = [[cx - 110, cz - 30, 0], [cx - 60, cz - 30, 0], [cx - 130, cz + 30, Math.PI], [cx - 80, cz + 30, Math.PI]]; const taken = [];
+  const queue = MAIN_STORES.filter(s => s && s.slug);
+  for (const s of queue) if (Number.isInteger(s.slot) && SLOTS[s.slot] && !taken[s.slot]) taken[s.slot] = s;
+  for (const s of queue) if (!taken.includes(s)) { const k = SLOTS.findIndex((_, n) => !taken[n]); if (k < 0) break; taken[k] = s; }
+  SLOTS.forEach(([x, z, rot], n) => { if (taken[n]) return place(taken[n], x, z, rot); S.add(buildStore(app, { slug: 'mainst-open-' + n, name: 'Main Street storefront', tag: 'Main Street', city: 'your town', wing: 'mainstreet', colors: { wall: '#eef2f8', floor: '#f6f4ee', trim: '#38f0ff' }, logo: { icon: '🏬', text: 'YOUR STORE', sub: 'HERE', bg: '#0b1a3a', fg: '#fff', accent: '#38f0ff' } }, { x, z, rot, storePage: false, placeholder: true })); });
   const cols = ['#38f0ff', '#ff4f79', '#38b6ff', '#7cff6b', '#ffd23f', '#b08cff']; const icons = ['🏔️', '🌺', '🐠', '🦥', '🌴', '🌽'];
   DIRECTORY.forEach(([region, sites], ri) => {
     const col = cols[ri % 6]; const rx = cx - 20 + Math.floor(ri / 2) * 62, rz = cz + (ri % 2 ? 40 : -40); const dir = rz > cz ? 1 : -1;
@@ -1609,7 +1610,7 @@ function registerMallPlaces(a) {
   P('gallery', GALLERY_NAME + ' · art', '🎨', GAL.x, GAL.z, 'art gallery paintings painting artist abstract museum zach wennstedt prints', Object.assign({ top: true, tile: [170, 90, 'rgba(176,140,255,0.35)'], say: 'Welcome to ' + GALLERY_NAME + '. Tap any painting. 🎨' }, far));
   P('lab', 'Discovery Lab · live science', '🧪', LAB.x - 60, LAB.z, 'science lab experiments phet physics learn education weather globe windy music song nasa kids school', Object.assign({ top: true, tile: [96, 100, 'rgba(56,240,255,0.3)'] }, far)); P('arcade', 'The Arcade', '🕹️', LAB.x + 40, LAB.z, 'arcade games play video game snake breakout tic tac toe memory fun', Object.assign({ top: true, tile: [96, 100, 'rgba(255,79,121,0.3)'] }, far));
   P('row', 'Restaurant Row · sit & order', '🍽️', ROW.x, ROW.z, 'restaurant restaurants row dinner lunch eat food sit order belize tacos ice cream smoothies ceviche', Object.assign({ top: true, say: 'Restaurant Row! Walk up to a table and tap Sit & order. 🍽️' }, tl(270, 84, 'rgba(255,138,61,0.35)')));
-  P('village', 'World Village · international stores', '🌍', VILLAGE.x + 8, VILLAGE.z, 'international world village belize costa rica hawaii dominican colorado souvenirs mayan art fishing snorkeling surf', Object.assign({ top: true }, tl(340, 200, 'rgba(255,210,63,0.3)'))); P('mainst', 'Main Street & Directory', '🏙️', MAINST.x, MAINST.z, 'main street directory guides colorado hawaii nebraska roof orthodontist rewind', tl(340, 200, 'rgba(56,240,255,0.3)'));
+  P('village', 'World Village · international stores', '🌍', VILLAGE.x + 8, VILLAGE.z, 'international world village belize costa rica hawaii dominican colorado souvenirs mayan art fishing snorkeling surf', Object.assign({ top: true }, tl(340, 200, 'rgba(255,210,63,0.3)'))); P('mainst', 'Main Street & Directory', '🏙️', MAINST.x, MAINST.z, 'main street directory guides colorado hawaii nebraska roof orthodontist bath pillow', tl(340, 200, 'rgba(56,240,255,0.3)'));
   P('chinatown', 'Chinatown', '🏮', 700, 0, 'chinatown china lanterns', tl(220, 160, 'rgba(255,79,43,0.3)')); P('alien', 'Alien Quarter', '👽', -700, 0, 'alien quarter ufo space weird', tl(220, 160, 'rgba(124,255,107,0.3)')); P('future', 'Future Wing', '🤖', 0, 714, 'future wing robots tech', tl(160, 200, 'rgba(56,240,255,0.3)'));
   const up = (id, name, icon, x, z, keys, top) => a.addPlace({ id, name, icon, keys, cat: 'Upper Level', top, pin: false, fn: (ap) => { ap.fade.classList.add('on'); ap.fade.textContent = '✨ ' + name; setTimeout(() => { ensureUpper(); LEVEL.cur = 1; ap.level = 1; const [tx, tz] = ap._snap(x, z); ap.player.position.set(tx, UPPER.y, tz); setTimeout(() => { ap.fade.classList.remove('on'); ap._arrived({ name, icon }); }, 300); }, 380); } });
   up('cinema', 'Cinema · movies', '🎬', -10, -26, 'movie movies theater theatre film cinema popcorn bloopers', true); up('nasa', 'NASA Mission Control', '🛰️', -27, -42, 'nasa space mission control solar system planets'); up('gameroom', 'Game Room (upstairs)', '🎮', 95, -30, 'game room games upstairs'); up('sunroof', 'Upper Level sunroof', '☀️', 70, -10, 'sunroof roof sky open upstairs upper level piano');
