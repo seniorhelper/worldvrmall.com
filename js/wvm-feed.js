@@ -12,7 +12,7 @@ import { CONFIG } from '/js/wvm-config.js?v=59';
 const I = (k) => HICON[k] || '';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = (s) => document.querySelector(s);
-setMode('flat');
+/* opening the feed is not a choice of flat mode (it used to save "flat" here, which later sent / and /mall/ to the feed); the rail's Feed tab and ?mode=flat save it */
 mountRail({ page: 'feed', into: $('#railslot') });
 backChip();
 $('#userchip').innerHTML = userChipHTML();

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* flat mode never loads the engine: /?mode=flat (or a saved flat preference) is the Mall feed */(function(){try{var q=location.search,m=/[?&]mode=([^&]+)/.exec(q),s=localStorage.getItem('wvm_mode');if((m&&m[1]==='flat')||(!m&&s==='flat'&&!/[?&](vr|to|ride|store)=/.test(q)&&location.hash!=='#mall'))location.replace('/feed/');}catch(e){}})()</script>
+<script>/* flat mode never loads the engine: /?mode=flat (or a flat choice made earlier in this tab, sessionStorage; never a stale localStorage flag) is the Mall feed */(function(){try{try{localStorage.removeItem('wvm_mode')}catch(e){}var q=location.search,m=/[?&]mode=([^&]+)/.exec(q),s=sessionStorage.getItem('wvm_mode');if(m&&m[1]==='flat')sessionStorage.setItem('wvm_mode','flat');if((m&&m[1]==='flat')||(!m&&s==='flat'&&!/[?&](vr|xrsim|to|ride|store)=/.test(q)&&location.hash!=='#mall'))location.replace('/feed/');}catch(e){}})()</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Inside World VR Mall | Wings, Food Court & Kids' Zone</title>
 <meta name="description" content="Walk a 3D virtual mall in your browser or VR headset: 80+ storefronts across the Americas, Europe, Asia and the islands, plus a food court and kids' zone.">

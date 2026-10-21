@@ -86,13 +86,25 @@ export function bootShell(cfg) {
   const qm = q.get('mode');
   if (vr) { try { for (const h of XR_PRELOADS) { const l = document.createElement('link'); l.rel = 'modulepreload'; l.href = h; document.head.appendChild(l); } } catch (e) { } }
   if (qm === '3d') setMode('3d'); else if (qm === 'flat') setMode('flat');
+  /* FLAT, 3D OR VR (Oct 21 2026), decided once per page load, in this order:
+       1. ?mode=flat                         -> flat (and remembered for this tab only)
+       2. no WebGL on this device            -> flat, nothing remembered (a capability, not a choice)
+       3. ?vr=1 / ?xrsim=1 / ?mode=3d / a deep link (?to= ?ride= ?store= #mall #leasing) -> 3D
+       4. a store page                       -> flat unless 3 applies (from a 3D page, app.go carries ?mode=3d, so you stay in 3D)
+       5. a flat choice made earlier in THIS tab (rail Feed tab, ?mode=flat) -> flat, else 3D (the default)
+     Immersive VR never starts by itself: ?vr=1 shows the one-tap door, and a page change from inside the headset carries ?vr=1 plus a
+     one-shot hop flag (sessionStorage) so the door says "Tap once · back into VR"; the tap is the user gesture the browser requires.
+     Nothing else is remembered: no localStorage mode flag (it went stale), the hop flag is dropped on any page without ?vr=1, and
+     ?vr=1 is taken out of the address bar once you leave VR yourself, so a reload or Back does not ask for the headset again. */
   const deep = /[?&](to|ride|store)=/.test(location.search) || location.hash === '#mall' || location.hash === '#leasing';
+  const hasGL = () => { try { const c = document.createElement('canvas'); const g = c.getContext('webgl2') || c.getContext('webgl'); if (!g) return false; try { const x = g.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) { } return true; } catch (e) { return false; } };
+  if (!vr) { try { sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { } }
   let want3d;
   if (qm === 'flat') want3d = false;
+  else if (!hasGL()) want3d = false;
   else if (vr || qm === '3d' || deep) want3d = true;
   else if (page === 'store') want3d = false;
   else want3d = savedMode() !== 'flat';
-  if (!want3d && page !== 'store') setMode('flat');
 
   const rail = mountRail({ page: page === 'store' ? 'store' : page, vr: () => enterVR() });
   backChip();
@@ -161,6 +173,10 @@ export function bootShell(cfg) {
     document.addEventListener('click', (e) => { const v = e.target.closest('#wvm-vr'); if (v && app.renderer && !app.renderer.xr.isPresenting) app.vrBody(); }, true);
     /* the VR layer: arrival, laser, menu, body, ?xrsim=1 simulator */
     if (q.get('vr') !== 'basic') bootXR(app);
+    /* stay in the mode you are in: from a desktop / phone 3D page a store page opens in 3D too (VR hops already carry ?vr=1) */
+    try { const g0 = app.go.bind(app); app.go = (url, label) => { try { const pres = app.renderer && app.renderer.xr && app.renderer.xr.isPresenting; const u = new URL(url, location.href); if (!pres && u.origin === location.origin && /^\/stores\/[^/]+\/?$/.test(u.pathname) && !u.searchParams.has('mode') && !u.searchParams.has('vr')) { u.searchParams.set('mode', '3d'); url = u.pathname + u.search + u.hash; } } catch (e) { } return g0(url, label); }; } catch (e) { }
+    /* leaving VR yourself: take ?vr=1 out of the address bar (a reload or Back then opens the 3D page, not the headset door); a page change from VR navigates away first */
+    try { let leaving = false; addEventListener('beforeunload', () => { leaving = true; }); app.renderer.xr.addEventListener('sessionend', () => { setTimeout(() => { try { /* never while a page change is under way (a history edit could cancel it): app.go from VR sets the hop flag, every navigation fires beforeunload */ let hop = null; try { hop = sessionStorage.getItem('wvm_vr_hop'); } catch (e) { } if (leaving || hop) return; const u = new URL(location.href); if (u.searchParams.get('vr') === '1') { u.searchParams.delete('vr'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } } catch (e) { } }, 900); }); } catch (e) { }
     /* the ?vr=1 door */
     if (vr && !xrsim) vrDoor(app);
     /* flat <main> below the stage keeps its scroll hint */

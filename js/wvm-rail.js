@@ -38,8 +38,11 @@ export function go(url, label) {
   if (app && app.go && app.renderer) { app.go(url, label || 'On the way…'); return; }
   location.href = url;
 }
-export function savedMode() { try { return localStorage.getItem('wvm_mode') || ''; } catch (e) { return ''; } }
-export function setMode(m) { try { localStorage.setItem('wvm_mode', m); } catch (e) { } }
+/* the flat / 3D choice lives for this tab's visit only (sessionStorage) and only an explicit choice writes it (?mode=, the rail's Feed / 3D / VR,
+   "Walk in · 3D"). It used to sit in localStorage forever and the Mall feed wrote "flat" on every visit, so one look at the feed sent every
+   later visit to / or /mall/ to the flat feed for no visible reason. The old localStorage value is cleared whenever it is read. */
+export function savedMode() { try { localStorage.removeItem('wvm_mode'); } catch (e) { } try { return sessionStorage.getItem('wvm_mode') || ''; } catch (e) { return ''; } }
+export function setMode(m) { try { localStorage.removeItem('wvm_mode'); } catch (e) { } try { sessionStorage.setItem('wvm_mode', m); } catch (e) { } }
 export const isPhone = () => matchMedia('(max-width:820px)').matches;
 
 const I = (k) => HICON[k] || '';
