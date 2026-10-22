@@ -212,7 +212,7 @@ function buildBillboard() {
 /* ---------- the mall exterior (floating glass palace) ---------- */
 let mallGroup;
 function buildMall() {
-  const g = mallGroup = new T.Group(); S.add(g);
+  const g = mallGroup = new T.Group(); S.add(g); app.mallGroup = g; /* the VR seed arrival (wvm-seed.js) grows this group from a seed */
   // base terrace (walkable, y=6)
   const base = new T.Mesh(new T.CylinderGeometry(TERR, TERR + 4, 6, 12), M(0xe9f1ff, { roughness: 0.35, metalness: 0.2 })); base.position.y = 3; base.rotation.y = Math.PI / 12; g.add(base);
   const baseGlow = new T.Mesh(new T.TorusGeometry(TERR, 0.5, 8, 80), glow(NEON, 1.4)); baseGlow.rotation.x = Math.PI / 2; baseGlow.position.y = 6.3; g.add(baseGlow);
