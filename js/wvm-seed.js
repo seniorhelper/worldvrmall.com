@@ -173,7 +173,7 @@ function walkPose(A, ph, amp) {
 /* the arrival. cfg.mall = the mall group (buildMall); without it, or when you are not 60-450 m from the mall, it returns null so the page can fall back */
 export function seedArrival(app, cfg = {}) {
   const G = cfg.mall || app.mallGroup; if (!G) return null;
-  const R = app.renderer, scene = app.scene; const xc0 = R.xr.isPresenting ? R.xr.getCamera() : app.camera; const P0 = new T.Vector3(); xc0.getWorldPosition(P0);
+  const R = app.renderer, scene = app.scene; /* Oct 22: your feet, not the XR camera. At 'sessionstart' the headset camera has no pose yet (it read as the world origin, the distance test failed and the seed never played in a real headset; the desktop simulator positions its camera early, so it passed there) */ const P0 = app.player.position.clone(); P0.y += 1.6;
   const mallC = new T.Vector3(); G.getWorldPosition(mallC); const dist = Math.hypot(mallC.x - P0.x, mallC.z - P0.z); if (dist < 60 || dist > 450) return null;
   const K = prepareSeed(app); const root = K.root; const A = K.al;
   const orig = { p: G.position.clone(), s: G.scale.clone(), vis: G.visible, nf: G.userData.noFreeze, nc: G.userData.noCull };

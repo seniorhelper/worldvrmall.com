@@ -2,13 +2,13 @@
    precached on install (one versioned cache per release), so the next visit opens in seconds and the mall works
    offline once seen. Pages, code and data still check the network first and fall back to the cache.
    Bump V together with ?v= on the code URLs. */
-const V = 'v94';
+const V = 'v95';
 const CODE = V + '-code', MEDIA = V + '-media', VENDOR = V + '-vendor';
 const PRECACHE_CODE = [
   '/', '/mall/', '/feed/', '/directory/',
   '/js/wvm-shell.js?v=59', '/js/wvm-rail.js?v=59', '/js/wvm-icons.js?v=59', '/js/wvm-feed.js?v=59', '/js/wvm-config.js?v=59',
   '/js/wvm-engine.js?v=59', '/js/wvm-bot.js?v=59', '/js/wvm-store.js?v=59', '/js/wvm-outside.js?v=59', '/js/wvm-inside.js?v=59', '/js/wvm-storeworld.js?v=59',
-  '/js/wvm-plus.js?v=59', '/js/wvm-xr.js', '/js/wvm-arrival.js', '/js/wvm-seed.js', '/js/wvm-landings.js', '/js/wvm-go.js', '/js/wvm-lifevr.js', '/js/wvm-orbit3d.js', '/js/wvm-fun2.js', '/js/wvm-fun3.js', '/js/wvm-fun.js', '/js/wvm-sky.js', '/js/wvm-sso.js', '/js/wvm-studio.js', '/js/wvm-lifetools.js', '/js/aou-money.js', '/js/wvm-voice.js',
+  '/js/wvm-plus.js?v=59', '/js/wvm-xr.js', '/js/wvm-arrival.js', '/js/wvm-seed.js', '/js/wvm-landings.js', '/js/wvm-screen.js', '/js/wvm-arcade.js', '/js/wvm-walls.js', '/js/wvm-go.js', '/js/wvm-lifevr.js', '/js/wvm-orbit3d.js', '/js/wvm-fun2.js', '/js/wvm-fun3.js', '/js/wvm-fun.js', '/js/wvm-sky.js', '/js/wvm-sso.js', '/js/wvm-studio.js', '/js/wvm-lifetools.js', '/js/aou-money.js', '/js/wvm-voice.js',
   '/data/stores.json', '/data/new-stores.json', '/data/mall-extras.json', '/data/offers.json',
 ];
 const PRECACHE_VENDOR = [
