@@ -2,7 +2,7 @@
    precached on install (one versioned cache per release), so the next visit opens in seconds and the mall works
    offline once seen. Pages, code and data still check the network first and fall back to the cache.
    Bump V together with ?v= on the code URLs. */
-const V = 'v95';
+const V = 'v96';
 const CODE = V + '-code', MEDIA = V + '-media', VENDOR = V + '-vendor';
 const PRECACHE_CODE = [
   '/', '/mall/', '/feed/', '/directory/',
