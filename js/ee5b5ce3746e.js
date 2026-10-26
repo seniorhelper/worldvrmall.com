@@ -1,0 +1,1 @@
+const a={SUPABASE_URL:"https://izfccjaznlcffvjxawya.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_b6KPHJ3aPWaxl3yVz93sTw_c47NzfOF",TURN:null};export{a as CONFIG};
