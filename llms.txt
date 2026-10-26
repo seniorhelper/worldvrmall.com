@@ -3,9 +3,13 @@
 > World VR Mall (https://worldvrmall.com) is a free 3D virtual shopping mall built in Denver, Colorado and open to the world. Independent stores and brands from every continent have walk-in 3D storefronts; every buy button links to the brand's own checkout. It works in any browser on phones, laptops, and VR headsets (WebXR) with no app to install. Around the mall is a park with three roller coasters, a Sky Wheel, a carousel, a lake with a cruise ship, two duck ponds, an old-world market for makers, a train, an airport, a playground, a roller rink, and a volleyball court. Opened 2026. Operated by Eye To Ad Media (https://eyetoad.com), 1001 Bannock St #660, Denver, CO 80204. Phone 1-800-481-8638.
 
 ## Key facts
-- Free to visit; no accounts, no login, no ads, no chat with strangers. Kid-safe by design.
+- Free to visit with no account: anyone can explore the stores, rides, park and games solo. No ads.
+- Live social (seeing other people live, hugs, messages, voice, video, the gathering room) is only for signed-in adults 18+ with an allofus.one account. Guests, under-18s and anyone not signed in as an adult never see or hear live people.
+- Voice is off by default, push-to-talk and proximity only. Voice and video will need a one-time age check (selfie age estimate, ID if the estimate is close; only the result is kept) once it is switched on.
+- Report, block and mute on everyone; a real person reviews every report. No phone numbers, links, social handles or money asks in anything players see.
+- Under-13s who enter their age get kids safe mode: no account, no camera, no live people, no forms.
 - Purchases happen on each brand's own website; World VR Mall never handles payment or customer data.
-- Visitor selfie avatars and shopping lists are stored only in the visitor's browser.
+- Visitors' selfie avatars and shopping lists are stored only in their own browser. Signed-in adults may share a selfie face, shown to others only after an automated safety check.
 - Brands rent a storefront month to month; setup takes about ten minutes by phone; pricing depends on placement (Grand Lobby premium, wing storefront, food court kiosk, Old World Market booth). Call 1-800-481-8638.
 - Mall layout: Grand Lobby, Americas Wing, Europe Wing, Asia & Islands Wing, Global Food Court, Kids' Discovery Zone, Aquarium Garden, Sky Deck. A roller coaster (the Mall Blaster) runs through the mall interior.
 
@@ -17,6 +21,12 @@
 - [All stores](https://worldvrmall.com/stores/): every store grouped by wing, with open storefronts marked.
 - [Directory](https://worldvrmall.com/directory/): every storefront as a card with products, phone and website; Walk in lands you at the door in 3D.
 - [About](https://worldvrmall.com/about/): why it exists, who built it, how to visit, privacy, press boilerplate.
+- [Press kit](https://worldvrmall.com/press/): boilerplate, fact sheet, real screenshots, a 40-second video, logos, contact.
+- [Virtual shopping mall](https://worldvrmall.com/virtual-shopping-mall/): what the mall is, the real stores open today, how to visit.
+- [VR shopping mall](https://worldvrmall.com/vr-shopping-mall/): visiting in a VR headset browser (WebXR), controls, comfort options.
+- [3D virtual mall](https://worldvrmall.com/3d-virtual-mall/): the mall on phones and laptops, the layout of the wings, the flat fallback pages.
+- [Metaverse mall](https://worldvrmall.com/metaverse-mall/): a metaverse-style mall with no crypto, wallets, land sales or app.
+- [Virtual store for small business](https://worldvrmall.com/virtual-store-for-small-business/): renting a walk-in 3D storefront, founding rates, setup steps.
 
 ## Stores (each has a walk-in 3D store and a product page)
 - [Eye To Ad Media](https://worldvrmall.com/stores/eye-to-ad-media/): SEO · AI Search · Websites · Denver, USA · Denver SEO, AI search optimization (AIO/GEO), and custom-coded websites since 2012. Eye To Ad Media gets businesses found in Google, Maps, and AI answers, and built World VR Mall.
@@ -48,7 +58,7 @@
 - Add-ons: premium lobby placement, logo file install & hosting $25/mo, billboard $100/mo, custom attraction $299/mo, custom features by quote.
 
 ## New in October 2026
-- One login with allofus.one (same account, same private Lifeboard in both worlds), live players with their real avatars and selfie faces, voice chat (teens only with teens, adults only with adults), hugs.
+- One login with allofus.one (same account, same private Lifeboard in both worlds), live players with their real avatars and safety-checked selfie faces, push-to-talk proximity voice and hugs (with consent), for signed-in adults 18+ only.
 - Grand Opening Prize Hunt: over $5,000 in hidden prizes (a $20 Whole Foods Market gift card in a treasure chest 20 ft under the lake, an original Zachary Wennstedt painting at the World Zoo, a $50 gas card in the Lakeside Wilds, a $5,000 sales funnel landing page inside the mall). Rules: https://worldvrmall.com/prize-rules/
 - 360 Showroom: step through a doorway into a real retail panorama with 3D products on glass shelves and an interactive sales tool for brands that want one.
 - 20 ft lake dives with eight kinds of fish and a sea turtle.

@@ -1,0 +1,14 @@
+{
+  "name": "worldvrmall-build",
+  "private": true,
+  "type": "module",
+  "description": "Build step only: the site itself has no npm dependencies. node tools/build.mjs writes the minified site to dist/.",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "serve": "node tools/serve.mjs dist 8480"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "esbuild": "0.28.2"
+  }
+}

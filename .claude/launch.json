@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wvm-dist",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/serve.mjs",
+        "dist",
+        "8480"
+      ],
+      "port": 8480
+    },
+    {
+      "name": "wvm-src",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/serve.mjs",
+        ".",
+        "8481"
+      ],
+      "port": 8481
+    }
+  ]
+}

@@ -1,6 +1,11 @@
 /* World VR Mall house icons (Oct 2026) — outlined, colored, squared. One swap map replaces the generic emoji the UI used to lean on.
-   Content people typed (posts, comments, Hearts answers, composer) is never touched. */
-const P = (d, extra = '') => `<svg class="hic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}${extra}</svg>`;
+   Content people typed (posts, comments, Hearts answers, composer) is never touched.
+   Launch pass (Oct 25 2026): the whole set is drawn sharp (mitered joins, square ends, no rounded rectangles), the glyphs people see
+   most (nav, HUD, panels) are redrawn faceted with one cyan accent stroke (class "ac"), and an emoji with no house icon is dropped
+   from buttons, links, headings and menus instead of showing the system's cartoon glyph. */
+const P = (d, extra = '') => `<svg class="hic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true">${(d + extra).replace(/\s(rx|ry)="[^"]*"/g, '')}</svg>`;
+/* the accent stroke carries its own colour so the same SVG works as an <img> data URI (VR canvas buttons), where page CSS does not reach */
+const A = (d) => `<path class="ac" stroke="#38f0ff" d="${d}"/>`;
 export const HICON = {
   '✕': P('<path d="M6 6l12 12M18 6L6 18"/>'),
   '✨': P('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>'),
@@ -186,14 +191,66 @@ export const HICON = {
   '🧑‍💼': P('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0M10 14h4l-2 3z"/>'),
   '😎': P('<circle cx="12" cy="12" r="9"/><path d="M6 10h5v2a2 2 0 0 1-4 0zM13 10h5v2a2 2 0 0 1-4 0zM9 16c2 1.5 4 1.5 6 0"/>'),
 };
-export const ICON_CSS = `.hic{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;color:currentColor}`;
+/* the faceted set: nav, HUD and panel glyphs, drawn for this mall (chamfered corners, one accent stroke) */
+const SHARP = {
+  '📰': P('<path d="M3 3h14l4 4v14H3z"/><path d="M7 12h10M7 16h10"/>' + A('M7 8h6M17 3v4h4')),
+  '🧊': P('<path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z"/><path d="M12 12v9.5"/>' + A('M3.5 7.3L12 12l8.5-4.7')),
+  '🕶': P('<path d="M2 7h20v10h-6.5L12 13.5 8.5 17H2z"/>' + A('M5.5 11h3.5M15 11h3.5')),
+  '📒': P('<path d="M4 3h16v18H4z"/><path d="M8 3v18M11 12h6M11 16h4"/>' + A('M11 8h6')),
+  '🌍': P('<path d="M8.3 3h7.4L21 8.3v7.4L15.7 21H8.3L3 15.7V8.3z"/><path d="M3 12h18"/>' + A('M12 3c3 3.5 3 14.5 0 18c-3-3.5-3-14.5 0-18z')),
+  '🔍': P('<path d="M8 3h6l4 4v6l-4 4H8l-4-4V7z"/>' + A('M16.5 16.5L21 21')),
+  '🚶': P('<path d="M13 2.5h2.5V5H13z"/><path d="M8.5 21l3-7.5 3 2.5V21M6.5 12l3.5-5h4.5l2 4 3.5 1"/>' + A('M10 7l-1.5 6.5')),
+  '👀': P('<path d="M2 12l5-6h10l5 6-5 6H7z"/>' + A('M10 9.5h4v5h-4z')),
+  '🧑': P('<path d="M8.5 3h7v7l-3.5 2.5L8.5 10z"/><path d="M4 21v-3l4-4h8l4 4v3"/>' + A('M10 6.5h4')),
+  '👤': P('<path d="M8 3h8v8H8z"/><path d="M3 21l3-6h12l3 6"/>' + A('M8 7h8')),
+  '📻': P('<path d="M3 8h18v13H3z"/><path d="M6 8l11-5M13 12h5M13 16h5"/>' + A('M6 12h4v4H6z')),
+  '🗺': P('<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15"/>' + A('M15 6v15')),
+  '⛶': P('<path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/>' + A('M9.5 9.5h5v5h-5z')),
+  '🛍': P('<path d="M4 8h16l-1.5 13h-13z"/><path d="M8.5 8V5l2-2h3l2 2v3"/>' + A('M9 13h6')),
+  '🎒': P('<path d="M6 7h12l2 3v11H4V10z"/><path d="M9 7V3.5h6V7"/>' + A('M8 14h8v4H8z')),
+  '🪙': P('<path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z"/><path d="M9 10h6M9 14h6"/>' + A('M12 7v10')),
+  '❔': P('<path d="M8 3h8l4 4v10l-4 4H8l-4-4V7z"/><path d="M9.5 9.5l1-1.5h3l1 1.5v1.5L12 12.5V14"/>' + A('M12 16.5v1')),
+  '❓': P('<path d="M8 3h8l4 4v10l-4 4H8l-4-4V7z"/><path d="M9.5 9.5l1-1.5h3l1 1.5v1.5L12 12.5V14"/>' + A('M12 16.5v1')),
+  '✕': P('<path d="M5 5l14 14M19 5L5 19"/>'),
+  '❌': P('<path d="M5 5l14 14M19 5L5 19"/>'),
+  '🔥': P('<path d="M12 2l3 6 3-2v8l-6 8-6-8V9l3 2z"/>' + A('M12 13l2 3-2 3-2-3z')),
+  '🔑': P('<path d="M3 9h8v6H3z"/><path d="M11 12h10M17 12v3M20 12v3"/>' + A('M6 11h2v2H6z')),
+  '🔒': P('<path d="M4 11h16v10H4z"/><path d="M8 11V5l2-2h4l2 2v6"/>' + A('M12 14v4')),
+  '🛒': P('<path d="M2 4h3l2.5 11h11L21 7H6"/>' + A('M8 19h2v2H8zM16 19h2v2h-2z')),
+  '💬': P('<path d="M3 4h18v12H10l-5 4v-4H3z"/>' + A('M7 10h10')),
+  '🏬': P('<path d="M3 9l3-6h12l3 6M4 9v12h16V9M3 9h18M10 21v-6h4v6"/>' + A('M6.5 12.5h2M15.5 12.5h2')),
+  '🌳': P('<path d="M12 2l7 9h-4l5 7H4l5-7H5z"/>' + A('M12 18v4')),
+  '🏝': P('<path d="M2 18h20l-3 3H5z"/><path d="M13 18l-2-9"/><path d="M11 9L5 7l2 4M11 9l6-3-1 5M11 9l-1-6"/>' + A('M8 18l2-3h3l2 3')),
+  '❤': P('<path d="M12 20.5L3 11.5V6l3-3h3l3 3 3-3h3l3 3v5.5z"/>'),
+  '🎢': P('<path d="M2 18l5-10 4 6 4-8 7 12"/>' + A('M5 18v3M9 12v9M13 12v9M17 14v7')),
+  '⭐': P('<path d="M12 2.5l2.6 6.4 6.9.5-5.3 4.5 1.7 6.7L12 17l-5.9 3.6 1.7-6.7-5.3-4.5 6.9-.5z"/>'),
+  '↗': P('<path d="M14 3h7v7M21 3L11 13M18 14v7H3V6h7"/>'),
+  '☰': P('<path d="M3 6h18M3 12h18M3 18h11"/>' + A('M17.5 17h3.5v2h-3.5z')),
+  '🔔': P('<path d="M6 17v-7l2-5 4-2 4 2 2 5v7l2 2H4z"/>' + A('M10 21.5h4')),
+  '🐞': P('<path d="M8 6h8l3 4v7l-4 4H9l-4-4v-7z"/><path d="M12 6v15M5 13h14M9 6V3M15 6V3"/>' + A('M8.5 10h2M13.5 10h2')),
+  '📤': P('<path d="M4 14v7h16v-7"/><path d="M12 15V3M7 8l5-5 5 5"/>' + A('M8 18h8')),
+};
+Object.assign(HICON, SHARP);
+/* named keys for chrome that has no emoji to swap (the nav, the More sheet) */
+export const NICON = { feed: HICON['📰'], cube: HICON['🧊'], vr: HICON['🕶'], dir: HICON['📒'], more: HICON['☰'], out: HICON['↗'], globe: HICON['🌍'], island: HICON['🏝'], mall: HICON['🏬'], bug: HICON['🐞'], help: HICON['❔'], close: HICON['✕'] };
+export const ICON_CSS = `.hic{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;color:currentColor}.hic .ac{stroke:var(--hic-ac,#38f0ff)}`;
 const RX = new RegExp('(' + Object.keys(HICON).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\uFE0F?', 'g');
 const SKIP = 'textarea, input, [contenteditable], canvas, #orbit-tab, .glove, #aou-lumi .face, .txt, .cmts, .cmt, .hearts, #hearts, .lb .out, .no-icons, code, pre, .fl-feed .say';
+/* any other pictographic emoji (not ©, arrows or ▼, which are type) */
+const LOOSE = /[\u{1F000}-\u{1FAFF}☀-⛿✀-➿⭐⭕⌚⌛⏩-⏺](?:️|‍[\u{1F000}-\u{1FAFF}☀-➿]️?|[\u{1F3FB}-\u{1F3FF}])*\s?/gu;
+/* chrome = places where an emoji is decoration in front of a label; elsewhere (store blurbs, popups' prose) it stays */
+const CHROME = 'button, a, h1, h2, h3, h4, summary, label, nav, [role="button"], .wvm-btn, .mp-btn, #wvm-toast, .wvm-panel-head, .wvm-flatbar, .card b';
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 export function swapEmoji(root) {
   if (!root) return;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => { if (!n.nodeValue || !RX.test(n.nodeValue)) return NodeFilter.FILTER_REJECT; RX.lastIndex = 0; const p = n.parentElement; if (!p || p.closest(SKIP) || p.closest('svg')) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; } });
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => { if (!n.nodeValue) return NodeFilter.FILTER_REJECT; LOOSE.lastIndex = 0; if (!LOOSE.test(n.nodeValue)) return NodeFilter.FILTER_REJECT; LOOSE.lastIndex = 0; const p = n.parentElement; if (!p || p.closest(SKIP) || p.closest('svg')) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; } });
   const nodes = []; let n; while ((n = walker.nextNode())) nodes.push(n);
-  for (const t of nodes) { const span = document.createElement('span'); span.innerHTML = t.nodeValue.replace(RX, (m, k) => HICON[k] || m); t.replaceWith(...span.childNodes); }
+  for (const t of nodes) {
+    const chrome = !!t.parentElement.closest(CHROME);
+    const hits = []; const html = esc(t.nodeValue).replace(RX, (m, k) => '\u0000' + (hits.push(k) - 1) + '\u0001').replace(LOOSE, (m) => chrome ? '' : m).replace(/\u0000(\d+)\u0001/g, (m, i) => HICON[hits[i]] || hits[i]);
+    if (html === esc(t.nodeValue)) continue;
+    const span = document.createElement('span'); span.innerHTML = html; t.replaceWith(...span.childNodes);
+  }
 }
 export function watchEmoji(root) {
   swapEmoji(root);

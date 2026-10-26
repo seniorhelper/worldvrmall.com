@@ -201,7 +201,7 @@ export function initBot(app, opts = {}) {
       btn.disabled = true; btn.textContent = 'Sending…';
       try { const to = atob(f.dataset.a) + String.fromCharCode(64) + atob(f.dataset.b) + '.' + atob(f.dataset.c); const host = ['https:', '', ['formsubmit', 'co'].join('.'), 'ajax', to].join('/');
         const r = await fetch(host, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ _subject: 'World VR Mall · help request (Pax)', _template: 'table', _captcha: 'false', name: v('name') || '(no name)', reach: v('reach'), message: v('msg'), page: location.pathname }) });
-        const j = await r.json().catch(() => ({})); if (r.ok && String(j.success) === 'true') { add('b', '✅ Delivered to a real human. They will get back to you. Peace! ✌️'); f.remove(); } else throw new Error('not confirmed'); }
+        const j = await r.json().catch(() => ({})); if (r.ok && String(j.success) === 'true') { window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'pax_help'}})); add('b', '✅ Delivered to a real human. They will get back to you. Peace! ✌️'); f.remove(); } else throw new Error('not confirmed'); }
       catch (e) { btn.disabled = false; btn.textContent = 'Send to a human'; add('b', '⚠️ That did not go through on my end. Please call 1-800-481-8638 and a human will help right away.'); }
     }; log.appendChild(f); log.scrollTop = log.scrollHeight;
   }

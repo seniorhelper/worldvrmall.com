@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>/* launch (Oct 25 2026): flat or 3D is decided here, before the first paint, in the order wvm-shell.js bootShell uses. A flat choice on / or /mall/ goes to the Mall feed before anything draws; a page that will boot the 3D world paints its dark stage at once (html.wvm-pre3d) instead of flashing the flat page, a white screen and a white loader in turn. */(function(){try{var P='store',d=document.documentElement,q=location.search,m=/[?&]mode=([^&]+)/.exec(q),s=null;try{localStorage.removeItem('wvm_mode')}catch(e){}try{s=sessionStorage.getItem('wvm_mode');if(m&&m[1]==='flat')sessionStorage.setItem('wvm_mode','flat')}catch(e){}var deep=/[?&](vr|xrsim|to|ride|store)=/.test(q)||location.hash==='#mall'||location.hash==='#leasing';var flat=(m&&m[1]==='flat')||(!m&&s==='flat'&&!deep);if(P!=='store'&&flat){location.replace('/feed/');return}if(P==='store'?((m&&m[1]==='3d')||deep):!flat)d.className+=' wvm-pre3d'}catch(e){}})()</script>
+<style id="wvm-pre3d-css">html.wvm-pre3d,html.wvm-pre3d body{background:#030918}html.wvm-pre3d #wvm-stage{display:block!important;position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:radial-gradient(120% 80% at 50% 42%,#0f2a66 0%,#071433 52%,#030918 100%)}html.wvm-pre3d #wvm-stage::before{content:"WORLD VR MALL";position:absolute;left:0;right:0;top:calc(50% - 30px);text-align:center;font:800 clamp(18px,4vw,28px)/1 Poppins,"Segoe UI",system-ui,Arial,sans-serif;letter-spacing:.34em;text-indent:.34em;color:#eaf4ff;text-shadow:0 0 24px rgba(56,240,255,.45)}html.wvm-pre3d #wvm-stage::after{content:"";position:absolute;left:50%;top:calc(50% + 14px);width:168px;height:2px;margin-left:-84px;background:linear-gradient(90deg,#38f0ff 0 8%,rgba(56,240,255,.18) 8% 100%)}html.wvm-pre3d #scrollhint{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gnomad Promotions in World VR Mall | Branded Merchandise · USA</title>
 <meta name="description" content="Branded merchandise and promotional products: custom shirts, hats, pens, sweatshirts, tents, and more. Marketing, branded merchandise, adventure.">
@@ -16,7 +18,7 @@
 <meta property="og:image" content="https://worldvrmall.com/images/virtual-reality-stores.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap"></noscript>
 <script type="importmap">
 { "imports": { "three": "/vendor/three/three.module.min.js",
                "three/addons/": "/vendor/three/jsm/" } }
@@ -37,6 +39,8 @@
   details{background:rgba(8,20,50,.6);border:1px solid rgba(124,248,255,.25);border-radius:14px;padding:12px 18px;margin:10px 0} summary{cursor:pointer;font-weight:700;font-size:17px;color:#fff}
   footer{border-top:1px solid rgba(255,255,255,.1);margin-top:50px;padding-top:22px;font-size:14px;color:#9fb3d9} footer a{color:#7cf8ff;text-decoration:none}
 </style>
+<style>@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}</style>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*?*vr=*"}},{"not":{"href_matches":"/*?*xrsim=*"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
 <div id="wvm-stage"></div>

@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#050b1c">
 <link rel="icon" href="/images/world-vr-mall-favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap"></noscript>
 <style>
   :root{--ink:#eaf4ff;--bg:#050b1c;--cyan:#38f0ff;--pink:#ff4f79;--gold:#ffd23f}
   *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
@@ -31,6 +31,8 @@
   .small{font-size:14px;color:#9fb3d9;margin-top:22px}
   footer{border-top:1px solid rgba(255,255,255,.1);margin-top:40px;padding-top:18px;font-size:14px;color:#9fb3d9} footer a{text-decoration:underline}
 </style>
+<style>@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}</style>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*?*vr=*"}},{"not":{"href_matches":"/*?*xrsim=*"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
 <header>

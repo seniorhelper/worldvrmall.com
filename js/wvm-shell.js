@@ -15,7 +15,7 @@
    here for every 3D page (outside, mall, store) once the renderer exists;
    ?vr=1 / ?xrsim=1 modulepreload it, ?vr=basic skips it.
    ============================================================ */
-import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me } from '/js/wvm-rail.js?v=59';
+import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me, isHandheld, NAV_VR_ROWS } from '/js/wvm-rail.js?v=59';
 import { HICON } from '/js/wvm-icons.js?v=59';
 
 const I = (k) => HICON[k] || '';
@@ -30,9 +30,26 @@ body.wvm-3d .wvm-onlyflat{display:none!important}
 .wvm-flatbar .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;font-size:14px}
 .wvm-flatbar .btn .hic{width:16px;height:16px}
 body.wvm-3d .wvm-flatbar{display:none}
-.wvm-booting{display:none;position:fixed;inset:0;z-index:8;background:#fff;color:#0b1a3a;align-items:center;justify-content:center;flex-direction:column;gap:10px;font:800 15px Poppins,Arial}
-.wvm-booting img{height:90px;max-width:70vw;object-fit:contain}
-.wvm-booting.on{display:flex}
+/* ONE loading look, from the first paint to the first frame (launch, Oct 25 2026). The page head paints the dark stage with the
+   wordmark and a hairline bar (html.wvm-pre3d, inline CSS in each 3D page); the engine's teleport loader and its page-change fade
+   are restyled here to the very same picture at the very same spot, so moving between pages never flashes white or flat. */
+#wvm-loader,#wvm-fade{background:radial-gradient(120% 80% at 50% 42%,#0f2a66 0%,#071433 52%,#030918 100%)!important;color:#cfe9ff!important}
+#wvm-loader .wvm-tele{position:absolute;inset:0;width:auto;margin:0}
+#wvm-loader .wvm-tele>img,#wvm-loader .wvm-machine,#wvm-loader .wvm-tele>small{display:none!important}
+#wvm-loader .wvm-tele::before,#wvm-fade::before{content:"WORLD VR MALL";position:absolute;left:0;right:0;top:calc(50% - 30px);text-align:center;font:800 clamp(18px,4vw,28px)/1 Poppins,"Segoe UI",system-ui,Arial,sans-serif;letter-spacing:.34em;text-indent:.34em;color:#eaf4ff;text-shadow:0 0 24px rgba(56,240,255,.45)}
+#wvm-loader .wvm-barwrap{position:absolute;left:50%;top:calc(50% + 14px);width:168px;height:2px;margin-left:-84px;background:rgba(56,240,255,.18)!important;border:0!important;border-radius:0!important}
+#wvm-loader .wvm-bar{background:#38f0ff!important;box-shadow:0 0 10px #38f0ff!important;border-radius:0!important}
+#wvm-loader .wvm-loadmsg{position:absolute;left:16px;right:16px;top:calc(50% + 30px);margin:0;text-align:center;font:600 12.5px/1.4 Poppins,"Segoe UI",system-ui,Arial,sans-serif!important;letter-spacing:.03em;color:#8fb3e6!important;min-height:0}
+#wvm-fade{font:600 12.5px/1.4 Poppins,"Segoe UI",system-ui,Arial,sans-serif!important;letter-spacing:.03em;color:#8fb3e6!important;padding-top:60px;transition:opacity .25s!important}
+#wvm-fade::after{content:"";position:absolute;left:50%;top:calc(50% + 14px);width:168px;height:2px;margin-left:-84px;background:linear-gradient(90deg,#38f0ff 0 92%,rgba(56,240,255,.18) 92% 100%)}
+/* VR on a phone or tablet is Google Cardboard (split screen, a gaze dot, no controllers): people back out within seconds (the
+   Oct 22 and Oct 24 auto-reports). The engine's Enter VR button is hidden there; the nav's VR explains where VR runs instead. */
+html.wvm-handheld #wvm-vr,html.wvm-handheld .wvm-vrbadge{display:none!important}
+/* one card at a time on arrival: the prize-hunt banner waits while the welcome card is up (they stacked on phones), and on phones it
+   is one column so the text gets the full width */
+body:has(#wvm-pop.on) .mp-banner{opacity:0!important;pointer-events:none!important}
+.mp-banner{border-radius:6px!important}.mp-banner button{border-radius:3px!important}#mp-dock>*{border-radius:4px!important}
+@media (max-width:820px){body.wvm-3d .mp-banner{flex-wrap:wrap;gap:8px 12px}body.wvm-3d .mp-banner>div{flex:1 1 100%}}
 /* 3D HUD overlay layout (desktop): voice bar and the back chip live under the logo at left, panels at right, toast in the middle */
 body.wvm-3d #mp-voice{left:10px;top:64px;transform:none}
 body.wvm-3d #mp-dive{right:auto;left:50%;transform:translateX(-50%);bottom:140px}
@@ -64,8 +81,8 @@ body.pax-open #mp-dock,body.pax-open #wvm-turbo{display:none!important}
 /* desktop: the Pax helper sits above the dock's top tile instead of on it */
 @media (min-width:821px){ body.wvm-3d #pax-tab{top:auto;bottom:476px} }
 /* the one-tap VR door */
-#wvm-door{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;display:flex;flex-direction:column;gap:10px;align-items:center;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:16px;padding:20px 28px;box-shadow:0 16px 40px rgba(2,8,30,.5);font-family:Poppins,Arial;max-width:92vw}
-#wvm-door button{border:0;border-radius:12px;background:#fff;color:#0b1a3a;font:900 22px Poppins,Arial;padding:14px 26px;cursor:pointer;display:flex;align-items:center;gap:10px}
+#wvm-door{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;display:flex;flex-direction:column;gap:10px;align-items:center;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:0;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);padding:20px 28px;box-shadow:0 16px 40px rgba(2,8,30,.5);font-family:Poppins,Arial;max-width:92vw}
+#wvm-door button{border:0;border-radius:0;background:#fff;color:#0b1a3a;font:900 22px Poppins,Arial;padding:14px 26px;cursor:pointer;display:flex;align-items:center;gap:10px}
 #wvm-door button .hic{width:26px;height:26px}
 #wvm-door small{font:700 13px Poppins,Arial;opacity:.9;text-align:center}
 #wvm-door label{display:flex;gap:8px;align-items:center;font:700 12px Poppins,Arial}
@@ -105,6 +122,10 @@ export function bootShell(cfg) {
   else if (vr || qm === '3d' || deep) want3d = true;
   else if (page === 'store') want3d = false;
   else want3d = savedMode() !== 'flat';
+  /* the head script painted the dark stage when it expected 3D; a device without WebGL (or a store page in flat) takes it back at once */
+  const html = document.documentElement;
+  if (!want3d) html.classList.remove('wvm-pre3d');
+  if (isHandheld()) html.classList.add('wvm-handheld');
 
   const rail = mountRail({ page: page === 'store' ? 'store' : page, vr: () => enterVR() });
   backChip();
@@ -121,19 +142,20 @@ export function bootShell(cfg) {
   }
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-wvm-boot]'); if (!b) return; e.preventDefault(); setMode('3d'); if (S.booted) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } boot(); });
 
-  const booting = document.createElement('div'); booting.className = 'wvm-booting'; booting.innerHTML = '<img src="/images/world-vr-mall-logo.png" alt="World VR Mall"><span>Teleport station · warming up</span>'; document.body.appendChild(booting);
+  /* the stage keeps the dark loading picture (html.wvm-pre3d) until the engine's own loader, styled the same, has faded out */
+  const settle = (app) => { const L = app && app.loader; if (!L) { html.classList.remove('wvm-pre3d'); return; } const done = () => { if (L.classList.contains('off')) { html.classList.remove('wvm-pre3d'); mo.disconnect(); } }; const mo = new MutationObserver(done); mo.observe(L, { attributes: true, attributeFilter: ['class'] }); done(); };
 
   async function boot() {
     if (S.booted) return S.app; S.booted = true;
-    document.body.classList.add('wvm-3d'); window.scrollTo(0, 0); booting.classList.add('on');
+    html.classList.add('wvm-pre3d'); document.body.classList.add('wvm-3d'); window.scrollTo(0, 0);
     for (const h of PRELOADS) { const l = document.createElement('link'); l.rel = 'modulepreload'; l.href = h; document.head.appendChild(l); }
     try {
       const m = await import(cfg.module);
       if (page === 'store' && m.bootStore) m.bootStore(cfg.store || {});
       const app = window.WVM_APP; S.app = app;
       if (app) wireApp(app);
-    } catch (e) { console.error('world module failed', e); booting.innerHTML = '<span>The 3D world could not load on this connection. The page below still works.</span>'; setTimeout(() => { booting.classList.remove('on'); document.body.classList.remove('wvm-3d'); S.booted = false; }, 2600); return null; }
-    booting.remove();
+      settle(S.app);
+    } catch (e) { console.error('world module failed', e); html.classList.remove('wvm-pre3d'); document.body.classList.remove('wvm-3d'); S.booted = false; try { const n = document.createElement('div'); n.className = 'wvm-flatbar'; n.innerHTML = '<b>The 3D world could not load on this connection. Everything below still works.</b>'; const mn = document.querySelector('main'); if (mn) mn.prepend(n); } catch (x) { } return null; }
     return S.app;
   }
   S.boot = boot;
@@ -187,6 +209,8 @@ export function bootShell(cfg) {
   async function bootXR(app) {
     for (let k = 0; k < 400 && !(app.renderer && app.renderer.xr); k++) await new Promise(r => setTimeout(r, 250));
     if (!app.renderer) return null;
+    /* the nav's Feed / 3D / VR tile follows the headset on and off */
+    try { app.renderer.xr.addEventListener('sessionstart', () => rail._sync()); app.renderer.xr.addEventListener('sessionend', () => setTimeout(() => rail._sync(), 50)); rail._sync(); } catch (e) { }
     /* landing views on the island and inside the mall (wvm-landings.js): every Go / tour / ?to= destination faces something worth seeing */
     if (page === 'outside' || page === 'mall') { try { import('/js/wvm-landings.js').then((m) => m.applyLandings(app, page === 'mall' ? m.LANDINGS_INSIDE : m.LANDINGS)).catch((e) => console.warn('landings', e)); } catch (e) { } }
     try {
@@ -209,14 +233,15 @@ export function bootShell(cfg) {
       const bugPost = (row) => { try { import('/js/wvm-config.js?v=59').then(m => { const C = m.CONFIG || {}; if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) return; return fetch(C.SUPABASE_URL + '/rest/v1/bugs', { method: 'POST', headers: { apikey: C.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }); }).catch(() => { }); } catch (e) { } };
       const api = x.initXR(app, {
         name: A.name || 'World VR Mall', tagline: A.tagline || '', accent: A.accent || '#22d3ee', logoTexture: A.logoTexture || null, logoUrl: '/images/world-vr-mall-logo-600.png', chrome: !!A.chrome,
-        mallUrl: null, worlds: WORLDS, lifeboard: !!(window.WVM && window.WVM.UI && window.WVM.UI.LB), arrival: pickArrival, side: 'mall', tour: [["mall","The mall entrance. Every store inside is a real business."],["chiller","The Chiller roller coaster. Walk onto the pad and press A to ride."],["wheel","The Sky Wheel. The view from the top takes in the whole island."],["park","The amusement park: rides, games and the coasters."],["beach","Beach Cove. Sit on the pier and watch the waves."],["zoo-gate","The World Zoo. Visiting helps real animals."],["lake","Crystal Lake."],["market","The Old World Market."],["observatory","The Observatory. Look up at the real sky."],["pavilion","The Pavilion: a 360 showroom."],["wilds","Lakeside Wilds: campfire and pines."]],
+        mallUrl: null, worlds: WORLDS, lifeboard: !!(window.WVM && window.WVM.UI && window.WVM.UI.LB), arrival: pickArrival, side: 'mall', /* the island's tour; inside the mall the layer builds one from the mall's own groups */ tour: page !== 'outside' ? undefined : [["mall","The mall entrance. Every store inside is a real business."],["chiller","The Chiller roller coaster. Walk onto the pad and press A to ride."],["wheel","The Sky Wheel. The view from the top takes in the whole island."],["park","The amusement park: rides, games and the coasters."],["beach","Beach Cove. Sit on the pier and watch the waves."],["zoo-gate","The World Zoo. Visiting helps real animals."],["lake","Crystal Lake."],["market","The Old World Market."],["observatory","The Observatory. Look up at the real sky."],["pavilion","The Pavilion: a 360 showroom."],["wilds","Lakeside Wilds: campfire and pines."]],
         ssoHref: (u) => Promise.resolve(signAou(u)), bugPost,
         welcome: '🕶️ Left stick walks · right stick turns · point + trigger = click it or go there · grip pulls you there · Y, your wrist or the MENU pad on the floor = menu (Mall lists every store and place · All of Us = allofus.one · Guide = a guided tour) · X = view · A = nearest · B = bug.', welcomeAt: 26000,
         hint: 'Y, your wrist or the MENU pad on the floor = menu · left stick walks · trigger = go there',
         onDrop: () => { try { app.toast && app.toast('VR closed by itself. One tap puts you back where you were.', 5000); } catch (e) { } vrDoor(app, { hop: true, text: 'Tap once · back into VR', sub: 'VR closed by itself (we logged it). Tapping puts you right back where you were.' }); },
         onStall: () => { try { app.toast && app.toast('The headset stopped drawing frames; logged for the bug report.', 3000); } catch (e) { } },
         me: () => me(),
-        extra: (app.goMenuExtra || []).filter(r => !/allofus/i.test(String(r[0]))).concat((window.WVM_PLUS && window.WVM_PLUS.vrExtra) || []),
+        /* read each time the VR menu is built, so rows added later through WVM_NAV.register({ vr: true }) show up too */
+        get extra() { return (app.goMenuExtra || []).filter(r => !/allofus/i.test(String(r[0]))).concat((window.WVM_PLUS && window.WVM_PLUS.vrExtra) || [], NAV_VR_ROWS); },
         onBugs: (list) => {
           const last = list.slice(-5).reverse();
           const html = '<p>Logged in VR. Add a line about what went wrong and send.</p>' + last.map((b, i) => `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin:6px 0"><b>#${list.length - i}</b> · ${b.near || 'unknown spot'} · (${b.x}, ${b.y}, ${b.z})${b.act ? ' · near: ' + b.act : ''}${b.ride ? ' · on a ride' : ''}<br><input data-bug="${list.length - 1 - i}" placeholder="What happened?" style="width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font:600 13px Poppins,Arial"></div>`).join('') + '<button class="mp-btn holo" id="bug-send">📤 Send bug reports</button>';
@@ -233,11 +258,14 @@ export function bootShell(cfg) {
 
   function enterVR() {
     setMode('3d');
+    /* a phone or tablet would start Google Cardboard: the nav explains where VR runs instead */
+    if (isHandheld()) { const t = rail.querySelector('.wr-m[data-m="vr"]'); if (t) t.click(); return; }
     if (!S.booted) { boot().then(() => { const w = setInterval(() => { const v = document.getElementById('wvm-vr'); if (!v) return; clearInterval(w); v.click(); }, 300); setTimeout(() => clearInterval(w), 20000); }); return; }
     const v = document.getElementById('wvm-vr'); if (v) v.click(); else if (S.app && S.app.toast) S.app.toast('Open this page in a headset browser (Quest) to enter VR.', 3500);
   }
 
   async function vrDoor(app, o = {}) {
+    if (isHandheld()) { try { const u = new URL(location.href); u.searchParams.delete('vr'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) { } if (app.toast) app.toast('VR runs in a headset browser (Meta Quest, Pico). On this device, 3D is the whole mall.', 5000); return; }
     let hop = !!o.hop; try { if (sessionStorage.getItem('wvm_vr_hop') === '1') hop = true; sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { }
     try { const old = document.getElementById('wvm-door'); if (old) old.remove(); } catch (e) { }
     let chars = []; try { chars = (await import('/js/wvm-engine.js?v=59')).CHARACTERS || []; } catch (e) { }
@@ -251,7 +279,7 @@ export function bootShell(cfg) {
       o.innerHTML = `<button type="button">${I('🕶')}<span>${o.text || (hop ? 'Tap once · back into VR' : 'Tap to enter VR')}</span></button>${o.sub ? '<small>' + o.sub + '</small>' : hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
         (chars.length ? `<label>Body in VR <select>${chars.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.name}</option>`).join('')}</select></label>` : '');
       const sel = o.querySelector('select'); if (sel) sel.onchange = () => app.vrBody(sel.value);
-      const btn = o.querySelector('button'); btn.style.cssText = 'border:0;border-radius:16px;background:linear-gradient(135deg,#22d3ee,#7c3aed);color:#fff;font:900 26px Poppins,Arial;padding:20px 34px;display:flex;gap:10px;align-items:center;cursor:pointer'; const lab = o.querySelector('label'); if (lab) { lab.style.cssText = 'font:600 14px Poppins,Arial;color:#cfe9ff;display:flex;gap:8px;align-items:center'; lab.addEventListener('click', (e) => e.stopPropagation()); }
+      const btn = o.querySelector('button'); btn.style.cssText = 'border:0;border-radius:0;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);background:linear-gradient(135deg,#22d3ee,#7c3aed);color:#fff;font:900 26px Poppins,Arial;padding:20px 34px;display:flex;gap:10px;align-items:center;cursor:pointer'; const lab = o.querySelector('label'); if (lab) { lab.style.cssText = 'font:600 14px Poppins,Arial;color:#cfe9ff;display:flex;gap:8px;align-items:center'; lab.addEventListener('click', (e) => e.stopPropagation()); }
       const tip = document.createElement('div'); tip.style.cssText = 'font:700 16px Poppins,Arial;color:#9fefff'; tip.textContent = 'tap anywhere'; o.insertBefore(tip, btn.nextSibling);
       const go = (e) => { if (e && e.target && e.target.closest && e.target.closest('label,select')) return; app.vrBody(sel ? sel.value : null); v.click(); tip.textContent = 'Starting VR… tap again if it does not start'; };
       o.onclick = go; btn.onclick = (e) => { e.stopPropagation(); go(); };
@@ -270,8 +298,8 @@ export function bootShell(cfg) {
   }
 
   if (want3d) {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 50));
-    const start = () => requestAnimationFrame(() => requestAnimationFrame(() => idle(() => boot(), { timeout: vr || deep ? 300 : 1200 })));
+    /* the dark stage is already on screen: start loading after one frame instead of waiting for an idle slot (that wait was up to 1.2 s of flat page) */
+    const start = () => requestAnimationFrame(() => setTimeout(() => boot(), 0));
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   }
   return S;

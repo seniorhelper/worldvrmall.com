@@ -13,7 +13,7 @@
 <meta property="og:title" content="Every Country Is Invited — World VR Mall"><meta property="og:description" content="195 countries, one mall. Bring your country's brands and culture to the world's first global VR mall.">
 <meta property="og:url" content="https://worldvrmall.com/countries/"><meta property="og:image" content="https://worldvrmall.com/images/virtual-reality-shopping.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap"></noscript>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "@id": "https://worldvrmall.com/countries/#page", "url": "https://worldvrmall.com/countries/", "name": "Every Country in World VR Mall", "isPartOf": {"@id": "https://worldvrmall.com/#site"}, "description": "World VR Mall invites brands from every country on Earth. Each country gets its own street in the mall as its first stores open.", "speakable": {"@type": "SpeakableSpecification", "cssSelector": ["h1", ".lead"]}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "World VR Mall", "item": "https://worldvrmall.com/"}, {"@type": "ListItem", "position": 2, "name": "Countries", "item": "https://worldvrmall.com/countries/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can a business from any country get a store in World VR Mall?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. World VR Mall is built for brands from every country. Stores sit in regional wings and are cross-listed by category, and each country gets its own street as its first stores open. Buy buttons go to the brand's own website in any currency."}}, {"@type": "Question", "name": "Can my store speak more than one language?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A store's clerk can greet and answer in several languages; the mall shows the visitor's browser language and falls back to English. A store from Shanghai can speak Mandarin, English, and Spanish."}}, {"@type": "Question", "name": "How do I bring my country's brands to the mall?", "acceptedAnswer": {"@type": "Answer", "text": "Use the form on this page or call 1-800-481-8638. Founding tenant rates apply to sign-ups in 2026."}}]}]}</script>
 <style>
   *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:#050b1c;color:#eaf4ff;font-family:Poppins,"Segoe UI",Arial,sans-serif;line-height:1.6}
@@ -39,6 +39,8 @@
   footer{border-top:1px solid rgba(255,255,255,.1);margin-top:50px;padding-top:22px;font-size:14px;color:#9fb3d9} footer a{text-decoration:none}
 </style>
 <style>.wvm-railrow{display:flex;justify-content:center;padding:8px 10px 0}@media(max-width:820px){.wvm-railrow{padding:0}}</style>
+<style>@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}</style>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*?*vr=*"}},{"not":{"href_matches":"/*?*xrsim=*"}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
 <header><a href="/"><img src="/images/world-vr-mall-logo.png" alt="World VR Mall"></a><nav><a href="/">Outside</a><a href="/mall/">Mall</a><a href="/stores/">Stores</a><a href="/lease/">Rent a store</a><a class="call" href="tel:18004818638">📞 1-800-481-8638</a></nav></header>
@@ -91,7 +93,7 @@
     if(f._honey.value||Date.now()-t0<3500||!human){st.style.color='#9fd3ff';st.textContent='Please take a moment and try again.';return;}
     var url=atob(f.dataset.a)+atob(f.dataset.u)+String.fromCharCode(64)+atob(f.dataset.d);
     st.style.color='#9fd3ff'; st.textContent='Sending…';
-    fetch(url,{method:'POST',body:new FormData(f),headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(){st.style.color='#7cff6b';st.textContent='Received. We will reply within one business day. Welcome to the world.';f.reset();}).catch(function(){st.style.color='#ffd23f';st.textContent='Could not confirm delivery. Please email or call 1-800-481-8638.';});
+    fetch(url,{method:'POST',body:new FormData(f),headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(){window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'country'}}));st.style.color='#7cff6b';st.textContent='Received. We will reply within one business day. Welcome to the world.';f.reset();}).catch(function(){st.style.color='#ffd23f';st.textContent='Could not confirm delivery. Please email or call 1-800-481-8638.';});
   });
 })();
 </script>
