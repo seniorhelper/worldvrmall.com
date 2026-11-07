@@ -112,7 +112,7 @@ export async function refresh() {
   s = s || { sql: 0, band: null, level: 'guest', can: {}, needs: {}, dob_set: false };
   S = { sql: s.sql || 0, signedIn: true, uid: session.user.id, token: session.access_token, band: s.band === 'adult' ? 'adult' : null, level: s.level || 'guest', can: s.can || {}, needs: s.needs || {}, provider: s.provider || 'none', checkUrl: s.check_url || null,
     dobSet: !!s.dob_set, minor: !!s.minor, adult: s.band === 'adult', held: !!s.held, recheck: !!s.recheck, banned: !!s.banned, muted: !!s.muted, admin: !!s.admin, canUpload: !!s.can_upload, newAccount: !!s.new_account };
-  try { const { data, error } = await SB.rpc('wvm_my_blocked'); if (!error && Array.isArray(data)) blocked = new Set(data.map(String)); else { const r = await SB.from('profiles').select('blocked').eq('id', S.uid).maybeSingle(); blocked = new Set(((r.data && r.data.blocked) || []).map(String)); } } catch (e) { }
+  try { const { data, error } = await SB.rpc('wvm_my_blocked'); if (!error && Array.isArray(data)) blocked = new Set(data.map(String)); else { const r = await SB.rpc('my_profile'); blocked = new Set(((r.data && r.data.blocked) || []).map(String)); } } catch (e) { }
   try { await SB.realtime.setAuth(session.access_token); } catch (e) { }
   if (S.band) startInbox(); else stopInbox();
   return S;
@@ -170,7 +170,7 @@ function askPairs(id) { const t = pairsAsked.get(id) || 0; if (Date.now() - t < 
 
 export async function block(id, on = true) {
   id = String(id || ''); if (!SB || !S.signedIn || !id || id === S.uid) return false;
-  try { const { data } = await SB.from('profiles').select('blocked').eq('id', S.uid).maybeSingle(); const cur = new Set(((data && data.blocked) || []).map(String)); on ? cur.add(id) : cur.delete(id); const { error } = await SB.from('profiles').update({ blocked: [...cur] }).eq('id', S.uid); if (error) throw error; blocked = cur; emit('change', { id, blocked: on }); toast(on ? '🚫 Blocked. You vanish for each other in the mall, and they cannot hug, call or message you.' : 'Unblocked.', 4200); return true; } catch (e) { toast('Could not update your block list. Try again in a moment.'); return false; }
+  try { const { data } = await SB.rpc('my_profile'); const cur = new Set(((data && data.blocked) || []).map(String)); on ? cur.add(id) : cur.delete(id); const { error } = await SB.from('profiles').update({ blocked: [...cur] }).eq('id', S.uid); if (error) throw error; blocked = cur; emit('change', { id, blocked: on }); toast(on ? '🚫 Blocked. You vanish for each other in the mall, and they cannot hug, call or message you.' : 'Unblocked.', 4200); return true; } catch (e) { toast('Could not update your block list. Try again in a moment.'); return false; }
 }
 
 /* ---------- reports: same reports table + evidence chain as allofus.one ---------- */
