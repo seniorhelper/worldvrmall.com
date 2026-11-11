@@ -60,6 +60,9 @@ function renderPrizes(live) {
 }
 async function livePrizes() {
   if (!CONFIG.SUPABASE_URL || /YOUR-/.test(CONFIG.SUPABASE_URL)) return;
+  /* prizes are readable only when signed in (allofus v32+); logged-out visitors keep the static list and skip the library */
+  let signedIn = false; try { signedIn = Object.keys(localStorage).some(k => /^sb-.*-auth-token$/.test(k)); } catch (e) { }
+  if (!signedIn) return;
   try {
     const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);

@@ -70,6 +70,7 @@
   var SB = 'https://izfccjaznlcffvjxawya.supabase.co', KEY = 'sb_publishable_b6KPHJ3aPWaxl3yVz93sTw_c47NzfOF';
   var MAIL = ['info', 'eyetoad.com'].join('@'); /* the email fallback when the server cannot be reached */
   var from = ''; try { from = new URLSearchParams(location.search).get('from') || ''; if (!from && document.referrer && new URL(document.referrer).host === location.host) from = new URL(document.referrer).pathname + new URL(document.referrer).search; } catch (e) { }
+  var T0 = Date.now(); /* bots submit instantly; people take more than 3 seconds */
   var f = document.getElementById('bug'), msg = document.getElementById('b-msg'), go = document.getElementById('b-go'), note = document.getElementById('b-note');
   var mailHref = function (body) { return 'mailto:' + MAIL + '?subject=' + encodeURIComponent('World VR Mall bug report') + '&body=' + encodeURIComponent(body || ''); };
   document.getElementById('b-mail').href = mailHref('');
@@ -77,7 +78,7 @@
   f.addEventListener('submit', function (e) {
     e.preventDefault(); msg.className = 'msg'; msg.textContent = '';
     var text = note.value.trim(), area = document.getElementById('b-area').value, email = document.getElementById('b-email').value.trim();
-    if (document.getElementById('b-web').value) { msg.className = 'msg ok'; msg.textContent = 'Thank you. Your report was sent.'; f.reset(); return; } /* a bot filled the hidden field */
+    if (document.getElementById('b-web').value || Date.now() - T0 < 3000) { msg.className = 'msg ok'; msg.textContent = 'Thank you. Your report was sent.'; f.reset(); return; } /* a bot filled the hidden field or was too fast */
     if (text.length < 4) { msg.className = 'msg err'; msg.textContent = 'Please write a few words about what happened.'; note.focus(); return; }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = 'msg err'; msg.textContent = 'That email address looks incomplete. Fix it or leave it empty.'; document.getElementById('b-email').focus(); return; }
     var row = { kind: 'bug', note: (text + (email ? ' · reply to ' + email : '')).slice(0, 1150), page: (from || '/report-bug/').slice(0, 300), ua: navigator.userAgent.slice(0, 160), extra: { site: location.hostname, form: 'report-bug', area: area || null, viewport: innerWidth + 'x' + innerHeight } };
