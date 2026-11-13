@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https://allofus.one; script-src 'self' 'sha256-8tM8+DqvqfQfsCu//qL+6mjaOHJf3YJOXzOyyqBtfmw=' 'sha256-/l97vqSyE2mI33s5EoUR7G71xp46BFLNVMQZldyW0rI=' 'sha256-F9QbEOHlzwcQqPtiCHSzPHcXRHzv9aEBKoadLxJAzE8=' 'sha256-XUW3mIwc/A+EXxDqEl5qXrKw3pzL+4dPaUiTKHd4y+o=' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://izfccjaznlcffvjxawya.supabase.co wss://izfccjaznlcffvjxawya.supabase.co https://formsubmit.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.google.com https://*.g.doubleclick.net data: blob:; frame-src https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co; upgrade-insecure-requests"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https://allofus.one; script-src 'self' 'sha256-8tM8+DqvqfQfsCu//qL+6mjaOHJf3YJOXzOyyqBtfmw=' 'sha256-/l97vqSyE2mI33s5EoUR7G71xp46BFLNVMQZldyW0rI=' 'sha256-F9QbEOHlzwcQqPtiCHSzPHcXRHzv9aEBKoadLxJAzE8=' 'sha256-XUW3mIwc/A+EXxDqEl5qXrKw3pzL+4dPaUiTKHd4y+o=' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://izfccjaznlcffvjxawya.supabase.co wss://izfccjaznlcffvjxawya.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.google.com https://*.g.doubleclick.net data: blob:; frame-src https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>World VR Mall Feed | New Stores, Deals & the Prize Hunt</title>
 <meta name="description" content="The flat Mall feed: new and featured stores, this week's real offers, the prize hunt, and a one-tap walk-in to any store in 3D or VR. No engine, loads instantly.">
 <link rel="canonical" href="https://worldvrmall.com/feed/"><meta name="robots" content="index,follow,max-image-preview:large"><meta name="theme-color" content="#0b1a3a"><link rel="icon" href="/images/world-vr-mall-favicon-192.png">
@@ -19,29 +19,23 @@
   <div class="walk"><a class="btn p" href="/mall/?mode=3d" id="walk3d">Walk in · 3D</a><a class="btn dark" href="/mall/?vr=1" id="walkvr">Walk in · VR</a><a class="btn" href="/directory/">Full directory</a><a class="btn" href="/?mode=3d">The island</a></div></div>
   <img src="/images/vr-stores-hero-billboard.jpg" alt="World VR Mall billboard: stores from all over the world" width="1536" height="864" loading="lazy">
 </section>
-
 <h2 id="h-search">Find a store <small id="count"></small></h2>
 <div class="bar"><input id="q" type="search" placeholder="Search stores, products, cities (showers, pizza, Denver)" aria-label="Search the directory"><div class="chips" id="wings"><button class="on" data-w="all">All</button><button data-w="lobby">Lobby</button><button data-w="americas">Americas</button><button data-w="europe">Europe</button><button data-w="asia">Asia &amp; Africa</button><button data-w="food">Food court</button></div></div>
 <div class="grid" id="results" hidden></div>
-
 <h2 id="h-new">New &amp; featured stores <small>real businesses, real checkout</small></h2>
 <div class="grid" id="featured"><p class="muted">Loading the stores…</p></div>
-
 <h2 id="h-deals">Deals &amp; offers <small id="offers-when"></small></h2>
 <div class="grid" id="offers"><p class="muted">Loading offers…</p></div>
-
 <h2 id="h-prize">Prize hunt <small id="prize-when">status</small></h2>
 <p class="muted" style="margin:0 0 10px;font-size:14px">Over $5,000 in prizes hidden on the island and inside the mall. No clues. When you find one in 3D or VR, a claim form opens. One prize per person · 18+ · U.S. only · no purchase necessary · <a href="/prize-rules/">official rules</a>.</p>
 <div class="prize" id="prizes"></div>
 <div class="pzbar"><a class="btn g sm" href="/?mode=3d">Hunt on the island</a><a class="btn g sm" href="/mall/?mode=3d">Hunt inside the mall</a><a class="btn sm" href="/mall/?vr=1">Hunt in VR</a></div>
-
 <div class="up">
   <div class="upc"><h3>Get your storefront</h3><p>A photo-real store shoppers walk into, a helper that answers questions and hands off to your phone, and a listing in this feed. Works on any phone. Set up in about ten minutes.</p><a class="btn" href="tel:18004818638">1-800-481-8638</a> <a class="btn" href="/lease/">Store rental details</a></div>
   <div class="upc gold"><h3>One login, two worlds</h3><p>Your allofus.one account works here too: the same Lifeboard, the same friends, your character follows you. Walk through the portal in either world and you arrive signed in.</p><a class="btn" href="https://allofus.one/?from=mall" id="aou-home">AllOfUs home</a></div>
 </div>
-
 <footer><a href="/">Home</a><a href="/mall/">Inside the mall</a><a href="/directory/">Directory</a><a href="/stores/">All stores</a><a href="/lease/">Rent a store</a><a href="/about/">About</a><a href="/tour/">Tour</a><a href="/terms/">Terms &amp; Privacy</a><a href="/prize-rules/">Prize rules</a><a href="/report-bug/?from=/feed/">Report a bug</a><span>World VR Mall · Denver, Colorado · Powered by <a href="https://eyetoad.com" rel="nofollow">Eye To Ad Media</a> · © 2026</span></footer>
 </div>
 <script>(function(){var u=/([🇦-🇿])([🇦-🇿])/u,a=function(t){var e=t.textContent;if(!(!e||t.dataset.fx===e)){var r=u.exec(e),o=r?String.fromCharCode(r[1].codePointAt(0)-127462+65,r[2].codePointAt(0)-127462+65):e.replace(/[🀀-🫿☀-➿️‍]/gu,"").trim();t.textContent=o,t.dataset.fx=o}},n=function(){document.querySelectorAll(".card .flag").forEach(a)};new MutationObserver(n).observe(document.documentElement,{childList:!0,subtree:!0}),n()})();</script>
-<script type="module" src="/js/9934ed4a3355.js"></script>
+<script type="module" src="/js/b610ad158e54.js"></script>
 </body></html>
