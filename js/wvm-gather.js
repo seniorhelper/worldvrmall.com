@@ -414,7 +414,7 @@ export function installGather(app) {
   const camV = new T.Vector3(), camD = new T.Vector3(), tmpV = new T.Vector3(); let budgetT = 0;
   function panelFrame(t) {
     const C = st.circle; if (!C || st.active !== C.slot) { for (const P of panels.values()) P.g.visible = false; return; }
-    const xr = a.renderer.xr && a.renderer.xr.isPresenting; const cam = xr ? a.renderer.xr.getCamera() : a.camera; cam.getWorldPosition(camV); cam.getWorldDirection(camD);
+    const xr = a.renderer.xr && a.renderer.xr.isPresenting; const cam = a.camera; cam.getWorldPosition(camV); cam.getWorldDirection(camD);
     for (const P of panels.values()) { const [sx, sz] = C.seats[P.seat] || [0, 0]; P.g.position.set(sx * 1.04, 2.25, sz * 1.04); P.g.visible = true; P.g.getWorldPosition(tmpV); P.g.rotation.y = Math.atan2(camV.x - tmpV.x, camV.z - tmpV.z);
       if (P.id !== st.me.id) { const lv = C.mesh.level(P.id); P.fr.material.color.setHex(lv > 0.08 ? 0xffb060 : 0x3a2416); C.mesh.place(P.id, tmpV.x, 1.15, tmpV.z); } else P.fr.material.color.setHex(C.mesh.micLive ? 0xffb060 : 0x3a2416); }
     C.mesh.listener(camV, camD);
@@ -527,7 +527,7 @@ export function installGather(app) {
       if (actrl && actrl.ctx.state === 'suspended') actrl.ctx.resume().catch(() => { });
     }
     dragFrame(t); panelFrame(t); vrFrame();
-    if (actrl) { const xr = a.renderer.xr && a.renderer.xr.isPresenting; const cam = xr ? a.renderer.xr.getCamera() : a.camera; cam.getWorldPosition(aV); cam.getWorldDirection(aD); const L = actrl.ctx.listener; const fx = st.active >= 0 ? SLOTS[st.active][0] : HALL.x, fz = st.active >= 0 ? SLOTS[st.active][1] : HALL.z; const p = actrl.pan;
+    if (actrl) { const xr = a.renderer.xr && a.renderer.xr.isPresenting; const cam = a.camera; cam.getWorldPosition(aV); cam.getWorldDirection(aD); const L = actrl.ctx.listener; const fx = st.active >= 0 ? SLOTS[st.active][0] : HALL.x, fz = st.active >= 0 ? SLOTS[st.active][1] : HALL.z; const p = actrl.pan;
       if (L.positionX) { L.positionX.value = aV.x; L.positionY.value = aV.y; L.positionZ.value = aV.z; L.forwardX.value = aD.x; L.forwardY.value = aD.y; L.forwardZ.value = aD.z; L.upY.value = 1; p.positionX.value = fx; p.positionY.value = 0.8; p.positionZ.value = fz; } else { L.setPosition(aV.x, aV.y, aV.z); L.setOrientation(aD.x, aD.y, aD.z, 0, 1, 0); p.setPosition(fx, 0.8, fz); } }
   }
   addEventListener('pagehide', () => { if (st.circle) { try { st.circle.net.leave(); st.circle.mesh.close(); } catch (e) { } } });

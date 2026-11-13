@@ -117,7 +117,7 @@ function runLoops(app, list) {
   const kill = (s) => { if (s.au) { try { if (s.au.isPlaying) s.au.stop(); } catch (e) { } s.holder.removeFromParent(); s.au = null; s.holder = null; } };
   return () => {
     if (!S.unlocked) return; const l = listener(); if (!l) return;
-    (app.renderer.xr.isPresenting ? app.renderer.xr.getCamera() : app.camera).getWorldPosition(cam);
+    app.camera.getWorldPosition(cam);
     const near = spots.map((s) => ({ s, d: Math.hypot(s.at[0] - cam.x, s.at[1] - cam.y, s.at[2] - cam.z) })).filter((o) => o.d < o.s.max * 1.05 && (o.s.level === undefined || o.s.level === (app.level || 0))).sort((a, b) => a.d - b.d).slice(0, MAX_LIVE).map((o) => o.s);
     for (const s of spots) {
       if (!near.includes(s) || !S.on) { kill(s); continue; }
@@ -153,7 +153,7 @@ function runRides(app) {
   return (dt, t) => {
     if (!app.ride) { if (on) { on = false; coaster = false; climbT = 0; stopAll(); } have = false; return; }
     if (!on) { on = true; t0 = t; }
-    (app.renderer.xr.isPresenting ? app.renderer.xr.getCamera() : app.camera).getWorldPosition(cur);
+    app.camera.getWorldPosition(cur);
     if (!have) { prev.copy(cur); have = true; return; }
     /* engine time: rides advance on app.t, so dt (not the wall clock) gives the speeds the ride was designed with */
     const sp = cur.distanceTo(prev) / Math.max(dt, 1e-3), vy = (cur.y - prev.y) / Math.max(dt, 1e-3); prev.copy(cur);
@@ -235,7 +235,7 @@ function toggleLoud(app, sc) {
 function runScreens(app) {
   const cam = new T.Vector3(), wp = new T.Vector3();
   return (dt, t) => {
-    if (!screens.length) return; (app.renderer.xr.isPresenting ? app.renderer.xr.getCamera() : app.camera).getWorldPosition(cam);
+    if (!screens.length) return; app.camera.getWorldPosition(cam);
     for (const sc of screens) {
       sc.g.getWorldPosition(wp); const d = cam.distanceTo(wp);
       if (d < 45 && !document.hidden) wake(sc); else if (d > 65 || document.hidden) sleep(sc);

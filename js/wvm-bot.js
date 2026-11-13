@@ -192,16 +192,16 @@ export function initBot(app, opts = {}) {
   $('.pax-in button').onclick = () => send(inp.value);
   for (const ev of ['keydown', 'keyup', 'keypress']) stage.addEventListener(ev, (e) => { e.stopPropagation(); if (ev === 'keydown' && e.key === 'Enter' && e.target === inp) send(inp.value); });
   function humanForm() {
-    const f = document.createElement('div'); f.className = 'pax-form'; f.dataset.a = 'aW5mbw=='; f.dataset.b = 'ZXlldG9hZA=='; f.dataset.c = 'Y29t'; const born = Date.now(); let real = false;
+    const f = document.createElement('div'); f.className = 'pax-form'; const born = Date.now(); let real = false;
     f.innerHTML = '<input name="name" placeholder="Your name" maxlength="80" autocomplete="name"><input name="reach" placeholder="Email or phone" maxlength="120"><textarea name="msg" rows="3" placeholder="How can we help?" maxlength="1200"></textarea><div class="pax-off" aria-hidden="true"><input name="_honey" tabindex="-1" autocomplete="off"></div><button type="button">Send to a human</button>';
     f.addEventListener('keydown', () => { real = true; }); f.addEventListener('pointerdown', () => { real = true; });
     const btn = f.querySelector('button'); btn.onclick = async () => {
       const v = (n) => f.querySelector('[name="' + n + '"]').value.trim(); if (!v('reach') || !v('msg')) { add('b', 'I need a way to reach you and a quick note. Then I will send it.'); return; }
       if (v('_honey') || !real || Date.now() - born < 3500) { add('b', 'Thanks! Message noted.'); f.remove(); return; }
       btn.disabled = true; btn.textContent = 'Sending…';
-      try { const to = atob(f.dataset.a) + String.fromCharCode(64) + atob(f.dataset.b) + '.' + atob(f.dataset.c); const host = ['https:', '', ['formsubmit', 'co'].join('.'), 'ajax', to].join('/');
-        const r = await fetch(host, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ _subject: 'World VR Mall · help request (Pax)', _template: 'table', _captcha: 'false', name: v('name') || '(no name)', reach: v('reach'), message: v('msg'), page: location.pathname }) });
-        const j = await r.json().catch(() => ({})); if (r.ok && String(j.success) === 'true') { window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'pax_help'}})); add('b', '✅ Delivered to a real human. They will get back to you. Peace! ✌️'); f.remove(); } else throw new Error('not confirmed'); }
+      try { /* our own lead function (the same one the leasing and investor forms use): no outside form relay */ const { CONFIG } = await import('/js/wvm-config.js'); const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'); const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'wvm-pax-anon' } }); const reach = v('reach'); const isMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reach);
+        const { error } = await sb.rpc('submit_lead', { p_kind: 'help', p_name: v('name') || '(no name)', p_business: 'World VR Mall · help request (Pax)', p_email: isMail ? reach : 'anon@allofus.one', p_phone: isMail ? '' : reach.slice(0, 40), p_website: location.href.slice(0, 200), p_details: JSON.stringify({ reach, message: v('msg'), page: location.pathname }) });
+        if (!error) { window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'pax_help'}})); add('b', '✅ Delivered to a real human. They will get back to you. Peace! ✌️'); f.remove(); } else throw new Error('not confirmed'); }
       catch (e) { btn.disabled = false; btn.textContent = 'Send to a human'; add('b', '⚠️ That did not go through on my end. Please call 1-800-481-8638 and a human will help right away.'); }
     }; log.appendChild(f); log.scrollTop = log.scrollHeight;
   }

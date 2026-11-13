@@ -76,7 +76,7 @@ export function installOrbitVoice(app, orbit) {
   app.onUpdate((dt, t) => {
     const show = api.speaking || performance.now() < until; box.mesh.visible = show && orbit.group.visible; if (!box.mesh.visible) return;
     orbit.group.getWorldPosition(box.mesh.position); box.mesh.position.y -= 0.55;
-    (app.renderer.xr.isPresenting ? app.renderer.xr.getCamera() : app.camera).getWorldPosition(cam); box.mesh.lookAt(cam); box.update(t);
+    app.camera.getWorldPosition(cam); box.mesh.lookAt(cam); box.update(t);
   });
   const api = { speaking: false, say, talk, box };
   app._orbitVoice = api; window.WVM_ORBIT_VOICE = api; return api;

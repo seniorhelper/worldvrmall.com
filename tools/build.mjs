@@ -37,7 +37,7 @@ window.addEventListener('wvm-lead', function (e) { gtag('event', 'generate_lead'
 
 /* never published: anything matching is skipped (paths are repo-relative, forward slashes) */
 export const EXCLUDE = [
-  /^\.git(\/|$)/, /^\.github\//, /^\.claude\//, /^\.vscode\//, /^node_modules\//, /^dist\//, /^tools\//, /^supabase\//,
+  /^\.[^/]+(\/|$)/, /^node_modules\//, /^dist\//, /^tools\//, /^supabase\//,
   /^_[^/]*\//, /(^|\/)\.[^/]+$/,                                   // _drafts/, dotfiles (.gitignore, .gitkeep, .DS_Store…)
   /\.(md|sql|map|log|bak|tmp|psd|ts|mjs|cjs|zip)$/i, /(^|\/)(package(-lock)?\.json|Thumbs\.db|desktop\.ini)$/i,
   /(^|\/)(notes?|handoff|internal|private|secrets?)[^/]*$/i,
@@ -105,13 +105,13 @@ function csp(hashes, inlineHandlers) {
     "font-src 'self' data: https://fonts.gstatic.com",
     'img-src \'self\' data: blob: https:',   // https: already covers the GA hosts
     'media-src \'self\' data: blob: https:',
-    `connect-src 'self' ${api} ${wss} https://formsubmit.co${GA_CONNECT} data: blob:`,
+    `connect-src 'self' ${api} ${wss}${GA_CONNECT} data: blob:`,
     'frame-src https:',
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self' https://formsubmit.co",
+    "form-action 'self'",
     'upgrade-insecure-requests',
   ].join('; ');
 }

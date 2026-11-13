@@ -56,7 +56,7 @@ export function initLifeVR(app, X, h) {
   const _v = new T.Vector3(), _v2 = new T.Vector3();
   const api = {
     group: G, rebuild,
-    open: (mount) => { rebuild(); G.visible = true; if (mount && mount.pos) { G.position.copy(mount.pos); G.rotation.set(0, mount.yaw || 0, 0); G.scale.setScalar(mount.scale || 1); } else { const cam = app.renderer.xr.getCamera(); cam.getWorldPosition(_v); cam.getWorldDirection(_v2); _v2.y = 0; if (_v2.lengthSq() < 1e-4) _v2.set(0, 0, -1); _v2.normalize().multiplyScalar(1.7 * (X.scale || 1)).add(_v); _v2.y = _v.y - 0.05 * (X.scale || 1); G.position.copy(_v2); G.lookAt(_v.x, G.position.y, _v.z); G.scale.setScalar(X.scale || 1); } haptic(0.4, 40); },
+    open: (mount) => { rebuild(); G.visible = true; if (mount && mount.pos) { G.position.copy(mount.pos); G.rotation.set(0, mount.yaw || 0, 0); G.scale.setScalar(mount.scale || 1); } else { const cam = app.camera; cam.getWorldPosition(_v); cam.getWorldDirection(_v2); _v2.y = 0; if (_v2.lengthSq() < 1e-4) _v2.set(0, 0, -1); _v2.normalize().multiplyScalar(1.7 * (X.scale || 1)).add(_v); _v2.y = _v.y - 0.05 * (X.scale || 1); G.position.copy(_v2); G.lookAt(_v.x, G.position.y, _v.z); G.scale.setScalar(X.scale || 1); } haptic(0.4, 40); },
     close: () => { G.visible = false; clear(); },
     toggle: (mount) => { if (G.visible) api.close(); else api.open(mount); },
     mountOffice: () => null, /* no office panel in the mall */
