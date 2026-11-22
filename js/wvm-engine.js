@@ -1089,8 +1089,12 @@ export class WVM {
     if (this.renderer && this.renderer.xr && this.renderer.xr.isPresenting) {
       try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && /(^|\.)(worldvrmall\.com|allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) || u.origin === location.origin) { if (!u.searchParams.has('vr')) u.searchParams.set('vr', '1'); if (u.origin !== location.origin && !u.searchParams.has('from')) u.searchParams.set('from', 'mall'); /* the in-headset diagnostics follow you through the door */ if (/[?&]vrdebug=1/.test(location.search) && !u.searchParams.has('vrdebug')) u.searchParams.set('vrdebug', '1'); url = u.href; } } catch (e) { }
       try { sessionStorage.setItem('wvm_vr_hop', '1'); } catch (e) { }
-      const s = this.renderer.xr.getSession(); let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
-      if (s) { try { s.addEventListener('end', nav); s.end(); } catch (e) { nav(); } setTimeout(nav, 1200); } else nav();
+      /* Stay in VR across the door (Nov 22 2026): the headset browser only hands the immersive session to the next page ('sessiongranted')
+         when the page change happens WHILE the session is still running. Ending it first, as this did before, is what dropped every
+         visitor to the flat browser window on each jump. So: a short moment for the view to go dark, then navigate with the session alive.
+         A browser without the hand-over ends the session itself and the next page shows its one-tap door, exactly as before. */
+      let done = false; const nav = () => { if (done) return; done = true; location.href = url; };
+      setTimeout(nav, 350);
       return;
     }
     try { const u = new URL(url, location.href); if (/^https?:$/.test(u.protocol) && u.origin !== location.origin && /(^|\.)(allofus\.one|thevrgalaxy\.com|anotherdimensionvr\.com|virtualrealityadventure\.com|vrflyingsimulator\.com|comicscomealive\.com|advertisingforrestaurant\.com)$/i.test(u.hostname.replace(/^www\./, '')) && !u.searchParams.has('from')) { u.searchParams.set('from', 'mall'); url = u.href; } } catch (e) { }
@@ -1744,7 +1748,7 @@ export class WVM {
     this.setSpeed(this._load('wvm_speed', 1));
     hud.querySelector('#wvm-list').onclick = () => this.toggleList();
     hud.querySelector('#wvm-radio').onclick = () => this.toggleRadio();
-    hud.querySelector('#wvm-map').onclick = () => this.goMenu();
+    hud.querySelector('#wvm-map').onclick = () => { if (this.mapDraw) this.showMap(); else this.goMenu(); };
     hud.querySelector('#wvm-full').onclick = () => { const d = document; if (d.fullscreenElement) { d.exitFullscreen(); } else { (d.documentElement.requestFullscreen || d.documentElement.webkitRequestFullscreen || (() => this.toast('Full screen is not available in this browser'))).call(d.documentElement); window.scrollTo(0, 0); } };
     this.listPanel.querySelector('.wvm-x').onclick = () => this.toggleList(false);
     this.radioPanel.querySelector('.wvm-x').onclick = () => this.toggleRadio(false);

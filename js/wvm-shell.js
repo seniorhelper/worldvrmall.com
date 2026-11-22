@@ -17,6 +17,9 @@
    ============================================================ */
 import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me, isHandheld, NAV_VR_ROWS } from '/js/wvm-rail.js?v=59';
 import { HICON } from '/js/wvm-icons.js?v=59';
+/* VR hand-over between pages: the head of each 3D page listens first (window.__wvmXrGranted); this is the second net. */
+try { if (navigator.xr && navigator.xr.addEventListener) navigator.xr.addEventListener('sessiongranted', () => { window.__wvmXrGranted = 1; }); } catch (e) { }
+const xrGranted = () => { try { return !!window.__wvmXrGranted; } catch (e) { return false; } };
 
 const I = (k) => HICON[k] || '';
 const SHELL_CSS = `
@@ -275,6 +278,9 @@ export function bootShell(cfg) {
     let tries = 0; const wait = setInterval(() => {
       const v = document.getElementById('wvm-vr'); if (!v) { if (++tries > 60) { clearInterval(wait); if (app.toast) app.toast('VR needs a headset browser (Quest). On this device the 3D mode is the whole show.', 5000); } return; }
       clearInterval(wait);
+      /* the headset browser handed us the running VR session from the page we came from ('sessiongranted', caught in the page head and above):
+         walk straight in, no tap. The door below still appears as the fallback and removes itself once VR is running. */
+      if (xrGranted() && !window.__wvmXrAuto) { window.__wvmXrAuto = 1; let n = 0; const auto = setInterval(() => { const live = app.renderer && app.renderer.xr && app.renderer.xr.isPresenting; if (live || ++n > 40) { clearInterval(auto); return; } if (typeof v.onclick === 'function' && !v.disabled) { clearInterval(auto); try { app.vrBody(pref || sv.character || null); } catch (e) { } try { v.click(); } catch (e) { } } }, 150); }
       const o = document.createElement('div'); o.id = 'wvm-door'; o.setAttribute('style', 'position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse at center,rgba(10,30,60,.8),rgba(2,6,16,.94));color:#fff;text-align:center;cursor:pointer;padding:24px;font-family:Poppins,Arial,sans-serif');
       o.innerHTML = `<button type="button">${I('🕶')}<span>${o.text || (hop ? 'Tap once · back into VR' : 'Tap to enter VR')}</span></button>${o.sub ? '<small>' + o.sub + '</small>' : hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
         (chars.length ? `<label>Body in VR <select>${chars.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.name}</option>`).join('')}</select></label>` : '');
