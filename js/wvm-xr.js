@@ -239,7 +239,8 @@ export function installSim(app, R) {
     if (K.ArrowUp) sim.pitch = Math.min(1.3, sim.pitch + 0.03); if (K.ArrowDown) sim.pitch = Math.max(-1.3, sim.pitch - 0.03); if (K.ArrowLeft) app.yaw += 0.03; if (K.ArrowRight) app.yaw -= 0.03;
     const set = (g, i, on) => { if (!g || !g.buttons) return; g.buttons[i].pressed = !!on; g.buttons[i].value = on ? 1 : 0; g.buttons[i].touched = !!on; }; const L = srcs[0] && srcs[0].gamepad, Rg = srcs[1] && srcs[1].gamepad; if (L) { L.axes[2] = (K.KeyD ? 1 : 0) - (K.KeyA ? 1 : 0); L.axes[3] = (K.KeyS ? 1 : 0) - (K.KeyW ? 1 : 0); } if (Rg) { Rg.axes[2] = (K.KeyE ? 1 : 0) - (K.KeyQ ? 1 : 0); Rg.axes[3] = 0; }
     set(L, 5, sim.press.Y || K.KeyM); set(L, 4, sim.press.X || K.KeyV); set(L, 3, !!K.ShiftLeft); set(Rg, 4, sim.press.A || K.KeyA && K.ShiftLeft); set(Rg, 5, sim.press.B || K.KeyB); set(Rg, 3, sim.press.stick || K.KeyT); set(Rg, 1, !!sim.press.grip); set(Rg, 0, !!sim.press.trigger); set(L, 1, !!sim.press.gripL); if (sim.holdGrip) { set(Rg, 1, true); if (Rg) Rg.buttons[1].value = 1; } sim.press = {};
-    place(); };
+    place();
+    /* Nov 22: three draws a presenting frame with xr.getCamera(), so the stand-in needs the head's WORLD matrices as the real XR camera has (its position / quaternion stay in rig space). Without them the simulator drew every frame from the world origin at ground level. */ try { cam.updateMatrixWorld(true); simCam.matrixWorld.copy(cam.matrixWorld); simCam.matrixWorldInverse.copy(cam.matrixWorld).invert(); simCam.projectionMatrix.copy(cam.projectionMatrix); simCam.projectionMatrixInverse.copy(cam.projectionMatrixInverse); } catch (e) { } };
   app.onUpdate(tick); sim.tick = tick;
   const canvas = R.domElement;
   canvas.addEventListener('pointermove', (e) => { const r = canvas.getBoundingClientRect(); sim.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); });
