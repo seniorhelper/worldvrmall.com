@@ -120,6 +120,8 @@ export function arrival2(app, cfg = {}) {
   k.skyU.uTh.value = 4; k.skyU.uLift.value = short ? 1 : 0.6; k.skyU.uGlow.value = 0; k.ptU.uA.value = 0; k.logoM.opacity = 0; k.haloM.opacity = 0;
   let t = short ? T_OPEN : 0, rate = short ? (T_END - T_OPEN) / SHORT_LEN : 1, clock = 0, wait = 0, last = 0, locked = false, done = false, lit = false, snd = null;
   const _p = new T.Vector3(), _f = new T.Vector3(), _v = new T.Vector2();
+  /* three keys every program on the scene's light and shadow state, and the VR layer changes that state as the session starts: the programs compiled on the 2D page may not be the ones a headset frame asks for. Compile again here, in the session-start task with the VR state already set, so any compile lands before the first frame and never on a drawn one. */
+  try { R.compile(k.grp, cam, app.scene); } catch (e) { }
   if (!short) audioReady(); /* the audio context is made here, in the session-start task, not on a drawn frame */
   const lock = () => {
     locked = true; cam.updateMatrixWorld(true); cam.getWorldPosition(_p); cam.getWorldDirection(_f); _f.y = 0; if (_f.lengthSq() < 1e-6) _f.set(0, 0, -1); _f.normalize();
@@ -127,8 +129,8 @@ export function arrival2(app, cfg = {}) {
     k.skyU.uDir.value.copy(k.root.position).sub(_p).normalize();
     if (!short) snd = sting();
   };
-  const fx = (dt) => {
-    if (done) return; /* its own wall clock: the engine caps a frame at 50 ms, which would stretch the four seconds on a slow device */ const now = performance.now(); dt = last ? Math.min((now - last) / 1000, 0.1) : 0.016; last = now;
+  const fx = () => {
+    let dt; if (done) return; /* its own wall clock: the engine caps a frame at 50 ms, which would stretch the four seconds on a slow device */ const now = performance.now(); dt = last ? Math.min((now - last) / 1000, 0.25) : 0.016; last = now;
     if (!locked) { /* at 'sessionstart' the headset has no pose yet: wait for one (a third of a second at most), the sky is already tracking */ wait += dt; if (cam.position.y > 0.3 || cam.position.lengthSq() > 0.01 || wait > 0.35) lock(); else return; }
     t += dt * rate; clock += dt;
     try { const xc = R.xr.isPresenting && R.xr.getCamera && R.xr.getCamera(); const vp = xc && xc.cameras && xc.cameras[0] && xc.cameras[0].viewport; k.ptU.uPx.value = (vp && vp.w > 0 ? vp.w : R.getDrawingBufferSize(_v).y) * 0.5; } catch (e) { }
@@ -149,7 +151,9 @@ export function arrival2(app, cfg = {}) {
     active: true, card: false, parts: k, short, k: () => t,
     skip: () => { if (done || !H.active) return; H.active = false; if (!locked) lock(); if (t < T_OPEN) t = T_OPEN; rate = Math.max(rate, (T_END - t) / SKIP_LEN); if (snd) snd.hush(); },
     dismiss: () => { },
-    done: () => { if (done) return; done = true; H.active = false; playing = false; app.updaters = app.updaters.filter((u) => u !== fx); if (snd && t < T_END) snd.hush(); if (K === k) dispose(); try { cfg.onDone && cfg.onDone(); } catch (e) { } },
+    done: () => { if (done) return; done = true; H.active = false; playing = false; k.sky.onBeforeRender = () => { }; if (snd && t < T_END) snd.hush(); if (K === k) dispose(); try { cfg.onDone && cfg.onDone(); } catch (e) { } },
   };
-  app.onUpdate(fx); return H;
+  /* it advances from the sky's own draw, once per rendered frame (both eyes share one tick): while the sky is on screen the arrival cannot stall, even if a popup pauses the app's own updaters */
+  let lastFrame = -1; k.sky.onBeforeRender = (r) => { const f = r.info.render.frame; if (f === lastFrame) return; lastFrame = f; fx(); };
+  return H;
 }
