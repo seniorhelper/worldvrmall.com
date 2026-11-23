@@ -241,7 +241,7 @@ export function ageOf(dob) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d
    no account, no live people, no voice, no camera / selfie, no free-text forms. Only a date is kept in this browser. */
 const KID = 'wvm_kid_until';
 export function kidMode() { try { return (+localStorage.getItem(KID) || 0) > Date.now(); } catch (e) { return false; } }
-function kidOn(dob) { try { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob); const t = new Date(+m[1] + 13, +m[2] - 1, +m[3]).getTime(); localStorage.setItem(KID, String(t)); } catch (e) { } kidGuard(); emit('change', { kid: true }); }
+function kidOn(dob) { try { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob); const t = new Date(+m[1] + 13, +m[2] - 1, +m[3]).getTime(); localStorage.setItem(KID, String(t)); } catch (e) { } /* analytics stops the moment kids safe mode starts, and its cookies are removed */ try { for (const k of Object.keys(window)) if (/^ga-disable-/.test(k)) window[k] = true; window['ga-disable-G-YPQJVKDPLQ'] = true; const h = location.hostname.replace(/^www\./, ''); document.cookie.split(';').forEach((c) => { const n = c.split('=')[0].trim(); if (/^_ga/.test(n)) { document.cookie = n + '=; Max-Age=0; path=/'; document.cookie = n + '=; Max-Age=0; path=/; domain=.' + h; } }); } catch (e) { } kidGuard(); emit('change', { kid: true }); }
 function kidGuard() {
   if (!kidMode()) return; try { document.documentElement.classList.add('wvm-kid'); } catch (e) { }
   const md = navigator.mediaDevices; if (!md || md.__wvmKid) return; md.__wvmKid = true; const gum = md.getUserMedia && md.getUserMedia.bind(md);

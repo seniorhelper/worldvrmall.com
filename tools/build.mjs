@@ -31,7 +31,9 @@ const SB_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
    Key events: phone_click on any tel: link, generate_lead when a form confirms delivery (pages fire a 'wvm-lead' window event) */
 const GA_ID = String(args.ga || process.env.WVM_GA_ID || 'G-YPQJVKDPLQ');
 const GA_ON = /^G-[A-Z0-9]+$/.test(GA_ID);
-const GA_TAG = GA_ON ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script><script>window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); }; gtag('js', new Date()); gtag('config', '${GA_ID}');
+/* Nov 22 2026: the tag never loads on a device in kids safe mode (the Terms promise nothing about a child is sent anywhere), and Google's
+   advertising features are switched off for everyone (no Google signals, no ad personalization). */
+const GA_TAG = GA_ON ? `<script>window.dataLayer = window.dataLayer || []; window.gtag = function () { window.dataLayer.push(arguments); }; (function () { var kid = false; try { kid = (+localStorage.getItem('wvm_kid_until') || 0) > Date.now(); } catch (e) { } if (kid) { window['ga-disable-${GA_ID}'] = true; return; } var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=${GA_ID}'; document.head.appendChild(s); gtag('js', new Date()); gtag('config', '${GA_ID}', { allow_google_signals: false, allow_ad_personalization_signals: false }); })();
 document.addEventListener('click', function (e) { var a = e.target && e.target.closest && e.target.closest('a[href^="tel:"]'); if (a) gtag('event', 'phone_click', { phone_number: a.getAttribute('href').slice(4), link_text: (a.textContent || '').trim().slice(0, 60), page_path: location.pathname }); }, true);
 window.addEventListener('wvm-lead', function (e) { gtag('event', 'generate_lead', { form_name: (e.detail && e.detail.form) || 'form', page_path: location.pathname }); });</script>` : '';
 
