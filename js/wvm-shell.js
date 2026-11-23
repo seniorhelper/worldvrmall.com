@@ -18,8 +18,46 @@
 import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me, isHandheld, noVrHere, NAV_VR_ROWS } from '/js/wvm-rail.js?v=59';
 import { HICON } from '/js/wvm-icons.js?v=59';
 /* VR hand-over between pages: the head of each 3D page listens first (window.__wvmXrGranted); this is the second net. */
-try { if (navigator.xr && navigator.xr.addEventListener) navigator.xr.addEventListener('sessiongranted', () => { window.__wvmXrGranted = 1; }); } catch (e) { }
+try { if (navigator.xr && navigator.xr.addEventListener) navigator.xr.addEventListener('sessiongranted', () => { window.__wvmXrGranted = 1; holdXR(); }); } catch (e) { }
 const xrGranted = () => { try { return !!window.__wvmXrGranted; } catch (e) { return false; } };
+/* Hand-over, part two (Nov 23 2026): take the granted session AT ONCE. The immersive-web navigation proposal warns the browser may end a
+   handed-over session if the page does not start its frame loop quickly, and the world module here takes seconds to load on a Quest, so
+   waiting for the VR button (as before) could lose it. Here the session is requested the moment it is granted (no tap needed for a granted
+   session), a tiny dark frame loop keeps it alive, and the first VR-button press (three's VRButton auto-presses it when granted) is handed
+   this same session instead of asking for a new one. Nothing comes of a world that never loads: the held session ends after 90 s. */
+const XR_INIT = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }; /* = three's VRButton */
+let heldXR = null;
+function holdXR() {
+  if (heldXR || !navigator.xr || !navigator.xr.requestSession || window.__wvmXrHeldGiven) return;
+  /* the next immersive request (the VR button) gets the held session, once, even if it comes while the request is still pending */
+  const rs0 = navigator.xr.requestSession.bind(navigator.xr);
+  navigator.xr.requestSession = (mode, init) => { navigator.xr.requestSession = rs0; if (mode !== 'immersive-vr' || !heldXR) return rs0(mode, init); return heldXR.then((sess) => { if (!sess || sess._wvmEnded || sess._wvmAdopted) return rs0(mode, init); sess._wvmAdopted = 1; window.__wvmXrHeldGiven = 1; setTimeout(() => sess._wvmRelease && sess._wvmRelease(), 3000); return sess; }); };
+  heldXR = rs0('immersive-vr', XR_INIT).then(async (sess) => {
+    let gl = null; const cv = document.createElement('canvas');
+    try { gl = cv.getContext('webgl2', { xrCompatible: true, alpha: false, antialias: false, depth: false }) || cv.getContext('webgl', { xrCompatible: true, alpha: false, antialias: false, depth: false }); } catch (e) { }
+    let binding = null, layer = null, ref = null, fb = null;
+    try {
+      /* the same layer kind three will set later (projection layer when the browser offers layers on WebGL 2), so the switch is like for like */
+      if (gl && sess.renderState.layers !== undefined && typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext && window.XRWebGLBinding) { binding = new XRWebGLBinding(sess, gl); layer = binding.createProjectionLayer({ textureType: 'texture', colorFormat: gl.RGBA8 }); await sess.updateRenderState({ layers: [layer] }); fb = gl.createFramebuffer(); ref = await sess.requestReferenceSpace('local'); }
+      else if (gl && window.XRWebGLLayer) { layer = new XRWebGLLayer(sess, gl, { antialias: false, depth: false }); await sess.updateRenderState({ baseLayer: layer }); }
+    } catch (e) { console.warn('xr hold layer', e); }
+    const tick = (t, frame) => {
+      if (sess._wvmAdopted || sess._wvmEnded) return; sess.requestAnimationFrame(tick); if (!gl || !layer) return;
+      try {
+        gl.clearColor(0.02, 0.05, 0.12, 1);
+        if (binding) { const pose = ref && frame.getViewerPose(ref); if (!pose) return; gl.bindFramebuffer(gl.FRAMEBUFFER, fb); for (const view of pose.views) { const sub = binding.getViewSubImage(layer, view); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, sub.colorTexture, 0); const v = sub.viewport; gl.viewport(v.x, v.y, v.width, v.height); gl.clear(gl.COLOR_BUFFER_BIT); } }
+        else { gl.bindFramebuffer(gl.FRAMEBUFFER, layer.framebuffer); gl.clear(gl.COLOR_BUFFER_BIT); }
+      } catch (e) { }
+    };
+    sess.requestAnimationFrame(tick);
+    const release = () => { try { const x = gl && gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) { } gl = null; };
+    sess.addEventListener('end', () => { sess._wvmEnded = 1; heldXR = null; release(); });
+    sess._wvmRelease = release;
+    setTimeout(() => { if (!sess._wvmAdopted && !sess._wvmEnded) { console.warn('xr hand-over: world did not load, ending the held session'); try { sess.end(); } catch (e) { } } }, 90000);
+    return sess;
+  }).catch((e) => { console.warn('xr hand-over: the granted session could not start', e); heldXR = null; return null; });
+}
+if (xrGranted()) holdXR();
 
 const I = (k) => HICON[k] || '';
 const SHELL_CSS = `
@@ -284,12 +322,13 @@ export function bootShell(cfg) {
     const sv = app._load('wvm_avatar', {}) || {}; let pref = null; try { pref = localStorage.getItem('wvm_vr_body'); } catch (e) { }
     const cur = pref || sv.character || 'hero';
     try { if (hop) sessionStorage.setItem('wvm_vr_hopped', '1'); } catch (e) { }
+    if (hop && !/[?&]xrsim=1/.test(location.search)) setTimeout(() => { try { const ok = xrGranted(); /* the browser fired sessiongranted: it hands over */ localStorage.setItem('wvm_xr_handover', ok ? '1' : '0'); } catch (e) { } }, 8000);
     let tries = 0; const wait = setInterval(() => {
       const v = document.getElementById('wvm-vr'); if (!v) { if (++tries > 60) { clearInterval(wait); if (app.toast) app.toast('VR needs a headset browser (Quest). On this device the 3D mode is the whole show.', 5000); } return; }
       clearInterval(wait);
       /* the headset browser handed us the running VR session from the page we came from ('sessiongranted', caught in the page head and above):
          walk straight in, no tap. The door below still appears as the fallback and removes itself once VR is running. */
-      if (xrGranted() && !window.__wvmXrAuto) { window.__wvmXrAuto = 1; let n = 0; const auto = setInterval(() => { const live = app.renderer && app.renderer.xr && app.renderer.xr.isPresenting; if (live || ++n > 40) { clearInterval(auto); return; } if (typeof v.onclick === 'function' && !v.disabled) { clearInterval(auto); try { app.vrBody(pref || sv.character || null); } catch (e) { } try { v.click(); } catch (e) { } } }, 150); }
+      if (xrGranted() && !window.__wvmXrAuto) { window.__wvmXrAuto = 1; let n = 0; const auto = setInterval(() => { const live = app.renderer && app.renderer.xr && app.renderer.xr.isPresenting; if (live || window.__wvmXrHeldGiven || ++n > 40) { clearInterval(auto); return; } if (typeof v.onclick === 'function' && !v.disabled) { clearInterval(auto); try { app.vrBody(pref || sv.character || null); } catch (e) { } try { v.click(); } catch (e) { } } }, 150); }
       const o = document.createElement('div'); o.id = 'wvm-door'; o.setAttribute('style', /* full screen: cancel the old centred-card rule for #wvm-door (its translate(-50%,-50%) and clip-path pushed this sheet half off screen, the tap button into the top-left corner), and sit above the prize and welcome cards */ 'position:fixed;inset:0;transform:none;clip-path:none;border-radius:0;max-width:none;box-shadow:none;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse at center,rgba(10,30,60,.8),rgba(2,6,16,.94));color:#fff;text-align:center;cursor:pointer;padding:24px;font-family:Poppins,Arial,sans-serif');
       o.innerHTML = `<button type="button">${I('🕶')}<span>${o.text || (hop ? 'Tap once · back into VR' : 'Tap to enter VR')}</span></button>${o.sub ? '<small>' + o.sub + '</small>' : hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
         (chars.length ? `<label>Body in VR <select>${chars.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.name}</option>`).join('')}</select></label>` : '');
