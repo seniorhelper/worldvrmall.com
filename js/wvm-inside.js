@@ -84,8 +84,8 @@ function buildShell() {
   const ez = 108;
   const arch = new T.Mesh(new T.TorusGeometry(9, 1, 12, 48, Math.PI), glow(NEON, 1.4)); arch.position.set(0, 0.2, ez); S.add(arch);
   const portal = new T.Mesh(new T.CircleGeometry(8.4, 48), new T.ShaderMaterial({ uniforms: { t: { value: 0 } }, transparent: true, side: T.DoubleSide, vertexShader: 'varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}', fragmentShader: 'uniform float t; varying vec2 vUv; void main(){vec2 c=vUv-0.5; float r=length(c); float a=atan(c.y,c.x); float s=sin(r*40.0-t*4.0+a*3.0)*0.5+0.5; vec3 col=mix(vec3(0.05,0.2,0.6),vec3(0.22,0.94,1.0),s); float e=smoothstep(0.5,0.42,r); gl_FragColor=vec4(col+vec3(0.5,0.9,0.4)*pow(1.0-r*2.0,3.0)*0.5, e*0.85);}' })); portal.position.set(0, 0.2, ez + 0.5); S.add(portal); shaderMats.push(portal.material);
-  app.addHotspot(portal, { go: '/', label: 'Heading outside…' }); app.addHotspot(arch, { go: '/', label: 'Heading outside…' });
-  app.addInteractable(0, ez - 4, 6, '🌳 Go outside', (a) => a.go('/', 'Heading outside…'));
+  app.addHotspot(portal, { go: '/?mode=3d', label: 'Heading outside…' }); app.addHotspot(arch, { go: '/?mode=3d', label: 'Heading outside…' });
+  app.addInteractable(0, ez - 4, 6, '🌳 Go outside', (a) => a.go('/?mode=3d', 'Heading outside…'));
   try { buildAllOfUsPortal(app, -26, ez - 10, Math.PI * 0.5, { trigger: false }); } catch (e) { console.warn('allofus portal', e); }
   const exitSign = makeSign(['EXIT → PARK, COASTERS, LAKE', 'walk into the portal'], { width: 12, height: 3.2, postHeight: 9, bg: '#07123a', accent: '#7cff6b', border: '#7cff6b', posts: false }); exitSign.position.set(0, 0, ez - 1); S.add(exitSign);
   // welcome banner
