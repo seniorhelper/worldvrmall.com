@@ -75,7 +75,7 @@ const HEADSET = /OculusBrowser|Quest|Pico/i.test(navigator.userAgent);
 export const TEX_MAX = HEADSET ? 1024 : 2048;
 export const texBudget = { bytes: 0, canvases: 0, cap: HEADSET ? 320e6 : 1.4e9, over() { return this.bytes > this.cap; } };
 export function shrinkTex(tex, max = TEX_MAX) { try { const im = tex && tex.image; if (!im || !im.width || !im.height) return tex; const s = max / Math.max(im.width, im.height); if (s >= 1) return tex; const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * s)); c.height = Math.max(1, Math.round(im.height * s)); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); tex.image = c; tex.needsUpdate = true; } catch (e) { } return tex; }
-try { const L0 = THREE.TextureLoader.prototype.load; THREE.TextureLoader.prototype.load = function (url, onLoad, onProgress, onError) { return L0.call(this, url, (t) => { shrinkTex(t); if (onLoad) onLoad(t); }, onProgress, onError); }; } catch (e) { }
+try { const L0 = THREE.TextureLoader.prototype.load; THREE.TextureLoader.prototype.load = function (url, onLoad, onProgress, onError) { return L0.call(this, url, (t) => { /* 360° skies keep their full width (2048 max): at 1024 a sky panorama is under 3 texels a degree and turns to blocks in a headset */ shrinkTex(t, /360|panorama|\/textures\/sky-|\/images\/sky\./.test(String(url)) ? 2048 : TEX_MAX); if (onLoad) onLoad(t); }, onProgress, onError); }; } catch (e) { }
 
 /* ---- Sky presets (files live in /images/) ---- */
 export const SKIES = {

@@ -2,6 +2,7 @@ import { WVM, THREE, makeEarth, loadRiggedPerson, rand, pick, clamp, makeSign, m
 import { initBot } from '/js/wvm-bot.js?v=59';
 import { ideaForm, buildStore, wingName, leadForm, logoTexture } from '/js/wvm-store.js?v=59';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { vrFog } from '/js/wvm-look.js?v=59';
 
 const T = THREE;
 const app = new WVM({
@@ -9,6 +10,8 @@ const app = new WVM({
   spawn: new T.Vector3(3, 0, 92), spawnYaw: 0.05, groundY: (x, z) => LEVEL.y(x, z), bounds: 1500,
   fog: 0xffd2a8, fogNear: 300, fogFar: 1500, showSelfieOnFirstVisit: false, maxDist: 420, spriteFar: 42, cullDist: 300, startLvl: 0, shadowEvery: 2, shadowSize: 1024, onTravel: (pl, ap) => { LEVEL.cur = pl.level || 0; ap.level = LEVEL.cur; if (pl.x !== undefined && !LEVEL.cur) lazyNear(pl.x, pl.z, 75, 5); },
 });
+/* VR fog that keeps colour: the VR layer's 40-240 m clamp washed the whole mall in peach (js/wvm-look.js) */
+try { vrFog(app, 160, 900); } catch (e) { }
 window.WVM_APP = app;
 
 /* hooks for the VR layer (the shared aou-xr/wvm-xr port reads these): arrival plate copy + accent, extra Go-menu rows */

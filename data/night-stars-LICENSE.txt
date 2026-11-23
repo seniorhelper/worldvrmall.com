@@ -1,0 +1,5 @@
+data/night-stars.bin: the 7,885 stars brighter than magnitude 6.4 (Float32 records: right ascension and declination in radians, visual magnitude, B-V colour index).
+
+Derived from the HYG star database by David Nash (astronexus), https://github.com/astronexus/HYG-Database
+Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License: http://creativecommons.org/licenses/by-sa/4.0/
+This derived file is shared under the same licence.

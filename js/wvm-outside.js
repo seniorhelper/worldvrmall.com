@@ -2,6 +2,7 @@ import { WVM, THREE, makeEarth, earthDiscTexture, loadRiggedPerson, rand, pick, 
 import { initBot } from '/js/wvm-bot.js?v=59';
 import { ideaForm } from '/js/wvm-store.js?v=59';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { vrFog, skyDome, nightStars } from '/js/wvm-look.js?v=59';
 
 /* ------------------------------------------------------------
    OUTSIDE WORLD
@@ -24,9 +25,12 @@ const groundY = (x, z) => {
 const app = new WVM({
   worldName: 'Outside World · Welcome', page: 'index',
   spawn: new THREE.Vector3(40, 0, 136), spawnYaw: 0.29, groundY, bounds: 760, boundR: 604, viewCenter: [0, 40], beyond: [{ x: Math.sin(12 / 56 * Math.PI * 2) * 606, z: Math.cos(12 / 56 * Math.PI * 2) * 606, r: 15 }],
+  sky: '/images/lake-mountain-landscape-360-main', /* the mountain-lake photo was the day sky until 3731b19 (2026-10-04) swapped in a plain grey-blue one */
   fog: 0xbfdcf2, fogNear: 140, fogFar: 760, showSelfieOnFirstVisit: false, spriteFar: 75, cullDist: 800, maxDist: 1500, camFar: 7000, onTravel: (pl, ap) => { ROOF.on = false; leaveSky(ap); ap.level = 0; },
 });
 window.WVM_APP = app; // debug handle
+/* the look layer: mountain photo with its ridge lifted above the island horizon, real stars on the night photo, VR fog that keeps colour (js/wvm-look.js) */
+try { const NIGHT = '/images/realistic-night-sky-moon-stars-360'; skyDome(app, { '/images/lake-mountain-landscape-360-main': { lift: 0.075 }, [NIGHT]: { lift: 0, gain: 0.85 } }); nightStars(app, '/data/night-stars.bin', (a) => a.skyUrl === NIGHT); vrFog(app, 140, 1000); } catch (e) { console.warn('look', e); }
 
 /* hooks for the VR layer (the shared aou-xr/wvm-xr port reads these): arrival plate copy + accent, extra Go-menu rows */
 app.arrivalCfg = { name: 'World VR Mall', tagline: 'Walk in. Every store is real.', accent: '#22d3ee' };
@@ -165,7 +169,8 @@ function buildClouds() {
     if (i < 18) sp.position.set(rand(-110, 110), rand(30, 46), rand(-80, 80)); else sp.position.set(rand(-600, 600), rand(120, 220), rand(-600, 600));
     sp.userData.v = rand(0.4, 1.4); S.add(sp); clouds.push(sp);
   }
-  app.onUpdate((dt) => { for (const c of clouds) { c.position.x += c.userData.v * dt; if (c.position.x > 640) c.position.x = -640; } });
+  let cloudNight = null; /* sprites are unlit: at night they stayed paper-white against the stars; moonlit blue-grey instead (switched only when day/night flips) */
+  app.onUpdate((dt) => { if (cloudNight !== !!app.isNight) { cloudNight = !!app.isNight; for (const c of clouds) c.material.color.setHex(cloudNight ? 0x46506e : 0xffffff); } for (const c of clouds) { c.position.x += c.userData.v * dt; if (c.position.x > 640) c.position.x = -640; } });
 }
 
 /* ---------- teleport station (spawn) ---------- */
