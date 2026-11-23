@@ -111,7 +111,9 @@ export function bootShell(cfg) {
        2. no WebGL on this device            -> flat, nothing remembered (a capability, not a choice)
        3. ?vr=1 / ?xrsim=1 / ?mode=3d / a deep link (?to= ?ride= ?store= #mall #leasing) -> 3D
        4. a store page                       -> flat unless 3 applies (from a 3D page, app.go carries ?mode=3d, so you stay in 3D)
-       5. the home page (/, Nov 22 2026): flat unless 3D was chosen earlier in THIS tab (a door, the rail, any 3D page that booted);
+       5. the home page (/, Nov 22 2026): always flat. Only 3 turns it into 3D; the doors boot in place, in-world links carry ?mode=3d.
+          (It used to follow a "3D chosen earlier in this tab" flag; browsers restore that flag with restored and duplicated tabs, so a
+          laptop kept reopening / in 3D. A reload of / or a new tab now always shows the flat page.)
           other 3D pages: a flat choice made earlier in THIS tab (rail Browse, ?mode=flat) -> flat, else 3D (the default)
      Immersive VR never starts by itself: ?vr=1 shows the one-tap door, and a page change from inside the headset carries ?vr=1 plus a
      one-shot hop flag (sessionStorage) so the door says "Tap once · back into VR"; the tap is the user gesture the browser requires.
@@ -125,7 +127,7 @@ export function bootShell(cfg) {
   else if (!hasGL()) want3d = false;
   else if (vr || qm === '3d' || deep) want3d = true;
   else if (page === 'store') want3d = false;
-  else if (page === 'outside') want3d = savedMode() === '3d';
+  else if (page === 'outside') want3d = false;
   else want3d = savedMode() !== 'flat';
   /* the head script painted the dark stage when it expected 3D; a device without WebGL (or a store page in flat) takes it back at once */
   const html = document.documentElement;

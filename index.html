@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* home page (Nov 22 2026): / is a flat page by default and ships no 3D code. It turns into the 3D island, before the first paint, only when the visitor asked for it: ?mode=3d, ?vr=1, a deep link (?to= ?ride= ?store= #mall #leasing), or 3D chosen earlier in this tab (sessionStorage wvm_mode=3d, written by the doors, the nav and any 3D page that booted). ?mode=flat always wins. Same order as wvm-shell.js bootShell. */try{navigator.xr&&navigator.xr.addEventListener('sessiongranted',function(){window.__wvmXrGranted=1})}catch(e){}(function(){try{var d=document.documentElement,q=location.search,m=/[?&]mode=([^&]+)/.exec(q),s=null;try{localStorage.removeItem('wvm_mode')}catch(e){}try{s=sessionStorage.getItem('wvm_mode');if(m&&m[1]==='flat')sessionStorage.setItem('wvm_mode','flat')}catch(e){}var deep=/[?&](vr|xrsim|to|ride|store)=/.test(q)||location.hash==='#mall'||location.hash==='#leasing';var flat=m&&m[1]==='flat';if(!flat&&((m&&m[1]==='3d')||deep||s==='3d'))d.className+=' wvm-pre3d'}catch(e){}})()</script>
+<script>/* home page (Nov 22 2026): / is a flat page by default and ships no 3D code. It turns into the 3D island, before the first paint, only when the visitor asked for it: ?mode=3d, ?vr=1, a deep link (?to= ?ride= ?store= #mall #leasing). A plain / is always flat: no remembered mode (a tab flag came back with restored tabs and kept a laptop in 3D). ?mode=flat always wins. Same order as wvm-shell.js bootShell. */try{navigator.xr&&navigator.xr.addEventListener('sessiongranted',function(){window.__wvmXrGranted=1})}catch(e){}(function(){try{var d=document.documentElement,q=location.search,m=/[?&]mode=([^&]+)/.exec(q);try{localStorage.removeItem('wvm_mode')}catch(e){}try{if(m&&m[1]==='flat')sessionStorage.setItem('wvm_mode','flat')}catch(e){}var deep=/[?&](vr|xrsim|to|ride|store)=/.test(q)||location.hash==='#mall'||location.hash==='#leasing';var flat=m&&m[1]==='flat';if(!flat&&((m&&m[1]==='3d')||deep))d.className+=' wvm-pre3d'}catch(e){}})()</script>
 <style id="wvm-pre3d-css">html.wvm-pre3d,html.wvm-pre3d body{background:#030918}html.wvm-pre3d #wvm-stage{display:block!important;position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:radial-gradient(120% 80% at 50% 42%,#0f2a66 0%,#071433 52%,#030918 100%)}html.wvm-pre3d #wvm-stage::before{content:"WORLD VR MALL";position:absolute;left:0;right:0;top:calc(50% - 30px);text-align:center;font:800 clamp(18px,4vw,28px)/1 Poppins,"Segoe UI",system-ui,Arial,sans-serif;letter-spacing:.34em;text-indent:.34em;color:#eaf4ff;text-shadow:0 0 24px rgba(56,240,255,.45)}html.wvm-pre3d #wvm-stage::after{content:"";position:absolute;left:50%;top:calc(50% + 14px);width:168px;height:2px;margin-left:-84px;background:linear-gradient(90deg,#38f0ff 0 8%,rgba(56,240,255,.18) 8% 100%)}html.wvm-pre3d #scrollhint{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google-site-verification" content="sAWrIWTYeeSXWfTjl35DNPCRSVv8T1GZrmc8RXdCTRo" />
@@ -89,6 +89,7 @@
   .wvm-content h3{font-size:19px;margin:22px 0 6px;color:#fff}
   .wvm-content p,.wvm-content li,.wvm-content td,.wvm-content th{font-size:17px;color:#d7e6ff}
   .lead{font-size:19px!important;color:#fff!important;max-width:780px}
+  .wvm-content .tagline{margin:0 0 4px;font:700 clamp(17px,2vw,22px)/1.4 Poppins,"Segoe UI",Arial,sans-serif;color:#c6ff3d;max-width:40em}
   .doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:22px 0 24px}
   .door{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#d7e6ff;border-radius:18px;padding:20px 20px 18px;border:2px solid rgba(124,248,255,.45);background:linear-gradient(160deg,#0d1f4d,#071233);transition:transform .15s,border-color .15s}
   .door:hover{transform:translateY(-2px);border-color:#7cf8ff}
@@ -176,6 +177,7 @@
 
 <main class="wvm-content" id="about">
   <h1>World VR Mall: <span>a free virtual mall</span> with real stores</h1>
+  <p class="tagline">Explore real stores in 3D, then shop them on their real websites.</p>
   <section class="doors wvm-onlyflat" aria-label="Three ways to visit">
     <a class="door" href="#stores"><span class="k">Browse</span><b>Browse the mall</b>Stores, rides, places to see and how to rent a store, all on this page.<small>Opens instantly on any connection.</small><span class="go">Start browsing ↓</span></a>
     <a class="door d3" href="/?mode=3d" data-wvm-boot><span class="k">3D</span><b>Walk in 3D</b>Walk the island and the mall in your browser, then go into any store.<small>Phone, tablet or laptop. The first visit takes a little while to load.</small><span class="go">Walk in 3D →</span></a>

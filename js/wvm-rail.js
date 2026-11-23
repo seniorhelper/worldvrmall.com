@@ -121,6 +121,17 @@ ${ICON_CSS}
 .wvm-top .wvm-rail .wr-i span:not(.wr-badge){display:none}
 @media (min-width:821px) and (max-width:1180px){.wvm-top .wvm-rail{position:fixed;top:54px;left:10px;margin:0}}
 @media (min-width:821px) and (max-width:1060px){.wvm-rail .wr-aou b{display:none}}
+/* computers, flat pages (Nov 22 2026): the phone bar's look, which Zach prefers: big icon over its label, roomy tiles. The 3D HUD keeps the compact row. */
+@media (min-width:821px){
+  body:not(.wvm-3d) .wvm-rail:not(.wvm-top .wvm-rail) a,body:not(.wvm-3d) .wvm-rail:not(.wvm-top .wvm-rail) button{flex-direction:column;justify-content:center;gap:5px;padding:7px 12px;min-height:58px;font-size:12px}
+  body:not(.wvm-3d) .wvm-rail .wr-m i{width:30px;height:30px;flex-basis:30px}
+  body:not(.wvm-3d) .wvm-rail .wr-m i .hic{width:20px;height:20px}
+  body:not(.wvm-3d) .wvm-rail .wr-i .hic{width:22px;height:22px}
+  body:not(.wvm-3d) .wvm-rail .wr-aou img{width:28px;height:28px}
+  body:not(.wvm-3d) .wvm-rail .wr-aou>.hic{display:none}
+  body:not(.wvm-3d) .wvm-rail .wr-m.on{box-shadow:inset 0 -2px 0 var(--rac)}
+  body:not(.wvm-3d) .wvm-rail .wr-link{align-self:center;margin-bottom:18px}
+}
 /* phones: one bottom bar, five slots */
 @media (max-width:820px){
   .wvm-rail.inline,.wvm-rail.fixed,.wvm-top .wvm-rail{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;margin:0;gap:0;padding:0 0 env(safe-area-inset-bottom);background:#0b1a3a;border-top:1px solid var(--rline);box-shadow:0 -8px 24px rgba(2,8,30,.45);display:grid;grid-template-columns:3fr 1fr 1fr}
