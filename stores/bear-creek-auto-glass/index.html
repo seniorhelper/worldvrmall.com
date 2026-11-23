@@ -5,15 +5,15 @@
 <script>/* launch (Oct 25 2026): flat or 3D is decided here, before the first paint, in the order wvm-shell.js bootShell uses. A flat choice on / or /mall/ goes to the Mall feed before anything draws; a page that will boot the 3D world paints its dark stage at once (html.wvm-pre3d) instead of flashing the flat page, a white screen and a white loader in turn. */try{navigator.xr&&navigator.xr.addEventListener('sessiongranted',function(){window.__wvmXrGranted=1})}catch(e){}(function(){try{var P='store',d=document.documentElement,q=location.search,m=/[?&]mode=([^&]+)/.exec(q),s=null;try{localStorage.removeItem('wvm_mode')}catch(e){}try{s=sessionStorage.getItem('wvm_mode');if(m&&m[1]==='flat')sessionStorage.setItem('wvm_mode','flat')}catch(e){}var deep=/[?&](vr|xrsim|to|ride|store)=/.test(q)||location.hash==='#mall'||location.hash==='#leasing';var flat=(m&&m[1]==='flat')||(!m&&s==='flat'&&!deep);if(P!=='store'&&flat){location.replace('/feed/');return}if(P==='store'?((m&&m[1]==='3d')||deep):!flat)d.className+=' wvm-pre3d'}catch(e){}})()</script>
 <style id="wvm-pre3d-css">html.wvm-pre3d,html.wvm-pre3d body{background:#030918}html.wvm-pre3d #wvm-stage{display:block!important;position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:radial-gradient(120% 80% at 50% 42%,#0f2a66 0%,#071433 52%,#030918 100%)}html.wvm-pre3d #wvm-stage::before{content:"WORLD VR MALL";position:absolute;left:0;right:0;top:calc(50% - 30px);text-align:center;font:800 clamp(18px,4vw,28px)/1 Poppins,"Segoe UI",system-ui,Arial,sans-serif;letter-spacing:.34em;text-indent:.34em;color:#eaf4ff;text-shadow:0 0 24px rgba(56,240,255,.45)}html.wvm-pre3d #wvm-stage::after{content:"";position:absolute;left:50%;top:calc(50% + 14px);width:168px;height:2px;margin-left:-84px;background:linear-gradient(90deg,#38f0ff 0 8%,rgba(56,240,255,.18) 8% 100%)}html.wvm-pre3d #scrollhint{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bear Creek Auto Glass in World VR Mall | Windshield Replacement</title>
-<meta name="description" content="Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes, often sam.">
+<title>Bear Creek Auto Glass in World VR Mall | Windshields</title>
+<meta name="description" content="Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes.">
 <link rel="canonical" href="https://worldvrmall.com/stores/bear-creek-auto-glass/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#050b1c">
 <link rel="icon" href="/images/world-vr-mall-favicon.png">
 <meta property="og:type" content="website"><meta property="og:site_name" content="World VR Mall">
-<meta property="og:title" content="Bear Creek Auto Glass — Windshield Replacement · Littleton, Colorado | World VR Mall">
-<meta property="og:description" content="Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes, often sam. Walk into the 3D store, see the products, and buy direct from Bear Creek Auto Glass.">
+<meta property="og:title" content="Bear Creek Auto Glass in World VR Mall | Windshields">
+<meta property="og:description" content="Littleton, Colorado auto glass and windshield replacement. Free mobile service across the Denver metro, all insurance accepted, free quotes.">
 <meta property="og:url" content="https://worldvrmall.com/stores/bear-creek-auto-glass/">
 <meta property="og:image" content="https://worldvrmall.com/images/virtual-reality-stores.jpg">
 <meta name="twitter:card" content="summary_large_image">

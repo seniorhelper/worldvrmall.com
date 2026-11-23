@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About World VR Mall | The Story Behind the Virtual Mall</title>
-<meta name="description" content="World VR Mall is a free 3D virtual shopping mall built in Denver and open to the world: independent stores from every continent, a park with roller coasters.">
+<meta name="description" content="World VR Mall is a free 3D virtual shopping mall built in Denver and open to the world: independent stores from every continent and a park with coasters.">
 <link rel="canonical" href="https://worldvrmall.com/about/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#050b1c">
@@ -57,6 +57,7 @@
 <style>.wvm-railrow{display:flex;justify-content:center;padding:8px 10px 0}@media(max-width:820px){.wvm-railrow{padding:0}}</style>
 <style>@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}</style>
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/*?*vr=*"}},{"not":{"href_matches":"/*?*xrsim=*"}}]},"eagerness":"moderate"}]}</script>
+<style>.crumbs{font-size:14px;line-height:1.4;margin:0 0 12px;opacity:.92}.crumbs a{text-decoration:none}.crumbs a:hover{text-decoration:underline}</style>
 </head>
 <body>
 <header>
@@ -66,6 +67,7 @@
 <div class="wvm-railrow" id="railrow"></div>
 
 <section class="hero">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">World VR Mall</a> › <span aria-current="page">About</span></nav>
   <div class="globe" aria-hidden="true"></div>
   <h1>One mall. <span>Every country.</span> Open to everyone.</h1>
   <p class="lead">World VR Mall is what shopping looks like when it's a place instead of a page: a 3D mall you walk through, where a Denver brand and a Bangkok brand are neighbors, and the park outside has three roller coasters.</p>
@@ -99,11 +101,12 @@
     <li><b>VR headset:</b> open the same address in the headset browser and tap Enter VR.</li>
   </ul>
   <p>Tip: tap the 🗺️ directory kiosk inside the atrium and it will walk you to any wing.</p>
+  <p>Longer guides: what we mean by a <a href="/virtual-shopping-mall/">virtual shopping mall you walk through</a>, visiting <a href="/vr-shopping-mall/">in a VR headset</a>, the <a href="/3d-virtual-mall/">3D mall on phones and laptops</a>, and why it is a <a href="/metaverse-mall/">metaverse mall without crypto</a>.</p>
 
   <h2 id="in-development">Still being built (and you can help)</h2>
   <div class="press" role="note"><b>🛠️ World VR Mall is in active development.</b> The mall is open and free to walk, but it is still under construction: new wings and stores arrive every week, and some things will look rough or break, especially in VR headsets. A sign stuck in a wall, a menu that won't open, a store that won't load: please tell us. A person reads every report.<div class="cta" style="justify-content:flex-start;margin-bottom:0"><a class="btn" href="/report-bug/?from=/about/">🐞 Report a bug</a></div></div>
 
-  <h2>Privacy, in one paragraph</h2>
+  <h2 id="privacy">Privacy, in one paragraph</h2>
   <p>You can visit without an account: your character, your selfie and your shopping list then live in your own browser and never leave your device. Live social (seeing other people live, hugs, messages, voice) is only for signed-in adults 18+ with an allofus.one account (one login for both sites). If you sign in, your date of birth stays private and only decides that access; your name, avatar and position are shared with other signed-in adults near you; a selfie face is shown to others only after an automated safety check; voice is push-to-talk, peer to peer and never recorded. When the one-time age check for voice and video is switched on, only its result is kept, never your picture or your ID. Reports and the record of what was reported are kept securely for our safety team. If you send a bug report, we get what you write, the page you were on and your browser type, plus your email only if you add it. We don't run ads. When you buy something, you're on the brand's website, under their policies, not ours. Details: <a href="/terms/#live">how we keep live social safe</a>.</p>
 
   <h2>For press and partners</h2>
@@ -116,7 +119,7 @@
   <details><summary>How do I visit in VR?</summary><p>Open worldvrmall.com in the browser on a VR headset and tap Enter VR. The same mall you see on a phone becomes fully immersive. No app to install.</p></details>
 
   <div class="cta" style="justify-content:flex-start"><a class="btn" href="/">Visit the mall</a><a class="btn hot" href="/lease/">Get your brand a store</a></div>
-  <footer><p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · <a href="/">Home</a> · <a href="/mall/">Inside the mall</a> · <a href="/lease/">Rent a store</a> · <a href="/virtual-store-for-small-business/">Virtual store for small business</a> · <a href="/press/">Press</a> · <a href="tel:18004818638">1-800-481-8638</a> · <a href="/report-bug/?from=/about/">Report a bug</a> · © 2026 World VR Mall.</p></footer>
+  <footer><p>World VR Mall · 1001 Bannock St #660, Denver, CO 80204 · <a href="/">Home</a> · <a href="/mall/">Inside the mall</a> · <a href="/lease/">Rent a store</a> · <a href="/virtual-store-for-small-business/">Virtual store for small business</a> · <a href="/press/">Press</a> · <a href="tel:18004818638">1-800-481-8638</a> · <a href="/guides/">Storefront Guides</a> · <a href="/report-bug/?from=/about/">Report a bug</a> · © 2026 World VR Mall.</p></footer>
 </main>
 <script type="module">import { watchEmoji, ICON_CSS } from "/js/wvm-icons.js?v=59"; const st = document.createElement("style"); st.textContent = ICON_CSS; document.head.appendChild(st); watchEmoji(document.body);</script>
 <style>.sig{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0 24px;font:600 13px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#94a3b8;position:relative;z-index:2}.sig a{color:inherit}.sig .h{display:inline-block;width:14px;height:14px;background:#ff2d55;transform:rotate(45deg);position:relative;animation:sigbeat 1.2s infinite}.sig .h:before,.sig .h:after{content:"";position:absolute;width:14px;height:14px;background:#ff2d55;border-radius:50%}.sig .h:before{left:-7px}.sig .h:after{top:-7px}@keyframes sigbeat{0%,100%{transform:rotate(45deg) scale(1)}50%{transform:rotate(45deg) scale(1.2)}}</style><div class="sig"><span class="h"></span><a href="https://eyetoad.com/" rel="nofollow">Need a website?</a></div>
