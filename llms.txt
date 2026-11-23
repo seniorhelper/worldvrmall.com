@@ -107,3 +107,11 @@ Public, read-only JSON files that power the mall. Plain GET, no key needed. Pric
 - [/data/stores.json](https://worldvrmall.com/data/stores.json): the store list. Top-level keys: wings (wing names and blurbs), stores, placeholders (open spaces waiting for a brand), booths. Each store has slug, name, tag, city, wing, url (the brand's own site), phone, about and products (title, price, url, desc). Stores whose url is /lease/ are sample shops, not real businesses.
 - [/data/offers.json](https://worldvrmall.com/data/offers.json): current real offers as written on each store's page or storefront. Keys: updated (date), note, offers (store slug, name, title, detail, price, url, kind: coupon, deal or free, where it shows in the mall).
 - [/data/new-stores.json](https://worldvrmall.com/data/new-stores.json): stores added most recently, an array in the same shape as stores (slug, name, tag, city, wing, url, phone, about, products).
+
+## Storefront Guides
+
+- [Storefront Guides](https://worldvrmall.com/guides/): Plain answers about 3D storefronts, virtual shopping and selling online, with every number sourced.
+- [AR and VR shopping in 2026: what shoppers actually do](https://worldvrmall.com/guides/ar-vr-shopping-statistics-2026/): The 2026 numbers on AR and VR shopping: how many people use it, on which devices, and what that means for a small store deciding where to show up.
+- [Do you need a VR headset to shop in a virtual mall?](https://worldvrmall.com/guides/do-you-need-a-vr-headset/): No. A browser-based 3D mall works on a phone or laptop. Here is what each device gets you, which browsers support VR, and how to try it in a minute.
+- [What a 3D virtual storefront costs a small business in 2026](https://worldvrmall.com/guides/virtual-store-cost/): What a walk-in 3D storefront costs a small business in 2026, with our full price list, add-ons, and what you still need to sell online.
+- [What a virtual shopping mall actually is (and what it is not)](https://worldvrmall.com/guides/what-is-a-virtual-shopping-mall/): Where the virtual mall idea came from, the four things that make an online place a mall, and what it is not: a marketplace, a VR-only app or crypto.
