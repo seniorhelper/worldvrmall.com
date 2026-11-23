@@ -111,7 +111,8 @@ export function bootShell(cfg) {
        2. no WebGL on this device            -> flat, nothing remembered (a capability, not a choice)
        3. ?vr=1 / ?xrsim=1 / ?mode=3d / a deep link (?to= ?ride= ?store= #mall #leasing) -> 3D
        4. a store page                       -> flat unless 3 applies (from a 3D page, app.go carries ?mode=3d, so you stay in 3D)
-       5. a flat choice made earlier in THIS tab (rail Feed tab, ?mode=flat) -> flat, else 3D (the default)
+       5. the home page (/, Nov 22 2026): flat unless 3D was chosen earlier in THIS tab (a door, the rail, any 3D page that booted);
+          other 3D pages: a flat choice made earlier in THIS tab (rail Browse, ?mode=flat) -> flat, else 3D (the default)
      Immersive VR never starts by itself: ?vr=1 shows the one-tap door, and a page change from inside the headset carries ?vr=1 plus a
      one-shot hop flag (sessionStorage) so the door says "Tap once · back into VR"; the tap is the user gesture the browser requires.
      Nothing else is remembered: no localStorage mode flag (it went stale), the hop flag is dropped on any page without ?vr=1, and
@@ -124,6 +125,7 @@ export function bootShell(cfg) {
   else if (!hasGL()) want3d = false;
   else if (vr || qm === '3d' || deep) want3d = true;
   else if (page === 'store') want3d = false;
+  else if (page === 'outside') want3d = savedMode() === '3d';
   else want3d = savedMode() !== 'flat';
   /* the head script painted the dark stage when it expected 3D; a device without WebGL (or a store page in flat) takes it back at once */
   const html = document.documentElement;
@@ -137,20 +139,24 @@ export function bootShell(cfg) {
 
   /* the "Walk in · 3D" bar at the top of the flat content, and any [data-wvm-boot] button */
   const main = document.querySelector('main');
-  if (main) {
+  /* the home page carries its own three doors in the HTML, so it gets no bar */
+  if (main && page !== 'outside') {
     const bar = document.createElement('div'); bar.className = 'wvm-flatbar';
     const what = page === 'store' ? 'See this store in 3D: walk in, tap the shelves, meet the clerk.' : page === 'mall' ? 'Walk the mall in 3D: every wing, every store, the food court and the kids\' zone.' : 'Walk the island in 3D: the mall, three coasters, the lake, the zoo and the beach.';
     bar.innerHTML = `<b>${what}</b><button class="btn" data-wvm-boot>${I('🧊')}<span>${page === 'store' ? 'View in 3D' : 'Walk in · 3D'}</span></button><a class="btn alt" href="${page === 'outside' ? '/?vr=1' : location.pathname + '?vr=1'}">${I('🕶')}<span>VR</span></a>${page === 'store' ? '' : '<a class="btn alt" href="/feed/">' + I('📰') + '<span>Mall feed</span></a>'}`;
     main.prepend(bar);
   }
-  document.addEventListener('click', (e) => { const b = e.target.closest('[data-wvm-boot]'); if (!b) return; e.preventDefault(); setMode('3d'); if (S.booted) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } boot(); });
+  document.addEventListener('click', (e) => { const vb = e.target.closest('[data-wvm-vr]'); if (vb) { e.preventDefault(); enterVR(); return; } const b = e.target.closest('[data-wvm-boot]'); if (!b) return; e.preventDefault(); setMode('3d'); if (S.booted) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } boot(); });
 
   /* the stage keeps the dark loading picture (html.wvm-pre3d) until the engine's own loader, styled the same, has faded out */
   const settle = (app) => { const L = app && app.loader; if (!L) { html.classList.remove('wvm-pre3d'); return; } const done = () => { if (L.classList.contains('off')) { html.classList.remove('wvm-pre3d'); mo.disconnect(); } }; const mo = new MutationObserver(done); mo.observe(L, { attributes: true, attributeFilter: ['class'] }); done(); };
 
   async function boot() {
     if (S.booted) return S.app; S.booted = true;
+    /* a 3D page that boots marks this tab as 3D, so links to / inside the world keep you in 3D (the home page is flat by default) */
+    setMode('3d');
     html.classList.add('wvm-pre3d'); document.body.classList.add('wvm-3d'); window.scrollTo(0, 0);
+    try { if (rail && rail._sync) rail._sync(); } catch (e) { }
     for (const h of PRELOADS) { const l = document.createElement('link'); l.rel = 'modulepreload'; l.href = h; document.head.appendChild(l); }
     try {
       const m = await import(cfg.module);
@@ -170,7 +176,7 @@ export function bootShell(cfg) {
     app.arrivalCfg = app.arrivalCfg || { name: 'World VR Mall', tagline: 'Walk in. Every store is real.', accent: '#22d3ee' };
     const aouVR = () => app.go(aouUrl('/world/', { vr: '1' }), 'AllOfUs VR');
     const EXTRA = page === 'mall'
-      ? [['🌳 Outside · the island', () => app.go('/', 'Heading outside…')], ['🌍 AllOfUs VR', aouVR]]
+      ? [['🌳 Outside · the island', () => app.go('/?mode=3d', 'Heading outside…')], ['🌍 AllOfUs VR', aouVR]]
       : page === 'outside'
         ? [['🏬 Inside the mall', () => app.go('/mall/', 'Entering World VR Mall…')], ['🌍 AllOfUs VR', aouVR]]
         : [['🏬 Back to the mall', () => app.go('/mall/', 'Back to the mall…')], ['🌍 AllOfUs VR', aouVR]];
@@ -181,7 +187,7 @@ export function bootShell(cfg) {
     /* the shared Go menu lists every place that has a url */
     if (app.addPlace) {
       if (page !== 'mall') app.addPlace({ id: 'go-inside', name: 'Inside the mall', icon: '🏬', url: '/mall/', keys: 'inside mall enter stores', cat: 'Worlds', top: true, rank: 4 });
-      if (page !== 'outside') app.addPlace({ id: 'go-outside', name: 'Outside · the island', icon: '🌳', url: '/', keys: 'outside island park coasters lake beach zoo', cat: 'Worlds', top: true, rank: 4 });
+      if (page !== 'outside') app.addPlace({ id: 'go-outside', name: 'Outside · the island', icon: '🌳', url: '/?mode=3d', keys: 'outside island park coasters lake beach zoo', cat: 'Worlds', top: true, rank: 4 });
       app.addPlace({ id: 'go-allofus-vr', name: 'AllOfUs VR', icon: '🌍', url: aouUrl('/world/', { vr: '1' }), keys: 'allofus home social world', cat: 'Worlds', top: true, rank: 4 });
       app.addPlace({ id: 'go-allofus', name: 'AllOfUs · home', icon: '🌍', url: aouUrl('/'), keys: 'allofus home feed social', cat: 'Worlds', rank: 5 });
     }
@@ -230,7 +236,7 @@ export function bootShell(cfg) {
       const quietArrival = (cfg) => { const H = { active: false, card: false, parts: null, k: () => 0, skip: () => { }, dismiss: () => { }, done: () => { if (H._d) return; H._d = true; try { cfg.onDone && cfg.onDone(); } catch (e) { } } }; setTimeout(() => H.done(), 0); return H; };
       const pickArrival = (a, cfg) => { let seen = false, hopped = false; try { seen = sessionStorage.getItem('wvm_arrival_seen') === '1'; hopped = sessionStorage.getItem('wvm_vr_hopped') === '1'; sessionStorage.removeItem('wvm_vr_hopped'); } catch (e) { } let H = null; /* Help → Replay: the long version */ if (cfg.replay) { if (seedMod) { try { H = seedMod.seedArrival(a, cfg); } catch (e) { console.warn('seed arrival', e); } } if (!H && arr && arr.mallArrival) { try { H = arr.mallArrival(a, cfg); } catch (e) { console.warn('mall arrival', e); } } } /* every entry: 4 s the first time, 0.8 s after a page hop inside VR or a second entry in this browser session ('seen' is written by the arrival itself once the mark has lit) */ if (!H && arr2) { try { H = arr2.arrival2(a, Object.assign(cfg, { short: (seen || hopped) && !cfg.replay, logoUrl: '/images/world-vr-mall-logo-600.png' })); } catch (e) { console.warn('arrival2', e); } } return H || quietArrival(cfg); };
       const AOU_WORLDS = [['🌍 AllOfUs · the 3D world (VR)', aouUrl('/world/', { vr: '1' })], ['📰 AllOfUs · the feed', aouUrl('/')], ['🪐 The VR Galaxy', 'https://thevrgalaxy.com/'], ['🌀 Another Dimension', 'https://anotherdimensionvr.com/'], ['🧭 VR Adventure', 'https://virtualrealityadventure.com/'], ['✈️ Flight Simulator', 'https://vrflyingsimulator.com/'], ['💥 Comics Come Alive', 'https://comicscomealive.com/'], ['🍔 Sparkle Diner', 'https://advertisingforrestaurant.com/']];
-      const WORLDS = (page === 'mall' ? [['🏝️ World VR Mall · the island', '/']] : page === 'outside' ? [['🏬 World VR Mall · inside', '/mall/']] : [['🏬 World VR Mall · inside', '/mall/'], ['🏝️ World VR Mall · the island', '/']]).concat(AOU_WORLDS);
+      const WORLDS = (page === 'mall' ? [['🏝️ World VR Mall · the island', '/?mode=3d']] : page === 'outside' ? [['🏬 World VR Mall · inside', '/mall/']] : [['🏬 World VR Mall · inside', '/mall/'], ['🏝️ World VR Mall · the island', '/?mode=3d']]).concat(AOU_WORLDS);
       /* links to allofus.one carry the signed-in session (same Supabase project) in the fragment, never to a server */
       const signAou = (u) => { try { const x2 = new URL(u, location.href); if (/(^|\.)allofus\.one$/i.test(x2.hostname) && !x2.hash) { const params = {}; x2.searchParams.forEach((v2, k2) => { params[k2] = v2; }); return aouUrl(x2.pathname, params); } } catch (e) { } return u; };
       const bugPost = (row) => { try { import('/js/wvm-config.js?v=59').then(m => { const C = m.CONFIG || {}; if (!C.SUPABASE_URL || !C.SUPABASE_ANON_KEY) return; return fetch(C.SUPABASE_URL + '/rest/v1/bugs', { method: 'POST', headers: { apikey: C.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }); }).catch(() => { }); } catch (e) { } };

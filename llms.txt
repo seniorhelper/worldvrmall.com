@@ -14,7 +14,7 @@
 - Mall layout: Grand Lobby, Americas Wing, Europe Wing, Asia & Islands Wing, Global Food Court, Kids' Discovery Zone, Aquarium Garden, Sky Deck. A roller coaster (the Mall Blaster) runs through the mall interior.
 
 ## Pages
-- [Outside world / home](https://worldvrmall.com/): teleport station, park, coasters, lake, market, train, airport, playground; FAQ.
+- [Home](https://worldvrmall.com/): a fast flat page that needs no JavaScript: what the mall is, every store with a link to its page, rides and places to see, how renting a store works, FAQ. Three doors at the top: Browse (this page), Walk in 3D (/?mode=3d: the island with the teleport station, park, coasters, lake, market, train, airport, playground) and Enter VR (/?vr=1, headset browsers).
 - [Mall feed](https://worldvrmall.com/feed/): the flat mode: new and featured stores, current real offers (data/offers.json), prize hunt status, directory search, one-tap walk-in to 3D or VR. Loads without the 3D engine.
 - [Inside the mall](https://worldvrmall.com/mall/): all wings, stores, food court, kids' zone, store rental office; full store directory.
 - [Rent a store](https://worldvrmall.com/lease/): what a storefront includes, placement tiers, setup steps, callback form.

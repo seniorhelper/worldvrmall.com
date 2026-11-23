@@ -69,7 +69,7 @@ ${ICON_CSS}
 .wvm-rail .wr-m i{display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex:0 0 26px;color:#06122b;clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);opacity:.78;transition:opacity .15s,transform .15s}
 .wvm-rail .wr-m i .hic{width:17px;height:17px;--hic-ac:#06122b}
 .wvm-rail .wr-m[data-m="feed"] i{background:#c6ff3d}.wvm-rail .wr-m[data-m="3d"] i{background:#19e3b1}.wvm-rail .wr-m[data-m="vr"] i{background:#5fb2ff}
-.wvm-rail .wr-m span{letter-spacing:.02em}
+.wvm-rail .wr-m span{letter-spacing:.02em}.wvm-rail .wr-lg{font-style:normal}@media (max-width:820px){.wvm-rail .wr-lg{display:none}}body.wvm-3d .wvm-rail .wr-lg{display:none}.wvm-rail a:focus-visible,.wvm-rail button:focus-visible{outline:2px solid #ffd23f;outline-offset:2px}
 .wvm-rail .wr-m:hover{color:#fff}.wvm-rail .wr-m:hover i{opacity:1;transform:translateY(-1px)}
 .wvm-rail .wr-m.on{color:#fff}.wvm-rail .wr-m.on i{opacity:1;box-shadow:0 0 0 2px #fff inset}
 .wvm-rail .wr-m.on span{text-shadow:0 0 12px rgba(56,240,255,.7)}
@@ -195,7 +195,9 @@ try { const q = window.WVM_NAV_Q; window.WVM_NAV = WVM_NAV; if (Array.isArray(q)
 function currentMode(page) {
   try { const app = window.WVM_APP; if (app && app.renderer && app.renderer.xr && app.renderer.xr.isPresenting) return 'vr'; } catch (e) { }
   if (page === 'feed') return 'feed';
-  if (page === 'outside' || page === 'mall') return '3d';
+  if (page === 'mall') return '3d';
+  /* the home page is flat until the visitor walks in (Nov 22 2026): Browse is lit there, 3D once the engine is up */
+  if (page === 'outside') return document.body.classList.contains('wvm-3d') ? '3d' : 'feed';
   if ((page === 'store' || !page) && document.body.classList.contains('wvm-3d')) return '3d';
   return '';
 }
@@ -218,14 +220,14 @@ function headsetNote(rail, here3d) {
 export function mountRail(opts = {}) {
   ensureCSS();
   const page = opts.page || 'flat';
-  const here3d = page === 'outside' ? '/?mode=3d' : page === 'store' ? location.pathname + '?mode=3d' : '/mall/?mode=3d';
-  const hereVr = page === 'outside' ? '/?vr=1' : page === 'store' ? location.pathname + '?vr=1' : '/mall/?vr=1';
+  const here3d = page === 'outside' ? '/?mode=3d' : page === 'store' ? location.pathname + '?mode=3d' : page === 'mall' ? '/mall/?mode=3d' : '/?mode=3d';
+  const hereVr = page === 'outside' ? '/?vr=1' : page === 'store' ? location.pathname + '?vr=1' : page === 'mall' ? '/mall/?vr=1' : '/?vr=1';
   const rail = document.createElement('nav'); rail.id = 'wvm-modes'; rail.className = 'wvm-rail ' + (opts.into ? 'inline' : 'fixed'); rail.setAttribute('aria-label', 'World VR Mall');
   const mode = currentMode(page);
-  rail.innerHTML = `<div class="wr-box wr-modes" role="group" aria-label="Feed, 3D or VR">
-    <a class="wr-m${mode === 'feed' ? ' on' : ''}" data-m="feed" href="/feed/"${mode === 'feed' ? ' aria-current="page"' : ''}><i>${NICON.feed}</i><span>Feed</span></a><span class="wr-link" aria-hidden="true"></span>
-    <a class="wr-m${mode === '3d' ? ' on' : ''}" data-m="3d" href="${here3d}"${mode === '3d' ? ' aria-current="page"' : ''}><i>${NICON.cube}</i><span>3D</span></a><span class="wr-link" aria-hidden="true"></span>
-    <a class="wr-m${mode === 'vr' ? ' on' : ''}" data-m="vr" href="${hereVr}"><i>${NICON.vr}</i><span>VR</span></a>
+  rail.innerHTML = `<div class="wr-box wr-modes" role="group" aria-label="Browse, Walk in 3D or Enter VR">
+    <a class="wr-m${mode === 'feed' ? ' on' : ''}" data-m="feed" href="/" title="Browse the mall: a fast flat page"${mode === 'feed' ? ' aria-current="page"' : ''}><i>${NICON.feed}</i><span>Browse</span></a><span class="wr-link" aria-hidden="true"></span>
+    <a class="wr-m${mode === '3d' ? ' on' : ''}" data-m="3d" href="${here3d}" title="Walk in 3D"${mode === '3d' ? ' aria-current="page"' : ''}><i>${NICON.cube}</i><span><em class="wr-lg">Walk in </em>3D</span></a><span class="wr-link" aria-hidden="true"></span>
+    <a class="wr-m${mode === 'vr' ? ' on' : ''}" data-m="vr" href="${hereVr}" title="Enter VR (headset browser)"><i>${NICON.vr}</i><span><em class="wr-lg">Enter </em>VR</span></a>
   </div>
   <div class="wr-box wr-tail">
     <a class="wr-i wr-dir${page === 'directory' ? ' on' : ''}" data-m="dir" href="/directory/" title="Every store in the mall"${page === 'directory' ? ' aria-current="page"' : ''}>${NICON.dir}<span>Directory</span></a>
@@ -287,7 +289,7 @@ export function mountRail(opts = {}) {
     if (a.hasAttribute('data-go3d')) { setMode('3d'); rail._closeMore(); const S = window.WVM_SHELL; if (S && S.boot) { e.preventDefault(); S.boot(); } return; }
     const m = a.dataset.m;
     if (m === '3d') { setMode('3d'); const S = window.WVM_SHELL; if (S && S.boot && !S.booted && (page === 'outside' || page === 'mall' || page === 'store')) { e.preventDefault(); S.boot(); } return; }
-    if (m === 'feed') { setMode('flat'); return; }
+    if (m === 'feed') { setMode('flat'); if (page === 'outside' && !document.body.classList.contains('wvm-3d')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } return; }
     if (m === 'vr') {
       setMode('3d');
       if (isHandheld()) { e.preventDefault(); headsetNote(rail, here3d); return; }
