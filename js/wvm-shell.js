@@ -15,7 +15,7 @@
    here for every 3D page (outside, mall, store) once the renderer exists;
    ?vr=1 / ?xrsim=1 modulepreload it, ?vr=basic skips it.
    ============================================================ */
-import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me, isHandheld, NAV_VR_ROWS } from '/js/wvm-rail.js?v=59';
+import { mountRail, backChip, setMode, savedMode, aouUrl, ensureCSS, go, me, isHandheld, noVrHere, NAV_VR_ROWS } from '/js/wvm-rail.js?v=59';
 import { HICON } from '/js/wvm-icons.js?v=59';
 /* VR hand-over between pages: the head of each 3D page listens first (window.__wvmXrGranted); this is the second net. */
 try { if (navigator.xr && navigator.xr.addEventListener) navigator.xr.addEventListener('sessiongranted', () => { window.__wvmXrGranted = 1; }); } catch (e) { }
@@ -266,15 +266,18 @@ export function bootShell(cfg) {
   }
 
   function enterVR() {
-    setMode('3d');
     /* a phone or tablet would start Google Cardboard: the nav explains where VR runs instead */
-    if (isHandheld()) { const t = rail.querySelector('.wr-m[data-m="vr"]'); if (t) t.click(); return; }
-    if (!S.booted) { boot().then(() => { const w = setInterval(() => { const v = document.getElementById('wvm-vr'); if (!v) return; clearInterval(w); v.click(); }, 300); setTimeout(() => clearInterval(w), 20000); }); return; }
+    /* ...and so does a computer with no headset (it used to drop into plain 3D without a word) */
+    if (noVrHere()) { const t = rail.querySelector('.wr-m[data-m="vr"]'); if (t) t.click(); return; }
+    setMode('3d');
+    /* from a flat page: open the ?vr=1 door (3D loads, then one tap starts VR). Pressing the headset's VR button from code once the world has loaded
+       does not work: the headset starts VR only from a fresh tap, so the old way left Quest visitors in plain 3D. */
+    if (!S.booted) { try { const u = new URL(location.href); u.searchParams.delete('mode'); u.searchParams.set('vr', '1'); location.assign(u.pathname + u.search + u.hash); } catch (e) { } return; }
     const v = document.getElementById('wvm-vr'); if (v) v.click(); else if (S.app && S.app.toast) S.app.toast('Open this page in a headset browser (Quest) to enter VR.', 3500);
   }
 
   async function vrDoor(app, o = {}) {
-    if (isHandheld()) { try { const u = new URL(location.href); u.searchParams.delete('vr'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) { } if (app.toast) app.toast('VR runs in a headset browser (Meta Quest, Pico). On this device, 3D is the whole mall.', 5000); return; }
+    if (noVrHere()) { try { const u = new URL(location.href); u.searchParams.delete('vr'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } catch (e) { } if (app.toast) app.toast('VR runs in a headset browser (Meta Quest, Pico). On this device, 3D is the whole mall.', 5000); return; }
     let hop = !!o.hop; try { if (sessionStorage.getItem('wvm_vr_hop') === '1') hop = true; sessionStorage.removeItem('wvm_vr_hop'); } catch (e) { }
     try { const old = document.getElementById('wvm-door'); if (old) old.remove(); } catch (e) { }
     let chars = []; try { chars = (await import('/js/wvm-engine.js?v=59')).CHARACTERS || []; } catch (e) { }
@@ -287,7 +290,7 @@ export function bootShell(cfg) {
       /* the headset browser handed us the running VR session from the page we came from ('sessiongranted', caught in the page head and above):
          walk straight in, no tap. The door below still appears as the fallback and removes itself once VR is running. */
       if (xrGranted() && !window.__wvmXrAuto) { window.__wvmXrAuto = 1; let n = 0; const auto = setInterval(() => { const live = app.renderer && app.renderer.xr && app.renderer.xr.isPresenting; if (live || ++n > 40) { clearInterval(auto); return; } if (typeof v.onclick === 'function' && !v.disabled) { clearInterval(auto); try { app.vrBody(pref || sv.character || null); } catch (e) { } try { v.click(); } catch (e) { } } }, 150); }
-      const o = document.createElement('div'); o.id = 'wvm-door'; o.setAttribute('style', 'position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse at center,rgba(10,30,60,.8),rgba(2,6,16,.94));color:#fff;text-align:center;cursor:pointer;padding:24px;font-family:Poppins,Arial,sans-serif');
+      const o = document.createElement('div'); o.id = 'wvm-door'; o.setAttribute('style', /* full screen: cancel the old centred-card rule for #wvm-door (its translate(-50%,-50%) and clip-path pushed this sheet half off screen, the tap button into the top-left corner), and sit above the prize and welcome cards */ 'position:fixed;inset:0;transform:none;clip-path:none;border-radius:0;max-width:none;box-shadow:none;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse at center,rgba(10,30,60,.8),rgba(2,6,16,.94));color:#fff;text-align:center;cursor:pointer;padding:24px;font-family:Poppins,Arial,sans-serif');
       o.innerHTML = `<button type="button">${I('🕶')}<span>${o.text || (hop ? 'Tap once · back into VR' : 'Tap to enter VR')}</span></button>${o.sub ? '<small>' + o.sub + '</small>' : hop ? '<small>the headset needs one tap after a page change</small>' : ''}` +
         (chars.length ? `<label>Body in VR <select>${chars.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.name}</option>`).join('')}</select></label>` : '');
       const sel = o.querySelector('select'); if (sel) sel.onchange = () => app.vrBody(sel.value);
