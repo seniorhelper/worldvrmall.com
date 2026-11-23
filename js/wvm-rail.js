@@ -56,6 +56,13 @@ export const isHeadsetUA = () => /OculusBrowser|Quest|Pico|Wolvic|VR\b|XR\b|Visi
 /* a phone or tablet that is not a headset: immersive VR there means Google Cardboard (split screen, gaze pointer), which nobody wants */
 /* (a desktop-mode iPad and Apple Vision Pro both say 'Macintosh' with touch points; iPads have no WebXR anyway, so that case is left alone and Vision Pro keeps VR) */
 export const isHandheld = () => !isHeadsetUA() && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+/* can this browser start immersive VR? Asked once per page load, so a VR click can decide at once (the headset needs the tap itself, not a later one).
+   true: headset browser, ?xrsim=1 or a WebXR headset ready · false: no WebXR or no headset (a desktop with nothing plugged in) · null: not known yet */
+let VR_OK = null;
+try { if (isHeadsetUA() || /[?&]xrsim=1/.test(location.search)) VR_OK = true; else if (navigator.xr && navigator.xr.isSessionSupported) navigator.xr.isSessionSupported('immersive-vr').then((ok) => { VR_OK = !!ok; }, () => { VR_OK = false; }); else VR_OK = false; } catch (e) { VR_OK = false; }
+export const vrSupport = () => VR_OK;
+/* no VR here: a phone or tablet, or a computer without a headset */
+export const noVrHere = () => isHandheld() || VR_OK === false;
 
 export const RAIL_CSS = `
 ${ICON_CSS}
@@ -209,9 +216,10 @@ export function aouJump(page) {
   return { url: aouUrl('/'), label: 'allofus.one' };
 }
 
-/* VR on a phone: explain instead of starting Google Cardboard */
+/* VR where it cannot run (a phone, or a computer with no headset): explain instead of starting Google Cardboard or dropping into 3D without a word */
 function headsetNote(rail, here3d) {
-  rail._sheetHTML(`<p><b style="color:#fff">VR mode runs in a headset browser.</b><br>Open <b style="color:#7cf8ff">worldvrmall.com</b> in the browser on a Meta Quest, Pico or any WebXR headset and tap VR. On this ${/iPad|Tablet/i.test(navigator.userAgent) ? 'tablet' : 'phone'}, 3D is the whole mall.</p><div class="row"><a href="${here3d}" data-go3d>${NICON.cube}<span>Walk in · 3D</span></a><a class="alt" href="#" data-copy>${HICON['🔗'] || ''}<span>Copy link</span></a></div>`);
+  const dev = isHandheld() ? (/iPad|Tablet/i.test(navigator.userAgent) ? 'tablet' : 'phone') : 'computer';
+  rail._sheetHTML(`<p><b style="color:#fff">VR mode runs in a headset browser.</b><br>${dev === 'computer' ? 'No VR headset is connected to this computer. ' : ''}Open <b style="color:#7cf8ff">worldvrmall.com</b> in the browser on a Meta Quest, Pico or any WebXR headset and tap VR. On this ${dev}, 3D is the whole mall.</p><div class="row"><a href="${here3d}" data-go3d>${NICON.cube}<span>Walk in · 3D</span></a><a class="alt" href="#" data-copy>${HICON['🔗'] || ''}<span>Copy link</span></a></div>`);
 }
 
 /* Build the rail. opts.page: 'feed' | 'outside' | 'mall' | 'directory' | 'store' | 'flat'.
@@ -286,13 +294,14 @@ export function mountRail(opts = {}) {
     if (a.dataset.aouPath) return toAou(e, a.dataset.aouPath, a.dataset.aouVr === '1');
     if (a.dataset.nav) { const it = NAV_ITEMS.get(a.dataset.nav); rail._closeMore(); if (it) navActivate(it, e); return; }
     if (a.hasAttribute('data-copy')) { e.preventDefault(); const u = location.origin + (page === 'outside' ? '/' : location.pathname); try { navigator.clipboard.writeText(u).then(() => { a.querySelector('span').textContent = 'Copied'; }); } catch (x) { } return; }
-    if (a.hasAttribute('data-go3d')) { setMode('3d'); rail._closeMore(); const S = window.WVM_SHELL; if (S && S.boot) { e.preventDefault(); S.boot(); } return; }
+    if (a.hasAttribute('data-go3d')) { setMode('3d'); rail._closeMore(); const S = window.WVM_SHELL; let same = true; try { same = new URL(a.href, location.href).pathname === location.pathname; } catch (x) { } if (S && S.boot && same) { e.preventDefault(); S.boot(); } return; }
     const m = a.dataset.m;
     if (m === '3d') { setMode('3d'); const S = window.WVM_SHELL; if (S && S.boot && !S.booted && (page === 'outside' || page === 'mall' || page === 'store')) { e.preventDefault(); S.boot(); } return; }
     if (m === 'feed') { setMode('flat'); if (page === 'outside' && !document.body.classList.contains('wvm-3d')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } return; }
     if (m === 'vr') {
+      /* no VR here: the note, and the tab keeps its mode (a reload stays where it was) */
+      if (noVrHere()) { e.preventDefault(); headsetNote(rail, here3d); return; }
       setMode('3d');
-      if (isHandheld()) { e.preventDefault(); headsetNote(rail, here3d); return; }
       if (opts.vr) { e.preventDefault(); opts.vr(); return; }
       const app = window.WVM_APP; const v = document.getElementById('wvm-vr');
       if (app && app.renderer) { e.preventDefault(); if (v) v.click(); else if (app.toast) app.toast('VR runs in a headset browser (Meta Quest, Pico). Open worldvrmall.com there.', 3500); }
@@ -301,6 +310,13 @@ export function mountRail(opts = {}) {
     if (sheet.contains(a)) rail._closeMore();
   };
   rail.addEventListener('click', onClick); sheet.addEventListener('click', onClick);
+  /* every other VR link on the page (home doors, header nav, the feed's "Walk in · VR", the flat bar): where VR cannot run, the same note instead of a 3D page.
+     Capture phase, so it runs before the shell's own [data-wvm-vr] handler. */
+  if (!window.__wvmVrLinks) { window.__wvmVrLinks = 1; document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href*="vr=1"]'); if (!a || rail.contains(a) || sheet.contains(a)) return;
+    let u; try { u = new URL(a.href, location.href); } catch (x) { return; } if (u.origin !== location.origin || u.searchParams.get('vr') !== '1') return;
+    if (!noVrHere()) return; e.preventDefault(); e.stopImmediatePropagation(); u.searchParams.delete('vr'); u.searchParams.set('mode', '3d'); headsetNote(rail, u.pathname + u.search);
+  }, true); }
   /* phones: the bar is fixed to the viewport, so it lives on <body> (a sticky header with backdrop-filter would trap it);
      wide screens: inline in the header slot when one is given */
   const mq = matchMedia('(max-width:820px)');
