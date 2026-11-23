@@ -135,7 +135,7 @@ function filler(colors) {
 }
 
 /* ---------- lead form (hardened) ---------- */
-const LF = { a: 'aHR0cHM6Ly9mb3Jtc3VibWl0LmNvLw==', u: 'aW5mbw==', d: 'ZXlldG9hZC5jb20=' };
+/* Nov 22 2026: store and idea forms post to our own lead server (the retired third-party form service was blocked by the page's security policy, so they failed). */ const LEAD_URL = 'https://clients.eyetoad.com/lead/send.php'; const leadMeta = (fd, t0) => { fd.delete('_captcha'); fd.delete('_template'); fd.append('site', location.hostname.replace(/^www\./, '')); fd.append('page', location.pathname.slice(0, 300)); fd.append('_t', String(t0)); if (!fd.has('_subject')) fd.append('_subject', 'New lead - worldvrmall.com'); fd.append('lead_device', window.innerWidth < 760 ? 'phone' : 'desktop'); return fd; };
 let humanInput = false; const markHuman = () => { humanInput = true; };
 if (typeof window !== 'undefined') { addEventListener('keydown', markHuman, { once: true }); addEventListener('pointerdown', markHuman, { once: true }); }
 const inp = 'style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(124,248,255,.4);background:#050b1c;color:#fff;font:inherit;font-size:15px"';
@@ -157,9 +157,9 @@ export function leadForm(app, store, intro) {
     const name = f.name.value.trim(), phone = f.phone.value.trim();
     if (!name || !phone) { st.style.color = '#ff4f79'; st.textContent = 'Name and phone, please, so they can reach you.'; return; }
     if (f._honey.value || Date.now() - t0 < 3000 || !humanInput) { st.style.color = '#9fd3ff'; st.textContent = 'One sec, then try again.'; return; }
-    const url = atob(LF.a) + atob(LF.u) + String.fromCharCode(64) + atob(LF.d);
+    const url = LEAD_URL;
     st.style.color = '#9fd3ff'; st.textContent = 'Sending…';
-    fetch(url, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject(r)).then(() => { st.style.color = '#7cff6b'; st.textContent = 'Sent! Expect a call or email within one business day.'; }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. ' + (store.phone ? 'Please call ' + store.phone + '.' : 'Please use the website instead.'); });
+    fetch(url, { method: 'POST', body: leadMeta(new FormData(f), t0), headers: { Accept: 'application/json' }, credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject(r)).then((j) => { if (!j || !j.ok) throw 0; st.style.color = '#7cff6b'; st.textContent = 'Sent! Expect a call or email within one business day.'; }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. ' + (store.phone ? 'Please call ' + store.phone + '.' : 'Please use the website instead.'); });
   } }, ...(store.phone ? [{ label: '📞 ' + store.phone, href: 'tel:' + store.phone.replace(/[^\d+]/g, ''), newTab: true }] : [])]);
 }
 
@@ -181,8 +181,8 @@ export function ideaForm(app, kind = 'coaster') {
     if (f.idea.value.trim().length < 15) return bad('Tell us a little more about the idea (a sentence or two).');
     if (!f.agree.checked) return bad('Please tick the agreement box. We cannot accept ideas without it.');
     if (f._honey.value || Date.now() - t0 < 4000 || !humanInput) { st.style.color = '#9fd3ff'; st.textContent = 'One sec, then try again.'; return; }
-    if (f.dataset.sent) return; const url = atob(LF.a) + atob(LF.u) + String.fromCharCode(64) + atob(LF.d); st.style.color = '#9fd3ff'; st.textContent = 'Sending…';
-    fetch(url, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject(r)).then(() => { f.dataset.sent = '1'; st.style.color = '#7cff6b'; st.textContent = 'Got it! Thank you. If we build it, you will hear from us first.'; if (app.celebrate) app.celebrate('💡'); }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. Please try again in a minute.'; });
+    if (f.dataset.sent) return; const url = LEAD_URL; st.style.color = '#9fd3ff'; st.textContent = 'Sending…';
+    fetch(url, { method: 'POST', body: leadMeta(new FormData(f), t0), headers: { Accept: 'application/json' }, credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject(r)).then((j) => { if (!j || !j.ok) throw 0; f.dataset.sent = '1'; st.style.color = '#7cff6b'; st.textContent = 'Got it! Thank you. If we build it, you will hear from us first.'; if (app.celebrate) app.celebrate('💡'); }).catch(() => { st.style.color = '#ffd23f'; st.textContent = 'Could not confirm delivery. Please try again in a minute.'; });
   } }]);
 }
 

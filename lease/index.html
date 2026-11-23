@@ -122,7 +122,7 @@
 
   <h2 id="inquire">Request a callback</h2>
   <p>Prefer we call you? Fill this in and we'll reach out. No obligation, no pressure, real human.</p>
-  <form id="leaseForm" method="POST" novalidate data-a="aHR0cHM6Ly9mb3Jtc3VibWl0LmNvLw==" data-u="aW5mbw==" data-d="ZXlldG9hZC5jb20=">
+  <form id="leaseForm" method="POST" novalidate>
     <div class="row">
       <div><label for="f-name">Your name *</label><input id="f-name" name="name" required autocomplete="name"></div>
       <div><label for="f-biz">Business name *</label><input id="f-biz" name="business" required autocomplete="organization"></div>
@@ -166,9 +166,9 @@
     var name=f.name.value.trim(),biz=f.business.value.trim(),phone=f.phone.value.trim();
     if(!name||!biz||!phone){st.style.color='#ff4f79';st.textContent='Name, business, and phone are needed so we can call you back.';return;}
     if(f._honey.value||Date.now()-t0<3500||!human){st.style.color='#9fd3ff';st.textContent='Please take a moment and try again.';return;}
-    var url=atob(f.dataset.a)+atob(f.dataset.u)+String.fromCharCode(64)+atob(f.dataset.d);
+    /* Nov 22 2026: this form still posted to the retired third-party form service, which the page's own security policy blocks, so every request failed. It now posts to our own lead server like every other Eye To Ad form. */ var url='https://clients.eyetoad.com/lead/send.php'; function lead(fd){fd.delete('_captcha');fd.delete('_template');fd.append('site',location.hostname.replace(/^www\./,''));fd.append('page',location.pathname.slice(0,300));fd.append('_t',String(t0));if(!fd.has('_subject'))fd.append('_subject','New lead - worldvrmall.com');fd.append('lead_device',window.innerWidth<760?'phone':'desktop');return fd;}
     var fd=new FormData(f); st.style.color='#9fd3ff'; st.textContent='Sending…';
-    fetch(url,{method:'POST',body:fd,headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(){window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'lease'}}));st.style.color='#7cff6b';st.textContent='Got it. We\'ll call you within one business day. Talk soon!';f.reset();}).catch(function(){st.style.color='#ffd23f';st.textContent='Could not confirm delivery. Please call 1-800-481-8638 and we\'ll take it from there.';});
+    fetch(url,{method:'POST',body:lead(fd),credentials:'omit',headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(j){if(!j||!j.ok)throw 0;window.dispatchEvent(new CustomEvent('wvm-lead',{detail:{form:'lease'}}));st.style.color='#7cff6b';st.textContent='Got it. We\'ll call you within one business day. Talk soon!';f.reset();}).catch(function(){st.style.color='#ffd23f';st.textContent='Could not confirm delivery. Please call 1-800-481-8638 and we\'ll take it from there.';});
   });
 })();
 </script>

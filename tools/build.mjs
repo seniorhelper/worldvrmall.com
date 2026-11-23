@@ -105,7 +105,7 @@ function csp(hashes, inlineHandlers) {
     "font-src 'self' data: https://fonts.gstatic.com",
     'img-src \'self\' data: blob: https:',   // https: already covers the GA hosts
     'media-src \'self\' data: blob: https:',
-    `connect-src 'self' ${api} ${wss}${GA_CONNECT} data: blob:`,
+    `connect-src 'self' ${api} ${wss}${GA_CONNECT} https://clients.eyetoad.com data: blob:`,
     'frame-src https:',
     "worker-src 'self' blob:",
     "manifest-src 'self'",
