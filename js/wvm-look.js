@@ -27,6 +27,12 @@ export function vrFog(app, near, far) {
   app.onUpdate(() => { const f = app.scene.fog; if (!f || !R.xr.isPresenting) return; if (f.near === 40 && f.far === 240) { f.near = near; f.far = far; } });
 }
 
+/* VR draw distance for whole objects: the VR layer sets 220 m; an enclosed mall sees little past 140 m, but stores out there were still drawn (about half the mall's VR draw calls at the Grand Lobby). Only replaces the VR layer's 220; the VR layer puts the page's own value back on exit. */
+export function vrCull(app, dist) {
+  const R = app.renderer;
+  app.onUpdate(() => { if (R.xr.isPresenting && app.opts.cullDist === 220) app.opts.cullDist = dist; });
+}
+
 /* ---------- 3. sky dome ---------- */
 /* skies: { '/images/x': { lift: 0.075, gain: 1 } }: lift raises the photo's horizon (a fraction of the image height, 0.1 = 18°). */
 export function skyDome(app, skies) {
